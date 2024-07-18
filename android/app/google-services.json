@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "405435477239",
+    "project_id": "petsy-fde9e",
+    "storage_bucket": "petsy-fde9e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:405435477239:android:9cba80087ab30b2899f7f2",
+        "android_client_info": {
+          "package_name": "com.pyroanid.petsy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALe2IxtQ9cC797fhl8XGBos_HwvjN7FXM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
