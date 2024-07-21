@@ -346,7 +346,7 @@ class CustomRoute {
                   builder: (context, _) => builder(context, afParams),
                 )
               : builder(context, afParams);
-          final child = true
+          final child = appStateNotifier.loading
               ? Container(
                   width: 92.w,
                   padding: EdgeInsets.all(4.w),
@@ -365,7 +365,7 @@ class CustomRoute {
                     children: [
                       Center(
                         child: Lottie.asset(
-                          'assets/animation/splash_animation.json', // Replace with the path to your Lottie JSON file
+                          'assets/animation/splash_animation.json',
                           fit: BoxFit.cover,
                           width: 80.w, // Adjust the width and height as needed
                           height: 60.w,

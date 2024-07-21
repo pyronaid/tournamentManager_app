@@ -37,6 +37,7 @@ abstract class CustomFlowTheme {
   @Deprecated('Use tertiary instead')
   Color get tertiaryColor => tertiary;
 
+  late Color pawColor;
   late Color primary;
   late Color secondary;
   late Color tertiary;
@@ -127,9 +128,10 @@ class LightModeTheme extends CustomFlowTheme {
   @Deprecated('Use tertiary instead')
   Color get tertiaryColor => tertiary;
 
-  late Color primary = const Color(0xFF86C144);
-  late Color secondary = const Color(0xFF426A20);
-  late Color tertiary = const Color(0xFFD5EEBA);
+  late Color pawColor = const Color(0xFF00BF63);
+  late Color primary = const Color(0xFF448AFF);
+  late Color secondary = const Color(0xFF386EC8);
+  late Color tertiary = const Color(0xFF7CA3E4);
   late Color alternate = const Color(0xFFE0E3E7);
   late Color primaryText = const Color(0xFF272727);
   late Color secondaryText = const Color(0xFF797979);
@@ -300,9 +302,10 @@ class DarkModeTheme extends CustomFlowTheme {
   @Deprecated('Use tertiary instead')
   Color get tertiaryColor => tertiary;
 
-  late Color primary = const Color(0xFF86C144);
-  late Color secondary = const Color(0xFF426A20);
-  late Color tertiary = const Color(0xFFD5EEBA);
+  late Color pawColor = const Color(0xFF00BF63);
+  late Color primary = const Color(0xFF448AFF);
+  late Color secondary = const Color(0xFF386EC8);
+  late Color tertiary = const Color(0xFF7CA3E4);
   late Color alternate = const Color(0xFF22282F);
   late Color primaryText = const Color(0xFFFFFFFF);
   late Color secondaryText = const Color(0xFF999999);

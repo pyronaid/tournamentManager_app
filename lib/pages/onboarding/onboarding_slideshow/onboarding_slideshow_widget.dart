@@ -9,7 +9,7 @@ class OnboardingSlideshowWidget extends StatelessWidget {
       backgroundColor: Colors.greenAccent,
       body: Center(
         child: Text(
-          "Home Page",
+          "ONBOARDING",
           style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
