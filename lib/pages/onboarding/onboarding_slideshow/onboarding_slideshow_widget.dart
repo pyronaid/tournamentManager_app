@@ -384,6 +384,32 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                                     ],
                                   ),
                                 ),
+                                // DOT INDICATOR
+                                Align(
+                                  alignment: AlignmentDirectional(0, 1),
+                                  child: Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
+                                    child: smooth_page_indicator.SmoothPageIndicator(controller: _model.pageViewController ??= PageController(initialPage: 0),
+                                      count: 3,
+                                      axisDirection: Axis.horizontal,
+                                      onDotClicked: (i) async {
+                                        await _model.pageViewController!
+                                            .animateToPage(i, duration: Duration(milliseconds: 500), curve: Curves.ease,);
+                                        setState(() {});
+                                      },
+                                      effect: smooth_page_indicator.ExpandingDotsEffect(
+                                        expansionFactor: 3,
+                                        spacing: 10,
+                                        radius: 10,
+                                        dotWidth: 10,
+                                        dotHeight: 10,
+                                        dotColor: FlutterFlowTheme.of(context).secondaryText,
+                                        activeDotColor: FlutterFlowTheme.of(context).primaryText,
+                                        paintStyle: PaintingStyle.fill,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -393,12 +419,58 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                   ),
                 ),
               ),
+              //BUTON CONTINUE 
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+                      child: FFButtonWidget(
+                        onPressed: () async {
+                          logFirebaseEvent('ONBOARDING_SLIDESHOW_CONTINUE_BTN_ON_TAP');
+                          logFirebaseEvent('Button_haptic_feedback');
+                          HapticFeedback.lightImpact();
+                          if (_model.pageViewCurrentIndex == 2) {  
+                            logFirebaseEvent('Button_navigate_to');
+                            context.pushNamed('Onboarding');
+                          } else {
+                            logFirebaseEvent('Button_page_view');
+                            await _model.pageViewController?.nextPage(
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.ease,
+                            );
+                          }
+                        },
+                        text: 'Continua',
+                        options: FFButtonOptions(
+                          width: double.infinity,
+                          height: 50,
+                          padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                          iconPadding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                          color: FlutterFlowTheme.of(context).primary,
+                          textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                                    fontFamily: 'Inter',
+                                    letterSpacing: 0,
+                                  ),
+                          elevation: 0,
+                          borderSide: BorderSide(
+                            color: Colors.transparent,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        showLoadingIndicator: false,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
   }
-
-
 }
