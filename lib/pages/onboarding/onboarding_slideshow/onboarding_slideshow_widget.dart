@@ -257,6 +257,7 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                                     controller: _model.pageViewController ??= PageController(initialPage: 0),
                                     scrollDirection: Axis.horizontal,
                                     children: [
+                                      // FIRST ELEMENT OF CAUROSEL
                                       Column(
                                         mainAxisSize: MainAxisSize.max,
                                         mainAxisAlignment: MainAxisAlignment.center,
@@ -295,6 +296,88 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                                                         letterSpacing: 0,
                                                       ),
                                             ).animateOnPageLoad(animationsMap['textOnPageLoadAnimation2']!),
+                                          ),
+                                        ],
+                                      ),
+                                      // SECOND ELEMENT OF CAUROSEL
+                                      Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 32),
+                                            child: Text(
+                                              'Delicious and Nutritious Fresh Meals',
+                                              textAlign: TextAlign.center,
+                                              style: FlutterFlowTheme.of(context)
+                                                      .displaySmall
+                                                      .override(
+                                                        fontFamily: 'Inter',
+                                                        letterSpacing: 0,
+                                                      ),
+                                            ).animateOnPageLoad(animationsMap['textOnPageLoadAnimation3']!),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+                                            child: Image.asset(
+                                              'https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/meal-planner-3nia1o/assets/og5l0duupnzv/Chef_Cooking.png',
+                                              height: 250,
+                                              fit: BoxFit.contain,
+                                            ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation2']!),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsetsDirectional.fromSTEB(0, 48, 0, 0),
+                                            child: Text(
+                                              'Enjoy healthy and delicious meals delivered to your doorstep, prepared with fresh, high-quality ingredients.',
+                                              textAlign: TextAlign.center,
+                                              style: FlutterFlowTheme.of(context)
+                                                      .labelLarge
+                                                      .override(
+                                                        fontFamily: 'Inter',
+                                                        letterSpacing: 0,
+                                                      ),
+                                            ).animateOnPageLoad(animationsMap['textOnPageLoadAnimation4']!),
+                                          ),
+                                        ],
+                                      ),
+                                      // THIRD ELEMENT OF CAUROSEL
+                                      Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 32),
+                                            child: Text(
+                                              'Gourmet Quality,\nHassle-Free',
+                                              textAlign: TextAlign.center,
+                                              style: FlutterFlowTheme.of(context)
+                                                      .displaySmall
+                                                      .override(
+                                                        fontFamily: 'Inter',
+                                                        letterSpacing: 0,
+                                                      ),
+                                            ).animateOnPageLoad(animationsMap['textOnPageLoadAnimation5']!),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+                                            child: Image.asset(
+                                              'https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/meal-planner-3nia1o/assets/jevo7qiwpcte/Customers_Enjoy_Food.png',
+                                              height: 250,
+                                              fit: BoxFit.contain,
+                                            ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation3']!),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsetsDirectional.fromSTEB(0, 48, 0, 0),
+                                            child: Text(
+                                              'Savor chef-inspired meals without the hassle of cooking or cleaning up, with our gourmet meal delivery service.',
+                                              textAlign: TextAlign.center,
+                                              style: FlutterFlowTheme.of(context)
+                                                      .labelLarge
+                                                      .override(
+                                                        fontFamily: 'Inter',
+                                                        letterSpacing: 0,
+                                                      ),
+                                            ).animateOnPageLoad(animationsMap['textOnPageLoadAnimation6']!),
                                           ),
                                         ],
                                       ),
