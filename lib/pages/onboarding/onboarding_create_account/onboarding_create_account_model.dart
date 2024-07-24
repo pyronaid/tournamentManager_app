@@ -1,14 +1,10 @@
-import '/auth/firebase_auth/auth_util.dart';
-import '/backend/backend.dart';
-import '/components/custom_appbar_widget.dart';
+import '../../../app_flow/app_flow_model.dart';
+import '../../../app_flow/app_flow_util.dart';
 import 'onboarding_create_account_widget.dart' show OnboardingCreateAccountWidget;
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
+import '../../../components/custom_appbar_model.dart';
 
-class OnboardingCreateAccountModel extends FlutterFlowModel<OnboardingCreateAccountWidget> {
+class OnboardingCreateAccountModel extends CustomFlowModel<OnboardingCreateAccountWidget> {
   ///  State fields for stateful widgets in this page.
 
   final unfocusNode = FocusNode();

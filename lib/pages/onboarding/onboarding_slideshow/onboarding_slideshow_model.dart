@@ -1,8 +1,7 @@
 import '../../../app_flow/app_flow_model.dart';
 import '../../../components/custom_appbar_model.dart';
 import 'onboarding_slideshow_widget.dart' show OnboardingSlideshowWidget;
-import 'package:smooth_page_indicator/smooth_page_indicator.dart'
-    as smooth_page_indicator;
+import 'package:smooth_page_indicator/smooth_page_indicator.dart' as smooth_page_indicator;
 import 'package:flutter/material.dart';
 
 class OnboardingSlideshowModel extends CustomFlowModel<OnboardingSlideshowWidget> {

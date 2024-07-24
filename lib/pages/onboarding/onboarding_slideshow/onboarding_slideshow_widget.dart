@@ -445,7 +445,7 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                           HapticFeedback.lightImpact();
                           if (_model.pageViewCurrentIndex == 2) {  
                             logFirebaseEvent('Button_navigate_to');
-                            context.pushNamed('Onboarding');
+                            context.pushNamed('Onboarding_CreateAccount');
                           } else {
                             logFirebaseEvent('Button_page_view');
                             await _model.pageViewController?.nextPage(

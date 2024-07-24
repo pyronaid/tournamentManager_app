@@ -77,15 +77,11 @@ class CompanyInformationRecord extends FirestoreRecord {
     _termsURL = snapshotData['termsURL'] as String?;
   }
 
-  static CollectionReference get collection =>
-      FirebaseFirestore.instance.collection('company_information');
+  static CollectionReference get collection => FirebaseFirestore.instance.collection('company_information');
 
-  static Stream<CompanyInformationRecord> getDocument(DocumentReference ref) =>
-      ref.snapshots().map((s) => CompanyInformationRecord.fromSnapshot(s));
+  static Stream<CompanyInformationRecord> getDocument(DocumentReference ref) => ref.snapshots().map((s) => CompanyInformationRecord.fromSnapshot(s));
 
-  static Future<CompanyInformationRecord> getDocumentOnce(
-          DocumentReference ref) =>
-      ref.get().then((s) => CompanyInformationRecord.fromSnapshot(s));
+  static Future<CompanyInformationRecord> getDocumentOnce(DocumentReference ref) => ref.get().then((s) => CompanyInformationRecord.fromSnapshot(s));
 
   static CompanyInformationRecord fromSnapshot(DocumentSnapshot snapshot) =>
       CompanyInformationRecord._(
@@ -96,12 +92,10 @@ class CompanyInformationRecord extends FirestoreRecord {
   static CompanyInformationRecord getDocumentFromData(
     Map<String, dynamic> data,
     DocumentReference reference,
-  ) =>
-      CompanyInformationRecord._(reference, mapFromFirestore(data));
+  ) => CompanyInformationRecord._(reference, mapFromFirestore(data));
 
   @override
-  String toString() =>
-      'CompanyInformationRecord(reference: ${reference.path}, data: $snapshotData)';
+  String toString() => 'CompanyInformationRecord(reference: ${reference.path}, data: $snapshotData)';
 
   @override
   int get hashCode => reference.path.hashCode;

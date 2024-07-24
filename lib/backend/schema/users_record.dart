@@ -44,20 +44,10 @@ class UsersRecord extends FirestoreRecord {
   String get phoneNumber => _phoneNumber ?? '';
   bool hasPhoneNumber() => _phoneNumber != null;
 
-  // "diet" field.
-  String? _diet;
-  String get diet => _diet ?? '';
-  bool hasDiet() => _diet != null;
-
-  // "allergens" field.
-  List<String>? _allergens;
-  List<String> get allergens => _allergens ?? const [];
-  bool hasAllergens() => _allergens != null;
-
   // "ingredient_dislikes" field.
-  List<String>? _ingredientDislikes;
-  List<String> get ingredientDislikes => _ingredientDislikes ?? const [];
-  bool hasIngredientDislikes() => _ingredientDislikes != null;
+  List<String>? _genericList;
+  List<String> get genericList => _genericList ?? const [];
+  bool hasGenericList() => _genericList != null;
 
   void _initializeFields() {
     _email = snapshotData['email'] as String?;
@@ -66,9 +56,7 @@ class UsersRecord extends FirestoreRecord {
     _uid = snapshotData['uid'] as String?;
     _createdTime = snapshotData['created_time'] as DateTime?;
     _phoneNumber = snapshotData['phone_number'] as String?;
-    _diet = snapshotData['diet'] as String?;
-    _allergens = getDataList(snapshotData['allergens']);
-    _ingredientDislikes = getDataList(snapshotData['ingredient_dislikes']);
+    _genericList = getDataList(snapshotData['generic_list']);
   }
 
   static CollectionReference get collection =>
@@ -140,9 +128,7 @@ class UsersRecordDocumentEquality implements Equality<UsersRecord> {
         e1?.uid == e2?.uid &&
         e1?.createdTime == e2?.createdTime &&
         e1?.phoneNumber == e2?.phoneNumber &&
-        e1?.diet == e2?.diet &&
-        listEquality.equals(e1?.allergens, e2?.allergens) &&
-        listEquality.equals(e1?.ingredientDislikes, e2?.ingredientDislikes);
+        listEquality.equals(e1?.genericList, e2?.genericList);
   }
 
   @override
@@ -153,9 +139,7 @@ class UsersRecordDocumentEquality implements Equality<UsersRecord> {
         e?.uid,
         e?.createdTime,
         e?.phoneNumber,
-        e?.diet,
-        e?.allergens,
-        e?.ingredientDislikes
+        e?.genericList
       ]);
 
   @override
