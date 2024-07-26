@@ -1,3 +1,19 @@
+buildscript {
+    // TODO: you may need to update the kotlin_version
+    ext.kotlin_version = '1.9.22'
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        // TODO: you may need to update the gms_version
+        classpath 'com.google.gms:google-services:4.4.0'
+    }
+}
+
+
 allprojects {
     repositories {
         google()
