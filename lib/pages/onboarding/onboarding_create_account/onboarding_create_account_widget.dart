@@ -55,6 +55,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
           ? FocusScope.of(context).requestFocus(_model.unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         key: scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
@@ -467,7 +468,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                         ),
                                       ),
                                       const TextSpan(
-                                        text: 'di Petsy.',
+                                        text: ' di Petsy.',
                                         style: TextStyle(),
                                       ),
                                     ],

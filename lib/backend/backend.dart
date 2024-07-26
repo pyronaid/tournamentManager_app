@@ -226,7 +226,7 @@ Future<int> queryCollectionCount(
   }).then((value) => value.count!);
 }
 
-Stream<List<T>> queryCollection<T>(
+Stream<List<T>>   queryCollection<T>(
   Query collection,
   RecordBuilder<T> recordBuilder, {
   Query Function(Query)? queryBuilder,

@@ -31,7 +31,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
+              'you can reconfigure this by running the FlutterFire CLI again.',
         );
       default:
         throw UnsupportedError(
@@ -85,5 +85,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'petsy-fde9e.appspot.com',
     measurementId: 'G-CSL5938LDS',
   );
-
 }
