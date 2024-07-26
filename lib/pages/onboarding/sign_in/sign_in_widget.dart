@@ -5,12 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:petsy/pages/onboarding/sign_in/sign_in_model.dart';
 
-import '../../../app_flow/app_flow_model.dart';
 import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_util.dart';
 import '../../../app_flow/app_flow_widgets.dart';
 import '../../../auth/firebase_auth/auth_util.dart';
-import '../../../backend/firebase_analytics/analytics.dart';
 import '../../../components/custom_appbar_widget.dart';
 
 class SignInWidget extends StatefulWidget {
@@ -74,6 +72,7 @@ class _SignInWidgetState extends State<SignInWidget> {
           ? FocusScope.of(context).requestFocus(_model.unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         key: scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
@@ -83,7 +82,7 @@ class _SignInWidgetState extends State<SignInWidget> {
             children: [
               Expanded(
                 child: Padding(
-                  padding: EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -414,7 +413,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                               height: 50,
                               padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                               iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                              color: CustomFlowTheme.of(context).accent1,
+                              color: CustomFlowTheme.of(context).secondary,
                               textStyle: CustomFlowTheme.of(context)
                                   .bodyMedium
                                   .override(
