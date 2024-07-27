@@ -102,7 +102,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                                padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
                                 child: Text(
                                   'Nome completo',
                                   style: CustomFlowTheme.of(context)
@@ -256,7 +256,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                                padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
                                 child: Text(
                                   'Password',
                                   style: CustomFlowTheme.of(context)
@@ -371,15 +371,16 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                         await UsersRecord.collection.doc(user.uid).update({
                           ...createUsersRecordData(
                             displayName: _model.fullNameTextController.text,
+                            createdTime: DateTime.now(),
                           ),
+                          /*
                           ...mapToFirestore(
                             {
                             },
-                          ),
+                          ),*/
                         });
 
                         logFirebaseEvent('Button_navigate_to');
-
                         context.goNamedAuth('Dashboard', context.mounted);
                       },
                       text: 'Crea Account',
@@ -451,7 +452,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                   text: TextSpan(
                                     children: [
                                       TextSpan(
-                                        text: 'Cliccando \"Crea Account,\" accetti i ',
+                                        text: 'Cliccando "Crea Account," accetti i ',
                                         style: CustomFlowTheme.of(context)
                                             .bodySmall
                                             .override(

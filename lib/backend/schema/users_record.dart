@@ -99,7 +99,6 @@ Map<String, dynamic> createUsersRecordData({
   String? uid,
   DateTime? createdTime,
   String? phoneNumber,
-  String? diet,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -109,7 +108,6 @@ Map<String, dynamic> createUsersRecordData({
       'uid': uid,
       'created_time': createdTime,
       'phone_number': phoneNumber,
-      'diet': diet,
     }.withoutNulls,
   );
 

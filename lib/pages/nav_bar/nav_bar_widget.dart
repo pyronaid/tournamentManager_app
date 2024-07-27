@@ -30,6 +30,8 @@ class _NavBarPageState extends State<NavBarPage> {
   Widget build(BuildContext context) {
     final tabs = {
       'Dashboard': const ProfileWidget(),
+      'AboutUs': const ProfileWidget(),
+      'EditPreferences': const ProfileWidget(),
       'Profile': const ProfileWidget(),
     };
     final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
@@ -49,6 +51,42 @@ class _NavBarPageState extends State<NavBarPage> {
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.access_alarm_rounded,
+              size: 24.0,
+            ),
+            activeIcon: Icon(
+              Icons.access_alarm_rounded,
+              size: 24.0,
+            ),
+            label: 'Cat1',
+            tooltip: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.abc_rounded,
+              size: 24.0,
+            ),
+            activeIcon: Icon(
+              Icons.abc_rounded,
+              size: 24.0,
+            ),
+            label: 'Cat2',
+            tooltip: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.airplanemode_active_outlined,
+              size: 24.0,
+            ),
+            activeIcon: Icon(
+              Icons.airplanemode_active_rounded,
+              size: 24.0,
+            ),
+            label: 'Cat3',
+            tooltip: '',
+          ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.person_outline_rounded,
