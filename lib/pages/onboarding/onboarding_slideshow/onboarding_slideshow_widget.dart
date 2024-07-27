@@ -331,7 +331,7 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                                           Padding(
                                             padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
                                             child: Image.asset(
-                                              'assets/images/logo_slideshow_1.png',
+                                              'assets/images/logo_slideshow_2.png',
                                               height: 35.h,
                                               fit: BoxFit.contain,
                                             ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation2']!),

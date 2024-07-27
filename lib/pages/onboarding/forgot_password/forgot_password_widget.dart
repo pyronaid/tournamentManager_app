@@ -182,6 +182,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                                           fillColor: CustomFlowTheme
                                               .of(context)
                                               .secondaryBackground,
+                                          errorMaxLines: 2,
                                         ),
                                         style: CustomFlowTheme
                                             .of(context)
@@ -214,6 +215,11 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                           child: AFButtonWidget(
                             onPressed: () async {
                               logFirebaseEvent('FORGOT_PASSWORD_RESET_PASSWORD_BTN_ON_TA');
+                              logFirebaseEvent('Button_validate_form');
+                              if (_model.formKey.currentState == null ||
+                                  !_model.formKey.currentState!.validate()) {
+                                return;
+                              }
                               logFirebaseEvent('Button_haptic_feedback');
                               HapticFeedback.lightImpact();
                               logFirebaseEvent('Button_auth');

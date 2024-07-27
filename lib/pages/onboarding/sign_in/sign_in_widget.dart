@@ -100,7 +100,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
+                        padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                         child: Text(
                           'Accedi',
                           style: CustomFlowTheme.of(context)
@@ -118,13 +118,13 @@ class _SignInWidgetState extends State<SignInWidget> {
                           mainAxisSize: MainAxisSize.max,
                           children: [
                             Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
+                              padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
                               child: Column(
                                 mainAxisSize: MainAxisSize.max,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
                                     child: Text(
                                       'Email',
                                       style: CustomFlowTheme.of(context)
@@ -140,40 +140,49 @@ class _SignInWidgetState extends State<SignInWidget> {
                                     controller: _model.emailAddressTextController,
                                     focusNode: _model.emailAddressFocusNode,
                                     autofocus: false,
-                                    autofillHints: [AutofillHints.email],
+                                    autofillHints: const [AutofillHints.email],
                                     textInputAction: TextInputAction.next,
                                     obscureText: false,
                                     decoration: InputDecoration(
                                       enabledBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                          color: Color(0x00000000),
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme
+                                              .of(context)
+                                              .alternate,
                                           width: 1,
                                         ),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       focusedBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                          color: Color(0x00000000),
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme
+                                              .of(context)
+                                              .primary,
                                           width: 1,
                                         ),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       errorBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                          color: Color(0x00000000),
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme
+                                              .of(context)
+                                              .error,
                                           width: 1,
                                         ),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       focusedErrorBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                          color: Color(0x00000000),
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme
+                                              .of(context)
+                                              .error,
                                           width: 1,
                                         ),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       filled: true,
                                       fillColor: CustomFlowTheme.of(context).secondaryBackground,
+                                      errorMaxLines: 2,
                                     ),
                                     style: CustomFlowTheme.of(context)
                                       .bodyMedium
@@ -217,34 +226,42 @@ class _SignInWidgetState extends State<SignInWidget> {
                                     controller: _model.passwordTextController,
                                     focusNode: _model.passwordFocusNode,
                                     autofocus: false,
-                                    autofillHints: [AutofillHints.password],
+                                    autofillHints: const [AutofillHints.password],
                                     textInputAction: TextInputAction.done,
                                     obscureText: !_model.passwordVisibility,
                                     decoration: InputDecoration(
                                       enabledBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                          color: Color(0x00000000),
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme
+                                              .of(context)
+                                              .alternate,
                                           width: 1,
                                         ),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       focusedBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                          color: Color(0x00000000),
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme
+                                              .of(context)
+                                              .primary,
                                           width: 1,
                                         ),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       errorBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                          color: Color(0x00000000),
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme
+                                              .of(context)
+                                              .error,
                                           width: 1,
                                         ),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       focusedErrorBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                          color: Color(0x00000000),
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme
+                                              .of(context)
+                                              .error,
                                           width: 1,
                                         ),
                                         borderRadius: BorderRadius.circular(8),
@@ -266,6 +283,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                                           size: 18,
                                         ),
                                       ),
+                                      errorMaxLines: 2,
                                     ),
                                     style: CustomFlowTheme.of(context)
                                       .bodyMedium
@@ -292,6 +310,11 @@ class _SignInWidgetState extends State<SignInWidget> {
                         child: AFButtonWidget(
                           onPressed: () async {
                             logFirebaseEvent('SIGN_IN_PAGE_SIGN_IN_BTN_ON_TAP');
+                            logFirebaseEvent('Button_validate_form');
+                            if (_model.formKey.currentState == null ||
+                                !_model.formKey.currentState!.validate()) {
+                              return;
+                            }
                             logFirebaseEvent('Button_haptic_feedback');
                             HapticFeedback.lightImpact();
                             logFirebaseEvent('Button_auth');

@@ -152,6 +152,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                   ),
                                   filled: true,
                                   fillColor: CustomFlowTheme.of(context).secondaryBackground,
+                                  errorMaxLines: 2,
                                 ),
                                 style: CustomFlowTheme.of(context)
                                     .bodyMedium
@@ -227,6 +228,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                   ),
                                   filled: true,
                                   fillColor: CustomFlowTheme.of(context).secondaryBackground,
+                                  errorMaxLines: 2,
                                 ),
                                 style: CustomFlowTheme.of(context)
                                     .bodyMedium
@@ -319,6 +321,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                       size: 18,
                                     ),
                                   ),
+                                  errorMaxLines: 2,
                                 ),
                                 style: CustomFlowTheme.of(context)
                                     .bodyMedium
