@@ -241,12 +241,66 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                       ],
                                     ),
                                   ),
+                                  ///////////////////////////////////////
+                                  /////////////////////////////////////// LOGOUT
+                                  ///////////////////////////////////////
+                                  Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(0.0, 12.0, 0.0, 12.0),
+                                    child: InkWell(
+                                      splashColor: Colors.transparent,
+                                      focusColor: Colors.transparent,
+                                      hoverColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      onTap: () async {
+                                        logFirebaseEvent('PROFILE_PAGE_LogoutTile_ON_TAP');
+                                        logFirebaseEvent('LogoutTile_auth');
+                                        GoRouter.of(context).prepareAuthEvent();
+                                        await authManager.signOut();
+                                        GoRouter.of(context).clearRedirectLocation();
+
+                                        context.goNamedAuth('Splash', context.mounted);
+                                      },
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          Container(
+                                            width: 40.0,
+                                            height: 40.0,
+                                            decoration: BoxDecoration(
+                                              color: CustomFlowTheme.of(context).accent1,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(4.0),
+                                              child: Icon(
+                                                Icons.logout,
+                                                color: CustomFlowTheme.of(context).primary,
+                                                size: 18.0,
+                                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding:const EdgeInsetsDirectional.fromSTEB(18.0, 0.0, 0.0, 0.0),
+                                            child: Text(
+                                              'Log out',
+                                              style: CustomFlowTheme.of(context)
+                                                  .bodyLarge
+                                                  .override(
+                                                fontFamily: 'Inter',
+                                                letterSpacing: 0.0,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               );
                             },
                           ),
                         ),
-                      ],
+                      ].addToEnd(const SizedBox(height: 44.0)),
                     ),
                   ),
                 ),
