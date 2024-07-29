@@ -24,4 +24,15 @@ The certificate uses the SHA1withRSA signature algorithm which is considered a s
 
 GESTIONE DEI TESTI E DELLE LINGUE
 GESTIONE ACCESSO CON FIREBASE E OTP SU MAIL DA CONVALIDARE 
+         https://stackoverflow.com/questions/55371405/how-to-use-sendemailverification-method
+         await _auth.createUserWithEmailAndPassword (
+           email: //wherever you set their email,
+           password: //wherever you set their password,
+         ).then((FirebaseUser user) {
+           //If a user is successfully created with an appropriate email
+         if (user != null){
+           user.sendEmailVerification();
+         }
+         })
+         .catchError();
 ADD CREATE OWN TO ROUTER: CreateOwn AS ALREADY PRESENT ON AboutUs
