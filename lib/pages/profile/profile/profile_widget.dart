@@ -190,50 +190,38 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                       children: [
                                         Padding(
                                           padding:const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
-                                          child: InkWell(
-                                            splashColor: Colors.transparent,
-                                            focusColor: Colors.transparent,
-                                            hoverColor: Colors.transparent,
-                                            highlightColor: Colors.transparent,
-                                            onTap: () async {
-                                              logFirebaseEvent('PROFILE_PAGE_Row_ya8doloq_ON_TAP');
-                                              logFirebaseEvent('Row_navigate_to');
-
-                                              context.pushNamed('EditProfile');
-                                            },
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              children: [
-                                                Container(
-                                                  width: 40,
-                                                  height: 40,
-                                                  decoration: BoxDecoration(
-                                                    color: CustomFlowTheme.of(context).accent1,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(4),
-                                                    child: Icon(
-                                                      Icons.person_outline_rounded,
-                                                      color:CustomFlowTheme.of(context).primary,
-                                                      size: 20,
-                                                    ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              Container(
+                                                width: 40,
+                                                height: 40,
+                                                decoration: BoxDecoration(
+                                                  color: CustomFlowTheme.of(context).accent1,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(4),
+                                                  child: Icon(
+                                                    Icons.person_outline_rounded,
+                                                    color:CustomFlowTheme.of(context).primary,
+                                                    size: 20,
                                                   ),
                                                 ),
-                                                Padding(
-                                                  padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 0, 0),
-                                                  child: Text(
-                                                    'Edit Profile',
-                                                    style: CustomFlowTheme.of(context)
-                                                        .bodyLarge
-                                                        .override(
-                                                      fontFamily: 'Inter',
-                                                      letterSpacing: 0,
-                                                    ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 0, 0),
+                                                child: Text(
+                                                  'Edit Profile',
+                                                  style: CustomFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .override(
+                                                    fontFamily: 'Inter',
+                                                    letterSpacing: 0,
                                                   ),
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                         Divider(
@@ -378,6 +366,67 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                         ],
                                       ),
                                     ),
+                                  ///////////////////////////////////////
+                                  /////////////////////////////////////// CREATE OWN + DIVIDER
+                                  ///////////////////////////////////////
+                                  InkWell(
+                                    splashColor: Colors.transparent,
+                                    focusColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    onTap: () async {
+                                      logFirebaseEvent('PROFILE_PAGE_CreateOwnTile_ON_TAP');
+                                      logFirebaseEvent('CreateOwnTile_navigate_to');
+
+                                      context.pushNamed('CreateOwn');
+                                    },
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        Padding(
+                                          padding:const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              Container(
+                                                width: 40,
+                                                height: 40,
+                                                decoration: BoxDecoration(
+                                                  color: CustomFlowTheme.of(context).accent1,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(4),
+                                                  child: Icon(
+                                                    Icons.person_outline_rounded,
+                                                    color:CustomFlowTheme.of(context).primary,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 0, 0),
+                                                child: Text(
+                                                  'Create Own',
+                                                  style: CustomFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .override(
+                                                    fontFamily: 'Inter',
+                                                    letterSpacing: 0,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Divider(
+                                          thickness: 1,
+                                          color: CustomFlowTheme.of(context)
+                                              .primary,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                   ///////////////////////////////////////
                                   /////////////////////////////////////// LOGOUT
                                   ///////////////////////////////////////
