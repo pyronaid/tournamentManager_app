@@ -9,8 +9,9 @@ import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_widgets.dart';
 import '../../../backend/firebase_analytics/analytics.dart';
 import '../../../components/custom_appbar_widget.dart';
-import 'onboarding_slideshow_model.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart' as smooth_page_indicator;
+
+import 'create_own_model.dart';
 
 class CreateOwnWidget extends StatefulWidget {
   const CreateOwnWidget({super.key});
@@ -174,7 +175,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
-          child: Column(
+          child: Column(/*
             mainAxisSize: MainAxisSize.max,
             children: [
               Expanded(
@@ -876,31 +877,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
 
 
 
-                                Align(
-                                  alignment: const AlignmentDirectional(0, 1),
-                                  child: Padding(
-                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
-                                    child: smooth_page_indicator.SmoothPageIndicator(controller: _model.pageViewController ??= PageController(initialPage: 0),
-                                      count: 3,
-                                      axisDirection: Axis.horizontal,
-                                      onDotClicked: (i) async {
-                                        await _model.pageViewController!
-                                            .animateToPage(i, duration: const Duration(milliseconds: 500), curve: Curves.ease,);
-                                        setState(() {});
-                                      },
-                                      effect: smooth_page_indicator.ExpandingDotsEffect(
-                                        expansionFactor: 3,
-                                        spacing: 10,
-                                        radius: 10,
-                                        dotWidth: 10,
-                                        dotHeight: 10,
-                                        dotColor: CustomFlowTheme.of(context).secondaryText,
-                                        activeDotColor: CustomFlowTheme.of(context).primaryText,
-                                        paintStyle: PaintingStyle.fill,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+
                               ],
                             ),
                           ),
@@ -958,7 +935,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                   ],
                 ),
               ),
-            ],
+            ],*/
           ),
         ),
       ),

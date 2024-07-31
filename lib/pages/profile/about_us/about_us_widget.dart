@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../../app_flow/app_flow_model.dart';
+import '../../../app_flow/app_flow_theme.dart';
+import '../../../app_flow/app_flow_util.dart';
+import '../../../backend/backend.dart';
+import '../../../backend/firebase_analytics/analytics.dart';
+import '../../../backend/schema/company_information_record.dart';
+import '../../../components/custom_appbar_widget.dart';
+import 'about_us_model.dart';
+
 class AboutUsWidget extends StatefulWidget {
   const AboutUsWidget({super.key});
 
@@ -36,7 +45,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
           child: SingleChildScrollView(
@@ -44,9 +53,9 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
               mainAxisSize: MainAxisSize.max,
               children: [
                 Align(
-                  alignment: AlignmentDirectional(0, 0),
+                  alignment: const AlignmentDirectional(0, 0),
                   child: Padding(
-                    padding: EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(24),
                     child: StreamBuilder<List<CompanyInformationRecord>>(
                       stream: queryCompanyInformationRecord(
                         singleRecord: true,
@@ -60,7 +69,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                               height: 25,
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  FlutterFlowTheme.of(context).primary,
+                                  CustomFlowTheme.of(context).primary,
                                 ),
                               ),
                             ),
@@ -91,10 +100,10 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                               ),
                             ),
                             Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(0, 24, 0, 24),
+                              padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 24),
                               child: Text(
                                 'About Us',
-                                style: FlutterFlowTheme.of(context)
+                                style: CustomFlowTheme.of(context)
                                     .displaySmall
                                     .override(
                                       fontFamily: 'Inter',
@@ -107,18 +116,17 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                             /////////////////////////////
                             if (columnCompanyInformationRecord?.coverImage != null && columnCompanyInformationRecord?.coverImage != '')
                               Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 18),
+                                padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 18),
                                 child: Container(
                                   width: double.infinity,
                                   height: 200,
                                   decoration: BoxDecoration(
-                                    color: FlutterFlowTheme.of(context).secondaryBackground,
+                                    color: CustomFlowTheme.of(context).secondaryBackground,
                                     image: DecorationImage(
                                       fit: BoxFit.cover,
                                       image: Image.network(valueOrDefault<String>(
-                                          columnCompanyInformationRecord
-                                              ?.coverImage,
-                                          'https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/meal-planner-3nia1o/assets/uw9p4b649afa/MealPlanner.png',
+                                          columnCompanyInformationRecord?.coverImage,
+                                          'https://firebasestorage.googleapis.com/v0/b/tournament-manager-ee897.appspot.com/o/assets%2FTM_logo.png?alt=media',
                                         ),
                                       ).image,
                                     ),
@@ -127,9 +135,9 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                   child: Visibility(
                                     visible: columnCompanyInformationRecord?.logo != null && columnCompanyInformationRecord?.logo != '',
                                     child: Align(
-                                      alignment: AlignmentDirectional(-1, -1),
+                                      alignment: const AlignmentDirectional(-1, -1),
                                       child: Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(12, 12, 0, 0),
+                                        padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 0, 0),
                                         child: Container(
                                           width: 80,
                                           height: 80,
@@ -149,14 +157,14 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                 ),
                               ),
                             /////////////////////////////
-                            ///////////////////////////// CASO COVER IMAGE PRESENTE E LOGO PRESENTE 
+                            ///////////////////////////// CASO COVER IMAGE ASSENTE E LOGO PRESENTE
                             /////////////////////////////
                             if ((columnCompanyInformationRecord?.logo != null && columnCompanyInformationRecord?.logo != '') &&
                                 (columnCompanyInformationRecord?.coverImage == null || columnCompanyInformationRecord ?.coverImage == ''))
                               Align(
-                                alignment: AlignmentDirectional(-1, -1),
+                                alignment: const AlignmentDirectional(-1, -1),
                                 child: Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 18),
+                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 18),
                                   child: Container(
                                     width: 120,
                                     height: 120,
@@ -166,7 +174,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                         image: Image.network(
                                           valueOrDefault<String>(
                                             columnCompanyInformationRecord?.logo,
-                                            'https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/meal-planner-3nia1o/assets/uw9p4b649afa/MealPlanner.png',
+                                            'https://firebasestorage.googleapis.com/v0/b/tournament-manager-ee897.appspot.com/o/assets%2FTM_logo_letters.png?alt=media',
                                           ),
                                         ).image,
                                       ),
@@ -175,14 +183,17 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                   ),
                                 ),
                               ),
+                            /////////////////////////////
+                            ///////////////////////////// FINE IF
+                            /////////////////////////////
                             Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 6),
+                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 6),
                               child: Text(
                                 valueOrDefault<String>(
                                   columnCompanyInformationRecord?.name,
                                   'Company Name',
                                 ),
-                                style: FlutterFlowTheme.of(context)
+                                style: CustomFlowTheme.of(context)
                                     .displaySmall
                                     .override(
                                       fontFamily: 'Inter',
@@ -192,7 +203,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                             ),
                             Text(
                               columnCompanyInformationRecord!.companyBio,
-                              style: FlutterFlowTheme.of(context)
+                              style: CustomFlowTheme.of(context)
                                   .labelLarge
                                   .override(
                                     fontFamily: 'Inter',
@@ -203,16 +214,16 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                             /////////////////////////////
                             ///////////////////////////// CASO DEVELOPERS PRESENTI 
                             /////////////////////////////
-                            if (columnCompanyInformationRecord!.devInfo.length > 0)
+                            if (columnCompanyInformationRecord!.devInfo.isNotEmpty)
                               Padding(
-                                padding:EdgeInsetsDirectional.fromSTEB(0, 32, 0, 0),
+                                padding:const EdgeInsetsDirectional.fromSTEB(0, 32, 0, 0),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.max,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'Gli sviluppatori',
-                                      style: FlutterFlowTheme.of(context)
+                                      style: CustomFlowTheme.of(context)
                                           .headlineSmall
                                           .override(
                                             fontFamily: 'Inter',
@@ -220,18 +231,16 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                           ),
                                     ),
                                     Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
+                                      padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
                                       child: Builder(
                                         builder: (context) {
-                                          final devs = columnCompanyInformationRecord
-                                                      ?.devInfo
-                                                      ?.toList() ?? [];
+                                          final devs = columnCompanyInformationRecord?.devInfo?.toList() ?? [];
                                           return Column(
                                             mainAxisSize: MainAxisSize.max,
                                             children: List.generate(devs.length, (devsIndex) {
                                               final devsItem = devs[devsIndex];
                                               return Padding(
-                                                padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
+                                                padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
                                                 child: Row(
                                                   mainAxisSize:MainAxisSize.min,
                                                   children: [
@@ -243,7 +252,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                                         width: 100,
                                                         height: 100,
                                                         decoration: BoxDecoration(
-                                                          color: FlutterFlowTheme
+                                                          color: CustomFlowTheme
                                                                 .of(context)
                                                                 .secondaryBackground,
                                                           image: DecorationImage(
@@ -257,14 +266,14 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                                       ),
                                                     Expanded(
                                                       child: Padding(
-                                                        padding: EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
+                                                        padding: const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
                                                         child: Column(
                                                           mainAxisSize:MainAxisSize.max,
                                                           crossAxisAlignment:CrossAxisAlignment.start,
                                                           children: [
                                                             Text(
                                                               devsItem.name,
-                                                              style: FlutterFlowTheme
+                                                              style: CustomFlowTheme
                                                                       .of(context)
                                                                       .titleMedium
                                                                       .override(
@@ -277,10 +286,10 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                                             /////////////////////////////
                                                             if (devsItem.bio != null && devsItem.bio != '')
                                                               Padding(
-                                                                padding: EdgeInsetsDirectional.fromSTEB(0, 6, 0, 0),
+                                                                padding: const EdgeInsetsDirectional.fromSTEB(0, 6, 0, 0),
                                                                 child: Text(
                                                                   devsItem.bio,
-                                                                  style: FlutterFlowTheme.of(context)
+                                                                  style: CustomFlowTheme.of(context)
                                                                       .bodySmall
                                                                       .override(
                                                                         fontFamily: 'Inter',

@@ -100,7 +100,7 @@ class FirebaseAuthManager extends AuthManager
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text(
-                  'Too long since most recent sign in. Sign in again before updating your email.')),
+                  'E\' passato troppo tempo dal tuo ultimo log-in. Rieffettualo prima di aggiornare la tua email.')),
         );
       }
     }
@@ -121,7 +121,7 @@ class FirebaseAuthManager extends AuthManager
       return null;
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Password reset email sent')),
+      const SnackBar(content: Text('Email inviata! Controlla la tua casella di posta')),
     );
   }
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:petsy/backend/schema/structs/devs_struct.dart';
 
 import '/backend/schema/util/firestore_util.dart';
 
@@ -59,6 +60,11 @@ class CompanyInformationRecord extends FirestoreRecord {
   String get companyBio => _companyBio ?? '';
   bool hasCompanyBio() => _companyBio != null;
 
+  // "dev_info" field.
+  List<DevsStruct>? _devInfo;
+  List<DevsStruct> get devInfo => _devInfo ?? const [];
+  bool hasDevInfo() => _devInfo != null;
+
   // "termsURL" field.
   String? _termsURL;
   String get termsURL => _termsURL ?? '';
@@ -74,6 +80,10 @@ class CompanyInformationRecord extends FirestoreRecord {
     _playStoreURL = snapshotData['playStoreURL'] as String?;
     _coverImage = snapshotData['coverImage'] as String?;
     _companyBio = snapshotData['company_bio'] as String?;
+    _devInfo = getStructList(
+      snapshotData['devInfo'],
+      DevsStruct.fromMap,
+    );
     _termsURL = snapshotData['termsURL'] as String?;
   }
 
@@ -152,6 +162,7 @@ class CompanyInformationRecordDocumentEquality
         e1?.playStoreURL == e2?.playStoreURL &&
         e1?.coverImage == e2?.coverImage &&
         e1?.companyBio == e2?.companyBio &&
+        listEquality.equals(e1?.devInfo, e2?.devInfo) &&
         e1?.termsURL == e2?.termsURL;
   }
 
@@ -166,6 +177,7 @@ class CompanyInformationRecordDocumentEquality
         e?.playStoreURL,
         e?.coverImage,
         e?.companyBio,
+        e?.devInfo,
         e?.termsURL
       ]);
 

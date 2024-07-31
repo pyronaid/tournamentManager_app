@@ -139,8 +139,8 @@ class LightModeTheme extends CustomFlowTheme {
   late Color gradientBackgroundEnd = Colors.white;
   late Color primaryBackground = const Color(0xFFFFFFFF);
   late Color secondaryBackground = const Color(0xFFF2F2F2);
-  late Color accent1 = const Color(0x4D86C144);
-  late Color accent2 = const Color(0x4C426A20);
+  late Color accent1 = const Color(0x4D44A4C1);
+  late Color accent2 = const Color(0x4C20596A);
   late Color accent3 = const Color(0x7FD5EEBA);
   late Color accent4 = const Color(0xB2E0E3E7);
   late Color success = const Color(0xFF04A24C);
@@ -313,9 +313,9 @@ class DarkModeTheme extends CustomFlowTheme {
   late Color gradientBackgroundEnd = Colors.black;
   late Color primaryBackground = const Color(0xFF171717);
   late Color secondaryBackground = const Color(0xFF1F1F1F);
-  late Color accent1 = const Color(0x4D86C144);
-  late Color accent2 = const Color(0x4C426A20);
-  late Color accent3 = const Color(0x7FD5EEBA);
+  late Color accent1 = const Color(0x4D4495C1);
+  late Color accent2 = const Color(0x4C206A6A);
+  late Color accent3 = const Color(0x7FBAEEE8);
   late Color accent4 = const Color(0xB322282F);
   late Color success = const Color(0xFF04A24C);
   late Color warning = const Color(0x4DFF5963);

@@ -1,4 +1,14 @@
+import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
+
+import '../../../app_flow/app_flow_theme.dart';
+import '../../../app_flow/app_flow_util.dart';
+import '../../../app_flow/app_flow_widgets.dart';
+import '../../../auth/firebase_auth/auth_util.dart';
+import '../../../backend/schema/users_record.dart';
+import '../../../components/custom_appbar_widget.dart';
+import '../../../components/title_with_subtitle/title_with_subtitle_widget.dart';
+import 'edit_profile_model.dart';
 
 class EditProfileWidget extends StatefulWidget {
   const EditProfileWidget({super.key});
@@ -41,14 +51,15 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
           ? FocusScope.of(context).requestFocus(_model.unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
           child: Align(
-            alignment: AlignmentDirectional(0, 0),
+            alignment: const AlignmentDirectional(0, 0),
             child: Padding(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -66,7 +77,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                         logFirebaseEvent('customAppbar_backend_call');
 
                         await currentUserReference!.update(createUsersRecordData(
-                          displayName: _model.fullNameTextController.text,
+                          displayName: _model.fullNameTextController?.text,
                         ));
                         logFirebaseEvent('customAppbar_update_page_state');
                         _model.unsavedChanges = false;
@@ -76,10 +87,10 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
+                    padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                     child: Text(
                       'Edit Profile',
-                      style: FlutterFlowTheme.of(context).displaySmall.override(
+                      style: CustomFlowTheme.of(context).displaySmall.override(
                             fontFamily: 'Inter',
                             letterSpacing: 0,
                       ),
@@ -90,16 +101,16 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
+                        padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
                         child: Column(
                           mainAxisSize: MainAxisSize.max,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding:EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                              padding:const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
                               child: Text(
                                 'Full Name',
-                                style: FlutterFlowTheme.of(context)
+                                style: CustomFlowTheme.of(context)
                                     .bodyLarge
                                     .override(
                                       fontFamily: 'Inter',
@@ -108,14 +119,14 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                               ),
                             ),
                             Padding(
-                              padding:EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
+                              padding:const EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
                               child: AuthUserStreamWidget(
                                 builder: (context) => TextFormField(
                                   controller: _model.fullNameTextController,
                                   focusNode: _model.fullNameFocusNode,
                                   onChanged: (_) => EasyDebounce.debounce(
                                     '_model.fullNameTextController',
-                                    Duration(milliseconds: 2000),
+                                    const Duration(milliseconds: 2000),
                                     () async {
                                       logFirebaseEvent('EDIT_PROFILE_fullName_ON_TEXTFIELD_CHANG');
                                       logFirebaseEvent('fullName_update_page_state');
@@ -124,43 +135,43 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                     },
                                   ),
                                   autofocus: false,
-                                  autofillHints: [AutofillHints.name],
+                                  autofillHints: const [AutofillHints.name],
                                   textCapitalization: TextCapitalization.words,
                                   textInputAction: TextInputAction.next,
                                   obscureText: false,
                                   decoration: InputDecoration(
                                     enabledBorder: OutlineInputBorder(
                                       borderSide: BorderSide(
-                                        color: FlutterFlowTheme.of(context).secondaryBackground,
+                                        color: CustomFlowTheme.of(context).secondaryBackground,
                                         width: 1,
                                       ),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderSide: BorderSide(
-                                        color: FlutterFlowTheme.of(context).primary,
+                                        color: CustomFlowTheme.of(context).primary,
                                         width: 1,
                                       ),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     errorBorder: OutlineInputBorder(
                                       borderSide: BorderSide(
-                                        color: FlutterFlowTheme.of(context).error,
+                                        color: CustomFlowTheme.of(context).error,
                                         width: 1,
                                       ),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     focusedErrorBorder: OutlineInputBorder(
                                       borderSide: BorderSide(
-                                        color: FlutterFlowTheme.of(context).error,
+                                        color: CustomFlowTheme.of(context).error,
                                         width: 1,
                                       ),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     filled: true,
-                                    fillColor: FlutterFlowTheme.of(context).secondaryBackground,
+                                    fillColor: CustomFlowTheme.of(context).secondaryBackground,
                                   ),
-                                  style: FlutterFlowTheme.of(context)
+                                  style: CustomFlowTheme.of(context)
                                       .bodyMedium
                                       .override(
                                         fontFamily: 'Inter',
@@ -170,7 +181,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                         lineHeight: 1,
                                   ),
                                   minLines: 1,
-                                  cursorColor: FlutterFlowTheme.of(context).primary,
+                                  cursorColor: CustomFlowTheme.of(context).primary,
                                   validator: _model
                                       .fullNameTextControllerValidator
                                       .asValidator(context),
@@ -185,47 +196,47 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                   wrapWithModel(
                     model: _model.titleWithSubtitleModel1,
                     updateCallback: () => setState(() {}),
-                    child: TitleWithSubtitleWidget(
+                    child: const TitleWithSubtitleWidget(
                       title: 'Reset Password',
-                      subtitle: 'Recieve a link via email to reset your password.',
+                      subtitle: 'Ricevi un link via email per resettare la tua password.',
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
-                    child: FFButtonWidget(
+                    padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
+                    child: AFButtonWidget(
                       onPressed: () async {
                         logFirebaseEvent('EDIT_PROFILE_RESET_PASSWORD_BTN_ON_TAP');
                         logFirebaseEvent('Button_auth');
-                        if (_model.emailAddressTextController.text.isEmpty) {
+                        if (_model.emailAddressTextController!.text.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
+                            const SnackBar(
                               content: Text(
-                                'Email required!',
+                                'Email inviata! Controlla la tua casella di posta',
                               ),
                             ),
                           );
                           return;
                         }
                         await authManager.resetPassword(
-                          email: _model.emailAddressTextController.text,
+                          email: _model.emailAddressTextController!.text,
                           context: context,
                         );
                       },
                       text: 'Reset Password',
-                      options: FFButtonOptions(
+                      options: AFButtonOptions(
                         width: double.infinity,
                         height: 50,
-                        padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                        iconPadding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                        color: FlutterFlowTheme.of(context).primary,
-                        textStyle: FlutterFlowTheme.of(context).bodyMedium.override(
+                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                        iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                        color: CustomFlowTheme.of(context).primary,
+                        textStyle: CustomFlowTheme.of(context).bodyMedium.override(
                                   fontFamily: 'Inter',
-                                  color: FlutterFlowTheme.of(context).primaryBackground,
+                                  color: CustomFlowTheme.of(context).primaryBackground,
                                   letterSpacing: 0,
                                   fontWeight: FontWeight.w600,
                         ),
                         elevation: 0,
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                           color: Colors.transparent,
                           width: 1,
                         ),
@@ -236,46 +247,34 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                   wrapWithModel(
                     model: _model.titleWithSubtitleModel2,
                     updateCallback: () => setState(() {}),
-                    child: TitleWithSubtitleWidget(
-                      title: 'Delete Account',
-                      subtitle: 'The data from your account will be deleted.',
+                    child: const TitleWithSubtitleWidget(
+                      title: 'Cancella Account',
+                      subtitle: 'I dati del tuo account saranno cancellati senza possibilità di ripristino.',
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(0, 12, 0, 48),
-                    child: FFButtonWidget(
+                    padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 48),
+                    child: AFButtonWidget(
                       onPressed: () async {
                         logFirebaseEvent('EDIT_PROFILE_DELETE_ACCOUNT_BTN_ON_TAP');
                         logFirebaseEvent('Button_auth');
-                        await authManager.deleteUser(context);
-                        logFirebaseEvent('Button_navigate_to');
-
-                        context.goNamed(
-                          'Splash',
-                          extra: <String, dynamic>{
-                            kTransitionInfoKey: TransitionInfo(
-                              hasTransition: true,
-                              transitionType: PageTransitionType.fade,
-                              duration: Duration(milliseconds: 0),
-                            ),
-                          },
-                        );
+                        showAlertDialog(context, "Splash");
                       },
-                      text: 'Delete Account',
-                      options: FFButtonOptions(
+                      text: 'Cancella Account',
+                      options: AFButtonOptions(
                         width: double.infinity,
                         height: 50,
-                        padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                        iconPadding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                        color: Color(0xFFFFD4D4),
-                        textStyle: FlutterFlowTheme.of(context).bodyMedium.override(
+                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                        iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                        color: const Color(0xFFFFD4D4),
+                        textStyle: CustomFlowTheme.of(context).bodyMedium.override(
                                   fontFamily: 'Inter',
-                                  color: Color(0xFFB74D4D),
+                                  color: const Color(0xFFB74D4D),
                                   letterSpacing: 0,
                                   fontWeight: FontWeight.w600,
                         ),
                         elevation: 0,
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                           color: Colors.transparent,
                           width: 1,
                         ),
@@ -290,16 +289,16 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                     textCapitalization: TextCapitalization.words,
                     readOnly: true,
                     obscureText: false,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       isDense: true,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       errorBorder: InputBorder.none,
                       focusedErrorBorder: InputBorder.none,
                     ),
-                    style: FlutterFlowTheme.of(context).bodyMedium.override(
+                    style: CustomFlowTheme.of(context).bodyMedium.override(
                           fontFamily: 'Inter',
-                          color: FlutterFlowTheme.of(context).primaryBackground,
+                          color: CustomFlowTheme.of(context).primaryBackground,
                           fontSize: 1,
                           letterSpacing: 0,
                           fontWeight: FontWeight.w500,
@@ -316,4 +315,91 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
       ),
     );
   }
+}
+
+
+void showAlertDialog(BuildContext context, String redirect) {
+  // set up the buttons
+  Widget cancelButton = TextButton(
+    child: Text(
+        "Annulla",
+        style: CustomFlowTheme
+            .of(context)
+            .displaySmall
+            .override(
+          fontFamily: 'Inter',
+          fontSize: 18.0,
+          letterSpacing: 0,
+        ),
+    ),
+    onPressed:  () {
+      Navigator.of(context).pop(); // dismiss dialog
+    },
+  );
+  Widget continueButton = TextButton(
+    child: Text(
+        "Cancella",
+        style: CustomFlowTheme
+            .of(context)
+            .displaySmall
+            .override(
+          fontSize: 18.0,
+          fontFamily: 'Inter',
+          color: const Color(0xFFB74D4D),
+          letterSpacing: 0,
+          fontWeight: FontWeight.w600,
+        ),
+    ),
+    onPressed:  () async {
+      await authManager.deleteUser(context);
+      logFirebaseEvent('Button_navigate_to');
+      context.goNamed(
+        'Splash',
+        extra: <String, dynamic>{
+          kTransitionInfoKey: const TransitionInfo(
+            hasTransition: true,
+            transitionType: PageTransitionType.fade,
+            duration: Duration(milliseconds: 0),
+          ),
+        },
+      );
+    },
+  );
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text(
+        "Attenzione",
+        style: CustomFlowTheme
+            .of(context)
+            .displaySmall
+            .override(
+          fontFamily: 'Inter',
+          color: const Color(0xFFB74D4D),
+          fontSize: 30.0,
+          letterSpacing: 0,
+        ),
+    ),
+    content: Text(
+        "Sei sicuro di cancellare il tuo account e tutti i suoi dati?",
+        style: CustomFlowTheme
+            .of(context)
+            .displaySmall
+            .override(
+          fontFamily: 'Inter',
+          fontSize: 12.0,
+          letterSpacing: 0,
+        ),
+    ),
+    actions: [
+      cancelButton,
+      continueButton,
+    ],
+  );
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }

@@ -114,6 +114,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
                   : const PlaceholderWidget(),
             ),
             CustomRoute(
+              name: 'CreateOwn',
+              path: 'create-own',
+              requireAuth: true,
+              builder: (context, params) => const PlaceholderWidget(),
+            ),
+            CustomRoute(
               name: 'Profile',
               path: 'profile',
               requireAuth: true,

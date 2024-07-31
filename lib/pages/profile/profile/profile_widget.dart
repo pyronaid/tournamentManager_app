@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:petsy/pages/profile/profile/profile_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_util.dart';
@@ -226,8 +227,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                         ),
                                         Divider(
                                           thickness: 1,
-                                          color: CustomFlowTheme.of(context)
-                                              .primary,
+                                          color: CustomFlowTheme.of(context).primary,
                                         ),
                                       ],
                                     ),
@@ -252,7 +252,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                         mainAxisSize: MainAxisSize.max,
                                         children: [
                                           Padding(
-                                            padding: EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
+                                            padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
                                             child: Row(
                                               mainAxisSize: MainAxisSize.max,
                                               children: [
@@ -260,23 +260,23 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                                   width: 40,
                                                   height: 40,
                                                   decoration: BoxDecoration(
-                                                    color: FlutterFlowTheme.of(context).accent1,
+                                                    color: CustomFlowTheme.of(context).accent1,
                                                     shape: BoxShape.circle,
                                                   ),
                                                   child: Padding(
-                                                    padding: EdgeInsets.all(4),
+                                                    padding: const EdgeInsets.all(4),
                                                     child: Icon(
                                                       Icons.info_outlined,
-                                                      color: FlutterFlowTheme.of(context).primary,
+                                                      color: CustomFlowTheme.of(context).primary,
                                                       size: 20,
                                                     ),
                                                   ),
                                                 ),
                                                 Padding(
-                                                  padding: EdgeInsetsDirectional.fromSTEB(18, 0, 0, 0),
+                                                  padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 0, 0),
                                                   child: Text(
                                                     'About Us',
-                                                    style: FlutterFlowTheme.of(context)
+                                                    style: CustomFlowTheme.of(context)
                                                         .bodyLarge
                                                         .override(
                                                           fontFamily: 'Inter',
@@ -289,7 +289,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                           ),
                                           Divider(
                                             thickness: 1,
-                                            color: FlutterFlowTheme.of(context).accent4,
+                                            color: CustomFlowTheme.of(context).primary,
                                           ),
                                         ],
                                       ),
@@ -324,7 +324,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                         mainAxisSize: MainAxisSize.max,
                                         children: [
                                           Padding(
-                                            padding: EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
+                                            padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
                                             child: Row(
                                               mainAxisSize: MainAxisSize.max,
                                               children: [
@@ -332,23 +332,23 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                                   width: 40,
                                                   height: 40,
                                                   decoration: BoxDecoration(
-                                                    color: FlutterFlowTheme.of(context).accent1,
+                                                    color: CustomFlowTheme.of(context).accent1,
                                                     shape: BoxShape.circle,
                                                   ),
                                                   child: Padding(
-                                                    padding: EdgeInsets.all(4),
+                                                    padding: const EdgeInsets.all(4),
                                                     child: Icon(
                                                       Icons.mail_outlined,
-                                                      color:FlutterFlowTheme.of(context).primary,
+                                                      color:CustomFlowTheme.of(context).primary,
                                                       size: 20,
                                                     ),
                                                   ),
                                                 ),
                                                 Padding(
-                                                  padding: EdgeInsetsDirectional.fromSTEB(18, 0, 0, 0),
+                                                  padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 0, 0),
                                                   child: Text(
                                                     'Contact Us',
-                                                    style: FlutterFlowTheme.of(context)
+                                                    style: CustomFlowTheme.of(context)
                                                         .bodyLarge
                                                         .override(
                                                           fontFamily: 'Inter',
@@ -361,7 +361,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                           ),
                                           Divider(
                                             thickness: 1,
-                                            color: FlutterFlowTheme.of(context).accent4,
+                                            color: CustomFlowTheme.of(context).primary,
                                           ),
                                         ],
                                       ),
@@ -421,8 +421,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                         ),
                                         Divider(
                                           thickness: 1,
-                                          color: CustomFlowTheme.of(context)
-                                              .primary,
+                                          color: CustomFlowTheme.of(context).primary,
                                         ),
                                       ],
                                     ),

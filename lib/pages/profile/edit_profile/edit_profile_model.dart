@@ -1,4 +1,11 @@
-class EditProfileModel extends FlutterFlowModel<EditProfileWidget> {
+import 'package:flutter/cupertino.dart';
+
+import '../../../app_flow/app_flow_model.dart';
+import '../../../components/custom_appbar_model.dart';
+import '../../../components/title_with_subtitle/title_with_subtitle_model.dart';
+import 'edit_profile_widget.dart';
+
+class EditProfileModel extends CustomFlowModel<EditProfileWidget> {
   ///  Local state fields for this page.
 
   bool unsavedChanges = false;
@@ -24,10 +31,8 @@ class EditProfileModel extends FlutterFlowModel<EditProfileWidget> {
   @override
   void initState(BuildContext context) {
     customAppbarModel = createModel(context, () => CustomAppbarModel());
-    titleWithSubtitleModel1 =
-        createModel(context, () => TitleWithSubtitleModel());
-    titleWithSubtitleModel2 =
-        createModel(context, () => TitleWithSubtitleModel());
+    titleWithSubtitleModel1 = createModel(context, () => TitleWithSubtitleModel());
+    titleWithSubtitleModel2 = createModel(context, () => TitleWithSubtitleModel());
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:petsy/pages/placeholder_widget.dart';
 
 import '../../app_flow/app_flow_theme.dart';
 import '../profile/profile/profile_widget.dart';
@@ -29,9 +30,9 @@ class _NavBarPageState extends State<NavBarPage> {
   @override
   Widget build(BuildContext context) {
     final tabs = {
-      'Dashboard': const ProfileWidget(),
-      'AboutUs': const ProfileWidget(),
-      'EditPreferences': const ProfileWidget(),
+      'Dashboard': const PlaceholderWidget(),
+      'AboutUs': const PlaceholderWidget(),
+      'EditPreferences': const PlaceholderWidget(),
       'Profile': const ProfileWidget(),
     };
     final currentIndex = tabs.keys.toList().indexOf(_currentPageName);

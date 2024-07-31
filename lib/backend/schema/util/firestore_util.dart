@@ -11,8 +11,8 @@ abstract class FirestoreRecord {
   DocumentReference reference;
 }
 
-abstract class FFFirebaseStruct extends BaseStruct {
-  FFFirebaseStruct(this.firestoreUtilData);
+abstract class AFFirebaseStruct extends BaseStruct {
+  AFFirebaseStruct(this.firestoreUtilData);
 
   /// Utility class for Firestore updates
   FirestoreUtilData firestoreUtilData = const FirestoreUtilData();
