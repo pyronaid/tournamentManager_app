@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:go_router/go_router.dart';
+import 'package:petsy/app_flow/app_flow_util.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import '../../../app_flow/app_flow_animations.dart';
-import '../../../app_flow/app_flow_model.dart';
 import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_widgets.dart';
-import '../../../backend/firebase_analytics/analytics.dart';
 import '../../../components/custom_appbar_widget.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart' as smooth_page_indicator;
-
+import 'package:intl/intl.dart';
 import 'create_own_model.dart';
 
 class CreateOwnWidget extends StatefulWidget {
@@ -152,6 +149,16 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
       ),
     });
 
+    _model.tournamentAddressTextController ??= TextEditingController();
+    _model.tournamentAddressFocusNode ??= FocusNode();
+    _model.tournamentNameTextController ??= TextEditingController();
+    _model.tournamentNameFocusNode ??= FocusNode();
+    _model.tournamentCapacityTextController ??= TextEditingController();
+    _model.tournamentCapacityFocusNode ??= FocusNode();
+    _model.tournamentDateTextController ??= TextEditingController();
+    _model.tournamentDateFocusNode ??= FocusNode();
+
+
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }
 
@@ -175,743 +182,649 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
-          child: Column(/*
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Align(
-                  alignment: const AlignmentDirectional(0, 0),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        wrapWithModel(
-                          model: _model.customAppbarModel,
-                          updateCallback: () => setState(() {}),
-                          child: CustomAppbarWidget(
-                            backButton: true,
-                            actionButton: false,
-                            actionButtonAction: () async {},
-                            optionsButtonAction: () async {},
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            width: double.infinity,
-                            height: 30.h,  
-                            child: Stack(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 50),
-                                  child: PageView(
-                                    controller: _model.pageViewController ??= PageController(initialPage: 0),
-                                    scrollDirection: Axis.horizontal,
-                                    onPageChanged: (int page) {
-                                        setState(() {
-                                        _model.currentPage = page;
-                                      });
-                                    },
-                                    children: [
-                                      //////////////////////////////////////////////////
-                                      //////////////////////////////////////////////////
-                                      //////////////////////////////////////////////////
-                                      // ELEMENT OF CAROUSEL
-                                      Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
-                                            child: Image.asset(
-                                              'assets/images/game_ygo_adv.png',
-                                              height: 35.h,
-                                              fit: BoxFit.fill,
-                                            ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation1']!),
-                                          ),
-                                        ],
-                                      ),
-                                      //////////////////////////////////////////////////
-                                      //////////////////////////////////////////////////
-                                      //////////////////////////////////////////////////
-                                      // ELEMENT OF CAROUSEL
-                                      Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
-                                            child: Image.asset(
-                                              'assets/images/game_ygo_rtf.png',
-                                              height: 35.h,
-                                              fit: BoxFit.fill,
-                                            ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation2']!),
-                                          ),
-                                        ],
-                                      ),
-                                      //////////////////////////////////////////////////
-                                      //////////////////////////////////////////////////
-                                      //////////////////////////////////////////////////
-                                      // ELEMENT OF CAROUSEL
-                                      Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
-                                            child: Image.asset(
-                                              'assets/images/game_ygo_mtg.png',
-                                              height: 35.h,
-                                              fit: BoxFit.fill,
-                                            ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation3']!),
-                                          ),
-                                        ],
-                                      ),
-                                      //////////////////////////////////////////////////
-                                      //////////////////////////////////////////////////
-                                      //////////////////////////////////////////////////
-                                      // ELEMENT OF CAROUSEL
-                                      Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
-                                            child: Image.asset(
-                                              'assets/images/game_op.png',
-                                              height: 35.h,
-                                              fit: BoxFit.fill,
-                                            ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation4']!),
-                                          ),
-                                        ],
-                                      ),
-                                      //////////////////////////////////////////////////
-                                      //////////////////////////////////////////////////
-                                      //////////////////////////////////////////////////
-                                      // ELEMENT OF CAROUSEL
-                                      Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
-                                            child: Image.asset(
-                                              'assets/images/game_op.png',
-                                              height: 35.h,
-                                              fit: BoxFit.fill,
-                                            ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation5']!),
-                                          ),
-                                        ],
-                                      ),
-                                      //////////////////////////////////////////////////
-                                      //////////////////////////////////////////////////
-                                      //////////////////////////////////////////////////
-                                      // ELEMENT OF CAROUSEL
-                                      Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
-                                            child: Image.asset(
-                                              'assets/images/game_alt.png',
-                                              height: 35.h,
-                                              fit: BoxFit.fill,
-                                            ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation6']!),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                //////////////////////////////////////////
-                                // FORM
-                                //////////////////////////////////////////
-                                Form(
-                                  key: _model.formKey,
-                                  autovalidateMode: AutovalidateMode.disabled,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      //////////////////////////////////////////
-                                      // Dropdown banner obj
-                                      //////////////////////////////////////////
-                                      Padding(
-                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                              child: Text(
-                                                'Gioco',
-                                                style: CustomFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      fontFamily: 'Inter',
-                                                      letterSpacing: 0,
-                                                ),
-                                              ),
-                                            ),
-                                            DropdownButton<int>(
-                                              value: _model.currentPage,
-                                              items: List.generate(
-                                                _model.games.length,
-                                                (index) => DropdownMenuItem(
-                                                  value: index,
-                                                  child: Text(_model.games[index]),
-                                                ),
-                                              ),
-                                              onChanged: (int value) {
-                                                setState(() {
-                                                  _model.currentPage = value;
-                                                  _model.gameDropDownButtonController.animateToPage(
-                                                    value,
-                                                    duration: Duration(milliseconds: 300),
-                                                    curve: Curves.easeInOut,
-                                                  );
-                                                });
-                                              },
-                                              style: CustomFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    fontFamily: 'Inter',
-                                                    fontSize: 16,
-                                                    letterSpacing: 0,
-                                                    fontWeight: FontWeight.w500,
-                                                    lineHeight: 1,
-                                              ),
-                                              validator: _model
-                                                .gameDropDownButtonControllerValidator
-                                                .asValidator(context),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      //////////////////////////////////////////
-                                      // Name tournament
-                                      //////////////////////////////////////////
-                                      Padding(
-                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                              child: Text(
-                                                'Nome torneo',
-                                                style: CustomFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      fontFamily: 'Inter',
-                                                      letterSpacing: 0,
-                                                ),
-                                              ),
-                                            ),
-                                            TextFormField(
-                                              controller: _model.tournamentNameTextController,
-                                              focusNode: _model.tournamentNameFocusNode,
-                                              autofocus: false,
-                                              // autofillHints: const [AutofillHints.name],
-                                              textCapitalization: TextCapitalization.words,
-                                              textInputAction: TextInputAction.next,
-                                              obscureText: false,
-                                              decoration: InputDecoration(
-                                                enabledBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).alternate,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                focusedBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).primary,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                errorBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).error,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                focusedErrorBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).error,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                filled: true,
-                                                fillColor: CustomFlowTheme.of(context).secondaryBackground,
-                                                errorMaxLines: 2,
-                                              ),
-                                              style: CustomFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    fontFamily: 'Inter',
-                                                    fontSize: 16,
-                                                    letterSpacing: 0,
-                                                    fontWeight: FontWeight.w500,
-                                                    lineHeight: 1,
-                                              ),
-                                              minLines: 1,
-                                              cursorColor: CustomFlowTheme.of(context).primary,
-                                              validator: _model
-                                                  .tournamentNameTextControllerValidator
-                                                  .asValidator(context),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      //////////////////////////////////////////
-                                      // datepicker obj
-                                      //////////////////////////////////////////
-                                      Padding(
-                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                              child: Text(
-                                                'Data torneo',
-                                                style: CustomFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      fontFamily: 'Inter',
-                                                      letterSpacing: 0,
-                                                ),
-                                              ),
-                                            ),
-                                            TextFormField(
-                                              controller: _model.tournamentDateTextController,
-                                              focusNode: _model.tournamentDateFocusNode,
-                                              autofocus: false,
-                                              readOnly: true,
-                                              // autofillHints: const [AutofillHints.name],
-                                              //textCapitalization: TextCapitalization.words,
-                                              //textInputAction: TextInputAction.next,
-                                              obscureText: false,
-                                              decoration: InputDecoration(
-                                                enabledBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).alternate,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                focusedBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).primary,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                errorBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).error,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                focusedErrorBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).error,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                filled: true,
-                                                fillColor: CustomFlowTheme.of(context).secondaryBackground,
-                                                errorMaxLines: 2,
-                                                labelText: 'Data',
-                                                suffixIcon: IconButton(
-                                                  icon: Icon(Icons.calendar_today),
-                                                  onPressed: () => _model.selectDate(context),
-                                                ),
-                                              ),
-                                              style: CustomFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    fontFamily: 'Inter',
-                                                    fontSize: 16,
-                                                    letterSpacing: 0,
-                                                    fontWeight: FontWeight.w500,
-                                                    lineHeight: 1,
-                                              ),
-                                              minLines: 1,
-                                              cursorColor: CustomFlowTheme.of(context).primary,
-                                              validator: _model
-                                                  .tournamentDateTextControllerValidator
-                                                  .asValidator(context),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      //////////////////////////////////////////
-                                      // city Name 
-                                      //////////////////////////////////////////
-                                      Padding(
-                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                              child: Text(
-                                                'Città',
-                                                style: CustomFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      fontFamily: 'Inter',
-                                                      letterSpacing: 0,
-                                                ),
-                                              ),
-                                            ),
-                                            DropdownButton<String>(
-                                              value: _model.currentCity,
-                                              items: italianCities.map<DropdownMenuItem<String>>((String city) {
-                                                return DropdownMenuItem<String>(
-                                                  value: city,
-                                                  child: Text(city),
-                                                );
-                                              }).toList(),
-                                              onChanged: (int value) {
-                                                setState(() {
-                                                  _model.currentCity = value;
-                                                  _model.gameDropDownButtonController.animateToPage(
-                                                    value,
-                                                    duration: Duration(milliseconds: 300),
-                                                    curve: Curves.easeInOut,
-                                                  );
-                                                });
-                                              },
-                                              decoration: InputDecoration(
-                                                labelText: 'Città',
-                                                hintText: 'Scegli la città',
-                                              ),
-                                              style: CustomFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    fontFamily: 'Inter',
-                                                    fontSize: 16,
-                                                    letterSpacing: 0,
-                                                    fontWeight: FontWeight.w500,
-                                                    lineHeight: 1,
-                                              ),
-                                              validator: _model
-                                                .cityDropDownButtonControllerValidator
-                                                .asValidator(context),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      //////////////////////////////////////////
-                                      // address tournament
-                                      //////////////////////////////////////////
-                                      Padding(
-                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                              child: Text(
-                                                'Indirizzo torneo',
-                                                style: CustomFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      fontFamily: 'Inter',
-                                                      letterSpacing: 0,
-                                                ),
-                                              ),
-                                            ),
-                                            TextFormField(
-                                              controller: _model.tournamentAddressTextController,
-                                              focusNode: _model.tournamentAddressFocusNode,
-                                              autofocus: false,
-                                              // autofillHints: const [AutofillHints.name],
-                                              textCapitalization: TextCapitalization.words,
-                                              textInputAction: TextInputAction.next,
-                                              obscureText: false,
-                                              decoration: InputDecoration(
-                                                enabledBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).alternate,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                focusedBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).primary,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                errorBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).error,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                focusedErrorBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).error,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                filled: true,
-                                                fillColor: CustomFlowTheme.of(context).secondaryBackground,
-                                                errorMaxLines: 2,
-                                              ),
-                                              style: CustomFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    fontFamily: 'Inter',
-                                                    fontSize: 16,
-                                                    letterSpacing: 0,
-                                                    fontWeight: FontWeight.w500,
-                                                    lineHeight: 1,
-                                              ),
-                                              minLines: 1,
-                                              cursorColor: CustomFlowTheme.of(context).primary,
-                                              validator: _model
-                                                  .tournamentAddressTextControllerValidator
-                                                  .asValidator(context),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      //////////////////////////////////////////
-                                      // capacity tournament
-                                      //////////////////////////////////////////
-                                      Padding(
-                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                              child: Text(
-                                                'Capienza torneo',
-                                                style: CustomFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      fontFamily: 'Inter',
-                                                      letterSpacing: 0,
-                                                ),
-                                              ),
-                                            ),
-                                            TextFormField(
-                                              controller: _model.tournamentCapacityTextController,
-                                              focusNode: _model.tournamentCapacityFocusNode,
-                                              autofocus: false,
-                                              // autofillHints: const [AutofillHints.name],
-                                              textCapitalization: TextCapitalization.words,
-                                              textInputAction: TextInputAction.next,
-                                              obscureText: false,
-                                              decoration: InputDecoration(
-                                                enabledBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).alternate,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                focusedBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).primary,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                errorBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).error,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                focusedErrorBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).error,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                filled: true,
-                                                fillColor: CustomFlowTheme.of(context).secondaryBackground,
-                                                errorMaxLines: 2,
-                                              ),
-                                              style: CustomFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    fontFamily: 'Inter',
-                                                    fontSize: 16,
-                                                    letterSpacing: 0,
-                                                    fontWeight: FontWeight.w500,
-                                                    lineHeight: 1,
-                                              ),
-                                              minLines: 1,
-                                              cursorColor: CustomFlowTheme.of(context).primary,
-                                              validator: _model
-                                                  .tournamentCapacityTextControllerValidator
-                                                  .asValidator(context),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      //////////////////////////////////////////
-                                      // PRE-REGISTRATION switch
-                                      //////////////////////////////////////////
-                                      Padding(
-                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                              child: Text(
-                                                'Abilita pre registrazione',
-                                                style: CustomFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      fontFamily: 'Inter',
-                                                      letterSpacing: 0,
-                                                ),
-                                              ),
-                                            ),
-                                            FormField<bool>(
-                                              initialValue: _model.preregistrationEnable,
-
-
-
-                                              
-                                              controller: _model.tournamentCapacityTextController,
-                                              focusNode: _model.tournamentCapacityFocusNode,
-                                              autofocus: false,
-                                              // autofillHints: const [AutofillHints.name],
-                                              textCapitalization: TextCapitalization.words,
-                                              textInputAction: TextInputAction.next,
-                                              obscureText: false,
-                                              decoration: InputDecoration(
-                                                enabledBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).alternate,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                focusedBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).primary,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                errorBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).error,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                focusedErrorBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: CustomFlowTheme.of(context).error,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                filled: true,
-                                                fillColor: CustomFlowTheme.of(context).secondaryBackground,
-                                                errorMaxLines: 2,
-                                              ),
-                                              style: CustomFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    fontFamily: 'Inter',
-                                                    fontSize: 16,
-                                                    letterSpacing: 0,
-                                                    fontWeight: FontWeight.w500,
-                                                    lineHeight: 1,
-                                              ),
-                                              minLines: 1,
-                                              cursorColor: CustomFlowTheme.of(context).primary,
-                                              validator: _model
-                                                  .tournamentCapacityTextControllerValidator
-                                                  .asValidator(context),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      //////////////////////////////////////////
-                                      // Waiting-list switch
-                                      //////////////////////////////////////////
-                                      
-                                    ],
-                                  ),
-                                ),
-
-
-
-
-
-
-
-
-
-
-
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              //BUTTON CONTINUE
-              Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
+          child: Align(
+            alignment: const AlignmentDirectional(0, 0),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    wrapWithModel(
+                      model: _model.customAppbarModel,
+                      updateCallback: () => setState(() {}),
+                      child: CustomAppbarWidget(
+                        backButton: true,
+                        actionButton: false,
+                        actionButtonAction: () async {},
+                        optionsButtonAction: () async {},
+                      ),
+                    ),
+                    ////////////////
+                    //PAGE TITLE
+                    /////////////////
                     Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+                      padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 30),
+                      child: Text(
+                        'Crea un nuovo torneo',
+                        style: CustomFlowTheme.of(context).displaySmall.override(
+                          fontFamily: 'Inter',
+                          letterSpacing: 0,
+                        ),
+                      ),
+                    ),
+                    ////////////////
+                    //CAROUSEL
+                    /////////////////
+                    Container(
+                      width: double.infinity,
+                      height: 22.h,
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                        child: PageView(
+                          controller: _model.pageViewController ??= PageController(initialPage: 0),
+                          scrollDirection: Axis.horizontal,
+                          onPageChanged: (value){
+                            setState(() {});
+                          },
+                          children: [
+                            //////////////////////////////////////////////////
+                            //////////////////////////////////////////////////
+                            //////////////////////////////////////////////////
+                            // ELEMENT OF CAROUSEL
+                            Column(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                  child: Image.asset(
+                                    'assets/images/card_back/game_ygo_adv.jpg',
+                                    height: 20.h,
+                                    fit: BoxFit.cover,
+                                  ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation1']!),
+                                ),
+                              ],
+                            ),
+                            //////////////////////////////////////////////////
+                            //////////////////////////////////////////////////
+                            //////////////////////////////////////////////////
+                            // ELEMENT OF CAROUSEL
+                            Column(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+                                  child: Image.asset(
+                                    'assets/images/card_back/game_ygo_adv.jpg',
+                                    height: 20.h,
+                                    fit: BoxFit.fill,
+                                  ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation2']!),
+                                ),
+                              ],
+                            ),
+                            //////////////////////////////////////////////////
+                            //////////////////////////////////////////////////
+                            //////////////////////////////////////////////////
+                            // ELEMENT OF CAROUSEL
+                            Column(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+                                  child: Image.asset(
+                                    'assets/images/card_back/game_ygo_adv.jpg',
+                                    height: 20.h,
+                                    fit: BoxFit.fill,
+                                  ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation3']!),
+                                ),
+                              ],
+                            ),
+                            //////////////////////////////////////////////////
+                            //////////////////////////////////////////////////
+                            //////////////////////////////////////////////////
+                            // ELEMENT OF CAROUSEL
+                            Column(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+                                  child: Image.asset(
+                                    'assets/images/card_back/game_ygo_adv.jpg',
+                                    height: 20.h,
+                                    fit: BoxFit.fill,
+                                  ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation4']!),
+                                ),
+                              ],
+                            ),
+                            //////////////////////////////////////////////////
+                            //////////////////////////////////////////////////
+                            //////////////////////////////////////////////////
+                            // ELEMENT OF CAROUSEL
+                            Column(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+                                  child: Image.asset(
+                                    'assets/images/card_back/game_ygo_adv.jpg',
+                                    height: 20.h,
+                                    fit: BoxFit.fill,
+                                  ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation5']!),
+                                ),
+                              ],
+                            ),
+                            //////////////////////////////////////////////////
+                            //////////////////////////////////////////////////
+                            //////////////////////////////////////////////////
+                            // ELEMENT OF CAROUSEL
+                            Column(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+                                  child: Image.asset(
+                                    'assets/images/card_back/game_ygo_adv.jpg',
+                                    height: 20.h,
+                                    fit: BoxFit.fill,
+                                  ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation6']!),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    ////////////////
+                    //FORM
+                    /////////////////
+                    Form(
+                      key: _model.formKey,
+                      autovalidateMode: AutovalidateMode.disabled,
+                      child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            //////////////////////////////////////////
+                            // Game tournament
+                            //////////////////////////////////////////
+                            Padding(
+                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 20),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  DropdownButton<int>(
+                                      itemHeight: null,
+                                      menuMaxHeight: 50.h,
+                                      value: _model.pageViewCurrentIndex,
+                                      items: List.generate(
+                                            _model.games.length,
+                                            (index) => DropdownMenuItem(
+                                                value: index,
+                                                child: Text(
+                                                    _model.games[index],
+                                                    textAlign: TextAlign.center,
+                                                ),
+                                        ),
+                                      ),
+                                      style: CustomFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                        fontFamily: 'Inter',
+                                        fontSize: 20,
+                                        letterSpacing: 0,
+                                        fontWeight: FontWeight.w500,
+                                        lineHeight: 1,
+                                      ),
+                                      onChanged: (int? value) {
+                                        setState(() {
+                                          _model.pageViewController?.animateToPage(value!, duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
+                                        });
+                                      },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            //////////////////////////////////////////
+                            // Name tournament
+                            //////////////////////////////////////////
+                            Padding(
+                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                                    child: Text(
+                                      'Nome torneo',
+                                      style: CustomFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                        fontFamily: 'Inter',
+                                        letterSpacing: 0,
+                                      ),
+                                    ),
+                                  ),
+                                  TextFormField(
+                                    controller: _model.tournamentNameTextController,
+                                    focusNode: _model.tournamentNameFocusNode,
+                                    autofocus: false,
+                                    autofillHints: const [AutofillHints.name],
+                                    textCapitalization: TextCapitalization.words,
+                                    textInputAction: TextInputAction.next,
+                                    obscureText: false,
+                                    decoration: InputDecoration(
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).alternate,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).primary,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      errorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).error,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      focusedErrorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).error,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      filled: true,
+                                      fillColor: CustomFlowTheme.of(context).secondaryBackground,
+                                      errorMaxLines: 2,
+                                    ),
+                                    style: CustomFlowTheme.of(context)
+                                        .bodyMedium
+                                        .override(
+                                      fontFamily: 'Inter',
+                                      fontSize: 16,
+                                      letterSpacing: 0,
+                                      fontWeight: FontWeight.w500,
+                                      lineHeight: 1,
+                                    ),
+                                    minLines: 1,
+                                    cursorColor: CustomFlowTheme.of(context).primary,
+                                    validator: _model
+                                        .tournamentNameTextControllerValidator
+                                        .asValidator(context),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            //////////////////////////////////////////
+                            // DateTournament
+                            //////////////////////////////////////////
+                            Padding(
+                              padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                                    child: Text(
+                                      'Data torneo',
+                                      style: CustomFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                        fontFamily: 'Inter',
+                                        letterSpacing: 0,
+                                      ),
+                                    ),
+                                  ),
+                                  TextFormField(
+                                    controller: _model.tournamentDateTextController,
+                                    focusNode: _model.tournamentDateFocusNode,
+                                    autofocus: false,
+                                    readOnly: true,
+                                    //autofillHints: const [AutofillHints.name],
+                                    //textCapitalization: TextCapitalization.words,
+                                    //textInputAction: TextInputAction.next,
+                                    obscureText: false,
+                                    decoration: InputDecoration(
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).alternate,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).primary,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      errorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).error,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      focusedErrorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).error,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      filled: true,
+                                      fillColor: CustomFlowTheme.of(context).secondaryBackground,
+                                      errorMaxLines: 2,
+                                      suffixIcon: IconButton(
+                                        icon: const Icon(Icons.calendar_today),
+                                        onPressed: () async {
+                                          final DateTime? datetime = await _model.selectDate(context);
+                                          if (datetime != null){
+                                            setState(() {
+                                              _model.tournamentDateTextController?.text = DateFormat('dd/MM/yyyy').format(datetime);
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                    style: CustomFlowTheme.of(context)
+                                        .bodyMedium
+                                        .override(
+                                      fontFamily: 'Inter',
+                                      fontSize: 16,
+                                      letterSpacing: 0,
+                                      fontWeight: FontWeight.w500,
+                                      lineHeight: 1,
+                                    ),
+                                    minLines: 1,
+                                    cursorColor: CustomFlowTheme.of(context).primary,
+                                    validator: _model
+                                        .tournamentDateTextControllerValidator
+                                        .asValidator(context),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            //////////////////////////////////////////
+                            // address tournament
+                            //////////////////////////////////////////
+                            Padding(
+                              padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                                    child: Text(
+                                      'Indirizzo torneo',
+                                      style: CustomFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                        fontFamily: 'Inter',
+                                        letterSpacing: 0,
+                                      ),
+                                    ),
+                                  ),
+                                  TextFormField(
+                                    controller: _model.tournamentAddressTextController,
+                                    focusNode: _model.tournamentAddressFocusNode,
+                                    autofocus: false,
+                                    // autofillHints: const [AutofillHints.name],
+                                    textCapitalization: TextCapitalization.words,
+                                    textInputAction: TextInputAction.next,
+                                    obscureText: false,
+                                    decoration: InputDecoration(
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).alternate,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).primary,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      errorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).error,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      focusedErrorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).error,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      filled: true,
+                                      fillColor: CustomFlowTheme.of(context).secondaryBackground,
+                                      errorMaxLines: 2,
+                                    ),
+                                    style: CustomFlowTheme.of(context)
+                                        .bodyMedium
+                                        .override(
+                                      fontFamily: 'Inter',
+                                      fontSize: 16,
+                                      letterSpacing: 0,
+                                      fontWeight: FontWeight.w500,
+                                      lineHeight: 1,
+                                    ),
+                                    minLines: 1,
+                                    cursorColor: CustomFlowTheme.of(context).primary,
+                                    validator: _model
+                                        .tournamentAddressTextControllerValidator
+                                        .asValidator(context),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            //////////////////////////////////////////
+                            // capacity tournament
+                            //////////////////////////////////////////
+                            Padding(
+                              padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                                    child: Text(
+                                      'Capienza torneo',
+                                      style: CustomFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                        fontFamily: 'Inter',
+                                        letterSpacing: 0,
+                                      ),
+                                    ),
+                                  ),
+                                  TextFormField(
+                                    controller: _model.tournamentCapacityTextController,
+                                    focusNode: _model.tournamentCapacityFocusNode,
+                                    autofocus: false,
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: <TextInputFormatter>[
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    // autofillHints: const [AutofillHints.name],
+                                    textCapitalization: TextCapitalization.words,
+                                    textInputAction: TextInputAction.next,
+                                    obscureText: false,
+                                    decoration: InputDecoration(
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).alternate,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).primary,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      errorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).error,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      focusedErrorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).error,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      filled: true,
+                                      fillColor: CustomFlowTheme.of(context).secondaryBackground,
+                                      errorMaxLines: 2,
+                                    ),
+                                    onChanged: (value){
+                                      if(value == ""){
+                                        _model.tournamentCapacityTextController.text = 'Nessun limite';
+                                      }
+                                    },
+                                    style: CustomFlowTheme.of(context)
+                                        .bodyMedium
+                                        .override(
+                                      fontFamily: 'Inter',
+                                      fontSize: 16,
+                                      letterSpacing: 0,
+                                      fontWeight: FontWeight.w500,
+                                      lineHeight: 1,
+                                    ),
+                                    minLines: 1,
+                                    cursorColor: CustomFlowTheme.of(context).primary,
+                                    validator: _model
+                                        .tournamentCapacityTextControllerValidator
+                                        .asValidator(context),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            //////////////////////////////////////////
+                            // PRE-REGISTRATION switch
+                            //////////////////////////////////////////
+                            Padding(
+                              padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                    child: Text(
+                                      'Pre-registrazione abilitata',
+                                      style: CustomFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                        fontFamily: 'Inter',
+                                        letterSpacing: 0,
+                                      ),
+                                    ),
+                                  ),
+                                  Switch(
+                                    value: _model.preRegistrationEnabled,
+                                    onChanged: (value){
+                                      setState(() {
+                                        _model.preRegistrationEnabled = value;
+                                      });
+                                    }
+                                  )
+                                ],
+                              ),
+                            ),
+                            //////////////////////////////////////////
+                            // WAITINIG-LIST switch
+                            //////////////////////////////////////////
+                            Padding(
+                              padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                    child: Text(
+                                      'Lista d\'attesa abilitata',
+                                      style: CustomFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                        fontFamily: 'Inter',
+                                        letterSpacing: 0,
+                                      ),
+                                    ),
+                                  ),
+                                  Switch(
+                                      value: _model.waitingListEnabled,
+                                      onChanged: (value){
+                                        setState(() {
+                                          _model.waitingListEnabled = value;
+                                        });
+                                      }
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
+                      ),
+                    ),
+                    ////////////////
+                    //VALIDATION BUTTON
+                    /////////////////
+                    Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                       child: AFButtonWidget(
                         onPressed: () async {
-                          logFirebaseEvent('ONBOARDING_SLIDESHOW_CONTINUE_BTN_ON_TAP');
+                          logFirebaseEvent('ONBOARDING_CREATE_OWN_CREATE_OWN');
+                          logFirebaseEvent('Button_validate_form');
+                          if (_model.formKey.currentState == null ||
+                              !_model.formKey.currentState!.validate()) {
+                            return;
+                          }
                           logFirebaseEvent('Button_haptic_feedback');
                           HapticFeedback.lightImpact();
-                          if (_model.pageViewCurrentIndex == 2) {  
-                            logFirebaseEvent('Button_navigate_to');
-                            context.pushNamed('Onboarding_CreateAccount');
-                          } else {
-                            logFirebaseEvent('Button_page_view');
-                            await _model.pageViewController?.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.ease,
-                            );
-                          }
+
+                          //SAVING TOURNAMENT HERE
+
+
+                          logFirebaseEvent('Button_navigate_to');
+                          context.goNamedAuth('Dashboard', context.mounted);
                         },
-                        text: 'Continua',
+                        text: 'Crea Torneo',
                         options: AFButtonOptions(
                           width: double.infinity,
                           height: 50,
@@ -919,9 +832,9 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                           iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                           color: CustomFlowTheme.of(context).primary,
                           textStyle: CustomFlowTheme.of(context).titleSmall.override(
-                                    fontFamily: 'Inter',
-                                    letterSpacing: 0,
-                                  ),
+                            fontFamily: 'Inter',
+                            letterSpacing: 0,
+                          ),
                           elevation: 0,
                           borderSide: const BorderSide(
                             color: Colors.transparent,
@@ -929,14 +842,13 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                           ),
                           borderRadius: BorderRadius.circular(25),
                         ),
-                        showLoadingIndicator: false,
                       ),
                     ),
                   ],
                 ),
               ),
-            ],*/
-          ),
+            ),
+          )
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:petsy/pages/core/create_own/create_own_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import '../../pages/nav_bar/nav_bar_widget.dart';
@@ -117,7 +118,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               name: 'CreateOwn',
               path: 'create-own',
               requireAuth: true,
-              builder: (context, params) => const PlaceholderWidget(),
+              builder: (context, params) => const CreateOwnWidget(),
             ),
             CustomRoute(
               name: 'Profile',

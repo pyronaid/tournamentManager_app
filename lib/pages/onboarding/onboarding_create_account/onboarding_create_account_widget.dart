@@ -69,6 +69,9 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  ////////////////
+                  //CUSTOM BAR
+                  /////////////////
                   wrapWithModel(
                     model: _model.customAppbarModel,
                     updateCallback: () => setState(() {}),
@@ -79,6 +82,9 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                       optionsButtonAction: () async {},
                     ),
                   ),
+                  ////////////////
+                  //PAGE TITLE
+                  /////////////////
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                     child: Text(
@@ -89,6 +95,9 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                       ),
                     ),
                   ),
+                  ////////////////
+                  //FORM
+                  /////////////////
                   Form(
                     key: _model.formKey,
                     autovalidateMode: AutovalidateMode.disabled,
@@ -343,6 +352,9 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                       ],
                     ),
                   ),
+                  ////////////////
+                  //VALIDATION BUTTON
+                  /////////////////
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                     child: AFButtonWidget(
@@ -403,6 +415,9 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                       ),
                     ),
                   ),
+                  ////////////////
+                  //STRING INTERACTIVE
+                  /////////////////
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
                     child: Row(
@@ -467,8 +482,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                             .override(
                                               fontFamily: 'Inter',
                                               letterSpacing: 0,
-                                              decoration:
-                                                  TextDecoration.underline,
+                                              decoration: TextDecoration.underline,
                                         ),
                                       ),
                                       const TextSpan(
