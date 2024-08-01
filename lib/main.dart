@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:petsy/pages/placeholder_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';

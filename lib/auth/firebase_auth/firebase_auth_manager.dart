@@ -76,7 +76,7 @@ class FirebaseAuthManager extends AuthManager
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text(
-                  'Too long since most recent sign in. Sign in again before deleting your account.')),
+                  'E\' passato troppo tempo dal tuo ultimo log in. Rieffettua nuovamente l\'accesso prima di cancellare il tuo account.')),
         );
       }
     }

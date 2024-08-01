@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:petsy/pages/profile/profile/profile_model.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app_flow/app_flow_theme.dart';
@@ -112,7 +113,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Thank you for supporting us!',
+                                    'Clicca qui se vuoi supportarci!',
                                     style: CustomFlowTheme.of(context)
                                         .titleMedium
                                         .override(
@@ -123,7 +124,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                   Padding(
                                     padding: const EdgeInsetsDirectional.fromSTEB(0, 6, 0, 0),
                                     child: Text(
-                                      'As a local business, we thank you for supporting us and hope you enjoy.',
+                                      'Da parte del team ti ringraziamo del tuo supporto e sperioamo che l\'app possa esserti utile',
                                       style: CustomFlowTheme.of(context)
                                           .labelLarge
                                           .override(
@@ -139,8 +140,32 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                             ),
                           ),
                         ),
+                        //////////////////////////////
+                        ///////// QR CODE SPACE
+                        //////////////////////////////
                         Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
+                          padding: const EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 20.0),
+                          child: Center(
+                              child: QrImageView(
+                                data: currentUserUid,
+                                version: QrVersions.auto,
+                                size: 200.0,
+                                eyeStyle: QrEyeStyle(
+                                  eyeShape: QrEyeShape.square,
+                                  color: CustomFlowTheme.of(context).primaryText,
+                                ),
+                                dataModuleStyle: QrDataModuleStyle(
+                                  dataModuleShape: QrDataModuleShape.square,
+                                  color: CustomFlowTheme.of(context).primaryText,
+                                ),
+                              )
+                          ),
+                        ),
+                        //////////////////////////////
+                        /////////LISTA AZIONI
+                        //////////////////////////////
+                        Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                           child: StreamBuilder<List<CompanyInformationRecord>>(
                             stream: queryCompanyInformationRecord(
                               singleRecord: true,

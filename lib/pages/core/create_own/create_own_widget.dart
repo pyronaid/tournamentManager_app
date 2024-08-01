@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:petsy/app_flow/app_flow_util.dart';
+import 'package:petsy/backend/schema/tournaments_record.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import '../../../app_flow/app_flow_animations.dart';
 import '../../../app_flow/app_flow_theme.dart';
@@ -818,11 +819,67 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                           logFirebaseEvent('Button_haptic_feedback');
                           HapticFeedback.lightImpact();
 
-                          //SAVING TOURNAMENT HERE
-
-
-                          logFirebaseEvent('Button_navigate_to');
-                          context.goNamedAuth('Dashboard', context.mounted);
+                          //SAVING TOURNAMENT HER
+                          Game game;
+                          switch(_model.pageViewController?.page){
+                            case 0:
+                              game = Game.ygoAdv;
+                              break;
+                            case 1:
+                              game = Game.ygoRetro;
+                              break;
+                            case 2:
+                              game = Game.onepiece;
+                              break;
+                            case 3:
+                              game = Game.magic;
+                              break;
+                            case 4:
+                              game = Game.altered;
+                              break;
+                            case 5:
+                              game = Game.lorcana;
+                              break;
+                            default:
+                              game = Game.none;
+                          }
+                          Map<String, dynamic> ownTournament = createTournamentsRecordData(
+                            game: game,
+                            name: _model.tournamentNameTextController.text
+                          );
+                          await TournamentsRecord.collection.add(ownTournament)
+                            .whenComplete(
+                              () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Torneo creato con successo',
+                                      style: CustomFlowTheme.of(context).displaySmall.override(
+                                        fontFamily: 'Inter',
+                                        letterSpacing: 0,
+                                        color: CustomFlowTheme.of(context).primary,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                                logFirebaseEvent('Button_navigate_to');
+                                context.goNamedAuth('Dashboard', context.mounted);
+                              }
+                            )
+                            .catchError((onError){
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Errore nella creazione del Torneo. Riprova più tardi',
+                                    style: CustomFlowTheme.of(context).displaySmall.override(
+                                      fontFamily: 'Inter',
+                                      letterSpacing: 0,
+                                      color: CustomFlowTheme.of(context).error,
+                                    ),
+                                  ),
+                                )
+                              );
+                            });
                         },
                         text: 'Crea Torneo',
                         options: AFButtonOptions(
