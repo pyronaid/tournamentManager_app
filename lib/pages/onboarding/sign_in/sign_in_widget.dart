@@ -103,12 +103,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                         padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                         child: Text(
                           'Accedi',
-                          style: CustomFlowTheme.of(context)
-                              .displaySmall
-                              .override(
-                                fontFamily: 'Inter',
-                                letterSpacing: 0,
-                          ),
+                          style: CustomFlowTheme.of(context).displaySmall,
                         ),
                       ),
                       Form(
@@ -127,13 +122,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                                     padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
                                     child: Text(
                                       'Email',
-                                      style: CustomFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          fontFamily: 'Inter',
-                                          letterSpacing: 0,
-                                          fontWeight: FontWeight.w600,
-                                      ),
+                                      style: CustomFlowTheme.of(context).bodyMedium,
                                     ),
                                   ),
                                   TextFormField(
@@ -144,12 +133,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                                     textInputAction: TextInputAction.next,
                                     obscureText: false,
                                     decoration: standardInputDecoration(context),
-                                    style: CustomFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        fontFamily: 'Inter',
-                                        fontSize: 16,
-                                        letterSpacing: 0,
+                                    style: CustomFlowTheme.of(context).bodyLarge.override(
                                         fontWeight: FontWeight.w500,
                                         lineHeight: 1,
                                     ),
@@ -173,13 +157,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                                     padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
                                     child: Text(
                                       'Password',
-                                      style: CustomFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          fontFamily: 'Inter',
-                                          letterSpacing: 0,
-                                          fontWeight: FontWeight.w600,
-                                      ),
+                                      style: CustomFlowTheme.of(context).bodyMedium,
                                     ),
                                   ),
                                   TextFormField(
@@ -198,21 +176,13 @@ class _SignInWidgetState extends State<SignInWidget> {
                                         ),
                                         focusNode: FocusNode(skipTraversal: true),
                                         child: Icon(
-                                          _model.passwordVisibility
-                                              ? Icons.visibility_outlined
-                                              : Icons.visibility_off_outlined,
-                                          color: CustomFlowTheme.of(context)
-                                              .secondaryText,
+                                          _model.passwordVisibility ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                          color: CustomFlowTheme.of(context).secondaryText,
                                           size: 18,
                                         ),
                                       ),
                                     ),
-                                    style: CustomFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        fontFamily: 'Inter',
-                                        fontSize: 16,
-                                        letterSpacing: 0,
+                                    style: CustomFlowTheme.of(context).bodyLarge.override(
                                         fontWeight: FontWeight.w500,
                                         lineHeight: 1,
                                     ),
@@ -260,12 +230,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                             padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                             iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                             color: CustomFlowTheme.of(context).primary,
-                            textStyle: CustomFlowTheme.of(context)
-                                .titleSmall
-                                .override(
-                                  fontFamily: 'Inter',
-                                  letterSpacing: 0,
-                            ),
+                            textStyle: CustomFlowTheme.of(context).titleSmall,
                             elevation: 0,
                             borderSide: const BorderSide(
                               color: Colors.transparent,
@@ -296,12 +261,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                                 padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
                                 child: Text(
                                   'Non ricordo la mia password',
-                                  style: CustomFlowTheme.of(context)
-                                      .bodySmall
-                                      .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0,
-                                  ),
+                                  style: CustomFlowTheme.of(context).bodySmall,
                                 ),
                               ),
                             ],
@@ -312,9 +272,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                   ),
                 ),
               ),
-              if (!(isWeb
-                  ? MediaQuery.viewInsetsOf(context).bottom > 0
-                  : _isKeyboardVisible))
+              if (!(isWeb ? MediaQuery.viewInsetsOf(context).bottom > 0 : _isKeyboardVisible))
                 Padding(
                   padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 48),
                   child: Container(
@@ -337,12 +295,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                             padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
                             child: Text(
                               'Non hai un account?',
-                              style: CustomFlowTheme.of(context)
-                                  .labelLarge
-                                  .override(
-                                    fontFamily: 'Inter',
-                                    letterSpacing: 0,
-                              ),
+                              style: CustomFlowTheme.of(context).labelLarge,
                             ),
                           ),
                           AFButtonWidget(
@@ -359,12 +312,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                               padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                               iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                               color: CustomFlowTheme.of(context).secondary,
-                              textStyle: CustomFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    fontFamily: 'Inter',
-                                    letterSpacing: 0,
-                              ),
+                              textStyle: CustomFlowTheme.of(context).bodyMedium,
                               elevation: 0,
                               borderSide: BorderSide(
                                 color: CustomFlowTheme.of(context).primary,
