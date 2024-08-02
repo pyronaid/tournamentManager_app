@@ -193,6 +193,7 @@ class ThemeTypography extends Typography {
         color: theme.primaryText,
         fontWeight: FontWeight.normal,
         fontSize: 44.0,
+        letterSpacing: 0,
       );
   String get displayMediumFamily => 'Inter';
   TextStyle get displayMedium => GoogleFonts.getFont(
@@ -200,6 +201,7 @@ class ThemeTypography extends Typography {
         color: theme.primaryText,
         fontWeight: FontWeight.normal,
         fontSize: 36.0,
+        letterSpacing: 0,
       );
   String get displaySmallFamily => 'Inter';
   TextStyle get displaySmall => GoogleFonts.getFont(
@@ -207,6 +209,7 @@ class ThemeTypography extends Typography {
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 32.0,
+        letterSpacing: 0,
       );
   String get headlineLargeFamily => 'Inter';
   TextStyle get headlineLarge => GoogleFonts.getFont(
@@ -214,6 +217,7 @@ class ThemeTypography extends Typography {
         color: theme.primaryText,
         fontWeight: FontWeight.normal,
         fontSize: 24.0,
+        letterSpacing: 0,
       );
   String get headlineMediumFamily => 'Inter';
   TextStyle get headlineMedium => GoogleFonts.getFont(
@@ -221,6 +225,7 @@ class ThemeTypography extends Typography {
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 24.0,
+        letterSpacing: 0,
       );
   String get headlineSmallFamily => 'Inter';
   TextStyle get headlineSmall => GoogleFonts.getFont(
@@ -228,6 +233,7 @@ class ThemeTypography extends Typography {
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 22.0,
+        letterSpacing: 0,
       );
   String get titleLargeFamily => 'Inter';
   TextStyle get titleLarge => GoogleFonts.getFont(
@@ -235,6 +241,7 @@ class ThemeTypography extends Typography {
         color: theme.primaryText,
         fontWeight: FontWeight.w500,
         fontSize: 22.0,
+        letterSpacing: 0,
       );
   String get titleMediumFamily => 'Inter';
   TextStyle get titleMedium => GoogleFonts.getFont(
@@ -242,6 +249,7 @@ class ThemeTypography extends Typography {
         color: theme.info,
         fontWeight: FontWeight.w600,
         fontSize: 18.0,
+        letterSpacing: 0,
       );
   String get titleSmallFamily => 'Inter';
   TextStyle get titleSmall => GoogleFonts.getFont(
@@ -249,6 +257,7 @@ class ThemeTypography extends Typography {
         color: theme.info,
         fontWeight: FontWeight.w600,
         fontSize: 16.0,
+        letterSpacing: 0,
       );
   String get labelLargeFamily => 'Inter';
   TextStyle get labelLarge => GoogleFonts.getFont(
@@ -256,6 +265,7 @@ class ThemeTypography extends Typography {
         color: theme.secondaryText,
         fontWeight: FontWeight.w500,
         fontSize: 14.0,
+        letterSpacing: 0,
       );
   String get labelMediumFamily => 'Inter';
   TextStyle get labelMedium => GoogleFonts.getFont(
@@ -263,6 +273,7 @@ class ThemeTypography extends Typography {
         color: theme.secondaryText,
         fontWeight: FontWeight.w500,
         fontSize: 12.0,
+        letterSpacing: 0,
       );
   String get labelSmallFamily => 'Inter';
   TextStyle get labelSmall => GoogleFonts.getFont(
@@ -270,6 +281,7 @@ class ThemeTypography extends Typography {
         color: theme.secondaryText,
         fontWeight: FontWeight.w500,
         fontSize: 11.0,
+        letterSpacing: 0,
       );
   String get bodyLargeFamily => 'Inter';
   TextStyle get bodyLarge => GoogleFonts.getFont(
@@ -277,6 +289,7 @@ class ThemeTypography extends Typography {
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 16.0,
+        letterSpacing: 0,
       );
   String get bodyMediumFamily => 'Inter';
   TextStyle get bodyMedium => GoogleFonts.getFont(
@@ -284,6 +297,7 @@ class ThemeTypography extends Typography {
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 14.0,
+        letterSpacing: 0,
       );
   String get bodySmallFamily => 'Inter';
   TextStyle get bodySmall => GoogleFonts.getFont(
@@ -291,6 +305,7 @@ class ThemeTypography extends Typography {
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 14.0,
+        letterSpacing: 0,
       );
 }
 
