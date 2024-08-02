@@ -76,23 +76,13 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                           padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 6),
                           child: Text(
                             valueOrDefault<String>(functions.returnProfileGreeting(getCurrentTimestamp),'Ciao,',),
-                            style: CustomFlowTheme.of(context)
-                                .labelLarge
-                                .override(
-                              fontFamily: 'Inter',
-                              letterSpacing: 0,
-                            ),
+                            style: CustomFlowTheme.of(context).labelLarge,
                           ),
                         ),
                         AuthUserStreamWidget(
                           builder: (context) => Text(
                             currentUserDisplayName,
-                            style: CustomFlowTheme.of(context)
-                                .displaySmall
-                                .override(
-                              fontFamily: 'Inter',
-                              letterSpacing: 0,
-                            ),
+                            style: CustomFlowTheme.of(context).displaySmall,
                           ),
                         ),
                         Padding(
@@ -114,25 +104,13 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                 children: [
                                   Text(
                                     'Clicca qui se vuoi supportarci!',
-                                    style: CustomFlowTheme.of(context)
-                                        .titleMedium
-                                        .override(
-                                      fontFamily: 'Inter',
-                                      letterSpacing: 0,
-                                    ),
+                                    style: CustomFlowTheme.of(context).titleMedium,
                                   ),
                                   Padding(
                                     padding: const EdgeInsetsDirectional.fromSTEB(0, 6, 0, 0),
                                     child: Text(
                                       'Da parte del team ti ringraziamo del tuo supporto e sperioamo che l\'app possa esserti utile',
-                                      style: CustomFlowTheme.of(context)
-                                          .labelLarge
-                                          .override(
-                                        fontFamily: 'Inter',
-                                        color: CustomFlowTheme.of(context)
-                                            .info,
-                                        letterSpacing: 0,
-                                      ),
+                                      style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).info),
                                     ),
                                   ),
                                 ],
@@ -239,12 +217,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                                 padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 0, 0),
                                                 child: Text(
                                                   'Edit Profile',
-                                                  style: CustomFlowTheme.of(context)
-                                                      .bodyLarge
-                                                      .override(
-                                                    fontFamily: 'Inter',
-                                                    letterSpacing: 0,
-                                                  ),
+                                                  style: CustomFlowTheme.of(context).bodyLarge,
                                                 ),
                                               ),
                                             ],
@@ -301,12 +274,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                                   padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 0, 0),
                                                   child: Text(
                                                     'About Us',
-                                                    style: CustomFlowTheme.of(context)
-                                                        .bodyLarge
-                                                        .override(
-                                                          fontFamily: 'Inter',
-                                                          letterSpacing: 0,
-                                                    ),
+                                                    style: CustomFlowTheme.of(context).bodyLarge,
                                                   ),
                                                 ),
                                               ],
@@ -373,12 +341,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                                   padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 0, 0),
                                                   child: Text(
                                                     'Contact Us',
-                                                    style: CustomFlowTheme.of(context)
-                                                        .bodyLarge
-                                                        .override(
-                                                          fontFamily: 'Inter',
-                                                          letterSpacing: 0,
-                                                    ),
+                                                    style: CustomFlowTheme.of(context).bodyLarge,
                                                   ),
                                                 ),
                                               ],
@@ -433,12 +396,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                                 padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 0, 0),
                                                 child: Text(
                                                   'Create Own',
-                                                  style: CustomFlowTheme.of(context)
-                                                      .bodyLarge
-                                                      .override(
-                                                    fontFamily: 'Inter',
-                                                    letterSpacing: 0,
-                                                  ),
+                                                  style: CustomFlowTheme.of(context).bodyLarge,
                                                 ),
                                               ),
                                             ],
@@ -493,12 +451,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                             padding:const EdgeInsetsDirectional.fromSTEB(18.0, 0.0, 0.0, 0.0),
                                             child: Text(
                                               'Log out',
-                                              style: CustomFlowTheme.of(context)
-                                                  .bodyLarge
-                                                  .override(
-                                                fontFamily: 'Inter',
-                                                letterSpacing: 0.0,
-                                              ),
+                                              style: CustomFlowTheme.of(context).bodyLarge,
                                             ),
                                           ),
                                         ],
