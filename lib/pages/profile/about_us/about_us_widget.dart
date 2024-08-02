@@ -103,12 +103,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                               padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 24),
                               child: Text(
                                 'About Us',
-                                style: CustomFlowTheme.of(context)
-                                    .displaySmall
-                                    .override(
-                                      fontFamily: 'Inter',
-                                      letterSpacing: 0,
-                                    ),
+                                style: CustomFlowTheme.of(context).displaySmall,
                               ),
                             ),
                             /////////////////////////////
@@ -193,12 +188,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                   columnCompanyInformationRecord?.name,
                                   'Company Name',
                                 ),
-                                style: CustomFlowTheme.of(context)
-                                    .displaySmall
-                                    .override(
-                                      fontFamily: 'Inter',
-                                      letterSpacing: 0,
-                                ),
+                                style: CustomFlowTheme.of(context).displaySmall,
                               ),
                             ),
                             Text(
@@ -273,13 +263,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                                           children: [
                                                             Text(
                                                               devsItem.name,
-                                                              style: CustomFlowTheme
-                                                                      .of(context)
-                                                                      .titleMedium
-                                                                      .override(
-                                                                        fontFamily: 'Inter',
-                                                                        letterSpacing: 0,
-                                                              ),
+                                                              style: CustomFlowTheme.of(context).titleMedium,
                                                             ),
                                                             /////////////////////////////
                                                             ///////////////////////////// CASO DEVELOPERS ABBIA BIOGRAFIA 
@@ -289,12 +273,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                                                 padding: const EdgeInsetsDirectional.fromSTEB(0, 6, 0, 0),
                                                                 child: Text(
                                                                   devsItem.bio,
-                                                                  style: CustomFlowTheme.of(context)
-                                                                      .bodySmall
-                                                                      .override(
-                                                                        fontFamily: 'Inter',
-                                                                        letterSpacing: 0,
-                                                                  ),
+                                                                  style: CustomFlowTheme.of(context).bodySmall,
                                                                 ),
                                                               ),
                                                           ],
