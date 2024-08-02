@@ -139,38 +139,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                   textCapitalization: TextCapitalization.words,
                                   textInputAction: TextInputAction.next,
                                   obscureText: false,
-                                  decoration: InputDecoration(
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: CustomFlowTheme.of(context).secondaryBackground,
-                                        width: 1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: CustomFlowTheme.of(context).primary,
-                                        width: 1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    errorBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: CustomFlowTheme.of(context).error,
-                                        width: 1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    focusedErrorBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: CustomFlowTheme.of(context).error,
-                                        width: 1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    filled: true,
-                                    fillColor: CustomFlowTheme.of(context).secondaryBackground,
-                                  ),
+                                  decoration: standardInputDecoration(context),
                                   style: CustomFlowTheme.of(context)
                                       .bodyMedium
                                       .override(
