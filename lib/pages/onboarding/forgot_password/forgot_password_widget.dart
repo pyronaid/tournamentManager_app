@@ -28,8 +28,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
     super.initState();
     _model = createModel(context, () => ForgotPasswordModel());
 
-    logFirebaseEvent('screen_view',
-        parameters: {'screen_name': 'ForgotPassword'});
+    logFirebaseEvent('screen_view', parameters: {'screen_name': 'ForgotPassword'});
     _model.emailAddressTextController ??= TextEditingController();
     _model.emailAddressFocusNode ??= FocusNode();
 
@@ -53,9 +52,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         key: scaffoldKey,
-        backgroundColor: CustomFlowTheme
-            .of(context)
-            .primaryBackground,
+        backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
           child: Column(
