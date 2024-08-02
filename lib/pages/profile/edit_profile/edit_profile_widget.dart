@@ -90,10 +90,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                     child: Text(
                       'Edit Profile',
-                      style: CustomFlowTheme.of(context).displaySmall.override(
-                            fontFamily: 'Inter',
-                            letterSpacing: 0,
-                      ),
+                      style: CustomFlowTheme.of(context).displaySmall,
                     ),
                   ),
                   Column(
@@ -110,12 +107,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                               padding:const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
                               child: Text(
                                 'Full Name',
-                                style: CustomFlowTheme.of(context)
-                                    .bodyLarge
-                                    .override(
-                                      fontFamily: 'Inter',
-                                      letterSpacing: 0,
-                                ),
+                                style: CustomFlowTheme.of(context).bodyLarge,
                               ),
                             ),
                             Padding(
@@ -140,12 +132,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                   textInputAction: TextInputAction.next,
                                   obscureText: false,
                                   decoration: standardInputDecoration(context),
-                                  style: CustomFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        fontFamily: 'Inter',
-                                        fontSize: 16,
-                                        letterSpacing: 0,
+                                  style: CustomFlowTheme.of(context).bodyLarge.override(
                                         fontWeight: FontWeight.w500,
                                         lineHeight: 1,
                                   ),
@@ -198,12 +185,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                         padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                         iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                         color: CustomFlowTheme.of(context).primary,
-                        textStyle: CustomFlowTheme.of(context).bodyMedium.override(
-                                  fontFamily: 'Inter',
-                                  color: CustomFlowTheme.of(context).primaryBackground,
-                                  letterSpacing: 0,
-                                  fontWeight: FontWeight.w600,
-                        ),
+                        textStyle: CustomFlowTheme.of(context).bodyMedium.override(color: CustomFlowTheme.of(context).primaryBackground),
                         elevation: 0,
                         borderSide: const BorderSide(
                           color: Colors.transparent,
@@ -236,12 +218,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                         padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                         iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                         color: const Color(0xFFFFD4D4),
-                        textStyle: CustomFlowTheme.of(context).bodyMedium.override(
-                                  fontFamily: 'Inter',
-                                  color: const Color(0xFFB74D4D),
-                                  letterSpacing: 0,
-                                  fontWeight: FontWeight.w600,
-                        ),
+                        textStyle: CustomFlowTheme.of(context).bodyMedium.override(color: const Color(0xFFB74D4D)),
                         elevation: 0,
                         borderSide: const BorderSide(
                           color: Colors.transparent,
@@ -266,10 +243,8 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                       focusedErrorBorder: InputBorder.none,
                     ),
                     style: CustomFlowTheme.of(context).bodyMedium.override(
-                          fontFamily: 'Inter',
                           color: CustomFlowTheme.of(context).primaryBackground,
                           fontSize: 1,
-                          letterSpacing: 0,
                           fontWeight: FontWeight.w500,
                           lineHeight: 1,
                     ),
@@ -308,16 +283,7 @@ void showAlertDialog(BuildContext context, String redirect) {
   Widget continueButton = TextButton(
     child: Text(
         "Cancella",
-        style: CustomFlowTheme
-            .of(context)
-            .displaySmall
-            .override(
-          fontSize: 18.0,
-          fontFamily: 'Inter',
-          color: const Color(0xFFB74D4D),
-          letterSpacing: 0,
-          fontWeight: FontWeight.w600,
-        ),
+        style: CustomFlowTheme.of(context).titleMedium.override(color: const Color(0xFFB74D4D)),
     ),
     onPressed:  () async {
       await authManager.deleteUser(context);
@@ -338,26 +304,11 @@ void showAlertDialog(BuildContext context, String redirect) {
   AlertDialog alert = AlertDialog(
     title: Text(
         "Attenzione",
-        style: CustomFlowTheme
-            .of(context)
-            .displaySmall
-            .override(
-          fontFamily: 'Inter',
-          color: const Color(0xFFB74D4D),
-          fontSize: 30.0,
-          letterSpacing: 0,
-        ),
+        style: CustomFlowTheme.of(context).displaySmall.override(color: const Color(0xFFB74D4D)),
     ),
     content: Text(
         "Sei sicuro di cancellare il tuo account e tutti i suoi dati?",
-        style: CustomFlowTheme
-            .of(context)
-            .displaySmall
-            .override(
-          fontFamily: 'Inter',
-          fontSize: 12.0,
-          letterSpacing: 0,
-        ),
+        style: CustomFlowTheme.of(context).labelMedium,
     ),
     actions: [
       cancelButton,
