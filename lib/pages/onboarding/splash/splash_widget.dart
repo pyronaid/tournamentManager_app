@@ -78,22 +78,10 @@ class _SplashWidgetState extends State<SplashWidget> {
                             children: [
                               TextSpan(
                                 text: 'Petsy',
-                                style: CustomFlowTheme.of(context)
-                                    .displayLarge
-                                    .override(
-                                  fontFamily: 'Inter',
-                                  color: CustomFlowTheme.of(context).primary,
-                                  letterSpacing: 0.0,
-                                ),
+                                style: CustomFlowTheme.of(context).displayLarge,
                               )
                             ],
-                            style: CustomFlowTheme.of(context)
-                                .displaySmall
-                                .override(
-                              fontFamily: 'Inter',
-                              fontSize: 4.sp,
-                              letterSpacing: 0.0,
-                            ),
+                            style: CustomFlowTheme.of(context).displaySmall,
                           ),
                         ),
                       ),
@@ -125,10 +113,7 @@ class _SplashWidgetState extends State<SplashWidget> {
                         const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
                         color: CustomFlowTheme.of(context).primary,
                         textStyle:
-                        CustomFlowTheme.of(context).titleSmall.override(
-                          fontFamily: 'Inter',
-                          letterSpacing: 0.0,
-                        ),
+                        CustomFlowTheme.of(context).titleSmall,
                         elevation: 0.0,
                         borderSide: const BorderSide(
                           color: Colors.transparent,
@@ -159,31 +144,14 @@ class _SplashWidgetState extends State<SplashWidget> {
                                 children: [
                                   TextSpan(
                                     text: 'Already a member?  ',
-                                    style: CustomFlowTheme.of(context)
-                                        .bodySmall
-                                        .override(
-                                      fontFamily: 'Inter',
-                                      letterSpacing: 0.0,
-                                    ),
+                                    style: CustomFlowTheme.of(context).bodySmall,
                                   ),
                                   TextSpan(
                                     text: 'Sign In',
-                                    style: CustomFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                      fontFamily: 'Inter',
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.w600,
-                                      decoration: TextDecoration.underline,
-                                    ),
+                                    style: CustomFlowTheme.of(context).bodyMedium.override(decoration: TextDecoration.underline),
                                   )
                                 ],
-                                style: CustomFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                  fontFamily: 'Inter',
-                                  letterSpacing: 0.0,
-                                ),
+                                style: CustomFlowTheme.of(context).bodyMedium,
                               ),
                             ),
                           ),
