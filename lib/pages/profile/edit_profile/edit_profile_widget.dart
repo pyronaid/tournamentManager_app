@@ -267,14 +267,7 @@ void showAlertDialog(BuildContext context, String redirect) {
   Widget cancelButton = TextButton(
     child: Text(
         "Annulla",
-        style: CustomFlowTheme
-            .of(context)
-            .displaySmall
-            .override(
-          fontFamily: 'Inter',
-          fontSize: 18.0,
-          letterSpacing: 0,
-        ),
+        style: CustomFlowTheme.of(context).titleMedium,
     ),
     onPressed:  () {
       Navigator.of(context).pop(); // dismiss dialog
