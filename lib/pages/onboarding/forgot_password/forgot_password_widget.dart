@@ -85,13 +85,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                           padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                           child: Text(
                             'Password dimenticata',
-                            style: CustomFlowTheme
-                                .of(context)
-                                .displaySmall
-                                .override(
-                              fontFamily: 'Inter',
-                              letterSpacing: 0,
-                            ),
+                            style: CustomFlowTheme.of(context).displaySmall,
                           ),
                         ),
                         Form(
@@ -109,26 +103,14 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                                     Text(
                                       'Ti manderemo una mail per il reset della password.',
                                       textAlign: TextAlign.start,
-                                      style: CustomFlowTheme
-                                          .of(context)
-                                          .labelLarge
-                                          .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0,
-                                      ),
+                                      style: CustomFlowTheme.of(context).labelLarge,
                                     ),
                                     Padding(
                                       padding: const EdgeInsetsDirectional.fromSTEB(0, 15, 0, 0),
                                       child: Text(
                                         'Email',
                                         textAlign: TextAlign.start,
-                                        style: CustomFlowTheme
-                                            .of(context)
-                                            .bodyLarge
-                                            .override(
-                                          fontFamily: 'Inter',
-                                          letterSpacing: 0,
-                                        ),
+                                        style: CustomFlowTheme.of(context).bodyLarge,
                                       ),
                                     ),
                                     Padding(
@@ -142,21 +124,13 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                                         textInputAction: TextInputAction.next,
                                         obscureText: false,
                                         decoration: standardInputDecoration(context),
-                                        style: CustomFlowTheme
-                                            .of(context)
-                                            .bodyMedium
-                                            .override(
-                                          fontFamily: 'Inter',
-                                          fontSize: 16,
-                                          letterSpacing: 0,
+                                        style: CustomFlowTheme.of(context).titleSmall.override(
                                           fontWeight: FontWeight.w500,
                                           lineHeight: 1,
                                         ),
                                         minLines: 1,
                                         keyboardType: TextInputType.emailAddress,
-                                        cursorColor: CustomFlowTheme
-                                            .of(context)
-                                            .primary,
+                                        cursorColor: CustomFlowTheme.of(context).primary,
                                         validator: _model
                                             .emailAddressTextControllerValidator
                                             .asValidator(context),
@@ -204,16 +178,8 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                               height: 50,
                               padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                               iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                              color: CustomFlowTheme
-                                  .of(context)
-                                  .primary,
-                              textStyle: CustomFlowTheme
-                                  .of(context)
-                                  .titleSmall
-                                  .override(
-                                fontFamily: 'Inter',
-                                letterSpacing: 0,
-                              ),
+                              color: CustomFlowTheme.of(context).primary,
+                              textStyle: CustomFlowTheme.of(context).titleSmall,
                               elevation: 0,
                               borderSide: const BorderSide(
                                 color: Colors.transparent,
