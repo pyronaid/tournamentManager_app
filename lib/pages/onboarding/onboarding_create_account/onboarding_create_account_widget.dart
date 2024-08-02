@@ -89,10 +89,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                     child: Text(
                       'Registrati',
-                      style: CustomFlowTheme.of(context).displaySmall.override(
-                        fontFamily: 'Inter',
-                        letterSpacing: 0,
-                      ),
+                      style: CustomFlowTheme.of(context).displaySmall,
                     ),
                   ),
                   ////////////////
@@ -114,12 +111,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                 padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
                                 child: Text(
                                   'Nome completo',
-                                  style: CustomFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0,
-                                  ),
+                                  style: CustomFlowTheme.of(context).bodyMedium,
                                 ),
                               ),
                               TextFormField(
@@ -131,12 +123,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                 textInputAction: TextInputAction.next,
                                 obscureText: false,
                                 decoration: standardInputDecoration(context),
-                                style: CustomFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      fontFamily: 'Inter',
-                                      fontSize: 16,
-                                      letterSpacing: 0,
+                                style: CustomFlowTheme.of(context).bodyLarge.override(
                                       fontWeight: FontWeight.w500,
                                       lineHeight: 1,
                                 ),
@@ -159,12 +146,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                 padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
                                 child: Text(
                                   'Email',
-                                  style: CustomFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0,
-                                  ),
+                                  style: CustomFlowTheme.of(context).bodyMedium,
                                 ),
                               ),
                               TextFormField(
@@ -175,12 +157,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                 textInputAction: TextInputAction.next,
                                 obscureText: false,
                                 decoration: standardInputDecoration(context),
-                                style: CustomFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      fontFamily: 'Inter',
-                                      fontSize: 16,
-                                      letterSpacing: 0,
+                                style: CustomFlowTheme.of(context).bodyLarge.override(
                                       fontWeight: FontWeight.w500,
                                       lineHeight: 1,
                                 ),
@@ -204,12 +181,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                 padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
                                 child: Text(
                                   'Password',
-                                  style: CustomFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0,
-                                  ),
+                                  style: CustomFlowTheme.of(context).bodyMedium,
                                 ),
                               ),
                               TextFormField(
@@ -237,15 +209,10 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                     ),
                                   ),
                                 ),
-                                style: CustomFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      fontFamily: 'Inter',
-                                      fontSize: 16,
-                                      letterSpacing: 0,
+                                style: CustomFlowTheme.of(context).bodyLarge.override(
                                       fontWeight: FontWeight.w500,
                                       lineHeight: 1,
-                                    ),
+                                ),
                                 cursorColor: CustomFlowTheme.of(context).primary,
                                 validator: _model
                                     .passwordTextControllerValidator
@@ -307,10 +274,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                         padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                         iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                         color: CustomFlowTheme.of(context).primary,
-                        textStyle: CustomFlowTheme.of(context).titleSmall.override(
-                                  fontFamily: 'Inter',
-                                  letterSpacing: 0,
-                        ),
+                        textStyle: CustomFlowTheme.of(context).titleSmall,
                         elevation: 0,
                         borderSide: const BorderSide(
                           color: Colors.transparent,
@@ -373,34 +337,18 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                     children: [
                                       TextSpan(
                                         text: 'Cliccando "Crea Account," accetti i ',
-                                        style: CustomFlowTheme.of(context)
-                                            .bodySmall
-                                            .override(
-                                              fontFamily: 'Inter',
-                                              letterSpacing: 0,
-                                        ),
+                                        style: CustomFlowTheme.of(context).bodySmall,
                                       ),
                                       TextSpan(
                                         text: 'Termini contrattuali',
-                                        style: CustomFlowTheme.of(context)
-                                            .bodySmall
-                                            .override(
-                                              fontFamily: 'Inter',
-                                              letterSpacing: 0,
-                                              decoration: TextDecoration.underline,
-                                        ),
+                                        style: CustomFlowTheme.of(context).bodySmall.override(decoration: TextDecoration.underline,),
                                       ),
                                       const TextSpan(
                                         text: ' di Petsy.',
                                         style: TextStyle(),
                                       ),
                                     ],
-                                    style: CustomFlowTheme.of(context)
-                                        .bodySmall
-                                        .override(
-                                          fontFamily: 'Inter',
-                                          letterSpacing: 0,
-                                    ),
+                                    style: CustomFlowTheme.of(context).bodySmall,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
