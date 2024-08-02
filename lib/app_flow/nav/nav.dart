@@ -97,13 +97,23 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               builder: (context, params) => const SignInWidget(),
             ),
             CustomRoute(
+              name: 'Onboarding_VerifyMail',
+              path: 'onboarding-verify-mail',
+              builder: (context, params) => const OnboardingVerifyMailWidget(),
+            ),
+            CustomRoute(
+              name: 'Onboarding_VerifyMailSuccess',
+              path: 'onboarding-verify-mail-success',
+              builder: (context, params) => const OnboardingVerifyMailSuccessWidget(),
+            ),
+            CustomRoute(
               name: 'Onboarding_Slideshow',
-              path: 'onboarding',
+              path: 'onboarding-slideshow',
               builder: (context, params) => const OnboardingSlideshowWidget(),
             ),
             CustomRoute(
               name: 'Onboarding_CreateAccount',
-              path: 'create-account',
+              path: 'onboarding-create-account',
               builder: (context, params) => const OnboardingCreateAccountWidget(),
             ),
             CustomRoute(
