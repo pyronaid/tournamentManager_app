@@ -143,47 +143,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                                     autofillHints: const [AutofillHints.email],
                                     textInputAction: TextInputAction.next,
                                     obscureText: false,
-                                    decoration: InputDecoration(
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme
-                                              .of(context)
-                                              .alternate,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme
-                                              .of(context)
-                                              .primary,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      errorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme
-                                              .of(context)
-                                              .error,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      focusedErrorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme
-                                              .of(context)
-                                              .error,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      filled: true,
-                                      fillColor: CustomFlowTheme.of(context).secondaryBackground,
-                                      errorMaxLines: 2,
-                                    ),
+                                    decoration: standardInputDecoration(context),
                                     style: CustomFlowTheme.of(context)
                                       .bodyMedium
                                       .override(
@@ -229,45 +189,8 @@ class _SignInWidgetState extends State<SignInWidget> {
                                     autofillHints: const [AutofillHints.password],
                                     textInputAction: TextInputAction.done,
                                     obscureText: !_model.passwordVisibility,
-                                    decoration: InputDecoration(
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme
-                                              .of(context)
-                                              .alternate,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme
-                                              .of(context)
-                                              .primary,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      errorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme
-                                              .of(context)
-                                              .error,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      focusedErrorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme
-                                              .of(context)
-                                              .error,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      filled: true,
-                                      fillColor: CustomFlowTheme.of(context).secondaryBackground,
+                                    decoration: standardInputDecoration(
+                                      context,
                                       suffixIcon: InkWell(
                                         onTap: () => setState(
                                           () => _model.passwordVisibility =
@@ -283,7 +206,6 @@ class _SignInWidgetState extends State<SignInWidget> {
                                           size: 18,
                                         ),
                                       ),
-                                      errorMaxLines: 2,
                                     ),
                                     style: CustomFlowTheme.of(context)
                                       .bodyMedium
