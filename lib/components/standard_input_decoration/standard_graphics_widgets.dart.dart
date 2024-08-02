@@ -34,3 +34,27 @@ InputDecoration standardInputDecoration(BuildContext context, {Widget? suffixIco
     suffixIcon: suffixIcon,
   );
 }
+
+
+
+AnimationInfo standardAnimationInfo(BuildContext context) {
+  return AnimationInfo(
+    trigger: AnimationTrigger.onPageLoad,
+    effectsBuilder: () => [
+      ScaleEffect(
+        curve: Curves.easeInOut,
+        delay: 0.0.ms,
+        duration: 600.0.ms,
+        begin: const Offset(0.9, 0.9),
+        end: const Offset(1.0, 1.0),
+      ),
+      FadeEffect(
+        curve: Curves.easeInOut,
+        delay: 0.0.ms,
+        duration: 600.0.ms,
+        begin: 0.0,
+        end: 1.0,
+      ),
+    ],
+  ),
+}
