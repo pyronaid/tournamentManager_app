@@ -85,7 +85,7 @@ class _OnboardingVerifyMailSuccessWidgetState extends State<OnboardingVerifyMail
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                     child: Text(
-                      'Verifica il tuo indirizzo mail!',
+                      'Account verificato con successo!',
                       style: CustomFlowTheme.of(context).displaySmall,
                     ),
                   ),
@@ -105,7 +105,7 @@ class _OnboardingVerifyMailSuccessWidgetState extends State<OnboardingVerifyMail
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                     child: Text(
-                      'Il tuo account è stato creato ma non è utilizzabile fino a quando non confermerai la mail. Trovi il link nella mail indicata sopra. Controlla che non sia finita erroneamente in spam!',
+                      'Benvenuto nell\'app di TournamentManager. Qui potrai gestire i tuoi tornei, vedere lo storico e iscriverti ai prossimi eventi dei tuoi giochi preferiti.',
                       style: CustomFlowTheme.of(context).displaySmall,
                     ),
                   ),
@@ -116,7 +116,7 @@ class _OnboardingVerifyMailSuccessWidgetState extends State<OnboardingVerifyMail
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                     child: AFButtonWidget(
                       onPressed: () async {
-                        logFirebaseEvent('ONBOARDING_VERIFY_MAIL_CONTINUE');
+                        logFirebaseEvent('ONBOARDING_VERIFY_MAIL_SUCCESS_CONTINUE');
                         logFirebaseEvent('Button_haptic_feedback');
                         HapticFeedback.lightImpact();
                         logFirebaseEvent('Button_continue');
@@ -126,45 +126,9 @@ class _OnboardingVerifyMailSuccessWidgetState extends State<OnboardingVerifyMail
                         
 
                         logFirebaseEvent('Button_navigate_to');
-                        context.goNamedAuth('Dashboard', context.mounted);
+                        context.goNamedAuth('SignIn', context.mounted);
                       },
                       text: 'Continua',
-                      options: AFButtonOptions(
-                        width: double.infinity,
-                        height: 50,
-                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                        iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                        color: CustomFlowTheme.of(context).primary,
-                        textStyle: CustomFlowTheme.of(context).titleSmall,
-                        elevation: 0,
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                    ),
-                  ),
-                  ////////////////
-                  //RESEND MAIL BUTTON
-                  /////////////////
-                  Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                    child: AFButtonWidget(
-                      onPressed: () async {
-                        logFirebaseEvent('ONBOARDING_VERIFY_MAIL_RESEND_MAIL');
-                        logFirebaseEvent('Button_haptic_feedback');
-                        HapticFeedback.lightImpact();
-                        logFirebaseEvent('Button_resend_mail');
-                        
-
-                        //LOGIC
-                        
-
-                        logFirebaseEvent('Button_navigate_to');
-                        context.goNamedAuth('Dashboard', context.mounted);
-                      },
-                      text: 'Rimanda email di verifica',
                       options: AFButtonOptions(
                         width: double.infinity,
                         height: 50,
