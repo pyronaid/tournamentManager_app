@@ -374,3 +374,10 @@ Future updateUserDocument({String? email}) async {
   await currentUserDocument?.reference
       .update(createUsersRecordData(email: email));
 }
+
+//TODO REMOVE USERDATA 
+Future deleteUserDocument({String? uid}) async {
+  await currentUserDocument?.reference
+      .delete();
+}
+
