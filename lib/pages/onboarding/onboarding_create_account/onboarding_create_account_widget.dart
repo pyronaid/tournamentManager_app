@@ -265,7 +265,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                         });
 
                         logFirebaseEvent('Button_navigate_to');
-                        context.goNamedAuth('Dashboard', context.mounted);
+                        context.goNamedAuth('VerifyMail', context.mounted);
                       },
                       text: 'Crea Account',
                       options: AFButtonOptions(
