@@ -268,7 +268,9 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                                     controller: _model.pageViewController ??= PageController(initialPage: 0),
                                     scrollDirection: Axis.horizontal,
                                     children: [
+                                      ///////////////////////////
                                       // FIRST ELEMENT OF CAROUSEL
+                                      ///////////////////////////
                                       Column(
                                         mainAxisSize: MainAxisSize.max,
                                         mainAxisAlignment: MainAxisAlignment.center,
@@ -278,13 +280,7 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                                             child: Text(
                                               'Storico sanitario\ndel tuo pet',
                                               textAlign: TextAlign.center,
-                                              style: CustomFlowTheme.of(context)
-                                                      .displaySmall
-                                                      .override(
-                                                        fontFamily: 'Inter',
-                                                        letterSpacing: 0,
-                                                      ),
-
+                                              style: CustomFlowTheme.of(context).displaySmall,
                                             ).animateOnPageLoad(animationsMap['textOnPageLoadAnimation1']!),
                                           ),
                                           Padding(
@@ -300,17 +296,14 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                                             child: Text(
                                               'Crea lo storico sanitario del tuo "pet" così che il tuo veterinario abbia sempre il contesto di tutto ciò che ha fatto',
                                               textAlign: TextAlign.center,
-                                              style: CustomFlowTheme.of(context)
-                                                      .labelLarge
-                                                      .override(
-                                                        fontFamily: 'Inter',
-                                                        letterSpacing: 0,
-                                                      ),
+                                              style: CustomFlowTheme.of(context).labelLarge,
                                             ).animateOnPageLoad(animationsMap['textOnPageLoadAnimation2']!),
                                           ),
                                         ],
                                       ),
+                                      ///////////////////////////
                                       // SECOND ELEMENT OF CAROUSEL
+                                      ///////////////////////////
                                       Column(
                                         mainAxisSize: MainAxisSize.max,
                                         mainAxisAlignment: MainAxisAlignment.center,
@@ -320,12 +313,7 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                                             child: Text(
                                               'Foto gallery \nperiodica',
                                               textAlign: TextAlign.center,
-                                              style: CustomFlowTheme.of(context)
-                                                      .displaySmall
-                                                      .override(
-                                                        fontFamily: 'Inter',
-                                                        letterSpacing: 0,
-                                                      ),
+                                              style: CustomFlowTheme.of(context).displaySmall,
                                             ).animateOnPageLoad(animationsMap['textOnPageLoadAnimation3']!),
                                           ),
                                           Padding(
@@ -341,17 +329,14 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                                             child: Text(
                                               'Carica delle foto cadenzate per vedere come cresce nel tempo.',
                                               textAlign: TextAlign.center,
-                                              style: CustomFlowTheme.of(context)
-                                                      .labelLarge
-                                                      .override(
-                                                        fontFamily: 'Inter',
-                                                        letterSpacing: 0,
-                                                      ),
+                                              style: CustomFlowTheme.of(context).labelLarge,
                                             ).animateOnPageLoad(animationsMap['textOnPageLoadAnimation4']!),
                                           ),
                                         ],
                                       ),
+                                      ///////////////////////////
                                       // THIRD ELEMENT OF CAROUSEL
+                                      ///////////////////////////
                                       Column(
                                         mainAxisSize: MainAxisSize.max,
                                         mainAxisAlignment: MainAxisAlignment.center,
@@ -361,12 +346,7 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                                             child: Text(
                                               'Reminder personalizzati\nper cure e appuntamenti',
                                               textAlign: TextAlign.center,
-                                              style: CustomFlowTheme.of(context)
-                                                      .displaySmall
-                                                      .override(
-                                                        fontFamily: 'Inter',
-                                                        letterSpacing: 0,
-                                                      ),
+                                              style: CustomFlowTheme.of(context).displaySmall,
                                             ).animateOnPageLoad(animationsMap['textOnPageLoadAnimation5']!),
                                           ),
                                           Padding(
@@ -382,12 +362,7 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                                             child: Text(
                                               'L\'app è il tuo organizer personale per ricordarti delle somministrazioni e degli appuntamenti del veterinario.',
                                               textAlign: TextAlign.center,
-                                              style: CustomFlowTheme.of(context)
-                                                      .labelLarge
-                                                      .override(
-                                                        fontFamily: 'Inter',
-                                                        letterSpacing: 0,
-                                                      ),
+                                              style: CustomFlowTheme.of(context).labelLarge,
                                             ).animateOnPageLoad(animationsMap['textOnPageLoadAnimation6']!),
                                           ),
                                         ],
@@ -404,8 +379,7 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                                       count: 3,
                                       axisDirection: Axis.horizontal,
                                       onDotClicked: (i) async {
-                                        await _model.pageViewController!
-                                            .animateToPage(i, duration: const Duration(milliseconds: 500), curve: Curves.ease,);
+                                        await _model.pageViewController!.animateToPage(i, duration: const Duration(milliseconds: 500), curve: Curves.ease,);
                                         setState(() {});
                                       },
                                       effect: smooth_page_indicator.ExpandingDotsEffect(
@@ -461,10 +435,7 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                           padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                           iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                           color: CustomFlowTheme.of(context).primary,
-                          textStyle: CustomFlowTheme.of(context).titleSmall.override(
-                                    fontFamily: 'Inter',
-                                    letterSpacing: 0,
-                                  ),
+                          textStyle: CustomFlowTheme.of(context).titleSmall,
                           elevation: 0,
                           borderSide: const BorderSide(
                             color: Colors.transparent,
