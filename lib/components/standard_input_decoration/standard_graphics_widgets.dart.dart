@@ -1,4 +1,4 @@
-InputDecoration standardInputDecoration(BuildContext context) {
+InputDecoration standardInputDecoration(BuildContext context, {Widget? suffixIcon}) {
   return InputDecoration(
     enabledBorder: OutlineInputBorder(
       borderSide: BorderSide(
@@ -31,5 +31,6 @@ InputDecoration standardInputDecoration(BuildContext context) {
     filled: true,
     fillColor: CustomFlowTheme.of(context).secondaryBackground,
     errorMaxLines: 2,
+    suffixIcon: suffixIcon,
   );
 }
