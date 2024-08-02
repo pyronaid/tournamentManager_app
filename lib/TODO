@@ -51,3 +51,183 @@ GESTIONE ERRORI CON SLACK TOST DIFFERENTE
 AGIUNGERE ICONE AI CAMPI FORM E DARE UNA UI PIU' SIMILE A QUELLA IN IMMAGINE
 
 full screen loader with gif processing data!
+
+
+
+
+#################################################
+    onPressed:  () async {
+
+      //TODO 
+      //step1 show loading page 
+
+      
+      try {
+        //cancel user from FireStore [unabled at the moment to prevent the inconsistance of DB]
+        //await deleteUserDocument(currentUserUid);
+
+        //cancel user from FireBase 
+        await authManager.deleteUser(context);
+       
+
+        // hide loading page
+
+        // show snackmessage with the confirmation of the deletion 
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Utente rimosso dal database ")),
+        );
+
+        //move to splash page 
+         logFirebaseEvent('Button_navigate_to');
+        context.goNamed(
+          'Splash',
+          extra: <String, dynamic>{
+            kTransitionInfoKey: const TransitionInfo(
+              hasTransition: true,
+              transitionType: PageTransitionType.fade,
+              duration: Duration(milliseconds: 0),
+            ),
+          },
+        );
+      } catch(e) {
+        //catch issue hiding loading page and showing snackmessage of the issue  
+        final errorMsg = switch (e.code) {
+          'email-already-in-use' => 'Error: The email is already in use by a different account',
+          'INVALID_LOGIN_CREDENTIALS' => 'Error: The supplied auth credential is incorrect, malformed or has expired',
+          _ => 'Error: ${e.message!}',
+        };
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMsg)),
+        );
+      }
+
+    },
+#####################################################################
+
+
+
+PARTE 2222222222222222222222222222222222222
+
+TODO: MODIFICARE GRAFICA SLACK BAR [da sopra per evitare il caso della tastiera aperta]
+TODO: AGGIUNGERE INTEGRAZIONE MAPPE PER INDIRIZZO COMPLETO
+TODO: delete account not remove from user DB 
+
+
+
+###################################################################
+- FULL SCREEN LOADING (animation)
+- CHECK INTERNET CONNECTIVITY
+final isConnected = await NetworkManager.instance.isConnected()
+if (!isConnected) {
+	FULLSCREENLOADER.stopLoading();
+	return;
+}
+
+- FORM VALIDATION
+if(!signupFormKey.currentState!.validate()){
+	FULLSCREENLOADER.stopLoading();
+	return;
+}
+
+//PRIVACY POLICY FLAG WITH SLACK BAR MESSAGE IF NOT
+
+final userCredential = await AuthenticationRepository.instance.registerWithEmailAndPassword(email.text.trim(), password.text.trim());
+final newUser = UserModel(
+	id: userCredential.user!.uid,
+	firstName: firstName.text.trim().
+	profilePicture: '',
+)
+
+final userRepository = Get.put(UserRepository());
+await userRepository.saveUserRecord(newUser);
+
+FULLSCREENLOADER.stopLoading();
+SLACK BAR MESSAGE (CONGRATULATION, ACCOUNT CREATED, VERIFY TO CONTINUE)
+Router.GOTO VerifyMailPage
+
+###################################################################
+@@@@@@ NEL MIO CASO @@@@@@
+
+final user = await authManager.createAccountWithEmail(context,
+    _model.emailAddressTextController.text,
+    _model.passwordTextController.text,
+);
+------------------------------------>
+FirebaseAuthManager get authManager => _authManager;  																		[lib/auth/firebase_auth/auth_util.dart]
+	final _authManager = FirebaseAuthManager();																				[lib/auth/firebase_auth/auth_util.dart]
+		class FirebaseAuthManager extends AuthManager 																		[lib/auth/firebase_auth/firebase_auth_manager.dart]
+			abstract class _authManager																						[lib/auth/auth_manager.dart]								
+createAccountWithEmail																										[lib/auth/firebase_auth/firebase_auth_manager.dart]
+	_signInOrCreateAccount(context, () => emailCreateAccountFunc(email, password), 'EMAIL');								[lib/auth/firebase_auth/firebase_auth_manager.dart]
+		final userCredential = await emailCreateAccountFunc(email, password); 												[lib/auth/firebase_auth/firebase_auth_manager.dart]
+			
+			emailCreateAccountFunc(email, password) 																		[lib/auth/firebase_auth/email_auth.dart]
+				FirebaseAuth.instance.createUserWithEmailAndPassword(email, password)										[lib/auth/firebase_auth/email_auth.dart]
+
+
+		logFirebaseAuthEvent(userCredential?.user, 'EMAIL');																[lib/auth/firebase_auth/firebase_auth_manager.dart]
+		if (userCredential?.user != null) 																					[lib/auth/firebase_auth/firebase_auth_manager.dart]
+			await maybeCreateUser(userCredential!.user!); 																	[lib/auth/firebase_auth/firebase_auth_manager.dart]
+
+				maybeCreateUser(User user)																					[lib/backend/backend.dart]
+					final userRecord = UsersRecord.collection.doc(user.uid);												[lib/backend/backend.dart]
+					final userExists = await userRecord.get().then((u) => u.exists);										[lib/backend/backend.dart]
+				if (userExists) {
+				    currentUserDocument = await UsersRecord.getDocumentOnce(userRecord);
+				    return;
+				userData = createUsersRecordData(
+					email:  ?? valore
+					displayName: ?? valore
+					photoUrl: ?? valore 
+					uid: user.uid,
+					phoneNumber: ?? valore 	
+					createdTime: getCurrentTimestamp
+
+				await userRecord.set(userData); //setta tutti i dati qui dalla mappa
+				currentUserDocument = UsersRecord.getDocumentFromData(userData, userRecord); //recupera utente fresh
+					 UsersRecord._(userRecord, mapFromFirestore(userData)); 
+
+
+			if userCredential == null																						[lib/auth/firebase_auth/firebase_auth_manager.dart]
+				return null																									[lib/auth/firebase_auth/firebase_auth_manager.dart]
+			else 																											[lib/auth/firebase_auth/firebase_auth_manager.dart]
+				return PetsyFirebaseUser.fromUserCredential(userCredential)													[lib/auth/firebase_auth/firebase_auth_manager.dart]
+		error 																												[lib/auth/firebase_auth/firebase_auth_manager.dart]
+			'email-already-in-use' => 'Error: The email is already in use by a different account',							[lib/auth/firebase_auth/firebase_auth_manager.dart]
+			'INVALID_LOGIN_CREDENTIALS' => 'Error: The supplied auth credential is incorrect, malformed or has expired',	[lib/auth/firebase_auth/firebase_auth_manager.dart]
+			SHOWED AS SNACK_BAR
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+                        if (user == null) {
+                          return;
+                        }
+                        //REGISTRATION
+                        await UsersRecord.collection.doc(user.uid).update({
+                          ...createUsersRecordData(
+                            displayName: _model.fullNameTextController.text,
+                            createdTime: DateTime.now(),
+                          ),
+                          /*
+                          ...mapToFirestore(
+                            {
+                            },
+                          ),*/
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+https://firebase.flutter.dev/docs/firestore/usage/
+https://www.youtube.com/watch?v=Lvy75rlDaxg
+
+
+
+
+
+
+
+
+
+
+
+
