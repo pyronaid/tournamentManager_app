@@ -1,5 +1,23 @@
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:lottie/lottie.dart';
+import 'package:petsy/app_flow/app_flow_animations.dart';
+import 'package:petsy/app_flow/app_flow_util.dart';
+import 'package:petsy/auth/verify_mail_controller.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
+
+import '../../../app_flow/app_flow_theme.dart';
+import '../../../app_flow/app_flow_widgets.dart';
+import '../../../auth/firebase_auth/auth_util.dart';
+import '../../../components/custom_appbar_widget.dart';
+import '../../../components/standard_graphics/standard_graphics_widgets.dart';
+import 'onboarding_verify_mail_model.dart';
+
 class OnboardingVerifyMailWidget extends StatefulWidget {
+
   const OnboardingVerifyMailWidget({super.key});
 
   @override
@@ -9,12 +27,15 @@ class OnboardingVerifyMailWidget extends StatefulWidget {
 
 class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget> {
   late OnboardingVerifyMailModel _model;
+  late String? _email;
 
+  final animationsMap = <String, AnimationInfo>{};
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
+    _email = currentUserEmail;
     _model = createModel(context, () => OnboardingVerifyMailModel());
 
     logFirebaseEvent('screen_view', parameters: {'screen_name': 'Onboarding_VerifyMail'});
@@ -35,6 +56,8 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(VerifyMailController(_email, context));
+
     return GestureDetector(
       onTap: () => _model.unfocusNode.canRequestFocus
           ? FocusScope.of(context).requestFocus(_model.unfocusNode)
@@ -72,11 +95,13 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                     child: Center(
-                      child:Image.asset(
-                        'assets/images/logo_slideshow_1.png',
-                        height: 35.h,
-                        fit: BoxFit.fill,
-                      ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation1']!)
+                      child: Lottie.asset(
+                        'assets/animation/send_mail_animation.json',
+                        fit: BoxFit.cover,
+                        width: 80.w, // Adjust the width and height as needed
+                        height: 60.w,
+                        repeat: true, // Set to true if you want the animation to loop
+                      ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation1']!),
                     ),
                   ),
                   ////////////////
@@ -84,29 +109,36 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
                   /////////////////
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                    child: Text(
-                      'Verifica il tuo indirizzo mail!',
-                      style: CustomFlowTheme.of(context).displaySmall,
+                    child: Center(
+                      child: Text(
+                        'Verifica il tuo indirizzo mail!',
+                        style: CustomFlowTheme.of(context).headlineSmall,
+                      ),
                     ),
                   ),
                   ////////////////
                   //MAIL INDICATION 
                   /////////////////
                   Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                    child: Text(
-                      'pinco.pallino@gmail.com',
-                      style: CustomFlowTheme.of(context).displaySmall,
+                    padding: const EdgeInsetsDirectional.fromSTEB(0, 15, 0, 15),
+                    child: Center(
+                      child: Text(
+                        _email ?? "@@NO_MAIL_PASSED@@",
+                        style: CustomFlowTheme.of(context).titleSmall,
+                      ),
                     ),
                   ),
                   ////////////////
                   //PAGE TITLE
                   /////////////////
                   Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                    child: Text(
-                      'Il tuo account è stato creato ma non è utilizzabile fino a quando non confermerai la mail. Trovi il link nella mail indicata sopra. Controlla che non sia finita erroneamente in spam!',
-                      style: CustomFlowTheme.of(context).displaySmall,
+                    padding: const EdgeInsetsDirectional.fromSTEB(0, 5, 0, 0),
+                    child: Center(
+                      child: Text(
+                        'Il tuo account è stato creato ma non è utilizzabile fino a quando non confermerai la mail. Trovi il link nella mail indicata sopra. Controlla che non sia finita erroneamente in spam!',
+                        style: CustomFlowTheme.of(context).titleSmall.override(color: CustomFlowTheme.of(context).secondaryText),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
                   ////////////////
@@ -116,14 +148,11 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                     child: AFButtonWidget(
                       onPressed: () async {
+                        FocusScope.of(context).unfocus();
                         logFirebaseEvent('ONBOARDING_VERIFY_MAIL_CONTINUE');
                         logFirebaseEvent('Button_haptic_feedback');
                         HapticFeedback.lightImpact();
                         logFirebaseEvent('Button_continue');
-                        
-
-                        //LOGIC BUTTON
-                        
 
                         logFirebaseEvent('Button_navigate_to');
                         context.goNamedAuth('Dashboard', context.mounted);
@@ -152,6 +181,7 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                     child: AFButtonWidget(
                       onPressed: () async {
+                        FocusScope.of(context).unfocus();
                         logFirebaseEvent('ONBOARDING_VERIFY_MAIL_RESEND_MAIL');
                         logFirebaseEvent('Button_haptic_feedback');
                         HapticFeedback.lightImpact();
@@ -159,6 +189,11 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
                         
 
                         //LOGIC
+                        try{
+                          await authManager.sendEmailVerification();
+                        } catch (e){
+
+                        }
                         
 
                         logFirebaseEvent('Button_navigate_to');
@@ -170,7 +205,7 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
                         height: 50,
                         padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                         iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                        color: CustomFlowTheme.of(context).primary,
+                        color: CustomFlowTheme.of(context).primaryBackground,
                         textStyle: CustomFlowTheme.of(context).titleSmall,
                         elevation: 0,
                         borderSide: const BorderSide(

@@ -9,6 +9,7 @@ import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_widgets.dart';
 import '../../../backend/firebase_analytics/analytics.dart';
 import '../../../components/custom_appbar_widget.dart';
+import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 import 'onboarding_slideshow_model.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart' as smooth_page_indicator;
 
@@ -249,6 +250,7 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
                       padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
                       child: AFButtonWidget(
                         onPressed: () async {
+                          FocusScope.of(context).unfocus();
                           logFirebaseEvent('ONBOARDING_SLIDESHOW_CONTINUE_BTN_ON_TAP');
                           logFirebaseEvent('Button_haptic_feedback');
                           HapticFeedback.lightImpact();

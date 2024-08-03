@@ -7,6 +7,7 @@ import '../../../app_flow/app_flow_widgets.dart';
 import '../../../auth/firebase_auth/auth_util.dart';
 import '../../../backend/backend.dart';
 import '../../../components/custom_appbar_widget.dart';
+import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 import 'onboarding_create_account_model.dart';
 
 class OnboardingCreateAccountWidget extends StatefulWidget {
@@ -231,6 +232,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                     child: AFButtonWidget(
                       onPressed: () async {
+                        FocusScope.of(context).unfocus();
                         logFirebaseEvent('ONBOARDING_CREATE_ACCOUNT_CREATE_ACCOUNT');
                         logFirebaseEvent('Button_validate_form');
                         if (_model.formKey.currentState == null ||
@@ -265,7 +267,15 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                         });
 
                         logFirebaseEvent('Button_navigate_to');
-                        context.goNamedAuth('VerifyMail', context.mounted);
+                        context.goNamedAuth('Onboarding_VerifyMail',
+                            context.mounted,
+                            queryParameters: {
+                              'email': serializeParam(
+                                _model.emailAddressTextController.text,
+                                ParamType.String,
+                              ),
+                            }.withoutNulls,
+                        );
                       },
                       text: 'Crea Account',
                       options: AFButtonOptions(

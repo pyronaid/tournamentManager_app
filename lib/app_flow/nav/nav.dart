@@ -6,6 +6,8 @@ import 'package:petsy/pages/core/create_own/create_own_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import '../../pages/nav_bar/nav_bar_widget.dart';
+import '../../pages/onboarding/onboarding_verify_mail/onboarding_verify_mail_widget.dart';
+import '../../pages/onboarding/onboarding_verify_mail_success/onboarding_verify_mail_success_widget.dart';
 import '../../pages/placeholder_widget.dart';
 import '/backend/backend.dart';
 
@@ -40,6 +42,7 @@ class AppStateNotifier extends ChangeNotifier {
 
   bool get loading => user == null || showSplashImage;
   bool get loggedIn => user?.loggedIn ?? false;
+  bool get emailVerified => user?.emailVerified ?? false;
   bool get initiallyLoggedIn => initialUser?.loggedIn ?? false;
   bool get shouldRedirect => loggedIn && _redirectLocation != null;
 
@@ -78,13 +81,13 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       debugLogDiagnostics: true,
       refreshListenable: appStateNotifier,
       errorBuilder: (context, state) =>
-          appStateNotifier.loggedIn ? const NavBarPage() : const SplashWidget(),
+          appStateNotifier.loggedIn ? (appStateNotifier.emailVerified ? const NavBarPage() : const OnboardingVerifyMailWidget()) : const SplashWidget(),
       routes: [
         CustomRoute(
           name: '_initialize',
           path: '/',
           builder: (context, _) =>
-              appStateNotifier.loggedIn ? const NavBarPage() : const SplashWidget(),
+          appStateNotifier.loggedIn ? (appStateNotifier.emailVerified ? const NavBarPage() : const OnboardingVerifyMailWidget()) : const SplashWidget(),
           routes: [
             CustomRoute(
               name: 'Splash',
@@ -104,6 +107,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             CustomRoute(
               name: 'Onboarding_VerifyMailSuccess',
               path: 'onboarding-verify-mail-success',
+              requireAuth: true,
               builder: (context, params) => const OnboardingVerifyMailSuccessWidget(),
             ),
             CustomRoute(
@@ -242,8 +246,7 @@ extension GoRouterExtensions on GoRouter {
       appState.hasRedirect() && !ignoreRedirect
           ? null
           : appState.updateNotifyOnAuthChange(false);
-  bool shouldRedirect(bool ignoreRedirect) =>
-      !ignoreRedirect && appState.hasRedirect();
+  bool shouldRedirect(bool ignoreRedirect) => !ignoreRedirect && appState.hasRedirect();
   void clearRedirectLocation() => appState.clearRedirectLocation();
   void setRedirectLocationIfUnset(String location) =>
       appState.updateNotifyOnAuthChange(false);
@@ -273,10 +276,8 @@ class AFParameters {
   // present is the special extra parameter reserved for the transition info.
   bool get isEmpty =>
       state.allParams.isEmpty ||
-      (state.allParams.length == 1 &&
-          state.extraMap.containsKey(kTransitionInfoKey));
-  bool isAsyncParam(MapEntry<String, dynamic> param) =>
-      asyncParams.containsKey(param.key) && param.value is String;
+      (state.allParams.length == 1 && state.extraMap.containsKey(kTransitionInfoKey));
+  bool isAsyncParam(MapEntry<String, dynamic> param) => asyncParams.containsKey(param.key) && param.value is String;
   bool get hasFutures => state.allParams.entries.any(isAsyncParam);
   Future<bool> completeFutures() => Future.wait(
         state.allParams.entries.where(isAsyncParam).map(
@@ -348,9 +349,13 @@ class CustomRoute {
             return redirectLocation;
           }
 
-          if (requireAuth && !appStateNotifier.loggedIn) {
+          if (requireAuth && (!appStateNotifier.loggedIn || !appStateNotifier.emailVerified)) {
             appStateNotifier.setRedirectLocationIfUnset(state.uri.toString());
-            return '/splash';
+            if(!appStateNotifier.loggedIn) {
+              return '/splash';
+            } else {
+              return '/onboarding-verify-mail';
+            }
           }
           return null;
         },

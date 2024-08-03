@@ -187,7 +187,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                       logFirebaseEvent('PROFILE_PAGE_EditProfileTile_ON_TAP');
                                       logFirebaseEvent('EditProfileTile_navigate_to');
 
-                                      context.pushNamed('EditProfile');
+                                      context.pushNamedAuth('EditProfile', context.mounted);
                                     },
                                     child: Column(
                                       mainAxisSize: MainAxisSize.max,
@@ -244,7 +244,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                         logFirebaseEvent('PROFILE_PAGE_AboutUsTile_ON_TAP');
                                         logFirebaseEvent('AboutUsTile_navigate_to');
 
-                                        context.pushNamed('AboutUs');
+                                        context.pushNamedAuth('AboutUs', context.mounted);
                                       },
                                       child: Column(
                                         mainAxisSize: MainAxisSize.max,
@@ -366,7 +366,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                       logFirebaseEvent('PROFILE_PAGE_CreateOwnTile_ON_TAP');
                                       logFirebaseEvent('CreateOwnTile_navigate_to');
 
-                                      context.pushNamed('CreateOwn');
+                                      context.pushNamedAuth('CreateOwn', context.mounted);
                                     },
                                     child: Column(
                                       mainAxisSize: MainAxisSize.max,

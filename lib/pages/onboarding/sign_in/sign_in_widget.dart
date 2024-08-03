@@ -10,6 +10,7 @@ import '../../../app_flow/app_flow_util.dart';
 import '../../../app_flow/app_flow_widgets.dart';
 import '../../../auth/firebase_auth/auth_util.dart';
 import '../../../components/custom_appbar_widget.dart';
+import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 
 class SignInWidget extends StatefulWidget {
   const SignInWidget({super.key});
@@ -201,6 +202,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                         padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                         child: AFButtonWidget(
                           onPressed: () async {
+                            FocusScope.of(context).unfocus();
                             logFirebaseEvent('SIGN_IN_PAGE_SIGN_IN_BTN_ON_TAP');
                             logFirebaseEvent('Button_validate_form');
                             if (_model.formKey.currentState == null ||
@@ -300,6 +302,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                           ),
                           AFButtonWidget(
                             onPressed: () async {
+                              FocusScope.of(context).unfocus();
                               logFirebaseEvent('SIGN_IN_PAGE_CREATE_ACCOUNT_BTN_ON_TAP');
                               logFirebaseEvent('Button_navigate_to');
 

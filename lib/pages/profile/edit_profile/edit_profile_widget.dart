@@ -7,6 +7,7 @@ import '../../../app_flow/app_flow_widgets.dart';
 import '../../../auth/firebase_auth/auth_util.dart';
 import '../../../backend/schema/users_record.dart';
 import '../../../components/custom_appbar_widget.dart';
+import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 import '../../../components/title_with_subtitle/title_with_subtitle_widget.dart';
 import 'edit_profile_model.dart';
 
@@ -161,6 +162,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
                     child: AFButtonWidget(
                       onPressed: () async {
+                        FocusScope.of(context).unfocus();
                         logFirebaseEvent('EDIT_PROFILE_RESET_PASSWORD_BTN_ON_TAP');
                         logFirebaseEvent('Button_auth');
                         if (_model.emailAddressTextController!.text.isEmpty) {
@@ -207,6 +209,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 48),
                     child: AFButtonWidget(
                       onPressed: () async {
+                        FocusScope.of(context).unfocus();
                         logFirebaseEvent('EDIT_PROFILE_DELETE_ACCOUNT_BTN_ON_TAP');
                         logFirebaseEvent('Button_auth');
                         showAlertDialog(context, "Splash");

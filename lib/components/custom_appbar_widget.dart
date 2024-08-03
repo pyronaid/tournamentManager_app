@@ -85,6 +85,7 @@ class _CustomAppbarWidgetState extends State<CustomAppbarWidget> {
             if (widget.actionButton)
               AFButtonWidget(
                 onPressed: () async {
+                  FocusScope.of(context).unfocus();
                   logFirebaseEvent('CUSTOM_APPBAR_COMP_SAVE_BTN_ON_TAP');
                   logFirebaseEvent('Button_execute_callback');
                   await widget.actionButtonAction?.call();

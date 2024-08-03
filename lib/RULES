@@ -1,0 +1,76 @@
+GO_ROUTE
+    goNamed
+            - Go to a specific page
+            - NOT SAVE the current page in the stack
+            - No need to be authed to arrive to destination Page
+    pushNamed
+            - Go to a specific page
+            - SAVE the current page in the stack
+            - No need to be authed to arrive to destination Page
+    goNamedAuth
+            - Go to a specific page
+            - NOT SAVE the current page in the stack
+            - NEED to be authed to arrive to destination Page
+    pushNamedAuth
+            - Go to a specific page
+            - SAVE the current page in the stack
+            - NEED to be authed to arrive to destination Page
+
+##################################################################################
+
+Auth route explanation
+
+final user = await authManager.createAccountWithEmail(context,
+    _model.emailAddressTextController.text,
+    _model.passwordTextController.text,
+);
+------------------------------------>
+FirebaseAuthManager get authManager => _authManager;  																		[lib/auth/firebase_auth/auth_util.dart]
+	final _authManager = FirebaseAuthManager();																				[lib/auth/firebase_auth/auth_util.dart]
+		class FirebaseAuthManager extends AuthManager 																		[lib/auth/firebase_auth/firebase_auth_manager.dart]
+			abstract class _authManager																						[lib/auth/auth_manager.dart]
+createAccountWithEmail																										[lib/auth/firebase_auth/firebase_auth_manager.dart]
+	_signInOrCreateAccount(context, () => emailCreateAccountFunc(email, password), 'EMAIL');								[lib/auth/firebase_auth/firebase_auth_manager.dart]
+		final userCredential = await emailCreateAccountFunc(email, password); 												[lib/auth/firebase_auth/firebase_auth_manager.dart]
+
+			emailCreateAccountFunc(email, password) 																		[lib/auth/firebase_auth/email_auth.dart]
+				FirebaseAuth.instance.createUserWithEmailAndPassword(email, password)										[lib/auth/firebase_auth/email_auth.dart]
+
+
+		logFirebaseAuthEvent(userCredential?.user, 'EMAIL');																[lib/auth/firebase_auth/firebase_auth_manager.dart]
+		if (userCredential?.user != null) 																					[lib/auth/firebase_auth/firebase_auth_manager.dart]
+			await maybeCreateUser(userCredential!.user!); 																	[lib/auth/firebase_auth/firebase_auth_manager.dart]
+
+				maybeCreateUser(User user)																					[lib/backend/backend.dart]
+					final userRecord = UsersRecord.collection.doc(user.uid);												[lib/backend/backend.dart]
+					final userExists = await userRecord.get().then((u) => u.exists);										[lib/backend/backend.dart]
+				if (userExists) {
+				    currentUserDocument = await UsersRecord.getDocumentOnce(userRecord);
+				    return;
+				userData = createUsersRecordData(
+					email:  ?? valore
+					displayName: ?? valore
+					photoUrl: ?? valore
+					uid: user.uid,
+					phoneNumber: ?? valore
+					createdTime: getCurrentTimestamp
+
+				await userRecord.set(userData); //setta tutti i dati qui dalla mappa
+				currentUserDocument = UsersRecord.getDocumentFromData(userData, userRecord); //recupera utente fresh
+					 UsersRecord._(userRecord, mapFromFirestore(userData));
+
+
+			if userCredential == null																						[lib/auth/firebase_auth/firebase_auth_manager.dart]
+				return null																									[lib/auth/firebase_auth/firebase_auth_manager.dart]
+			else 																											[lib/auth/firebase_auth/firebase_auth_manager.dart]
+				return PetsyFirebaseUser.fromUserCredential(userCredential)													[lib/auth/firebase_auth/firebase_auth_manager.dart]
+		error 																												[lib/auth/firebase_auth/firebase_auth_manager.dart]
+			'email-already-in-use' => 'Error: The email is already in use by a different account',							[lib/auth/firebase_auth/firebase_auth_manager.dart]
+			'INVALID_LOGIN_CREDENTIALS' => 'Error: The supplied auth credential is incorrect, malformed or has expired',	[lib/auth/firebase_auth/firebase_auth_manager.dart]
+			SHOWED AS SNACK_BAR
+
+
+
+##############################################################################
+
+LOGICA REDIRECT BASED ON LOGGED / NOT LOGGED TO ENHANCE WITH LOGIC EMAIL VERIFIED

@@ -9,6 +9,7 @@ import '../../../app_flow/app_flow_widgets.dart';
 import '../../../auth/firebase_auth/auth_util.dart';
 import '../../../backend/firebase_analytics/analytics.dart';
 import '../../../components/custom_appbar_widget.dart';
+import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 import '../forgot_password/forgot_password_model.dart';
 
 class ForgotPasswordWidget extends StatefulWidget {
@@ -143,6 +144,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                           padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                           child: AFButtonWidget(
                             onPressed: () async {
+                              FocusScope.of(context).unfocus();
                               logFirebaseEvent('FORGOT_PASSWORD_RESET_PASSWORD_BTN_ON_TA');
                               logFirebaseEvent('Button_validate_form');
                               if (_model.formKey.currentState == null ||

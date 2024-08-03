@@ -9,6 +9,7 @@ import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_widgets.dart';
 import '../../../components/custom_appbar_widget.dart';
 import 'package:intl/intl.dart';
+import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 import 'create_own_model.dart';
 
 class CreateOwnWidget extends StatefulWidget {
@@ -702,6 +703,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                       padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                       child: AFButtonWidget(
                         onPressed: () async {
+                          FocusScope.of(context).unfocus();
                           logFirebaseEvent('ONBOARDING_CREATE_OWN_CREATE_OWN');
                           logFirebaseEvent('Button_validate_form');
                           if (_model.formKey.currentState == null ||

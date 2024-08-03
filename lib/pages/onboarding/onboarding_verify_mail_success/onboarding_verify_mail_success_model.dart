@@ -1,3 +1,9 @@
+import 'package:flutter/cupertino.dart';
+
+import '../../../app_flow/app_flow_model.dart';
+import '../../../components/custom_appbar_model.dart';
+import 'onboarding_verify_mail_success_widget.dart';
+
 class OnboardingVerifyMailSuccessModel extends CustomFlowModel<OnboardingVerifyMailSuccessWidget> {
   ///  State fields for stateful widgets in this page.
 

@@ -97,6 +97,7 @@ class _SplashWidgetState extends State<SplashWidget> {
                     AFButtonWidget(
                       text: 'Get Started',
                       onPressed: () async {
+                        FocusScope.of(context).unfocus();
                         logFirebaseEvent('SPLASH_PAGE_GET_STARTED_BTN_ON_TAP');
                         logFirebaseEvent('Button_haptic_feedback');
                         HapticFeedback.lightImpact();

@@ -1,3 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+
+import '../../app_flow/app_flow_animations.dart';
+import '../../app_flow/app_flow_theme.dart';
+
 InputDecoration standardInputDecoration(BuildContext context, {Widget? suffixIcon}) {
   return InputDecoration(
     enabledBorder: OutlineInputBorder(
@@ -56,5 +62,5 @@ AnimationInfo standardAnimationInfo(BuildContext context) {
         end: 1.0,
       ),
     ],
-  ),
+  );
 }

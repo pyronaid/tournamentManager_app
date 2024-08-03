@@ -339,6 +339,7 @@ class DarkModeTheme extends CustomFlowTheme {
 }
 
 extension TextStyleHelper on TextStyle {
+
   TextStyle override({
     String? fontFamily,
     Color? color,
@@ -349,26 +350,27 @@ extension TextStyleHelper on TextStyle {
     bool useGoogleFonts = true,
     TextDecoration? decoration,
     double? lineHeight,
-  }) =>
-      useGoogleFonts
-          ? GoogleFonts.getFont(
-              fontFamily!,
-              color: color ?? this.color,
-              fontSize: fontSize ?? this.fontSize,
-              letterSpacing: letterSpacing ?? this.letterSpacing,
-              fontWeight: fontWeight ?? this.fontWeight,
-              fontStyle: fontStyle ?? this.fontStyle,
-              decoration: decoration,
-              height: lineHeight,
-            )
-          : copyWith(
-              fontFamily: fontFamily,
-              color: color,
-              fontSize: fontSize,
-              letterSpacing: letterSpacing,
-              fontWeight: fontWeight,
-              fontStyle: fontStyle,
-              decoration: decoration,
-              height: lineHeight,
-            );
+  }) {
+    final RegExp pattern = RegExp(r'_\d+$');
+
+    return useGoogleFonts ? GoogleFonts.getFont(
+      fontFamily ?? this.fontFamily!.replaceAll(pattern, ''),
+      color: color ?? this.color,
+      fontSize: fontSize ?? this.fontSize,
+      letterSpacing: letterSpacing ?? this.letterSpacing,
+      fontWeight: fontWeight ?? this.fontWeight,
+      fontStyle: fontStyle ?? this.fontStyle,
+      decoration: decoration,
+      height: lineHeight,
+    ) : copyWith(
+      fontFamily: fontFamily,
+      color: color,
+      fontSize: fontSize,
+      letterSpacing: letterSpacing,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+      decoration: decoration,
+      height: lineHeight,
+    );
+  }
 }

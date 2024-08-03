@@ -76,6 +76,7 @@ dependencies:
   flutter_keyboard_visibility: ^6.0.0
   easy_debounce: ^2.0.3
   qr_flutter: ^4.1.0
+  get: ^4.6.6
 
 dev_dependencies:
   flutter_test:
@@ -102,6 +103,8 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
      - assets/animation/splash_animation.json
+     - assets/animation/send_mail_animation.json
+     - assets/animation/confirm_animation.json
      - assets/images/profile_picture_default.png
      - assets/images/petsy_logo.png
      - assets/images/petsy_logo_paw.png

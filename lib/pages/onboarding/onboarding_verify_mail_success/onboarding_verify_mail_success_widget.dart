@@ -1,4 +1,18 @@
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:lottie/lottie.dart';
+import 'package:petsy/app_flow/app_flow_animations.dart';
+import 'package:petsy/app_flow/app_flow_util.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
+
+import '../../../app_flow/app_flow_theme.dart';
+import '../../../app_flow/app_flow_widgets.dart';
+import '../../../auth/firebase_auth/auth_util.dart';
+import '../../../components/custom_appbar_widget.dart';
+import '../../../components/standard_graphics/standard_graphics_widgets.dart';
+import 'onboarding_verify_mail_success_model.dart';
+
 class OnboardingVerifyMailSuccessWidget extends StatefulWidget {
   const OnboardingVerifyMailSuccessWidget({super.key});
 
@@ -9,12 +23,15 @@ class OnboardingVerifyMailSuccessWidget extends StatefulWidget {
 
 class _OnboardingVerifyMailSuccessWidgetState extends State<OnboardingVerifyMailSuccessWidget> {
   late OnboardingVerifyMailSuccessModel _model;
+  late String? _email;
 
+  final animationsMap = <String, AnimationInfo>{};
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
+    _email = currentUserEmail;
     _model = createModel(context, () => OnboardingVerifyMailSuccessModel());
 
     logFirebaseEvent('screen_view', parameters: {'screen_name': 'Onboarding_VerifyMailSuccess'});
@@ -70,13 +87,15 @@ class _OnboardingVerifyMailSuccessWidgetState extends State<OnboardingVerifyMail
                   //IMAGE LOGO 
                   /////////////////
                   Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
+                    padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 24),
                     child: Center(
-                      child:Image.asset(
-                        'assets/images/logo_slideshow_1.png',
-                        height: 35.h,
-                        fit: BoxFit.fill,
-                      ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation1']!)
+                      child: Lottie.asset(
+                        'assets/animation/confirm_animation.json',
+                        fit: BoxFit.cover,
+                        width: 80.w, // Adjust the width and height as needed
+                        height: 60.w,
+                        repeat: true, // Set to true if you want the animation to loop
+                      ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation1']!),
                     ),
                   ),
                   ////////////////
@@ -86,7 +105,7 @@ class _OnboardingVerifyMailSuccessWidgetState extends State<OnboardingVerifyMail
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                     child: Text(
                       'Account verificato con successo!',
-                      style: CustomFlowTheme.of(context).displaySmall,
+                      style: CustomFlowTheme.of(context).headlineSmall,
                     ),
                   ),
                   ////////////////
@@ -94,9 +113,11 @@ class _OnboardingVerifyMailSuccessWidgetState extends State<OnboardingVerifyMail
                   /////////////////
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                    child: Text(
-                      'pinco.pallino@gmail.com',
-                      style: CustomFlowTheme.of(context).displaySmall,
+                    child: Center(
+                      child: Text(
+                        _email ?? "@@NO_MAIL_PASSED@@",
+                        style: CustomFlowTheme.of(context).titleSmall,
+                      ),
                     ),
                   ),
                   ////////////////
@@ -104,9 +125,12 @@ class _OnboardingVerifyMailSuccessWidgetState extends State<OnboardingVerifyMail
                   /////////////////
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                    child: Text(
-                      'Benvenuto nell\'app di TournamentManager. Qui potrai gestire i tuoi tornei, vedere lo storico e iscriverti ai prossimi eventi dei tuoi giochi preferiti.',
-                      style: CustomFlowTheme.of(context).displaySmall,
+                    child: Center(
+                      child: Text(
+                        'Benvenuto nell\'app di TournamentManager. Qui potrai gestire i tuoi tornei, vedere lo storico e iscriverti ai prossimi eventi dei tuoi giochi preferiti.',
+                        style: CustomFlowTheme.of(context).titleSmall.override(color: CustomFlowTheme.of(context).secondaryText),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
                   ////////////////
@@ -116,17 +140,14 @@ class _OnboardingVerifyMailSuccessWidgetState extends State<OnboardingVerifyMail
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                     child: AFButtonWidget(
                       onPressed: () async {
+                        FocusScope.of(context).unfocus();
                         logFirebaseEvent('ONBOARDING_VERIFY_MAIL_SUCCESS_CONTINUE');
                         logFirebaseEvent('Button_haptic_feedback');
                         HapticFeedback.lightImpact();
                         logFirebaseEvent('Button_continue');
-                        
-
-                        //LOGIC BUTTON
-                        
 
                         logFirebaseEvent('Button_navigate_to');
-                        context.goNamedAuth('SignIn', context.mounted);
+                        context.goNamedAuth('Dashboard', context.mounted);
                       },
                       text: 'Continua',
                       options: AFButtonOptions(
