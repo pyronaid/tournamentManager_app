@@ -31,11 +31,11 @@ ADD PAGE ENROLLED TOURNAMENT
 
 
 RISOLVERE IL PROBLEMA DI LANCIO SU BROWSER
-COMPLETARE REGISTRAZIONE  E CAPIRE SE MIGLIORARE
-GESTIONE ERRORI CON SLACK TOST DIFFERENTE
 AGIUNGERE ICONE AI CAMPI FORM E DARE UNA UI PIU' SIMILE A QUELLA IN IMMAGINE
 full screen loader with gif processing data!
-
+TODO: MODIFICARE GRAFICA SLACK BAR [da sopra per evitare il caso della tastiera aperta]
+TODO: AGGIUNGERE INTEGRAZIONE MAPPE PER INDIRIZZO COMPLETO
+TODO: delete account not remove from user DB -- temporary ignore this
 
 
 
@@ -92,9 +92,7 @@ full screen loader with gif processing data!
 
 
 
-TODO: MODIFICARE GRAFICA SLACK BAR [da sopra per evitare il caso della tastiera aperta]
-TODO: AGGIUNGERE INTEGRAZIONE MAPPE PER INDIRIZZO COMPLETO
-TODO: delete account not remove from user DB
+
 
 
 ###################################################################

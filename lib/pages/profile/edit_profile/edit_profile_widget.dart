@@ -132,7 +132,14 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                   textCapitalization: TextCapitalization.words,
                                   textInputAction: TextInputAction.next,
                                   obscureText: false,
-                                  decoration: standardInputDecoration(context),
+                                  decoration: standardInputDecoration(
+                                    context,
+                                    prefixIcon: Icon(
+                                      Icons.person,
+                                      color: CustomFlowTheme.of(context).secondaryText,
+                                      size: 18,
+                                    ),
+                                  ),
                                   style: CustomFlowTheme.of(context).bodyLarge.override(
                                         fontWeight: FontWeight.w500,
                                         lineHeight: 1,

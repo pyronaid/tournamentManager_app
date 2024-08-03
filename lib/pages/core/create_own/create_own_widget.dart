@@ -103,10 +103,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                       padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 30),
                       child: Text(
                         'Crea un nuovo torneo',
-                        style: CustomFlowTheme.of(context).displaySmall.override(
-                          fontFamily: 'Inter',
-                          letterSpacing: 0,
-                        ),
+                        style: CustomFlowTheme.of(context).displaySmall,
                       ),
                     ),
                     ////////////////
@@ -268,12 +265,8 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                                 ),
                                         ),
                                       ),
-                                      style: CustomFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                        fontFamily: 'Inter',
+                                      style: CustomFlowTheme.of(context).bodyMedium.override(
                                         fontSize: 20,
-                                        letterSpacing: 0,
                                         fontWeight: FontWeight.w500,
                                         lineHeight: 1,
                                       ),
@@ -299,12 +292,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                     padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
                                     child: Text(
                                       'Nome torneo',
-                                      style: CustomFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0,
-                                      ),
+                                      style: CustomFlowTheme.of(context).bodyMedium,
                                     ),
                                   ),
                                   TextFormField(
@@ -315,45 +303,15 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                     textCapitalization: TextCapitalization.words,
                                     textInputAction: TextInputAction.next,
                                     obscureText: false,
-                                    decoration: InputDecoration(
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).alternate,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
+                                    decoration: standardInputDecoration(
+                                      context,
+                                      prefixIcon: Icon(
+                                        Icons.style,
+                                        color: CustomFlowTheme.of(context).secondaryText,
+                                        size: 18,
                                       ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).primary,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      errorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).error,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      focusedErrorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).error,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      filled: true,
-                                      fillColor: CustomFlowTheme.of(context).secondaryBackground,
-                                      errorMaxLines: 2,
                                     ),
-                                    style: CustomFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                      fontFamily: 'Inter',
-                                      fontSize: 16,
-                                      letterSpacing: 0,
+                                    style: CustomFlowTheme.of(context).bodyLarge.override(
                                       fontWeight: FontWeight.w500,
                                       lineHeight: 1,
                                     ),
@@ -379,12 +337,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                     padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
                                     child: Text(
                                       'Data torneo',
-                                      style: CustomFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0,
-                                      ),
+                                      style: CustomFlowTheme.of(context).bodyMedium,
                                     ),
                                   ),
                                   TextFormField(
@@ -396,38 +349,8 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                     //textCapitalization: TextCapitalization.words,
                                     //textInputAction: TextInputAction.next,
                                     obscureText: false,
-                                    decoration: InputDecoration(
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).alternate,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).primary,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      errorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).error,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      focusedErrorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).error,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      filled: true,
-                                      fillColor: CustomFlowTheme.of(context).secondaryBackground,
-                                      errorMaxLines: 2,
+                                    decoration: standardInputDecoration(
+                                      context,
                                       suffixIcon: IconButton(
                                         icon: const Icon(Icons.calendar_today),
                                         onPressed: () async {
@@ -440,12 +363,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                         },
                                       ),
                                     ),
-                                    style: CustomFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                      fontFamily: 'Inter',
-                                      fontSize: 16,
-                                      letterSpacing: 0,
+                                    style: CustomFlowTheme.of(context).bodyLarge.override(
                                       fontWeight: FontWeight.w500,
                                       lineHeight: 1,
                                     ),
@@ -471,12 +389,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                     padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
                                     child: Text(
                                       'Indirizzo torneo',
-                                      style: CustomFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0,
-                                      ),
+                                      style: CustomFlowTheme.of(context).bodyMedium,
                                     ),
                                   ),
                                   TextFormField(
@@ -487,45 +400,8 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                     textCapitalization: TextCapitalization.words,
                                     textInputAction: TextInputAction.next,
                                     obscureText: false,
-                                    decoration: InputDecoration(
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).alternate,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).primary,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      errorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).error,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      focusedErrorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).error,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      filled: true,
-                                      fillColor: CustomFlowTheme.of(context).secondaryBackground,
-                                      errorMaxLines: 2,
-                                    ),
-                                    style: CustomFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                      fontFamily: 'Inter',
-                                      fontSize: 16,
-                                      letterSpacing: 0,
+                                    decoration: standardInputDecoration(context),
+                                    style: CustomFlowTheme.of(context).bodyLarge.override(
                                       fontWeight: FontWeight.w500,
                                       lineHeight: 1,
                                     ),
@@ -551,12 +427,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                     padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
                                     child: Text(
                                       'Capienza torneo',
-                                      style: CustomFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0,
-                                      ),
+                                      style: CustomFlowTheme.of(context).bodyMedium,
                                     ),
                                   ),
                                   TextFormField(
@@ -571,50 +442,20 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                     textCapitalization: TextCapitalization.words,
                                     textInputAction: TextInputAction.next,
                                     obscureText: false,
-                                    decoration: InputDecoration(
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).alternate,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
+                                    decoration: standardInputDecoration(
+                                      context,
+                                      prefixIcon: Icon(
+                                        Icons.reduce_capacity,
+                                        color: CustomFlowTheme.of(context).secondaryText,
+                                        size: 18,
                                       ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).primary,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      errorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).error,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      focusedErrorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).error,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      filled: true,
-                                      fillColor: CustomFlowTheme.of(context).secondaryBackground,
-                                      errorMaxLines: 2,
                                     ),
                                     onChanged: (value){
                                       if(value == ""){
                                         _model.tournamentCapacityTextController.text = 'Nessun limite';
                                       }
                                     },
-                                    style: CustomFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                      fontFamily: 'Inter',
-                                      fontSize: 16,
-                                      letterSpacing: 0,
+                                    style: CustomFlowTheme.of(context).bodyLarge.override(
                                       fontWeight: FontWeight.w500,
                                       lineHeight: 1,
                                     ),
@@ -641,12 +482,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                     padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                                     child: Text(
                                       'Pre-registrazione abilitata',
-                                      style: CustomFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0,
-                                      ),
+                                      style: CustomFlowTheme.of(context).bodyMedium,
                                     ),
                                   ),
                                   Switch(
@@ -674,12 +510,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                     padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                                     child: Text(
                                       'Lista d\'attesa abilitata',
-                                      style: CustomFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0,
-                                      ),
+                                      style: CustomFlowTheme.of(context).bodyMedium,
                                     ),
                                   ),
                                   Switch(
@@ -748,11 +579,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                   SnackBar(
                                     content: Text(
                                       'Torneo creato con successo',
-                                      style: CustomFlowTheme.of(context).displaySmall.override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0,
-                                        color: CustomFlowTheme.of(context).primary,
-                                      ),
+                                      style: CustomFlowTheme.of(context).displaySmall.override( color: CustomFlowTheme.of(context).primary ),
                                     ),
                                   ),
                                 );
@@ -765,11 +592,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                 SnackBar(
                                   content: Text(
                                     'Errore nella creazione del Torneo. Riprova più tardi',
-                                    style: CustomFlowTheme.of(context).displaySmall.override(
-                                      fontFamily: 'Inter',
-                                      letterSpacing: 0,
-                                      color: CustomFlowTheme.of(context).error,
-                                    ),
+                                    style: CustomFlowTheme.of(context).displaySmall.override( color: CustomFlowTheme.of(context).error ),
                                   ),
                                 )
                               );
@@ -782,10 +605,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                           padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                           iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                           color: CustomFlowTheme.of(context).primary,
-                          textStyle: CustomFlowTheme.of(context).titleSmall.override(
-                            fontFamily: 'Inter',
-                            letterSpacing: 0,
-                          ),
+                          textStyle: CustomFlowTheme.of(context).titleSmall,
                           elevation: 0,
                           borderSide: const BorderSide(
                             color: Colors.transparent,

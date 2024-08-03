@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../app_flow/app_flow_animations.dart';
 import '../../app_flow/app_flow_theme.dart';
 
-InputDecoration standardInputDecoration(BuildContext context, {Widget? suffixIcon}) {
+InputDecoration standardInputDecoration(BuildContext context, {Widget? suffixIcon, Widget? prefixIcon}) {
   return InputDecoration(
     enabledBorder: OutlineInputBorder(
       borderSide: BorderSide(
@@ -38,6 +38,7 @@ InputDecoration standardInputDecoration(BuildContext context, {Widget? suffixIco
     fillColor: CustomFlowTheme.of(context).secondaryBackground,
     errorMaxLines: 2,
     suffixIcon: suffixIcon,
+    prefixIcon: prefixIcon,
   );
 }
 

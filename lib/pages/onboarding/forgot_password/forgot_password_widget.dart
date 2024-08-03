@@ -121,7 +121,14 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                                         textCapitalization: TextCapitalization.none,
                                         textInputAction: TextInputAction.next,
                                         obscureText: false,
-                                        decoration: standardInputDecoration(context),
+                                        decoration: standardInputDecoration(
+                                          context,
+                                          prefixIcon: Icon(
+                                            Icons.email,
+                                            color: CustomFlowTheme.of(context).secondaryText,
+                                            size: 18,
+                                          ),
+                                        ),
                                         style: CustomFlowTheme.of(context).titleSmall.override(
                                           fontWeight: FontWeight.w500,
                                           lineHeight: 1,

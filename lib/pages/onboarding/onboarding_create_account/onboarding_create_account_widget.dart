@@ -123,7 +123,14 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                 textCapitalization: TextCapitalization.words,
                                 textInputAction: TextInputAction.next,
                                 obscureText: false,
-                                decoration: standardInputDecoration(context),
+                                decoration: standardInputDecoration(
+                                  context,
+                                  prefixIcon: Icon(
+                                    Icons.person,
+                                    color: CustomFlowTheme.of(context).secondaryText,
+                                    size: 18,
+                                  ),
+                                ),
                                 style: CustomFlowTheme.of(context).bodyLarge.override(
                                       fontWeight: FontWeight.w500,
                                       lineHeight: 1,
@@ -157,7 +164,14 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                 autofillHints: const [AutofillHints.email],
                                 textInputAction: TextInputAction.next,
                                 obscureText: false,
-                                decoration: standardInputDecoration(context),
+                                decoration: standardInputDecoration(
+                                  context,
+                                  prefixIcon: Icon(
+                                    Icons.email,
+                                    color: CustomFlowTheme.of(context).secondaryText,
+                                    size: 18,
+                                  ),
+                                ),
                                 style: CustomFlowTheme.of(context).bodyLarge.override(
                                       fontWeight: FontWeight.w500,
                                       lineHeight: 1,
@@ -194,6 +208,11 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                 obscureText: !_model.passwordVisibility,
                                 decoration: standardInputDecoration(
                                   context,
+                                  prefixIcon: Icon(
+                                      Icons.lock,
+                                      color: CustomFlowTheme.of(context).secondaryText,
+                                      size: 18,
+                                  ),
                                   suffixIcon: InkWell(
                                     onTap: () => setState(
                                       () => _model.passwordVisibility =
@@ -204,8 +223,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                       _model.passwordVisibility
                                           ? Icons.visibility_outlined
                                           : Icons.visibility_off_outlined,
-                                      color: CustomFlowTheme.of(context)
-                                          .secondaryText,
+                                      color: CustomFlowTheme.of(context).secondaryText,
                                       size: 18,
                                     ),
                                   ),
