@@ -194,10 +194,6 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
                         } catch (e){
 
                         }
-                        
-
-                        logFirebaseEvent('Button_navigate_to');
-                        context.goNamedAuth('Dashboard', context.mounted);
                       },
                       text: 'Rimanda email di verifica',
                       options: AFButtonOptions(

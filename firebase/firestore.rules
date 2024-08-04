@@ -1,6 +1,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
     match /users/{document} {
       allow create: if request.auth.uid == document;
       allow read: if request.auth.uid == document;
@@ -10,7 +11,7 @@ service cloud.firestore {
 
     match /onboarding_options/{document} {
       allow create: if false;
-      allow read: if request.auth != null;
+      allow read: if true;
       allow write: if false;
       allow delete: if false;
     }
@@ -35,5 +36,14 @@ service cloud.firestore {
       allow write: if false;
       allow delete: if false;
     }
+
+    match /tournaments/{document} {
+      allow create: if false;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+      allow delete: if false;
+    }
+
+
   }
 }

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:petsy/app_flow/app_flow_util.dart';
+import 'package:petsy/auth/base_auth_user_provider.dart';
 import 'package:petsy/backend/schema/tournaments_record.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import '../../../app_flow/app_flow_animations.dart';
 import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_widgets.dart';
 import '../../../components/custom_appbar_widget.dart';
-import 'package:intl/intl.dart';
 import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 import 'create_own_model.dart';
 
@@ -451,9 +450,12 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                       ),
                                     ),
                                     onChanged: (value){
-                                      if(value == ""){
-                                        _model.tournamentCapacityTextController.text = 'Nessun limite';
-                                      }
+                                      setState(() {
+                                        if (value == "" || value == "0") {
+                                          _model.tournamentCapacityTextController.text = 'Nessun limite';
+                                          _model.waitingListEnabled = false;
+                                        }
+                                      });
                                     },
                                     style: CustomFlowTheme.of(context).bodyLarge.override(
                                       fontWeight: FontWeight.w500,
@@ -514,13 +516,13 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                     ),
                                   ),
                                   Switch(
-                                      value: _model.waitingListEnabled,
-                                      onChanged: (value){
-                                        setState(() {
-                                          _model.waitingListEnabled = value;
-                                        });
-                                      }
-                                  )
+                                    value: _model.waitingListEnabled,
+                                    onChanged: int.tryParse(_model.tournamentCapacityTextController.text) != null ? (value){
+                                      setState(() {
+                                        _model.waitingListEnabled = value;
+                                      });
+                                    } : null,
+                                  ),
                                 ],
                               ),
                             ),
@@ -568,13 +570,24 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                             default:
                               game = Game.none;
                           }
+                          int convertedCapacity = 0;
+                          if(int.tryParse(_model.tournamentCapacityTextController.text) != null){
+                            convertedCapacity = int.parse(_model.tournamentCapacityTextController.text);
+                          }
+
                           Map<String, dynamic> ownTournament = createTournamentsRecordData(
                             game: game,
-                            name: _model.tournamentNameTextController.text
+                            name: _model.tournamentNameTextController.text,
+                            address: _model.tournamentAddressTextController.text,
+                            pre_registration_en: _model.preRegistrationEnabled,
+                            waiting_list_en : _model.waitingListEnabled,
+                            date: DateFormat('dd/MM/yyyy').parse(_model.tournamentDateTextController.text),
+                            capacity: convertedCapacity,
+                            creator_uid: currentUser!.uid,
                           );
                           await TournamentsRecord.collection.add(ownTournament)
-                            .whenComplete(
-                              () {
+                            .then(
+                              (_) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
@@ -586,8 +599,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                 logFirebaseEvent('Button_navigate_to');
                                 context.goNamedAuth('Dashboard', context.mounted);
                               }
-                            )
-                            .catchError((onError){
+                            ).catchError((onError){
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(

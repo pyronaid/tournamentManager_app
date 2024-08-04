@@ -20,6 +20,11 @@ class TournamentsRecord extends FirestoreRecord {
   String get uid => _uid ?? '';
   bool hasUid() => _uid != null;
 
+  // "uid" field.
+  String? _creatorUid;
+  String get creatorUid => _creatorUid ?? '';
+  bool hasCreatorUid() => _creatorUid != null;
+
   // "game" field.
   Game?  _game;
   Game? get game => _game;
@@ -39,6 +44,11 @@ class TournamentsRecord extends FirestoreRecord {
   String? _address;
   String get address => _address ?? '';
   bool hasAddress() => _address != null;
+
+  // "address" field.
+  int? _capacity;
+  int get capacity => _capacity ?? 0;
+  bool hasCapacity() => _capacity! > 0;
 
   // "preregistration-en" field.
   Bool _preRegistrationEn = false as Bool;
@@ -86,6 +96,8 @@ class TournamentsRecord extends FirestoreRecord {
     _name = snapshotData['name'] as String?;
     _date = snapshotData['date'] as Timestamp?;
     _address = snapshotData['address'] as String?;
+    _capacity = snapshotData['capacity'];
+    _creatorUid = snapshotData['creator_uid'];
     _preRegistrationEn = snapshotData['pre_registration_en'] as Bool;
     _waitingListEn = snapshotData['waiting_list_en'] as Bool;
     _preRegisteredList = getDataList(snapshotData['pre_registered_list']);
@@ -132,24 +144,28 @@ class TournamentsRecord extends FirestoreRecord {
 
 Map<String, dynamic> createTournamentsRecordData({
   String? uid,
-  Game? game,
-  String? name,
-  DateTime? date,
-  String? address,
-  Bool? pre_registration_en,
-  Bool? waiting_list_en,
+  required Game game,
+  required String name,
+  required DateTime date,
+  required String address,
+  int? capacity,
+  required bool pre_registration_en,
+  required bool waiting_list_en,
   StateTournament? state,
+  required String? creator_uid,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
       'uid': uid,
-      'game': game,
+      'game': game.name,
       'name': name,
       'date': date,
       'address': address,
       'pre_registration_en': pre_registration_en,
       'waiting_list_en': waiting_list_en,
-      'state': state,
+      'state': state != null ? state.name : StateTournament.open.name,
+      'capacity': capacity ?? 0,
+      'creator_uid': creator_uid,
     }.withoutNulls,
   );
 

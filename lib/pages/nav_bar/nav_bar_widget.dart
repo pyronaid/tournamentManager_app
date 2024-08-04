@@ -31,8 +31,8 @@ class _NavBarPageState extends State<NavBarPage> {
   Widget build(BuildContext context) {
     final tabs = {
       'Dashboard': const PlaceholderWidget(),
-      'AboutUs': const PlaceholderWidget(),
-      'EditPreferences': const PlaceholderWidget(),
+      'MyTournaments': const PlaceholderWidget(),
+      'FindNew': const PlaceholderWidget(),
       'Profile': const ProfileWidget(),
     };
     final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
@@ -54,38 +54,39 @@ class _NavBarPageState extends State<NavBarPage> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.access_alarm_rounded,
+              Icons.emoji_events_outlined,
               size: 24.0,
             ),
             activeIcon: Icon(
-              Icons.access_alarm_rounded,
+              Icons.emoji_events_rounded,
               size: 24.0,
             ),
-            label: 'Cat1',
+            label: 'I tuoi tornei',
             tooltip: '',
           ),
+          if(true)
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.inventory_outlined,
+                size: 24.0,
+              ),
+              activeIcon: Icon(
+                Icons.inventory_rounded,
+                size: 24.0,
+              ),
+              label: 'Organizz',
+              tooltip: '',
+            ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.abc_rounded,
+              Icons.search_rounded,
               size: 24.0,
             ),
             activeIcon: Icon(
-              Icons.abc_rounded,
+              Icons.zoom_in_rounded,
               size: 24.0,
             ),
-            label: 'Cat2',
-            tooltip: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.airplanemode_active_outlined,
-              size: 24.0,
-            ),
-            activeIcon: Icon(
-              Icons.airplanemode_active_rounded,
-              size: 24.0,
-            ),
-            label: 'Cat3',
+            label: 'Finder',
             tooltip: '',
           ),
           BottomNavigationBarItem(

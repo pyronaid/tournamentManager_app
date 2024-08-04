@@ -5,8 +5,8 @@ import '../base_auth_user_provider.dart';
 
 export '../base_auth_user_provider.dart';
 
-class PetsyFirebaseUser extends BaseAuthUser {
-  PetsyFirebaseUser(this.user);
+class FirebaseUser extends BaseAuthUser {
+  FirebaseUser(this.user);
   User? user;
   @override
   bool get loggedIn => user != null;
@@ -54,17 +54,17 @@ class PetsyFirebaseUser extends BaseAuthUser {
 
   static BaseAuthUser fromUserCredential(UserCredential userCredential) =>
       fromFirebaseUser(userCredential.user);
-  static BaseAuthUser fromFirebaseUser(User? user) => PetsyFirebaseUser(user);
+  static BaseAuthUser fromFirebaseUser(User? user) => FirebaseUser(user);
 }
 
-Stream<BaseAuthUser> petsyFirebaseUserStream() => FirebaseAuth.instance
+Stream<BaseAuthUser> firebaseUserStream() => FirebaseAuth.instance
         .authStateChanges()
         .debounce((user) => user == null && !loggedIn
             ? TimerStream(true, const Duration(seconds: 1))
             : Stream.value(user))
         .map<BaseAuthUser>(
       (user) {
-        currentUser = PetsyFirebaseUser(user);
+        currentUser = FirebaseUser(user);
         return currentUser!;
       },
     );

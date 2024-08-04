@@ -59,7 +59,7 @@ class _MyAppState extends State<MyApp> {
 
     _appStateNotifier = AppStateNotifier.instance;
     _router = createRouter(_appStateNotifier);
-    userStream = petsyFirebaseUserStream()..listen(
+    userStream = firebaseUserStream()..listen(
             (user) => _appStateNotifier.update(user)
     );
     jwtTokenStream.listen((_) {});

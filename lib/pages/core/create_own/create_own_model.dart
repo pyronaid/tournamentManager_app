@@ -50,7 +50,7 @@ class CreateOwnModel extends CustomFlowModel<CreateOwnWidget> {
 
   // State field(s) for tournamentCapacity widget.
   FocusNode? tournamentCapacityFocusNode;
-  TextEditingController? tournamentCapacityTextController;
+  TextEditingController? tournamentCapacityTextController = TextEditingController(text: "Nessun limite");
   String? Function(BuildContext, String?)? tournamentCapacityTextControllerValidator;
   String? _tournamentCapacityTextControllerValidator(BuildContext context, String? val) {
     if (val == null || val.isEmpty) {
@@ -102,7 +102,6 @@ class CreateOwnModel extends CustomFlowModel<CreateOwnWidget> {
     tournamentAddressTextControllerValidator = _tournamentAddressTextControllerValidator;
     tournamentCapacityTextControllerValidator = _tournamentCapacityTextControllerValidator;
     tournamentDateTextControllerValidator = _tournamentDateTextControllerValidator;
-    tournamentCapacityTextController.text = 'Nessun limite';
   }
 
   @override
