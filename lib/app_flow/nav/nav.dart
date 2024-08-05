@@ -384,13 +384,14 @@ class CustomRoute {
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Center(
                         child: Lottie.asset(
                           'assets/animation/splash_animation.json',
                           fit: BoxFit.cover,
                           width: 80.sp, // Adjust the width and height as needed
-                          height: 60.sp,
+                          height: 70.sp,
                           repeat: true, // Set to true if you want the animation to loop
                         ),
                       ),
@@ -401,7 +402,12 @@ class CustomRoute {
                               fontWeight: FontWeight.bold,
                               color: Colors.blueAccent
                           ),
-                          child: const Text("Tournament Manager"),
+                          child: const Center(
+                            child: Text(
+                              "Tournament Manager",
+                              textAlign: TextAlign.center,
+                            )
+                          ),
                         ),
                       )
                     ],

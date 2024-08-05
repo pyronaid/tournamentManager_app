@@ -71,16 +71,19 @@ class _SplashWidgetState extends State<SplashWidget> {
                       ),
                       Padding(
                         padding: const EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 0.0),
-                        child: RichText(
-                          textScaler: MediaQuery.of(context).textScaler,
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Tournament Manager',
-                                style: CustomFlowTheme.of(context).displayLarge,
-                              )
-                            ],
-                            style: CustomFlowTheme.of(context).displaySmall,
+                        child: Center(
+                          child: RichText(
+                            textScaler: MediaQuery.of(context).textScaler,
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Tournament Manager',
+                                  style: CustomFlowTheme.of(context).displayLarge,
+                                )
+                              ],
+                              style: CustomFlowTheme.of(context).displaySmall,
+                            ),
                           ),
                         ),
                       ),

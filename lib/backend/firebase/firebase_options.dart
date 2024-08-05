@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '427466387534',
     projectId: 'tournament-manager-ee897',
     storageBucket: 'tournament-manager-ee897.appspot.com',
-    iosBundleId: 'com.pyroanid.tournamentmanager',
+    iosBundleId: 'com.pyroanid.tournament_manager',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '427466387534',
     projectId: 'tournament-manager-ee897',
     storageBucket: 'tournament-manager-ee897.appspot.com',
-    iosBundleId: 'com.pyroanid.tournamentmanager',
+    iosBundleId: 'com.pyroanid.tournament_manager',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
