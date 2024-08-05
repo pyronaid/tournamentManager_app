@@ -1,4 +1,4 @@
-package com.pyroanid.petsy
+package com.pyroanid.tournamentmanager
 
 import io.flutter.embedding.android.FlutterActivity
 

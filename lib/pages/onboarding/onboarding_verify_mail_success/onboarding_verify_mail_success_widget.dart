@@ -2,8 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
-import 'package:petsy/app_flow/app_flow_animations.dart';
-import 'package:petsy/app_flow/app_flow_util.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../app_flow/app_flow_theme.dart';

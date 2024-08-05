@@ -1,8 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
-import 'package:petsy/backend/schema/positions_record.dart';
-import 'package:petsy/backend/schema/util/firestore_util.dart';
-import 'package:petsy/backend/schema/util/schema_util.dart';
 
 import 'matches_record.dart';
 

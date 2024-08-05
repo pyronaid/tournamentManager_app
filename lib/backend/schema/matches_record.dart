@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:petsy/backend/backend.dart';
 
 class MatchesRecord extends FirestoreRecord {
   MatchesRecord._(

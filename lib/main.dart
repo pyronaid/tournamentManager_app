@@ -90,7 +90,7 @@ class _MyAppState extends State<MyApp> {
     return ResponsiveSizer(
         builder: (context, orientation, deviceType){
           return MaterialApp.router(
-            title: 'Petsy',
+            title: 'TournamentManager',
             localizationsDelegates: const [
               CustomLocalizationsDelegate(),
               GlobalMaterialLocalizations.delegate,

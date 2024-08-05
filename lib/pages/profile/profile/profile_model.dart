@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:petsy/pages/profile/profile/profile_widget.dart';
 import '../../../app_flow/app_flow_model.dart';
 
 class ProfileModel extends CustomFlowModel<ProfileWidget> {

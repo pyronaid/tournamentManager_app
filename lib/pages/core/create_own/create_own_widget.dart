@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:petsy/app_flow/app_flow_util.dart';
-import 'package:petsy/auth/base_auth_user_provider.dart';
-import 'package:petsy/backend/schema/tournaments_record.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import '../../../app_flow/app_flow_animations.dart';
 import '../../../app_flow/app_flow_theme.dart';

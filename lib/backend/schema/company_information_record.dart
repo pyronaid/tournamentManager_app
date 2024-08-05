@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:petsy/backend/schema/structs/devs_struct.dart';
 
 import '/backend/schema/util/firestore_util.dart';
 

@@ -372,7 +372,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                         style: CustomFlowTheme.of(context).bodySmall.override(decoration: TextDecoration.underline,),
                                       ),
                                       const TextSpan(
-                                        text: ' di Petsy.',
+                                        text: ' di TournamentManager.',
                                         style: TextStyle(),
                                       ),
                                     ],

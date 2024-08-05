@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.pyroanid" "\0"
-            VALUE "FileDescription", "petsy" "\0"
+            VALUE "FileDescription", "tournamentmanager" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "petsy" "\0"
+            VALUE "InternalName", "tournamentmanager" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 com.pyroanid. All rights reserved." "\0"
-            VALUE "OriginalFilename", "petsy.exe" "\0"
-            VALUE "ProductName", "petsy" "\0"
+            VALUE "OriginalFilename", "tournamentmanager.exe" "\0"
+            VALUE "ProductName", "tournamentmanager" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

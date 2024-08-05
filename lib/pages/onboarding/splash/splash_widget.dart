@@ -1,9 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:petsy/app_flow/app_flow_widgets.dart';
-import 'package:petsy/pages/onboarding/splash/splash_model.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../app_flow/app_flow_model.dart';
@@ -77,7 +74,7 @@ class _SplashWidgetState extends State<SplashWidget> {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: 'Petsy',
+                                text: 'Tournament Manager',
                                 style: CustomFlowTheme.of(context).displayLarge,
                               )
                             ],

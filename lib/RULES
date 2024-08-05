@@ -63,7 +63,7 @@ createAccountWithEmail																										[lib/auth/firebase_auth/firebase
 			if userCredential == null																						[lib/auth/firebase_auth/firebase_auth_manager.dart]
 				return null																									[lib/auth/firebase_auth/firebase_auth_manager.dart]
 			else 																											[lib/auth/firebase_auth/firebase_auth_manager.dart]
-				return PetsyFirebaseUser.fromUserCredential(userCredential)													[lib/auth/firebase_auth/firebase_auth_manager.dart]
+				return FirebaseUser.fromUserCredential(userCredential)													[lib/auth/firebase_auth/firebase_auth_manager.dart]
 		error 																												[lib/auth/firebase_auth/firebase_auth_manager.dart]
 			'email-already-in-use' => 'Error: The email is already in use by a different account',							[lib/auth/firebase_auth/firebase_auth_manager.dart]
 			'INVALID_LOGIN_CREDENTIALS' => 'Error: The supplied auth credential is incorrect, malformed or has expired',	[lib/auth/firebase_auth/firebase_auth_manager.dart]

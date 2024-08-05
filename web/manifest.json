@@ -1,6 +1,6 @@
 {
-    "name": "petsy",
-    "short_name": "petsy",
+    "name": "tournamentmanager",
+    "short_name": "tournamentmanager",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

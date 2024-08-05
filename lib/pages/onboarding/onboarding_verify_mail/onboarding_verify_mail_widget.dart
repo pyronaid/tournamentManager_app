@@ -2,11 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:lottie/lottie.dart';
-import 'package:petsy/app_flow/app_flow_animations.dart';
-import 'package:petsy/app_flow/app_flow_util.dart';
-import 'package:petsy/auth/verify_mail_controller.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../app_flow/app_flow_theme.dart';

@@ -1,5 +1,3 @@
-import 'package:petsy/pages/onboarding/splash/splash_model.dart';
-
 import '/app_flow/app_flow_util.dart';
 import 'splash_widget.dart' show SplashWidget;
 import 'package:flutter/material.dart';

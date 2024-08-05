@@ -2,9 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:petsy/app_flow/app_flow_util.dart';
-
-import '../app_flow/nav/serialization_util.dart';
 import 'firebase_auth/auth_util.dart';
 
 class VerifyMailController extends GetxController {

@@ -1,4 +1,4 @@
-# petsy
+# tournamentmanager
 
 A new Flutter project.
 
