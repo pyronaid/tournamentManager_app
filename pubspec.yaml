@@ -126,7 +126,6 @@ flutter:
      - assets/animation/send_mail_animation.json
      - assets/animation/confirm_animation.json
      - assets/images/profile_picture_default.png
-     - assets/images/petsy_logo.png
      - assets/images/petsy_logo_paw.png
      - assets/images/logo_slideshow_1.png
      - assets/images/logo_slideshow_2.png

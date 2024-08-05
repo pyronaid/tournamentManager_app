@@ -41,48 +41,48 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAPoGgXCNU6u0YP6sXfwdiSyGp85mFHK9g',
-    appId: '1:405435477239:web:00b76b2ab44dfc0599f7f2',
-    messagingSenderId: '405435477239',
-    projectId: 'petsy-fde9e',
-    authDomain: 'petsy-fde9e.firebaseapp.com',
-    storageBucket: 'petsy-fde9e.appspot.com',
-    measurementId: 'G-NML6SQ9K1W',
+    apiKey: 'AIzaSyC9EDy6Yj3-TeBOa1R3bKkKA72NsdmnG3o',
+    appId: '1:427466387534:web:924784bb173f709ef3131f',
+    messagingSenderId: '427466387534',
+    projectId: 'tournament-manager-ee897',
+    authDomain: 'tournament-manager-ee897.firebaseapp.com',
+    storageBucket: 'tournament-manager-ee897.appspot.com',
+    measurementId: 'G-2W4Q6BHSSV',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyALe2IxtQ9cC797fhl8XGBos_HwvjN7FXM',
-    appId: '1:405435477239:android:9cba80087ab30b2899f7f2',
-    messagingSenderId: '405435477239',
-    projectId: 'petsy-fde9e',
-    storageBucket: 'petsy-fde9e.appspot.com',
+    apiKey: 'AIzaSyB01X5ddvVG3XBLN-Q-rQlNERcPjKb1RG4',
+    appId: '1:427466387534:android:24ead6c98e95b28ef3131f',
+    messagingSenderId: '427466387534',
+    projectId: 'tournament-manager-ee897',
+    storageBucket: 'tournament-manager-ee897.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCt6ZkUFaZhV6JYslfGfIybEG0qaT5inh4',
-    appId: '1:405435477239:ios:62694c142429c69499f7f2',
-    messagingSenderId: '405435477239',
-    projectId: 'petsy-fde9e',
-    storageBucket: 'petsy-fde9e.appspot.com',
-    iosBundleId: 'com.pyroanid.petsy',
+    apiKey: 'AIzaSyAmcsraGArDmbn9oRARGuWqYO93d0aY424',
+    appId: '1:427466387534:ios:69be2dd6949bed15f3131f',
+    messagingSenderId: '427466387534',
+    projectId: 'tournament-manager-ee897',
+    storageBucket: 'tournament-manager-ee897.appspot.com',
+    iosBundleId: 'com.pyroanid.tournamentmanager',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCt6ZkUFaZhV6JYslfGfIybEG0qaT5inh4',
-    appId: '1:405435477239:ios:62694c142429c69499f7f2',
-    messagingSenderId: '405435477239',
-    projectId: 'petsy-fde9e',
-    storageBucket: 'petsy-fde9e.appspot.com',
-    iosBundleId: 'com.pyroanid.petsy',
+    apiKey: 'AIzaSyAmcsraGArDmbn9oRARGuWqYO93d0aY424',
+    appId: '1:427466387534:ios:69be2dd6949bed15f3131f',
+    messagingSenderId: '427466387534',
+    projectId: 'tournament-manager-ee897',
+    storageBucket: 'tournament-manager-ee897.appspot.com',
+    iosBundleId: 'com.pyroanid.tournamentmanager',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAPoGgXCNU6u0YP6sXfwdiSyGp85mFHK9g',
-    appId: '1:405435477239:web:2f7dc50d7d322ba799f7f2',
-    messagingSenderId: '405435477239',
-    projectId: 'petsy-fde9e',
-    authDomain: 'petsy-fde9e.firebaseapp.com',
-    storageBucket: 'petsy-fde9e.appspot.com',
-    measurementId: 'G-CSL5938LDS',
+    apiKey: 'AIzaSyC9EDy6Yj3-TeBOa1R3bKkKA72NsdmnG3o',
+    appId: '1:427466387534:web:9db0671c51b3d115f3131f',
+    messagingSenderId: '427466387534',
+    projectId: 'tournament-manager-ee897',
+    authDomain: 'tournament-manager-ee897.firebaseapp.com',
+    storageBucket: 'tournament-manager-ee897.appspot.com',
+    measurementId: 'G-59VXGLD75T',
   );
 }

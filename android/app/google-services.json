@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:427466387534:android:3f43c92eecbb10d6f3131f",
+        "mobilesdk_app_id": "1:427466387534:android:24ead6c98e95b28ef3131f",
         "android_client_info": {
-          "package_name": "com.pyroanid.tournamentmanager"
+          "package_name": "com.pyroanid.tournament_manager"
         }
       },
       "oauth_client": [],
