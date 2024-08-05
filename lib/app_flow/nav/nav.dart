@@ -389,8 +389,8 @@ class CustomRoute {
                         child: Lottie.asset(
                           'assets/animation/splash_animation.json',
                           fit: BoxFit.cover,
-                          width: 80.w, // Adjust the width and height as needed
-                          height: 60.w,
+                          width: 80.sp, // Adjust the width and height as needed
+                          height: 60.sp,
                           repeat: true, // Set to true if you want the animation to loop
                         ),
                       ),

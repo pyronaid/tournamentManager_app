@@ -59,8 +59,8 @@ class _SplashWidgetState extends State<SplashWidget> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        width: 50.w,
-                        height: 50.w,
+                        width: 60.sp,
+                        height: 60.sp,
                         decoration: BoxDecoration(
                           color: CustomFlowTheme.of(context).primary,
                           image: DecorationImage(

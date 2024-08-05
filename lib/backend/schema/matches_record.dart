@@ -1,12 +1,5 @@
-
-import 'dart:ffi';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:petsy/backend/backend.dart';
-import 'package:petsy/backend/schema/users_record.dart';
-import 'package:petsy/backend/schema/util/firestore_util.dart';
-import 'package:petsy/backend/schema/util/schema_util.dart';
 
 class MatchesRecord extends FirestoreRecord {
   MatchesRecord._(

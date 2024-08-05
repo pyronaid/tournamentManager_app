@@ -1,4 +1,4 @@
-import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:petsy/backend/schema/rounds_record.dart';
@@ -51,14 +51,14 @@ class TournamentsRecord extends FirestoreRecord {
   bool hasCapacity() => _capacity! > 0;
 
   // "preregistration-en" field.
-  Bool _preRegistrationEn = false as Bool;
-  Bool get preRegistrationEn => _preRegistrationEn;
-  Bool hasPreRegistrationEn() => _preRegistrationEn;
+  bool _preRegistrationEn = false;
+  bool get preRegistrationEn => _preRegistrationEn;
+  bool hasPreRegistrationEn() => _preRegistrationEn;
 
   // "waitinglist-en" field.
-  Bool _waitingListEn = false as Bool;
-  Bool get waitingListEn => _waitingListEn;
-  Bool hasWaitingListEn() => _waitingListEn;
+  bool _waitingListEn = false;
+  bool get waitingListEn => _waitingListEn;
+  bool hasWaitingListEn() => _waitingListEn;
 
   // "preregistration-list" field.
   List<UsersRecord>? _preRegisteredList;
@@ -98,8 +98,8 @@ class TournamentsRecord extends FirestoreRecord {
     _address = snapshotData['address'] as String?;
     _capacity = snapshotData['capacity'];
     _creatorUid = snapshotData['creator_uid'];
-    _preRegistrationEn = snapshotData['pre_registration_en'] as Bool;
-    _waitingListEn = snapshotData['waiting_list_en'] as Bool;
+    _preRegistrationEn = snapshotData['pre_registration_en'];
+    _waitingListEn = snapshotData['waiting_list_en'];
     _preRegisteredList = getDataList(snapshotData['pre_registered_list']);
     _waitingList = getDataList(snapshotData['waiting_list']);
     _registeredList = getDataList(snapshotData['registered_list']);
