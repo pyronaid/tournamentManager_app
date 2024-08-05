@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:tournamentmanager/components/title_with_subtitle/title_with_subtitle_model.dart';
 
-import '../../app_flow/app_flow_model.dart';
 import '../../app_flow/app_flow_theme.dart';
 import '../../app_flow/app_flow_util.dart';
 

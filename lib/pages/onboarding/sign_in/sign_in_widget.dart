@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:tournamentmanager/pages/onboarding/sign_in/sign_in_model.dart';
 
 import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_util.dart';

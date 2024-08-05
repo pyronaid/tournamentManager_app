@@ -1,7 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../app_flow/app_flow_theme.dart';
+import '../placeholder_widget.dart';
 import '../profile/profile/profile_widget.dart';
 
 class NavBarPage extends StatefulWidget {

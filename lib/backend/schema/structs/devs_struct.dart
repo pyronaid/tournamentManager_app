@@ -1,5 +1,5 @@
+import '../../../app_flow/nav/serialization_util.dart';
 import '../../backend.dart';
-import '../util/firestore_util.dart';
 
 class DevsStruct extends AFFirebaseStruct {
   DevsStruct({

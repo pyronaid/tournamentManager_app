@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:tournamentmanager/pages/profile/profile/profile_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app_flow/app_flow_theme.dart';
