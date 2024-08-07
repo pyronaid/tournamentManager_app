@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import '../auth/firebase_auth/auth_util.dart';
 
 import '../app_flow/app_flow_util.dart';
@@ -24,22 +25,17 @@ export 'schema/company_information_record.dart';
 export 'schema/feedback_record.dart';
 export 'schema/support_center_record.dart';
 
+/// /////////////////////////////////////////////////////////////////
 /// Functions to query UsersRecords (as a Stream and as a Future).
-Future<int> queryUsersRecordCount({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-}) =>
+/// /////////////////////////////////////////////////////////////////
+Future<int> queryUsersRecordCount({ Query Function(Query)? queryBuilder, int limit = -1, }) =>
     queryCollectionCount(
       UsersRecord.collection,
       queryBuilder: queryBuilder,
       limit: limit,
     );
 
-Stream<List<UsersRecord>> queryUsersRecord({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
+Stream<List<UsersRecord>> queryUsersRecord({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
     queryCollection(
       UsersRecord.collection,
       UsersRecord.fromSnapshot,
@@ -48,11 +44,7 @@ Stream<List<UsersRecord>> queryUsersRecord({
       singleRecord: singleRecord,
     );
 
-Future<List<UsersRecord>> queryUsersRecordOnce({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
+Future<List<UsersRecord>> queryUsersRecordOnce({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
     queryCollectionOnce(
       UsersRecord.collection,
       UsersRecord.fromSnapshot,
@@ -61,23 +53,17 @@ Future<List<UsersRecord>> queryUsersRecordOnce({
       singleRecord: singleRecord,
     );
 
-
+/// /////////////////////////////////////////////////////////////////
 /// Functions to query OnboardingOptionsRecords (as a Stream and as a Future).
-Future<int> queryOnboardingOptionsRecordCount({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-}) =>
+/// /////////////////////////////////////////////////////////////////
+Future<int> queryOnboardingOptionsRecordCount({ Query Function(Query)? queryBuilder, int limit = -1, }) =>
     queryCollectionCount(
       OnboardingOptionsRecord.collection,
       queryBuilder: queryBuilder,
       limit: limit,
     );
 
-Stream<List<OnboardingOptionsRecord>> queryOnboardingOptionsRecord({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
+Stream<List<OnboardingOptionsRecord>> queryOnboardingOptionsRecord({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
     queryCollection(
       OnboardingOptionsRecord.collection,
       OnboardingOptionsRecord.fromSnapshot,
@@ -86,11 +72,7 @@ Stream<List<OnboardingOptionsRecord>> queryOnboardingOptionsRecord({
       singleRecord: singleRecord,
     );
 
-Future<List<OnboardingOptionsRecord>> queryOnboardingOptionsRecordOnce({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
+Future<List<OnboardingOptionsRecord>> queryOnboardingOptionsRecordOnce({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
     queryCollectionOnce(
       OnboardingOptionsRecord.collection,
       OnboardingOptionsRecord.fromSnapshot,
@@ -99,22 +81,17 @@ Future<List<OnboardingOptionsRecord>> queryOnboardingOptionsRecordOnce({
       singleRecord: singleRecord,
     );
 
+/// /////////////////////////////////////////////////////////////////
 /// Functions to query CompanyInformationRecords (as a Stream and as a Future).
-Future<int> queryCompanyInformationRecordCount({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-}) =>
+/// /////////////////////////////////////////////////////////////////
+Future<int> queryCompanyInformationRecordCount({Query Function(Query)? queryBuilder, int limit = -1, }) =>
     queryCollectionCount(
       CompanyInformationRecord.collection,
       queryBuilder: queryBuilder,
       limit: limit,
     );
 
-Stream<List<CompanyInformationRecord>> queryCompanyInformationRecord({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
+Stream<List<CompanyInformationRecord>> queryCompanyInformationRecord({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
     queryCollection(
       CompanyInformationRecord.collection,
       CompanyInformationRecord.fromSnapshot,
@@ -123,11 +100,7 @@ Stream<List<CompanyInformationRecord>> queryCompanyInformationRecord({
       singleRecord: singleRecord,
     );
 
-Future<List<CompanyInformationRecord>> queryCompanyInformationRecordOnce({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
+Future<List<CompanyInformationRecord>> queryCompanyInformationRecordOnce({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
     queryCollectionOnce(
       CompanyInformationRecord.collection,
       CompanyInformationRecord.fromSnapshot,
@@ -136,22 +109,17 @@ Future<List<CompanyInformationRecord>> queryCompanyInformationRecordOnce({
       singleRecord: singleRecord,
     );
 
+/// /////////////////////////////////////////////////////////////////
 /// Functions to query FeedbackRecords (as a Stream and as a Future).
-Future<int> queryFeedbackRecordCount({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-}) =>
+/// /////////////////////////////////////////////////////////////////
+Future<int> queryFeedbackRecordCount({ Query Function(Query)? queryBuilder, int limit = -1, }) =>
     queryCollectionCount(
       FeedbackRecord.collection,
       queryBuilder: queryBuilder,
       limit: limit,
     );
 
-Stream<List<FeedbackRecord>> queryFeedbackRecord({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
+Stream<List<FeedbackRecord>> queryFeedbackRecord({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
     queryCollection(
       FeedbackRecord.collection,
       FeedbackRecord.fromSnapshot,
@@ -160,11 +128,7 @@ Stream<List<FeedbackRecord>> queryFeedbackRecord({
       singleRecord: singleRecord,
     );
 
-Future<List<FeedbackRecord>> queryFeedbackRecordOnce({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
+Future<List<FeedbackRecord>> queryFeedbackRecordOnce({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
     queryCollectionOnce(
       FeedbackRecord.collection,
       FeedbackRecord.fromSnapshot,
@@ -173,22 +137,17 @@ Future<List<FeedbackRecord>> queryFeedbackRecordOnce({
       singleRecord: singleRecord,
     );
 
+/// /////////////////////////////////////////////////////////////////
 /// Functions to query SupportCenterRecords (as a Stream and as a Future).
-Future<int> querySupportCenterRecordCount({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-}) =>
+/// /////////////////////////////////////////////////////////////////
+Future<int> querySupportCenterRecordCount({ Query Function(Query)? queryBuilder, int limit = -1, }) =>
     queryCollectionCount(
       SupportCenterRecord.collection,
       queryBuilder: queryBuilder,
       limit: limit,
     );
 
-Stream<List<SupportCenterRecord>> querySupportCenterRecord({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
+Stream<List<SupportCenterRecord>> querySupportCenterRecord({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
     queryCollection(
       SupportCenterRecord.collection,
       SupportCenterRecord.fromSnapshot,
@@ -197,11 +156,7 @@ Stream<List<SupportCenterRecord>> querySupportCenterRecord({
       singleRecord: singleRecord,
     );
 
-Future<List<SupportCenterRecord>> querySupportCenterRecordOnce({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
+Future<List<SupportCenterRecord>> querySupportCenterRecordOnce({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
     queryCollectionOnce(
       SupportCenterRecord.collection,
       SupportCenterRecord.fromSnapshot,
@@ -209,96 +164,138 @@ Future<List<SupportCenterRecord>> querySupportCenterRecordOnce({
       limit: limit,
       singleRecord: singleRecord,
     );
+
+/// /////////////////////////////////////////////////////////////////
+/// Functions to query TournamentsRecords (as a Stream and as a Future).
+/// /////////////////////////////////////////////////////////////////
+Future<int> queryTournamentsRecordCount({ Query Function(Query)? queryBuilder, int limit = -1, }) =>
+    queryCollectionCount(
+      TournamentsRecord.collection,
+      queryBuilder: queryBuilder,
+      limit: limit,
+    );
+
+Stream<List<TournamentsRecord>> queryTournamentsRecord({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
+    queryCollection(
+      TournamentsRecord.collection,
+      TournamentsRecord.fromSnapshot,
+      queryBuilder: queryBuilder,
+      limit: limit,
+      singleRecord: singleRecord,
+    );
+
+Future<List<TournamentsRecord>> queryTournamentsRecordOnce({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
+    queryCollectionOnce(
+      TournamentsRecord.collection,
+      TournamentsRecord.fromSnapshot,
+      queryBuilder: queryBuilder,
+      limit: limit,
+      singleRecord: singleRecord,
+    );
+
+
+
+/// /////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////
+
+
+
 
 Future<int> queryCollectionCount(
-  Query collection, {
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-}) {
-  final builder = queryBuilder ?? (q) => q;
-  var query = builder(collection);
-  if (limit > 0) {
-    query = query.limit(limit);
-  }
+    Query collection,
+    { Query Function(Query)? queryBuilder, int limit = -1, }) {
+      final builder = queryBuilder ?? (q) => q;
+      var query = builder(collection);
+      if (limit > 0) {
+        query = query.limit(limit);
+      }
 
-  return query.count().get().catchError((err) {
-    print('Error querying $collection: $err');
-  }).then((value) => value.count!);
+      return query.count().get().catchError((err) {
+        print('Error querying $collection: $err');
+      }).then((value) => value.count!);
 }
 
-Stream<List<T>>   queryCollection<T>(
+Stream<List<T>> queryCollection<T>(
   Query collection,
-  RecordBuilder<T> recordBuilder, {
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) {
-  final builder = queryBuilder ?? (q) => q;
-  var query = builder(collection);
-  if (limit > 0 || singleRecord) {
-    query = query.limit(singleRecord ? 1 : limit);
-  }
-  return query.snapshots().handleError((err) {
-    print('Error querying $collection: $err');
-  }).map((s) => s.docs
-      .map(
-        (d) => safeGet(
-          () => recordBuilder(d),
-          (e) => print('Error serializing doc ${d.reference.path}:\n$e'),
-        ),
-      )
-      .where((d) => d != null)
-      .map((d) => d!)
-      .toList());
+  RecordBuilder<T> recordBuilder,
+  { Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false,}) {
+    final builder = queryBuilder ?? (q) => q;
+    var query = builder(collection);
+    if (limit > 0 || singleRecord) {
+      query = query.limit(singleRecord ? 1 : limit);
+    }
+    return query.snapshots().handleError((err) {
+      print('Error querying $collection: $err');
+    }).map((s) => s.docs
+        .map(
+          (d) => safeGet(
+            () => recordBuilder(d),
+            (e) => print('Error serializing doc ${d.reference.path}:\n$e'),
+          ),
+        )
+        .where((d) => d != null)
+        .map((d) => d!)
+        .toList());
 }
 
 Future<List<T>> queryCollectionOnce<T>(
   Query collection,
-  RecordBuilder<T> recordBuilder, {
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) {
-  final builder = queryBuilder ?? (q) => q;
-  var query = builder(collection);
-  if (limit > 0 || singleRecord) {
-    query = query.limit(singleRecord ? 1 : limit);
-  }
-  return query.get().then((s) => s.docs
-      .map(
-        (d) => safeGet(
-          () => recordBuilder(d),
-          (e) => print('Error serializing doc ${d.reference.path}:\n$e'),
-        ),
-      )
-      .where((d) => d != null)
-      .map((d) => d!)
-      .toList());
+  RecordBuilder<T> recordBuilder,
+  { Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) {
+    final builder = queryBuilder ?? (q) => q;
+    var query = builder(collection);
+    if (limit > 0 || singleRecord) {
+      query = query.limit(singleRecord ? 1 : limit);
+    }
+    return query.get().then((s) => s.docs
+        .map(
+          (d) => safeGet(
+            () => recordBuilder(d),
+            (e) => print('Error serializing doc ${d.reference.path}:\n$e'),
+          ),
+        )
+        .where((d) => d != null)
+        .map((d) => d!)
+        .toList());
 }
 
-Filter filterIn(String field, List? list) => (list?.isEmpty ?? true)
-    ? Filter(field, whereIn: null)
-    : Filter(field, whereIn: list);
+Filter filterIn(String field, List? list) => (list?.isEmpty ?? true) ? Filter(field, whereIn: null) : Filter(field, whereIn: list);
 
 Filter filterArrayContainsAny(String field, List? list) =>
-    (list?.isEmpty ?? true)
-        ? Filter(field, arrayContainsAny: null)
-        : Filter(field, arrayContainsAny: list);
+    (list?.isEmpty ?? true) ? Filter(field, arrayContainsAny: null) : Filter(field, arrayContainsAny: list);
 
 extension QueryExtension on Query {
-  Query whereIn(String field, List? list) => (list?.isEmpty ?? true)
-      ? where(field, whereIn: null)
-      : where(field, whereIn: list);
+  Query whereIn(String field, List? list) => (list?.isEmpty ?? true) ? where(field, whereIn: null) : where(field, whereIn: list);
 
-  Query whereNotIn(String field, List? list) => (list?.isEmpty ?? true)
-      ? where(field, whereNotIn: null)
-      : where(field, whereNotIn: list);
+  Query whereNotIn(String field, List? list) => (list?.isEmpty ?? true) ? where(field, whereNotIn: null) : where(field, whereNotIn: list);
 
   Query whereArrayContainsAny(String field, List? list) =>
-      (list?.isEmpty ?? true)
-          ? where(field, arrayContainsAny: null)
-          : where(field, arrayContainsAny: list);
+      (list?.isEmpty ?? true) ? where(field, arrayContainsAny: null) : where(field, arrayContainsAny: list);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class FFFirestorePage<T> {
   final List<T> data;
@@ -375,7 +372,8 @@ Future updateUserDocument({String? email}) async {
       .update(createUsersRecordData(email: email));
 }
 
-//TODO REMOVE USERDATA 
+//TODO REMOVE USERDATA
+// not sure to do it bc i lose history not for now at least
 Future deleteUserDocument({String? uid}) async {
   await currentUserDocument?.reference
       .delete();

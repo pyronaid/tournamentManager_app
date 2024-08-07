@@ -227,5 +227,7 @@ enum Game {
 
 enum StateTournament {
   open,
+  ready,
+  ongoing,
   close
 }

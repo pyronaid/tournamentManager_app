@@ -30,6 +30,12 @@ abstract class CustomFlowTheme {
         : LightModeTheme();
   }
 
+  static Brightness bright(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Brightness.light
+        : Brightness.dark;
+  }
+
   @Deprecated('Use primary instead')
   Color get primaryColor => primary;
   @Deprecated('Use secondary instead')
@@ -85,6 +91,10 @@ abstract class CustomFlowTheme {
   String get bodyText2Family => typography.bodySmallFamily;
   @Deprecated('Use bodySmall instead')
   TextStyle get bodyText2 => typography.bodySmall;
+  @Deprecated('Use bodyMicroFamily instead')
+  String get bodyText3Family => typography.bodyMicroFamily;
+  @Deprecated('Use bodySMicro instead')
+  TextStyle get bodyText3 => typography.bodyMicro;
 
   String get displayLargeFamily => typography.displayLargeFamily;
   TextStyle get displayLarge => typography.displayLarge;
@@ -116,6 +126,8 @@ abstract class CustomFlowTheme {
   TextStyle get bodyMedium => typography.bodyMedium;
   String get bodySmallFamily => typography.bodySmallFamily;
   TextStyle get bodySmall => typography.bodySmall;
+  String get bodyMicroFamily => typography.bodyMicroFamily;
+  TextStyle get bodyMicro => typography.bodyMicro;
 
   Typography get typography => ThemeTypography(this);
 }
@@ -180,6 +192,8 @@ abstract class Typography {
   TextStyle get bodyMedium;
   String get bodySmallFamily;
   TextStyle get bodySmall;
+  String get bodyMicroFamily;
+  TextStyle get bodyMicro;
 }
 
 class ThemeTypography extends Typography {
@@ -307,6 +321,14 @@ class ThemeTypography extends Typography {
         fontSize: 14.0,
         letterSpacing: 0,
       );
+  String get bodyMicroFamily => 'Inter';
+  TextStyle get bodyMicro => GoogleFonts.getFont(
+    'Inter',
+    color: theme.primaryText,
+    fontWeight: FontWeight.w400,
+    fontSize: 12.0,
+    letterSpacing: 0,
+  );
 }
 
 class DarkModeTheme extends CustomFlowTheme {

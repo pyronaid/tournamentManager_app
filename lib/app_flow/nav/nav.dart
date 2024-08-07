@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/pages/core/my_torunaments/my_tournaments_widget.dart';
 import '../../pages/core/create_own/create_own_widget.dart';
 import '../../pages/nav_bar/nav_bar_widget.dart';
 import '../../pages/onboarding/onboarding_verify_mail/onboarding_verify_mail_widget.dart';
@@ -56,8 +57,7 @@ class AppStateNotifier extends ChangeNotifier {
   void updateNotifyOnAuthChange(bool notify) => notifyOnAuthChange = notify;
 
   void update(BaseAuthUser newUser) {
-    final shouldUpdate =
-        user?.uid == null || newUser.uid == null || user?.uid != newUser.uid;
+    final shouldUpdate = user?.uid == null || newUser.uid == null || user?.uid != newUser.uid;
     initialUser ??= newUser;
     user = newUser;
     // Refresh the app on auth change unless explicitly marked otherwise.
@@ -126,7 +126,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               requireAuth: true,
               builder: (context, params) => params.isEmpty
                   ? const NavBarPage(initialPage: 'Dashboard')
-                  : const PlaceholderWidget(),
+                  : const MyTournamentsWidget(),
             ),
             CustomRoute(
               name: 'CreateOwn',

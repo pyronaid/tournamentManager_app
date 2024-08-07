@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/pages/core/my_torunaments/my_tournaments_widget.dart';
 
 import '../../app_flow/app_flow_theme.dart';
 import '../placeholder_widget.dart';
@@ -29,15 +32,67 @@ class _NavBarPageState extends State<NavBarPage> {
   @override
   Widget build(BuildContext context) {
     final tabs = {
-      'Dashboard': const PlaceholderWidget(),
-      'MyTournaments': const PlaceholderWidget(),
-      'FindNew': const PlaceholderWidget(),
-      'Profile': const ProfileWidget(),
+      'Dashboard': {
+        'widget' : const MyTournamentsWidget(),
+        'name' : Text(
+          'Dashboard tornei',
+          style: CustomFlowTheme.of(context).headlineSmall,
+        ),
+        'icon' : Image.asset(
+          'assets/images/icons/trophy.png',
+          height: 30.sp,
+          fit: BoxFit.cover,
+        ),
+        //'icon' : Icon(Icons.star, color: CustomFlowTheme.of(context).info),
+      },
+      'OwnTournaments': {
+        'widget' : const PlaceholderWidget(),
+        'name' : const Text('AppBar Example'),
+        'icon' : Icon(Icons.star, color: CustomFlowTheme.of(context).info),
+      },
+      'FindNew': {
+        'widget' : const PlaceholderWidget(),
+        'name' : const Text('AppBar Example'),
+        'icon' : Icon(Icons.star, color: CustomFlowTheme.of(context).info),
+      },
+      'Profile': {
+        'widget' : const ProfileWidget(),
+        'name' : Text(
+          'Il mio profilo',
+          style: CustomFlowTheme.of(context).headlineSmall,
+        ),
+        'icon' : Image.asset(
+          'assets/images/icons/profile.png',
+          height: 30.sp,
+          fit: BoxFit.cover,
+        ),
+      },
     };
     final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
 
     return Scaffold(
-      body: _currentPage ?? tabs[_currentPageName],
+      appBar: AppBar(
+        toolbarHeight: 35.sp,
+        elevation: 0,
+        backgroundColor: CustomFlowTheme.of(context).secondary,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _currentPage ?? tabs[_currentPageName]!['icon']!,
+            const SizedBox(width: 10),
+            _currentPage ?? tabs[_currentPageName]!['name']!,
+          ],
+        ),
+        centerTitle: true,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          // Status bar color
+          statusBarColor: CustomFlowTheme.of(context).secondary,
+          // Status bar brightness (optional)
+          statusBarIconBrightness: CustomFlowTheme.bright(context), // For Android (dark icons)
+          statusBarBrightness: CustomFlowTheme.bright(context), // For iOS (dark icons)
+        ),
+      ),
+      body: _currentPage ?? tabs[_currentPageName]?['widget'],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (i) => setState(() {

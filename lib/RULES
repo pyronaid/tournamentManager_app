@@ -17,6 +17,32 @@ GO_ROUTE
             - NEED to be authed to arrive to destination Page
 
 ##################################################################################
+/// Call this method whenever the object changes, to notify any clients the
+  /// object may have changed. Listeners that are added during this iteration
+  /// will not be visited. Listeners that are removed during this iteration will
+  /// not be visited after they are removed.
+
+CUSTOM_APP_STATE VS APP_STATE_NOTIFIER
+    -> CHANGE_NOTIFIER
+AppStateNotifier
+    BaseAuthUser? initialUser;
+    BaseAuthUser? user;
+    bool showSplashImage = true;
+    String? _redirectLocation;
+    bool notifyOnAuthChange = true;
+
+    void update(BaseAuthUser newUser) {
+        notifyListeners();
+CustomAppState
+    void update(VoidCallback callback) {
+        callback();
+        notifyListeners();
+
+
+
+
+
+##################################################################################
 
 Auth route explanation
 

@@ -129,7 +129,6 @@ SLACK BAR MESSAGE (CONGRATULATION, ACCOUNT CREATED, VERIFY TO CONTINUE)
 ###################################################################
 
 https://firebase.flutter.dev/docs/firestore/usage/
-https://www.youtube.com/watch?v=Lvy75rlDaxg
 
 
 
@@ -138,6 +137,64 @@ https://www.youtube.com/watch?v=Lvy75rlDaxg
 
 
 
+
+
+ child: AuthUserStreamWidget(
+                    builder: (context) => StreamBuilder<List<MealsRecord>>(
+                      stream: queryMealsRecord(
+                        queryBuilder: (mealsRecord) => mealsRecord.where(
+                          'meal_diet',
+                          arrayContains:
+                              valueOrDefault(currentUserDocument?.diet, ''),
+                        ),
+                      ),
+                      builder: (context, snapshot) {
+                        // Customize what your widget looks like when it's loading.
+                        if (!snapshot.hasData) {
+                          return const MealCardLoadingWidget();
+                        }
+                        List<MealsRecord> gridViewMealsRecordList =
+                            snapshot.data!;
+                        if (gridViewMealsRecordList.isEmpty) {
+                          return SizedBox(
+                            width: double.infinity,
+                            child: EmptyStateWidget(
+                              icon: Icon(
+                                Icons.no_food_outlined,
+                                color:
+                                    FlutterFlowTheme.of(context).secondaryText,
+                                size: 64.0,
+                              ),
+                              title: 'No Meals',
+                              description:
+                                  'No meals have been created or match your dietary preferences.',
+                            ),
+                          );
+                        }
+                        return GridView.builder(
+                          padding: EdgeInsets.zero,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 10.0,
+                            mainAxisSpacing: 10.0,
+                            childAspectRatio: 0.78,
+                          ),
+                          scrollDirection: Axis.vertical,
+                          itemCount: gridViewMealsRecordList.length,
+                          itemBuilder: (context, gridViewIndex) {
+                            final gridViewMealsRecord =
+                                gridViewMealsRecordList[gridViewIndex];
+                            return MealCardWidget(
+                              key: Key(
+                                  'Keykia_${gridViewIndex}_of_${gridViewMealsRecordList.length}'),
+                              mealRef: gridViewMealsRecord,
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
 
 
 

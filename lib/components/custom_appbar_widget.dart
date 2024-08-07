@@ -62,6 +62,9 @@ class _CustomAppbarWidgetState extends State<CustomAppbarWidget> {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        ///////////////////////////////////////////////
+        //////////// BACK BUTTON ICON
+        ///////////////////////////////////////////////
         if (widget.backButton ?? true)
           CustomFlowIconButton(
             borderColor: CustomFlowTheme.of(context).secondaryBackground,
@@ -84,6 +87,9 @@ class _CustomAppbarWidgetState extends State<CustomAppbarWidget> {
           mainAxisSize: MainAxisSize.max,
           children: [
             if (widget.actionButton)
+            ///////////////////////////////////////////////
+            //////////// ACTION BUTTON
+            ///////////////////////////////////////////////
               AFButtonWidget(
                 onPressed: () async {
                   FocusScope.of(context).unfocus();
@@ -116,6 +122,9 @@ class _CustomAppbarWidgetState extends State<CustomAppbarWidget> {
                 ),
               ),
             if (widget.optionsButton)
+            ///////////////////////////////////////////////
+            //////////// OPTION BUTTON
+            ///////////////////////////////////////////////
               CustomFlowIconButton(
                 borderColor: CustomFlowTheme.of(context).secondaryBackground,
                 borderRadius: 24.0,

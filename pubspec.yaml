@@ -130,6 +130,8 @@ flutter:
      - assets/images/logo_slideshow_1.png
      - assets/images/logo_slideshow_2.png
      - assets/images/card_back/game_ygo_adv.jpg
+     - assets/images/icons/trophy.png
+     - assets/images/icons/profile.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
