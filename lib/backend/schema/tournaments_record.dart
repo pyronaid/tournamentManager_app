@@ -36,8 +36,8 @@ class TournamentsRecord extends FirestoreRecord {
   bool hasName() => _name != null;
 
   // "date" field.
-  Timestamp? _date;
-  Timestamp? get date => _date;
+  DateTime? _date;
+  DateTime? get date => _date;
   bool hasDate() => _date != null;
 
   // "address" field.
@@ -97,21 +97,21 @@ class TournamentsRecord extends FirestoreRecord {
 
   void _initializeFields() {
     _uid = snapshotData['uid'];
-    _game = snapshotData['game'] as Game;
+    _game = getGameEnum(snapshotData['game']);
     _name = snapshotData['name'];
-    _date = snapshotData['date'] as Timestamp?;
+    _date = snapshotData['date'] as DateTime?;
     _address = snapshotData['address'];
     _capacity = snapshotData['capacity'];
     _creatorUid = snapshotData['creator_uid'];
     _preRegistrationEn = snapshotData['pre_registration_en'] as bool;
     _waitingListEn = snapshotData['waiting_list_en'] as bool;
-    _preRegisteredList = getDataList(snapshotData['pre_registered_list']) as List<String>;
-    _waitingList = getDataList(snapshotData['waiting_list']) as List<String>;
-    _registeredList = getDataList(snapshotData['registered_list']) as List<String>;
-    _involvedList = getDataList(snapshotData['involved_list']) as List<String>;
-    _roundList = getDataList(snapshotData['round_list']);
-    _standingList = getDataList(snapshotData['standing_list']);
-    _state = snapshotData['state'] as StateTournament;
+    _preRegisteredList = getDataList<String>(snapshotData['pre_registered_list']);
+    _waitingList = getDataList<String>(snapshotData['waiting_list']);
+    _registeredList = getDataList<String>(snapshotData['registered_list']);
+    _involvedList = getDataList<String>(snapshotData['involved_list']);
+    _roundList = getDataList<RoundsRecord>(snapshotData['round_list']);
+    _standingList = getDataList<StandingsRecord>(snapshotData['standing_list']);
+    _state = getStateEnum(snapshotData['state']);
   }
 
   static CollectionReference get collection =>
@@ -143,8 +143,21 @@ class TournamentsRecord extends FirestoreRecord {
 
   @override
   bool operator ==(other) =>
-      other is TournamentsRecord &&
-          reference.path.hashCode == other.reference.path.hashCode;
+    other is TournamentsRecord && reference.path.hashCode == other.reference.path.hashCode;
+
+  Game getGameEnum(stringValue) {
+    return Game.values.firstWhere(
+      (e) => e.name == stringValue,
+      orElse: () => Game.unknown,
+    );
+  }
+
+  StateTournament? getStateEnum(stringValue) {
+    return StateTournament.values.firstWhere(
+      (e) => e.name == stringValue,
+      orElse: () => StateTournament.unknown,
+    );
+  }
 }
 
 
@@ -228,12 +241,14 @@ enum Game {
   lorcana,
   onepiece,
   altered,
-  magic
+  magic,
+  unknown
 }
 
 enum StateTournament {
   open,
   ready,
   ongoing,
-  close
+  close,
+  unknown
 }

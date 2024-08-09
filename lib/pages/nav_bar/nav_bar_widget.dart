@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:tournamentmanager/pages/core/my_torunaments/my_tournaments_widget.dart';
 import 'package:tournamentmanager/pages/core/own_torunaments/own_tournaments_widget.dart';
 
 import '../../app_flow/app_flow_theme.dart';
+import '../core/my_tournaments/my_tournaments_widget.dart';
 import '../placeholder_widget.dart';
 import '../profile/profile/profile_widget.dart';
 

@@ -70,7 +70,7 @@ class _TournamentCardWidgetState extends State<TournamentCardWidget> with Ticker
           hoverColor: Colors.transparent,
           highlightColor: Colors.transparent,
           onTap: () async {
-            logFirebaseEvent('TOURNAMENT_CARD_COMP_Column_7nse8gf3_ON_TAP');
+            logFirebaseEvent('TOURN_CARD_COMP_Column_7nse8gf3_ON_TAP');
             logFirebaseEvent('Column_haptic_feedback');
             HapticFeedback.lightImpact();
             logFirebaseEvent('Column_navigate_to');
@@ -78,8 +78,8 @@ class _TournamentCardWidgetState extends State<TournamentCardWidget> with Ticker
             //////////////////////////////
             //////////// REDIRECT ON TAP
             //////////////////////////////
-            context.pushNamed(
-              'TournamentDetails',
+            context.pushNamedAuth(
+              'TournamentDetails', context.mounted,
               pathParameters: {
                 'tournamentRef': serializeParam(
                   widget.tournamentRef,
@@ -109,15 +109,15 @@ class _TournamentCardWidgetState extends State<TournamentCardWidget> with Ticker
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                      DateFormat('dd').format(widget.tournamentRef!.date!.toDate()),
+                      DateFormat('dd').format(widget.tournamentRef!.date!),
                         style: CustomFlowTheme.of(context).titleLarge,
                       ),
                       Text(
-                        DateFormat('MM').format(widget.tournamentRef!.date!.toDate()),
+                        DateFormat('MM').format(widget.tournamentRef!.date!),
                         style: CustomFlowTheme.of(context).bodyMedium,
                       ),
                       Text(
-                        DateFormat('yyyy').format(widget.tournamentRef!.date!.toDate()),
+                        DateFormat('yyyy').format(widget.tournamentRef!.date!),
                         style: CustomFlowTheme.of(context).bodyMedium,
                       ),
                     ],

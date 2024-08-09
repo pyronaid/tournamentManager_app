@@ -68,10 +68,10 @@ Color? getSchemaColor(dynamic value) => value is String
         : null;
 
 List<Color>? getColorsList(dynamic value) =>
-    value is! List ? null : value.map(getSchemaColor).withoutNulls;
+    value is! List ? <Color>[] : value.map(getSchemaColor).withoutNulls;
 
 List<T>? getDataList<T>(dynamic value) =>
-    value is! List ? null : value.map((e) => castToType<T>(e)!).toList();
+    value is! List ? <T>[] : value.map((e) => castToType<T>(e)!).toList();
 
 extension MapDataExtensions on Map<String, dynamic> {
   Map<String, dynamic> get withoutNulls => Map.fromEntries(

@@ -115,6 +115,8 @@ class _OwnTournamentsWidgetState extends State<OwnTournamentsWidget> with Ticker
                               ////////////// STANDARD CASE
                               /////////////////////////////////////////
                               return ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
                                 itemCount: tournamentsRecordList.length,
                                 itemBuilder: (context, index) {
                                   final tournament = tournamentsRecordList[index];
