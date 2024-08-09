@@ -7,18 +7,18 @@ import '../../../auth/firebase_auth/auth_util.dart';
 import '../../../backend/backend.dart';
 import '../../../components/generic_loading/generic_loading_widget.dart';
 import '../../../components/tournament_card/tournament_card_widget.dart';
-import 'my_tournaments_model.dart';
+import 'own_tournaments_model.dart';
 
-class MyTournamentsWidget extends StatefulWidget {
-  const MyTournamentsWidget({super.key});
+class OwnTournamentsWidget extends StatefulWidget {
+  const OwnTournamentsWidget({super.key});
 
   @override
-  State<MyTournamentsWidget> createState() => _MyTournamentsWidgetState();
+  State<OwnTournamentsWidget> createState() => _OwnTournamentsWidgetState();
 }
 
 
-class _MyTournamentsWidgetState extends State<MyTournamentsWidget> with TickerProviderStateMixin {
-  late MyTournamentsModel _model;
+class _OwnTournamentsWidgetState extends State<OwnTournamentsWidget> with TickerProviderStateMixin {
+  late OwnTournamentsModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -26,9 +26,9 @@ class _MyTournamentsWidgetState extends State<MyTournamentsWidget> with TickerPr
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => MyTournamentsModel());
+    _model = createModel(context, () => OwnTournamentsModel());
 
-    logFirebaseEvent('screen_view', parameters: {'screen_name': 'My_Tournaments'});
+    logFirebaseEvent('screen_view', parameters: {'screen_name': 'Own_Tournaments'});
 
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }
@@ -91,7 +91,7 @@ class _MyTournamentsWidgetState extends State<MyTournamentsWidget> with TickerPr
                           builder: (context) => StreamBuilder<List<TournamentsRecord>>(
                             stream: queryTournamentsRecord(
                               queryBuilder: (tournamentsRecord) => tournamentsRecord
-                                .where('involved_list', arrayContains: currentUser?.uid)
+                                .where('creator_uid', isEqualTo: currentUser?.uid)
                                 .where('state', isNotEqualTo: StateTournament.close.name),
                             ),
                             builder: (BuildContext context, AsyncSnapshot<List<TournamentsRecord>> snapshot) {
@@ -108,7 +108,7 @@ class _MyTournamentsWidgetState extends State<MyTournamentsWidget> with TickerPr
                               if (tournamentsRecordList.isEmpty) {
                                 return const NoTournamentCardWidget(
                                   active: true,
-                                  phrase: "Non risultano tornei attivi o futuri. Cercane uno e mettiti alla prova!",
+                                  phrase: "Non risultano tornei attivi o futuri. Creane uno per gestirlo da qui!",
                                 );
                               }
                               /////////////////////////////////////////
@@ -157,7 +157,7 @@ class _MyTournamentsWidgetState extends State<MyTournamentsWidget> with TickerPr
                         builder: (context) => StreamBuilder<List<TournamentsRecord>>(
                           stream: queryTournamentsRecord(
                             queryBuilder: (tournamentsRecord) => tournamentsRecord
-                                .where('involved_list', arrayContains: currentUser?.uid)
+                                .where('creator_uid', isEqualTo: currentUser?.uid)
                                 .where('state', isEqualTo: StateTournament.close.name),
                           ),
                           builder: (BuildContext context, AsyncSnapshot<List<TournamentsRecord>> snapshot) {
@@ -174,7 +174,7 @@ class _MyTournamentsWidgetState extends State<MyTournamentsWidget> with TickerPr
                             if (tournamentsRecordList.isEmpty) {
                               return const NoTournamentCardWidget(
                                 active: false,
-                                phrase: "Non risultano tornei terminati. Cercane uno e mettiti alla prova!",
+                                phrase: "Non risultano tornei terminati. Creane uno e gestiscilo da qui!",
                               );
                             }
                             /////////////////////////////////////////

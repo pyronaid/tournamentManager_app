@@ -65,3 +65,19 @@ AnimationInfo standardAnimationInfo(BuildContext context) {
     ],
   );
 }
+
+
+AnimationInfo standardAnimationCard(BuildContext context) {
+  return AnimationInfo(
+    trigger: AnimationTrigger.onPageLoad,
+    effectsBuilder: () => [
+      ScaleEffect(
+        curve: Curves.elasticOut,
+        delay: 0.0.ms,
+        duration: 600.0.ms,
+        begin: const Offset(0.0, 0.0),
+        end: const Offset(1.0, 1.0),
+      ),
+    ],
+  );
+}

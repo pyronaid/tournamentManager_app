@@ -193,13 +193,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                             ),
                             Text(
                               columnCompanyInformationRecord!.companyBio,
-                              style: CustomFlowTheme.of(context)
-                                  .labelLarge
-                                  .override(
-                                    fontFamily: 'Inter',
-                                    letterSpacing: 0,
-                                    lineHeight: 1.4,
-                              ),
+                              style: CustomFlowTheme.of(context).labelLarge.override(lineHeight: 1.4),
                             ),
                             /////////////////////////////
                             ///////////////////////////// CASO DEVELOPERS PRESENTI 
@@ -213,12 +207,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                   children: [
                                     Text(
                                       'Gli sviluppatori',
-                                      style: CustomFlowTheme.of(context)
-                                          .headlineSmall
-                                          .override(
-                                            fontFamily: 'Inter',
-                                            letterSpacing: 0,
-                                          ),
+                                      style: CustomFlowTheme.of(context).headlineSmall,
                                     ),
                                     Padding(
                                       padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
@@ -273,7 +262,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                                                 padding: const EdgeInsetsDirectional.fromSTEB(0, 6, 0, 0),
                                                                 child: Text(
                                                                   devsItem.bio,
-                                                                  style: CustomFlowTheme.of(context).bodySmall,
+                                                                  style: CustomFlowTheme.of(context).bodyMedium,
                                                                 ),
                                                               ),
                                                           ],

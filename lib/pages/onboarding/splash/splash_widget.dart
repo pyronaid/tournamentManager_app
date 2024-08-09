@@ -147,7 +147,7 @@ class _SplashWidgetState extends State<SplashWidget> {
                                 children: [
                                   TextSpan(
                                     text: 'Already a member?  ',
-                                    style: CustomFlowTheme.of(context).bodySmall,
+                                    style: CustomFlowTheme.of(context).bodyMedium,
                                   ),
                                   TextSpan(
                                     text: 'Sign In',

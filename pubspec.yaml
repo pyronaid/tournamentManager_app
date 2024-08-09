@@ -125,6 +125,7 @@ flutter:
      - assets/animation/splash_animation.json
      - assets/animation/send_mail_animation.json
      - assets/animation/confirm_animation.json
+     - assets/animation/loading.json
      - assets/images/profile_picture_default.png
      - assets/images/petsy_logo_paw.png
      - assets/images/logo_slideshow_1.png
@@ -132,6 +133,8 @@ flutter:
      - assets/images/card_back/game_ygo_adv.jpg
      - assets/images/icons/trophy.png
      - assets/images/icons/profile.png
+     - assets/images/icons/empty-box.png
+     - assets/images/icons/build.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

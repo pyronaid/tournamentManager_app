@@ -365,18 +365,18 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                     children: [
                                       TextSpan(
                                         text: 'Cliccando "Crea Account," accetti i ',
-                                        style: CustomFlowTheme.of(context).bodySmall,
+                                        style: CustomFlowTheme.of(context).bodyMedium,
                                       ),
                                       TextSpan(
                                         text: 'Termini contrattuali',
-                                        style: CustomFlowTheme.of(context).bodySmall.override(decoration: TextDecoration.underline,),
+                                        style: CustomFlowTheme.of(context).bodyMedium.override(decoration: TextDecoration.underline,),
                                       ),
                                       const TextSpan(
                                         text: ' di TournamentManager.',
                                         style: TextStyle(),
                                       ),
                                     ],
-                                    style: CustomFlowTheme.of(context).bodySmall,
+                                    style: CustomFlowTheme.of(context).bodyMedium,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),

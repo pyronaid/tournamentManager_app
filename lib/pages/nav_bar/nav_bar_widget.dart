@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/pages/core/my_torunaments/my_tournaments_widget.dart';
+import 'package:tournamentmanager/pages/core/own_torunaments/own_tournaments_widget.dart';
 
 import '../../app_flow/app_flow_theme.dart';
 import '../placeholder_widget.dart';
@@ -43,12 +44,18 @@ class _NavBarPageState extends State<NavBarPage> {
           height: 30.sp,
           fit: BoxFit.cover,
         ),
-        //'icon' : Icon(Icons.star, color: CustomFlowTheme.of(context).info),
       },
       'OwnTournaments': {
-        'widget' : const PlaceholderWidget(),
-        'name' : const Text('AppBar Example'),
-        'icon' : Icon(Icons.star, color: CustomFlowTheme.of(context).info),
+        'widget' : const OwnTournamentsWidget(),
+        'name' : Text(
+          'Tornei Organizzati',
+          style: CustomFlowTheme.of(context).headlineSmall,
+        ),
+        'icon' : Image.asset(
+          'assets/images/icons/build.png',
+          height: 30.sp,
+          fit: BoxFit.cover,
+        ),
       },
       'FindNew': {
         'widget' : const PlaceholderWidget(),

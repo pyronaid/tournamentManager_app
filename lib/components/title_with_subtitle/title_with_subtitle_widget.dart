@@ -55,12 +55,7 @@ class _TitleWithSubtitleWidgetState extends State<TitleWithSubtitleWidget> {
               widget.title,
               'Test title',
             ),
-            style: CustomFlowTheme.of(context).bodyMedium.override(
-              fontFamily: 'Inter',
-              fontSize: 16.0,
-              letterSpacing: 0.0,
-              fontWeight: FontWeight.w600,
-            ),
+            style: CustomFlowTheme.of(context).bodyMedium.override(fontSize: 16.0),
           ),
         ),
         Text(
@@ -68,10 +63,7 @@ class _TitleWithSubtitleWidgetState extends State<TitleWithSubtitleWidget> {
             widget.subtitle,
             'Test subtitle',
           ),
-          style: CustomFlowTheme.of(context).labelMedium.override(
-            fontFamily: 'Inter',
-            letterSpacing: 0.0,
-          ),
+          style: CustomFlowTheme.of(context).labelMedium,
         ),
       ].divide(const SizedBox(height: 4.0)),
     );

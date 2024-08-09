@@ -104,15 +104,9 @@ class _CustomAppbarWidgetState extends State<CustomAppbarWidget> {
                 options: AFButtonOptions(
                   height: 44.0,
                   padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                  iconPadding:
-                      const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                  iconPadding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
                   color: CustomFlowTheme.of(context).primary,
-                  textStyle: CustomFlowTheme.of(context).bodyMedium.override(
-                        fontFamily: 'Inter',
-                        color: CustomFlowTheme.of(context).primaryBackground,
-                        letterSpacing: 0.0,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  textStyle: CustomFlowTheme.of(context).bodyMedium.override(color: CustomFlowTheme.of(context).primaryBackground,),
                   elevation: 0.0,
                   borderSide: const BorderSide(
                     color: Colors.transparent,

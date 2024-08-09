@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/pages/core/my_torunaments/my_tournaments_widget.dart';
 import '../../pages/core/create_own/create_own_widget.dart';
+import '../../pages/core/own_torunaments/own_tournaments_widget.dart';
 import '../../pages/nav_bar/nav_bar_widget.dart';
 import '../../pages/onboarding/onboarding_verify_mail/onboarding_verify_mail_widget.dart';
 import '../../pages/onboarding/onboarding_verify_mail_success/onboarding_verify_mail_success_widget.dart';
@@ -127,6 +128,14 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               builder: (context, params) => params.isEmpty
                   ? const NavBarPage(initialPage: 'Dashboard')
                   : const MyTournamentsWidget(),
+            ),
+            CustomRoute(
+              name: 'OwnTournaments',
+              path: 'own-tournaments',
+              requireAuth: true,
+              builder: (context, params) => params.isEmpty
+                  ? const NavBarPage(initialPage: 'OwnTournaments')
+                  : const OwnTournamentsWidget(),
             ),
             CustomRoute(
               name: 'CreateOwn',

@@ -317,7 +317,7 @@ class ThemeTypography extends Typography {
   TextStyle get bodySmall => GoogleFonts.getFont(
         'Inter',
         color: theme.primaryText,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w500,
         fontSize: 14.0,
         letterSpacing: 0,
       );

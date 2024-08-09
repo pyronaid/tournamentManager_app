@@ -61,19 +61,24 @@ class TournamentsRecord extends FirestoreRecord {
   bool hasWaitingListEn() => _waitingListEn;
 
   // "preregistration-list" field.
-  List<UsersRecord>? _preRegisteredList;
-  List<UsersRecord> get preRegisteredList => _preRegisteredList ?? const [];
+  List<String>? _preRegisteredList;
+  List<String> get preRegisteredList => _preRegisteredList ?? const [];
   bool hasPreRegistered() => _preRegisteredList != null;
 
   // "waitinglist-list" field.
-  List<UsersRecord>? _waitingList;
-  List<UsersRecord> get waitingList => _waitingList ?? const [];
+  List<String>? _waitingList;
+  List<String> get waitingList => _waitingList ?? const [];
   bool hasWaitingList() => _waitingList != null;
 
   // "registered-list" field.
-  List<UsersRecord>? _registeredList;
-  List<UsersRecord> get registeredList => _registeredList ?? const [];
+  List<String>? _registeredList;
+  List<String> get registeredList => _registeredList ?? const [];
   bool hasRegisteredList() => _registeredList != null;
+
+  // "registered-list" field.
+  List<String>? _involvedList;
+  List<String> get involvedList => _involvedList ?? const [];
+  bool hasInvolvedList() => _involvedList != null;
 
   // "round-list" field.
   List<RoundsRecord>? _roundList;
@@ -91,18 +96,19 @@ class TournamentsRecord extends FirestoreRecord {
   bool hasState() => true;
 
   void _initializeFields() {
-    _uid = snapshotData['uid'] as String?;
+    _uid = snapshotData['uid'];
     _game = snapshotData['game'] as Game;
-    _name = snapshotData['name'] as String?;
+    _name = snapshotData['name'];
     _date = snapshotData['date'] as Timestamp?;
-    _address = snapshotData['address'] as String?;
+    _address = snapshotData['address'];
     _capacity = snapshotData['capacity'];
     _creatorUid = snapshotData['creator_uid'];
-    _preRegistrationEn = snapshotData['pre_registration_en'];
-    _waitingListEn = snapshotData['waiting_list_en'];
-    _preRegisteredList = getDataList(snapshotData['pre_registered_list']);
-    _waitingList = getDataList(snapshotData['waiting_list']);
-    _registeredList = getDataList(snapshotData['registered_list']);
+    _preRegistrationEn = snapshotData['pre_registration_en'] as bool;
+    _waitingListEn = snapshotData['waiting_list_en'] as bool;
+    _preRegisteredList = getDataList(snapshotData['pre_registered_list']) as List<String>;
+    _waitingList = getDataList(snapshotData['waiting_list']) as List<String>;
+    _registeredList = getDataList(snapshotData['registered_list']) as List<String>;
+    _involvedList = getDataList(snapshotData['involved_list']) as List<String>;
     _roundList = getDataList(snapshotData['round_list']);
     _standingList = getDataList(snapshotData['standing_list']);
     _state = snapshotData['state'] as StateTournament;

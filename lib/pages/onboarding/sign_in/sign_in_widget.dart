@@ -275,7 +275,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                                 padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
                                 child: Text(
                                   'Non ricordo la mia password',
-                                  style: CustomFlowTheme.of(context).bodySmall,
+                                  style: CustomFlowTheme.of(context).bodyMedium,
                                 ),
                               ),
                             ],
