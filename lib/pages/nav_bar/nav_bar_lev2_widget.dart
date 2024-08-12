@@ -18,7 +18,7 @@ class NavBarLev2Page extends StatefulWidget {
   _NavBarLev2PageState createState() => _NavBarLev2PageState();
 }
 
-/// This is the private State class that goes with NavBarPage.
+/// This is the private State class that goes with NavBarLev2Page.
 class _NavBarLev2PageState extends State<NavBarLev2Page> {
   String _currentPageName = 'DashboardT';
   late Widget? _currentPage;
