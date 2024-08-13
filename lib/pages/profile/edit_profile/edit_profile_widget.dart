@@ -272,17 +272,9 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
 }
 
 
-void showAlertDialog(BuildContext context, String redirect) {
+Future<void> showAlertDialog(BuildContext context, String redirect) async {
   // set up the buttons
-  Widget cancelButton = TextButton(
-    child: Text(
-        "Annulla",
-        style: CustomFlowTheme.of(context).titleMedium,
-    ),
-    onPressed:  () {
-      Navigator.of(context).pop(); // dismiss dialog
-    },
-  );
+
   Widget continueButton = TextButton(
     child: Text(
         "Cancella",
@@ -303,26 +295,17 @@ void showAlertDialog(BuildContext context, String redirect) {
       );
     },
   );
-  // set up the AlertDialog
-  AlertDialog alert = AlertDialog(
-    title: Text(
-        "Attenzione",
-        style: CustomFlowTheme.of(context).displaySmall.override(color: const Color(0xFFB74D4D)),
-    ),
-    content: Text(
-        "Sei sicuro di cancellare il tuo account e tutti i suoi dati?",
-        style: CustomFlowTheme.of(context).labelMedium,
-    ),
-    actions: [
-      cancelButton,
-      continueButton,
-    ],
-  );
+
   // show the dialog
-  showDialog(
+  await showDialog(
     context: context,
     builder: (BuildContext context) {
-      return alert;
+      return standardAlert(
+          context,
+          "Attenzione",
+          "Sei sicuro di cancellare il tuo account e tutti i suoi dati?",
+          continueButtonWid: continueButton,
+      );
     },
   );
 }

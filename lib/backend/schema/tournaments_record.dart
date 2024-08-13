@@ -32,6 +32,10 @@ class TournamentsRecord extends FirestoreRecord {
   // "name" field.
   String? _name;
   String get name => _name ?? 'Unknown name';
+  Future<void> setName(String newName) async {
+    _name = newName;
+    await updateField(uid, "name", newName);
+  }
   bool hasName() => _name != null;
 
   // "date" field.
@@ -52,11 +56,19 @@ class TournamentsRecord extends FirestoreRecord {
   // "preregistration-en" field.
   bool _preRegistrationEn = false;
   bool get preRegistrationEn => _preRegistrationEn;
+  Future<void> switchPreRegistrationEn() async {
+    _preRegistrationEn = !_preRegistrationEn;
+    await updateField(uid, "pre_registration_en", _preRegistrationEn);
+  }
   bool hasPreRegistrationEn() => _preRegistrationEn;
 
   // "waitinglist-en" field.
   bool _waitingListEn = false;
   bool get waitingListEn => _waitingListEn;
+  Future<void> switchWaitingListEn() async {
+    _waitingListEn = !_waitingListEn;
+    await updateField(uid, "waiting_list_en", _waitingListEn);
+  }
   bool hasWaitingListEn() => _waitingListEn;
 
   // "preregistration-list" field.
@@ -95,7 +107,7 @@ class TournamentsRecord extends FirestoreRecord {
   bool hasState() => true;
 
   void _initializeFields() {
-    _uid = snapshotData['uid'];
+    _uid = reference.id;
     _game = getGameEnum(snapshotData['game']);
     _name = snapshotData['name'];
     _date = snapshotData['date'] as DateTime?;
@@ -121,6 +133,16 @@ class TournamentsRecord extends FirestoreRecord {
 
   static Future<TournamentsRecord> getDocumentOnce(DocumentReference ref) =>
       ref.get().then((s) => TournamentsRecord.fromSnapshot(s));
+
+  static Future<void> updateField(String id, String fieldName, dynamic newValue) async {
+    try {
+      await collection.doc(id).update({
+        fieldName: newValue,
+      });
+    } catch (e) {
+      print("Failed to update field: $e");
+    }
+  }
 
   static TournamentsRecord fromSnapshot(DocumentSnapshot snapshot) => TournamentsRecord._(
     snapshot.reference,
