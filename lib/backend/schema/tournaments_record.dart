@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:tournamentmanager/backend/schema/rounds_record.dart';
 import 'package:tournamentmanager/backend/schema/standings_record.dart';
-import 'package:tournamentmanager/backend/schema/users_record.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 
@@ -32,7 +31,7 @@ class TournamentsRecord extends FirestoreRecord {
   
   // "name" field.
   String? _name;
-  String get name => _name ?? '';
+  String get name => _name ?? 'Unknown name';
   bool hasName() => _name != null;
 
   // "date" field.

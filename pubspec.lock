@@ -829,6 +829,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  simple_accordion:
+    dependency: "direct main"
+    description:
+      name: simple_accordion
+      sha256: "8535735b50fa92d957cfa54126fb64c6bbc3af5901ff37d0ab9af0895cb84558"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.5"
   sky_engine:
     dependency: transitive
     description: flutter

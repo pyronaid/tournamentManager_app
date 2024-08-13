@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   firebase_auth
   firebase_core
   share_plus
+  simple_accordion
   url_launcher_windows
 )
 

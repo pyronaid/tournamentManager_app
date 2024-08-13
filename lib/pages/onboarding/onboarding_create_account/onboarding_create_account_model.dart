@@ -1,4 +1,3 @@
-import '../../../app_flow/app_flow_model.dart';
 import '../../../app_flow/app_flow_util.dart';
 import 'onboarding_create_account_widget.dart' show OnboardingCreateAccountWidget;
 import 'package:flutter/material.dart';

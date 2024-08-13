@@ -1,17 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/components/tournament_card/tournament_card_model.dart';
 
 import '../../app_flow/app_flow_animations.dart';
-import '../../app_flow/app_flow_model.dart';
 import '../../app_flow/app_flow_theme.dart';
-import '../../app_flow/nav/serialization_util.dart';
-import '../../backend/firebase_analytics/analytics.dart';
 import '../standard_graphics/standard_graphics_widgets.dart';
 
 class TournamentCardWidget extends StatefulWidget {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/pages/nav_bar/nav_bar_lev2_widget.dart';
 import '../../backend/schema/tournaments_record.dart';
 import '../../pages/core/create_own/create_own_widget.dart';
 import '../../pages/core/my_tournaments/my_tournaments_widget.dart';
@@ -12,7 +13,6 @@ import '../../pages/core/tournament_detail/tournament_detail_widget.dart';
 import '../../pages/nav_bar/nav_bar_widget.dart';
 import '../../pages/onboarding/onboarding_verify_mail/onboarding_verify_mail_widget.dart';
 import '../../pages/onboarding/onboarding_verify_mail_success/onboarding_verify_mail_success_widget.dart';
-import '../../pages/placeholder_widget.dart';
 import '/backend/backend.dart';
 
 import '/auth/base_auth_user_provider.dart';
@@ -127,17 +127,13 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               name: 'Dashboard',
               path: 'dashboard',
               requireAuth: true,
-              builder: (context, params) => params.isEmpty
-                  ? const NavBarPage(initialPage: 'Dashboard')
-                  : const MyTournamentsWidget(),
+              builder: (context, params) => const NavBarPage(initialPage: 'Dashboard')
             ),
             CustomRoute(
               name: 'OwnTournaments',
               path: 'own-tournaments',
               requireAuth: true,
-              builder: (context, params) => params.isEmpty
-                  ? const NavBarPage(initialPage: 'OwnTournaments')
-                  : const OwnTournamentsWidget(),
+              builder: (context, params) => const NavBarPage(initialPage: 'OwnTournaments'),
             ),
             CustomRoute(
               name: 'TournamentDetails',
@@ -146,12 +142,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               asyncParams: {
                 'tournamentRef': getDoc(['tournaments'], TournamentsRecord.fromSnapshot), // tournaments is the name of the firebase table
               },
-              builder: (context, params) => TournamentDetailWidget(
-                tournamentsRef: params.getParam(
-                  'tournamentRef',
-                  ParamType.Document,
-                ),
-              ),
+              builder: (context, params) => NavBarLev2Page(initialPage: "DashboardT", tournamentsRef: params.getParam('tournamentRef', ParamType.Document,)),
             ),
             CustomRoute(
               name: 'CreateOwn',
@@ -163,9 +154,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               name: 'Profile',
               path: 'profile',
               requireAuth: true,
-              builder: (context, params) => params.isEmpty
-                  ? const NavBarPage(initialPage: 'Profile')
-                  : const ProfileWidget(),
+              builder: (context, params) => const NavBarPage(initialPage: 'Profile'),
             ),
             CustomRoute(
               name: 'EditProfile',

@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../app_flow/app_flow_model.dart';
 import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_util.dart';
 import '../../../backend/backend.dart';
-import '../../../backend/firebase_analytics/analytics.dart';
-import '../../../backend/schema/company_information_record.dart';
 import '../../../components/custom_appbar_widget.dart';
 import 'about_us_model.dart';
 

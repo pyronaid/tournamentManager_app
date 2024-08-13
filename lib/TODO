@@ -29,15 +29,15 @@ ADD PAGE ENROLLED TOURNAMENT
          --- TOP CUT CALCULATOR
 
 
-
-RISOLVERE IL PROBLEMA DI LANCIO SU BROWSER
 [ALMOST DONE] AGIUNGERE ICONE AI CAMPI FORM E DARE UNA UI PIU' SIMILE A QUELLA IN IMMAGINE
 full screen loader with gif processing data!
 TODO: MODIFICARE GRAFICA SLACK BAR [da sopra per evitare il caso della tastiera aperta]
 TODO: AGGIUNGERE INTEGRAZIONE MAPPE PER INDIRIZZO COMPLETO
 TODO: delete account not remove from user DB -- temporary ignore this
+TODO: creare dettaglio torneo
+TODO: ad oggi i propri tornei o quelli organizzati non hanno la suddivisione per Gioco. Prevedere uno swiper
 
-
+TODO: spostare tutta la logica di business sui model e gestire meglio la parte di architettura
 
 #################################################
     onPressed:  () async {
@@ -129,73 +129,3 @@ SLACK BAR MESSAGE (CONGRATULATION, ACCOUNT CREATED, VERIFY TO CONTINUE)
 ###################################################################
 
 https://firebase.flutter.dev/docs/firestore/usage/
-
-
-
-
-
-
-
-
-
-
- child: AuthUserStreamWidget(
-                    builder: (context) => StreamBuilder<List<MealsRecord>>(
-                      stream: queryMealsRecord(
-                        queryBuilder: (mealsRecord) => mealsRecord.where(
-                          'meal_diet',
-                          arrayContains:
-                              valueOrDefault(currentUserDocument?.diet, ''),
-                        ),
-                      ),
-                      builder: (context, snapshot) {
-                        // Customize what your widget looks like when it's loading.
-                        if (!snapshot.hasData) {
-                          return const MealCardLoadingWidget();
-                        }
-                        List<MealsRecord> gridViewMealsRecordList =
-                            snapshot.data!;
-                        if (gridViewMealsRecordList.isEmpty) {
-                          return SizedBox(
-                            width: double.infinity,
-                            child: EmptyStateWidget(
-                              icon: Icon(
-                                Icons.no_food_outlined,
-                                color:
-                                    FlutterFlowTheme.of(context).secondaryText,
-                                size: 64.0,
-                              ),
-                              title: 'No Meals',
-                              description:
-                                  'No meals have been created or match your dietary preferences.',
-                            ),
-                          );
-                        }
-                        return GridView.builder(
-                          padding: EdgeInsets.zero,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 10.0,
-                            mainAxisSpacing: 10.0,
-                            childAspectRatio: 0.78,
-                          ),
-                          scrollDirection: Axis.vertical,
-                          itemCount: gridViewMealsRecordList.length,
-                          itemBuilder: (context, gridViewIndex) {
-                            final gridViewMealsRecord =
-                                gridViewMealsRecordList[gridViewIndex];
-                            return MealCardWidget(
-                              key: Key(
-                                  'Keykia_${gridViewIndex}_of_${gridViewMealsRecordList.length}'),
-                              mealRef: gridViewMealsRecord,
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-
-
-
-

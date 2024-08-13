@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:tournamentmanager/pages/core/own_torunaments/own_tournaments_widget.dart';
+import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_widget.dart';
 
 import '../../app_flow/app_flow_theme.dart';
-import '../core/my_tournaments/my_tournaments_widget.dart';
+import '../../backend/schema/tournaments_record.dart';
 import '../placeholder_widget.dart';
-import '../profile/profile/profile_widget.dart';
 
 class NavBarLev2Page extends StatefulWidget {
-  const NavBarLev2Page({super.key, this.initialPage, this.page});
+  const NavBarLev2Page({super.key, this.initialPage, this.page, required this.tournamentsRef});
 
+  final TournamentsRecord tournamentsRef;
   final String? initialPage;
   final Widget? page;
 
@@ -21,6 +21,7 @@ class NavBarLev2Page extends StatefulWidget {
 /// This is the private State class that goes with NavBarLev2Page.
 class _NavBarLev2PageState extends State<NavBarLev2Page> {
   String _currentPageName = 'DashboardT';
+  late TournamentsRecord _tournamentsRef;
   late Widget? _currentPage;
 
   @override
@@ -28,13 +29,14 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
     super.initState();
     _currentPageName = widget.initialPage ?? _currentPageName;
     _currentPage = widget.page;
+    _tournamentsRef = widget.tournamentsRef;
   }
 
   @override
   Widget build(BuildContext context) {
     final tabs = {
       'DashboardT': {
-        'widget' : const PlaceholderWidget(),
+        'widget' : TournamentDetailWidget(tournamentsRef: _tournamentsRef),
       },
       'RoundsT': {
         'widget' : const PlaceholderWidget(),
@@ -56,9 +58,9 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(),
+            Icon(Icons.star, color: CustomFlowTheme.of(context).info),
             const SizedBox(width: 10),
-            Text("Dettaglio torneo"),
+            const Text("Dettaglio torneo"),
           ],
         ),
         centerTitle: true,

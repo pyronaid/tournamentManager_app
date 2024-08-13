@@ -1,28 +1,16 @@
-
-
 import 'package:flutter/cupertino.dart';
-import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_widget.dart';
 
-import '../../../app_flow/app_flow_model.dart';
-import '../../../components/custom_appbar_model.dart';
+import '../../../backend/schema/tournaments_record.dart';
 
-class TournamentDetailModel extends CustomFlowModel<TournamentDetailWidget> {
-  ///  State fields for stateful widgets in this page.
+class TournamentDetailModel extends ChangeNotifier {
+
+  final TournamentsRecord? tournamentsRef;
+
+  TournamentDetailModel({required this.tournamentsRef});
 
   final unfocusNode = FocusNode();
-  // Model for customAppbar component.
-  late CustomAppbarModel customAppbarModel;
-
-
-
-  @override
-  void initState(BuildContext context) {
-    customAppbarModel = createModel(context, () => CustomAppbarModel());
+  String getTournamentName(){
+    return tournamentsRef != null ? tournamentsRef!.name : "UNKNOWN NAME";
   }
 
-  @override
-  void dispose() {
-    unfocusNode.dispose();
-    customAppbarModel.dispose();
-  }
 }

@@ -42,8 +42,6 @@ InputDecoration standardInputDecoration(BuildContext context, {Widget? suffixIco
   );
 }
 
-
-
 AnimationInfo standardAnimationInfo(BuildContext context) {
   return AnimationInfo(
     trigger: AnimationTrigger.onPageLoad,
@@ -66,7 +64,6 @@ AnimationInfo standardAnimationInfo(BuildContext context) {
   );
 }
 
-
 AnimationInfo standardAnimationCard(BuildContext context) {
   return AnimationInfo(
     trigger: AnimationTrigger.onPageLoad,
@@ -81,3 +78,4 @@ AnimationInfo standardAnimationCard(BuildContext context) {
     ],
   );
 }
+

@@ -6,11 +6,9 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 
 import '../../../app_flow/app_flow_animations.dart';
-import '../../../app_flow/app_flow_model.dart';
 import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_widgets.dart';
 import '../../../auth/firebase_auth/auth_util.dart';
-import '../../../backend/firebase_analytics/analytics.dart';
 import '../../../components/custom_appbar_widget.dart';
 import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 import 'onboarding_verify_mail_success_model.dart';
