@@ -316,9 +316,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                     ),
                                     minLines: 1,
                                     cursorColor: CustomFlowTheme.of(context).primary,
-                                    validator: _model
-                                        .tournamentNameTextControllerValidator
-                                        .asValidator(context),
+                                    validator: _model.tournamentNameTextControllerValidator.asValidator(context),
                                   ),
                                 ],
                               ),
@@ -368,9 +366,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                     ),
                                     minLines: 1,
                                     cursorColor: CustomFlowTheme.of(context).primary,
-                                    validator: _model
-                                        .tournamentDateTextControllerValidator
-                                        .asValidator(context),
+                                    validator: _model.tournamentDateTextControllerValidator.asValidator(context),
                                   ),
                                 ],
                               ),
@@ -406,9 +402,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                     ),
                                     minLines: 1,
                                     cursorColor: CustomFlowTheme.of(context).primary,
-                                    validator: _model
-                                        .tournamentAddressTextControllerValidator
-                                        .asValidator(context),
+                                    validator: _model.tournamentAddressTextControllerValidator.asValidator(context),
                                   ),
                                 ],
                               ),
@@ -463,9 +457,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                                     ),
                                     minLines: 1,
                                     cursorColor: CustomFlowTheme.of(context).primary,
-                                    validator: _model
-                                        .tournamentCapacityTextControllerValidator
-                                        .asValidator(context),
+                                    validator: _model.tournamentCapacityTextControllerValidator.asValidator(context),
                                   ),
                                 ],
                               ),

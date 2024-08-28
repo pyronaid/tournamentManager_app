@@ -250,6 +250,8 @@ const kTextValidatorDateRegex =
     "^(0?[1-9]|[12][0-9]|3[01])[\\/\\-](0?[1-9]|1[012])[\\/\\-]\\d{4}\$";
 const kTextValidatorNumberRegex =
     "^(?:[1-9]\\d*|Nessun limite)\$";
+const kTextValidatorNumberWithZeroRegex =
+    "^[1-9]\\d*|^0\$";
 
 extension FFTextEditingControllerExt on TextEditingController? {
   String get text => this == null ? '' : this!.text;

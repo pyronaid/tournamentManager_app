@@ -41,6 +41,10 @@ class TournamentsRecord extends FirestoreRecord {
   // "date" field.
   DateTime? _date;
   DateTime? get date => _date;
+  Future<void> setDate(DateTime newDate) async {
+    _date = newDate;
+    await updateField(uid, "date", newDate);
+  }
   bool hasDate() => _date != null;
 
   // "address" field.
@@ -51,6 +55,10 @@ class TournamentsRecord extends FirestoreRecord {
   // "address" field.
   int? _capacity;
   int get capacity => _capacity ?? 0;
+  Future<void> setCapacity(int newCapacity) async {
+    _capacity = newCapacity;
+    await updateField(uid, "capacity", newCapacity);
+  }
   bool hasCapacity() => _capacity! > 0;
 
   // "preregistration-en" field.
@@ -104,6 +112,10 @@ class TournamentsRecord extends FirestoreRecord {
   // "game" field.
   StateTournament?  _state;
   StateTournament? get state => _state;
+  Future<void> setState(String newState) async {
+    _state = getStateTournamentByName(newState);
+    await updateField(uid, "state", newState);
+  }
   bool hasState() => true;
 
   void _initializeFields() {
@@ -256,20 +268,38 @@ class TournamentsRecordDocumentEquality implements Equality<TournamentsRecord> {
 
 
 enum Game {
-  none,
-  ygoAdv,
-  ygoRetro,
-  lorcana,
-  onepiece,
-  altered,
-  magic,
-  unknown
+  none("", 'assets/images/card_back/game_ygo_adv.jpg'),
+  ygoAdv("Yu-Gi-Oh! Avanzato", 'assets/images/card_back/game_ygo_adv.jpg'),
+  ygoRetro("Yu-Gi-Oh! Retroformat", 'assets/images/card_back/game_ygo_adv.jpg'),
+  lorcana("Lorcana", 'assets/images/card_back/game_ygo_adv.jpg'),
+  onepiece("One Piece", 'assets/images/card_back/game_ygo_adv.jpg'),
+  altered("Altered", 'assets/images/card_back/game_ygo_adv.jpg'),
+  magic("Magic", 'assets/images/card_back/game_ygo_adv.jpg'),
+  unknown("UNKNOWN", 'assets/images/card_back/game_ygo_adv.jpg');
+
+  final String desc;
+  final String resource;
+
+  const Game(this.desc, this.resource);
+
 }
 
 enum StateTournament {
-  open,
-  ready,
-  ongoing,
-  close,
-  unknown
+  open("Creato", 1),
+  ready("Aperto", 2),
+  ongoing("In Corso", 3),
+  close("Chiuso", 4),
+  unknown("UNKNOWN", 0);
+
+  final String desc;
+  final int indexState;
+
+  const StateTournament(this.desc, this.indexState);
+}
+
+StateTournament getStateTournamentByName(String name) {
+  return StateTournament.values.firstWhere(
+        (state) => state.name == name,
+    orElse: () => StateTournament.unknown,
+  );
 }

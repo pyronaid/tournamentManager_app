@@ -114,19 +114,21 @@ class _OwnTournamentsWidgetState extends State<OwnTournamentsWidget> with Ticker
                               /////////////////////////////////////////
                               ////////////// STANDARD CASE
                               /////////////////////////////////////////
-                              return ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: tournamentsRecordList.length,
-                                itemBuilder: (context, index) {
-                                  final tournament = tournamentsRecordList[index];
-                                  return TournamentCardWidget(
-                                    key: Key('Keykia_${tournament.uid}_position_${index}_of_${tournamentsRecordList.length}'),
-                                    last: index == (tournamentsRecordList.length -1),
-                                    tournamentRef: tournament,
-                                    active: true,
-                                  );
-                                },
+                              return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: List.generate(
+                                      tournamentsRecordList.length,
+                                          (index) {
+                                        final tournament = tournamentsRecordList[index];
+                                        return TournamentCardWidget(
+                                          key: Key('Keykia_${tournament.uid}_position_${index}_of_${tournamentsRecordList.length}'),
+                                          last: index == (tournamentsRecordList.length - 1),
+                                          tournamentRef: tournament,
+                                          active: false,
+                                        );
+                                      }
+                                  )
                               );
                             },
                           ),
@@ -182,17 +184,21 @@ class _OwnTournamentsWidgetState extends State<OwnTournamentsWidget> with Ticker
                             /////////////////////////////////////////
                             ////////////// STANDARD CASE
                             /////////////////////////////////////////
-                            return ListView.builder(
-                              itemCount: tournamentsRecordList.length,
-                              itemBuilder: (context, index) {
-                                final tournament = tournamentsRecordList[index];
-                                return TournamentCardWidget(
-                                  key: Key('Keykia_${tournament.uid}_position_${index}_of_${tournamentsRecordList.length}'),
-                                  last: index == (tournamentsRecordList.length -1),
-                                  tournamentRef: tournament,
-                                  active: false,
-                                );
-                              },
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: List.generate(
+                                tournamentsRecordList.length,
+                                (index) {
+                                  final tournament = tournamentsRecordList[index];
+                                  return TournamentCardWidget(
+                                    key: Key('Keykia_${tournament.uid}_position_${index}_of_${tournamentsRecordList.length}'),
+                                    last: index == (tournamentsRecordList.length - 1),
+                                    tournamentRef: tournament,
+                                    active: false,
+                                  );
+                                }
+                              )
                             );
                           },
                         ),

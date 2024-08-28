@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_container.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_widget.dart';
 
 import '../../app_flow/app_flow_theme.dart';
@@ -36,7 +37,7 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
   Widget build(BuildContext context) {
     final tabs = {
       'DashboardT': {
-        'widget' : TournamentDetailWidget(tournamentsRef: _tournamentsRef),
+        'widget' : TournamentDetailContainer(tournamentsRef: _tournamentsRef),
       },
       'RoundsT': {
         'widget' : const PlaceholderWidget(),
@@ -58,7 +59,11 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.star, color: CustomFlowTheme.of(context).info),
+            Image.asset(
+              'assets/images/icons/detail_tournament.png',
+              height: 30.sp,
+              fit: BoxFit.cover,
+            ),
             const SizedBox(width: 10),
             const Text("Dettaglio torneo"),
           ],
@@ -88,11 +93,11 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.emoji_events_outlined,
+              Icons.dashboard_outlined,
               size: 24.0,
             ),
             activeIcon: Icon(
-              Icons.emoji_events_rounded,
+              Icons.dashboard_rounded,
               size: 24.0,
             ),
             label: 'Dashboard',
@@ -101,11 +106,11 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
           if(true)
             BottomNavigationBarItem(
               icon: Icon(
-                Icons.inventory_outlined,
+                Icons.table_rows_outlined,
                 size: 24.0,
               ),
               activeIcon: Icon(
-                Icons.inventory_rounded,
+                Icons.table_rows_rounded,
                 size: 24.0,
               ),
               label: 'Rounds',
@@ -113,11 +118,11 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
             ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.search_rounded,
+              Icons.people_outline,
               size: 24.0,
             ),
             activeIcon: Icon(
-              Icons.zoom_in_rounded,
+              Icons.people_rounded,
               size: 24.0,
             ),
             label: 'Players',
@@ -125,11 +130,11 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.person_outline_rounded,
+              Icons.newspaper_outlined,
               size: 24.0,
             ),
             activeIcon: Icon(
-              Icons.person_rounded,
+              Icons.newspaper_rounded,
               size: 24.0,
             ),
             label: 'News',
