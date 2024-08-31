@@ -1,10 +1,14 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_accordion/simple_accordion.dart';
+import 'package:tournamentmanager/app_flow/services/ImagePickerService.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_model.dart';
 
 import '../../../app_flow/app_flow_theme.dart';
@@ -59,6 +63,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
     final StateTournament tournamentState = context.select((TournamentDetailModel i) => i.tournamentState);
     final String tournamentCapacity = context.select((TournamentDetailModel i) => i.tournamentCapacity);
     final DateTime? tournamentDate = context.select((TournamentDetailModel i) => i.tournamentDate);
+    final XFile? imageFile = context.select((TournamentDetailModel i) => i.imageFile);
 
 
     return GestureDetector(
@@ -125,9 +130,9 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                             width: 4.0, // Border width
                                           ),
                                         ),
-                                        child: const CircleAvatar(
+                                        child: CircleAvatar(
                                           radius: 61,
-                                          backgroundImage: AssetImage('assets/images/icons/default_tournament.png'),
+                                          backgroundImage: tournamentDetailModel.imageFile == null ? const AssetImage('assets/images/icons/default_tournament.png') : FileImage(File(imageFile!.path)),
                                         ),
                                       ),
                                       if(tournamentDetailModel.tournamentInteractPossible)
@@ -135,9 +140,9 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                           bottom: 5,
                                           right: 0,
                                           child: InkWell(
-                                            onTap: () {
+                                            onTap: () async {
                                               // Add your image change logic here
-                                              print("ciao");
+                                              tournamentDetailModel.setTournamentImage();
                                             },
                                             borderRadius: BorderRadius.circular(61), // Optional: To match the CircleAvatar shape
                                             child: CircleAvatar(

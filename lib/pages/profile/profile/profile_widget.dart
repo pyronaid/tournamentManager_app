@@ -109,7 +109,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                   Padding(
                                     padding: const EdgeInsetsDirectional.fromSTEB(0, 6, 0, 0),
                                     child: Text(
-                                      'Da parte del team ti ringraziamo del tuo supporto e sperioamo che l\'app possa esserti utile',
+                                      'Da parte del team ti ringraziamo del tuo supporto e speriamo che l\'app possa esserti utile',
                                       style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).info),
                                     ),
                                   ),

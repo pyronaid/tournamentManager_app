@@ -1,13 +1,18 @@
 import 'package:flutter/cupertino.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../app_flow/app_flow_util.dart';
+import '../../../app_flow/services/ImagePickerService.dart';
 import '../../../backend/schema/tournaments_record.dart';
+import '../../../backend/schema/util/firestorage_util.dart';
 
 class TournamentDetailModel extends ChangeNotifier {
 
   final TournamentsRecord? tournamentsRef;
 
   final unfocusNode = FocusNode();
+  late XFile? _imageFile;
 
   //////////////////////////////NAME DIALOG
   final formKeyName = GlobalKey<FormState>();
@@ -53,9 +58,17 @@ class TournamentDetailModel extends ChangeNotifier {
     _fieldControllerCapacity = TextEditingController(text: tournamentCapacity);
     tournamentCapacityTextControllerValidator = _tournamentCapacityTextControllerValidator;
     tournamentCapacityFocusNode = FocusNode();
+
+    _imageFile = null;
   }
 
   /////////////////////////////GETTER
+  String? get tournamentOwner{
+    return tournamentsRef?.creatorUid;
+  }
+  String? get tournamentId{
+    return tournamentsRef?.uid;
+  }
   String get tournamentName{
     return tournamentsRef != null ? tournamentsRef!.name : "UNKNOWN NAME";
   }
@@ -108,6 +121,9 @@ class TournamentDetailModel extends ChangeNotifier {
   TextEditingController get fieldControllerCapacity{
     return _fieldControllerCapacity;
   }
+  XFile? get imageFile{
+    return _imageFile;
+  }
 
   /////////////////////////////SETTER
   Future<void> setTournamentName(String newTournamentName) async {
@@ -123,6 +139,9 @@ class TournamentDetailModel extends ChangeNotifier {
       newTournamentCapacityInt = int.parse(newTournamentCapacity);
     }
     if(newTournamentCapacity != tournamentCapacity) {
+      if(newTournamentCapacityInt == 0 && tournamentWaitingListEn){
+        await tournamentsRef?.switchWaitingListEn();
+      }
       await tournamentsRef?.setCapacity(newTournamentCapacityInt);
       notifyListeners();
     }
@@ -148,6 +167,19 @@ class TournamentDetailModel extends ChangeNotifier {
   }
   Future<void> switchTournamentWaitingListEn() async {
     await tournamentsRef?.switchWaitingListEn();
+    notifyListeners();
+  }
+  Future<void> setTournamentImage() async{
+    _imageFile = await ImagePickerService().pickCropImage(
+        cropAspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        imageSource: ImageSource.camera
+    );
+
+    String? url = await FirestorageUtilData.uploadImageToStorage(
+      "users/$tournamentOwner/$tournamentId/tournamentImage",
+      _imageFile
+    );
+    print(url!);
     notifyListeners();
   }
 
