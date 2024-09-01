@@ -6,6 +6,8 @@ import 'package:tournamentmanager/backend/schema/standings_record.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 
+import 'news_record.dart';
+
 class TournamentsRecord extends FirestoreRecord {
   TournamentsRecord._(
       super.reference,
@@ -79,6 +81,15 @@ class TournamentsRecord extends FirestoreRecord {
   }
   bool hasWaitingListEn() => _waitingListEn;
 
+  // "image" field.
+  String? _image;
+  String? get image => _image;
+  Future<void> setImage(String newImage) async {
+    _image = newImage;
+    await updateField(uid, "image", newImage);
+  }
+  bool hasImage() => _image != null;
+
   // "preregistration-list" field.
   List<String>? _preRegisteredList;
   List<String> get preRegisteredList => _preRegisteredList ?? const [];
@@ -94,10 +105,15 @@ class TournamentsRecord extends FirestoreRecord {
   List<String> get registeredList => _registeredList ?? const [];
   bool hasRegisteredList() => _registeredList != null;
 
-  // "registered-list" field.
+  // "involved-list" field. Every time a user is added to one of the above three list is also added here if not present yet
   List<String>? _involvedList;
   List<String> get involvedList => _involvedList ?? const [];
   bool hasInvolvedList() => _involvedList != null;
+
+  // "news-list" field.
+  List<NewsRecord>? _newsList;
+  List<NewsRecord> get newsList => _newsList ?? const [];
+  bool hasNewsList() => _newsList != null;
 
   // "round-list" field.
   List<RoundsRecord>? _roundList;
@@ -122,6 +138,7 @@ class TournamentsRecord extends FirestoreRecord {
     _uid = reference.id;
     _game = getGameEnum(snapshotData['game']);
     _name = snapshotData['name'];
+    _image = snapshotData['image'];
     _date = snapshotData['date'] as DateTime?;
     _address = snapshotData['address'];
     _capacity = snapshotData['capacity'];
@@ -235,6 +252,7 @@ class TournamentsRecordDocumentEquality implements Equality<TournamentsRecord> {
         e1?.game == e2?.game &&
         e1?.uid == e2?.uid &&
         e1?.name == e2?.name &&
+        e1?.image == e2?.image &&
         e1?.preRegistrationEn == e2?.preRegistrationEn &&
         e1?.waitingListEn == e2?.waitingListEn &&
         e1?.state == e2?.state &&
@@ -252,6 +270,7 @@ class TournamentsRecordDocumentEquality implements Equality<TournamentsRecord> {
     e?.game,
     e?.uid,
     e?.name,
+    e?.image,
     e?.preRegistrationEn,
     e?.waitingListEn,
     e?.state,

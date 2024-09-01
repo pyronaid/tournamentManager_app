@@ -133,5 +133,14 @@ https://firebase.flutter.dev/docs/firestore/usage/
 
 
 
-https://www.youtube.com/watch?v=ynfpEX55kYE
+
 https://www.youtube.com/watch?v=5kjjkIdwwN8
+
+
+
+https://www.youtube.com/watch?v=ynfpEX55kYE
+TO DO LIST AFTER PUBLISHING ON PLAYSTORE
+- Copy signing keys from app store to firebase project settings
+- Replace Debug in project lib/backend/firebase/firebase_config.dart:14 with playIntegrity
+- Link project in play store
+- do the same for web and ios

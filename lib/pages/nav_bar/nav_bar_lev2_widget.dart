@@ -6,6 +6,7 @@ import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail
 
 import '../../app_flow/app_flow_theme.dart';
 import '../../backend/schema/tournaments_record.dart';
+import '../core/tournament_news/tournament_news_container.dart';
 import '../placeholder_widget.dart';
 
 class NavBarLev2Page extends StatefulWidget {
@@ -46,7 +47,7 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
         'widget' : const PlaceholderWidget(),
       },
       'NewsT': {
-        'widget' : const PlaceholderWidget(),
+        'widget' : TournamentNewsContainer(tournamentsRef: _tournamentsRef),
       },
     };
     final currentIndex = tabs.keys.toList().indexOf(_currentPageName);

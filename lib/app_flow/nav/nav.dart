@@ -137,12 +137,21 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             ),
             CustomRoute(
               name: 'TournamentDetails',
-              path: 'tournament/:tournamentRef',
+              path: 'tournament-dets/:tournamentRef',
               requireAuth: true,
               asyncParams: {
                 'tournamentRef': getDoc(['tournaments'], TournamentsRecord.fromSnapshot), // tournaments is the name of the firebase table
               },
               builder: (context, params) => NavBarLev2Page(initialPage: "DashboardT", tournamentsRef: params.getParam('tournamentRef', ParamType.Document,)),
+            ),
+            CustomRoute(
+              name: 'TournamentNews',
+              path: 'tournament-news/:tournamentRef',
+              requireAuth: true,
+              asyncParams: {
+                'tournamentRef': getDoc(['tournaments'], TournamentsRecord.fromSnapshot), // tournaments is the name of the firebase table
+              },
+              builder: (context, params) => NavBarLev2Page(initialPage: "NewsT", tournamentsRef: params.getParam('tournamentRef', ParamType.Document,)),
             ),
             CustomRoute(
               name: 'CreateOwn',

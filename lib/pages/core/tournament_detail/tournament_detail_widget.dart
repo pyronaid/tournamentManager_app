@@ -1,14 +1,10 @@
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_accordion/simple_accordion.dart';
-import 'package:tournamentmanager/app_flow/services/ImagePickerService.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_model.dart';
 
 import '../../../app_flow/app_flow_theme.dart';
@@ -29,15 +25,11 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
   late TournamentDetailModel tournamentDetailModel;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
-
-  String? selectedValue = 'Option 1';
-
-
   @override
   void initState() {
     super.initState();
 
-    logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentDetail'});
+    //logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentDetail'});
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
 
     tournamentDetailModel = context.read<TournamentDetailModel>();
@@ -63,7 +55,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
     final StateTournament tournamentState = context.select((TournamentDetailModel i) => i.tournamentState);
     final String tournamentCapacity = context.select((TournamentDetailModel i) => i.tournamentCapacity);
     final DateTime? tournamentDate = context.select((TournamentDetailModel i) => i.tournamentDate);
-    final XFile? imageFile = context.select((TournamentDetailModel i) => i.imageFile);
+    final String? tournamentImageUrl = context.select((TournamentDetailModel i) => i.tournamentImageUrl);
 
 
     return GestureDetector(
@@ -132,7 +124,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                         ),
                                         child: CircleAvatar(
                                           radius: 61,
-                                          backgroundImage: tournamentDetailModel.imageFile == null ? const AssetImage('assets/images/icons/default_tournament.png') : FileImage(File(imageFile!.path)),
+                                          backgroundImage: tournamentDetailModel.tournamentImageUrl == null ? const AssetImage('assets/images/icons/default_tournament.png') : NetworkImage(tournamentImageUrl!),
                                         ),
                                       ),
                                       if(tournamentDetailModel.tournamentInteractPossible)

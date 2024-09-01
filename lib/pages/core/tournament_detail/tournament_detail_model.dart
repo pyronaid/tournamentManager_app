@@ -12,7 +12,6 @@ class TournamentDetailModel extends ChangeNotifier {
   final TournamentsRecord? tournamentsRef;
 
   final unfocusNode = FocusNode();
-  late XFile? _imageFile;
 
   //////////////////////////////NAME DIALOG
   final formKeyName = GlobalKey<FormState>();
@@ -58,8 +57,6 @@ class TournamentDetailModel extends ChangeNotifier {
     _fieldControllerCapacity = TextEditingController(text: tournamentCapacity);
     tournamentCapacityTextControllerValidator = _tournamentCapacityTextControllerValidator;
     tournamentCapacityFocusNode = FocusNode();
-
-    _imageFile = null;
   }
 
   /////////////////////////////GETTER
@@ -81,7 +78,7 @@ class TournamentDetailModel extends ChangeNotifier {
     return capacityStr;
   }
   DateTime? get tournamentDate{
-    return tournamentsRef != null ? tournamentsRef!.date : null;
+    return tournamentsRef?.date;
   }
   Game get tournamentGame{
     return tournamentsRef != null ? tournamentsRef!.game! : Game.unknown;
@@ -121,8 +118,8 @@ class TournamentDetailModel extends ChangeNotifier {
   TextEditingController get fieldControllerCapacity{
     return _fieldControllerCapacity;
   }
-  XFile? get imageFile{
-    return _imageFile;
+  String? get tournamentImageUrl{
+    return tournamentsRef?.image;
   }
 
   /////////////////////////////SETTER
@@ -170,17 +167,21 @@ class TournamentDetailModel extends ChangeNotifier {
     notifyListeners();
   }
   Future<void> setTournamentImage() async{
-    _imageFile = await ImagePickerService().pickCropImage(
+    XFile? imageFile = await ImagePickerService().pickCropImage(
         cropAspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
         imageSource: ImageSource.camera
     );
 
-    String? url = await FirestorageUtilData.uploadImageToStorage(
-      "users/$tournamentOwner/$tournamentId/tournamentImage",
-      _imageFile
-    );
-    print(url!);
-    notifyListeners();
+    if(imageFile != null) {
+      String? url = await FirestorageUtilData.uploadImageToStorage(
+          "users/$tournamentOwner/$tournamentId/tournamentImage",
+          imageFile
+      );
+      if(url != null){
+        await tournamentsRef?.setImage(url);
+        notifyListeners();
+      }
+    }
   }
 
 
@@ -190,10 +191,5 @@ class TournamentDetailModel extends ChangeNotifier {
     _fieldControllerName.dispose();
     super.dispose();
   }
-
-
-
-
-
 
 }
