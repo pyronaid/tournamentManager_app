@@ -67,26 +67,39 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> with Ticker
           ),
           backgroundColor: CustomFlowTheme.of(context).primary,
           onPressed: () {
-            print("barabba");
+            context.pushNamedAuth(
+              'CreateEditNews', context.mounted,
+              pathParameters: {
+                'newsId': 'NEW',
+              }.withoutNulls,
+              extra: {
+                'tournamentRef': tournamentNewsModel.tournamentId,
+                'createEditFlag' : true,
+              },
+            );
           },
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         body: SafeArea(
           top: true,
           child:  SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                //if(tournamentNewsModel.tournamentNews.isEmpty)
-                  const NoTournamentNewsCardWidget(
-                    active: true,
-                    phrase: "Nessuna notizia pubblicata",
-                  ),
-                //else
-                  Text("data")
-              ],
+            child: Container(
+              width: 100.w,
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if(tournamentNewsModel.tournamentNews.isEmpty)
+                    const NoTournamentNewsCardWidget(
+                      active: true,
+                      phrase: "Nessuna notizia pubblicata",
+                    )
+                  else
+                    Text("£asasasas")
+
+                ],
+              ),
             ),
           ),
         ),

@@ -73,18 +73,7 @@ class _TournamentCardWidgetState extends State<TournamentCardWidget> with Ticker
             //////////////////////////////
             //////////// REDIRECT ON TAP
             //////////////////////////////
-            context.pushNamedAuth(
-              'TournamentDetails', context.mounted,
-              pathParameters: {
-                'tournamentRef': serializeParam(
-                  widget.tournamentRef,
-                  ParamType.Document,
-                ),
-              }.withoutNulls,
-              extra: <String, dynamic>{
-                'tournamentRef': widget.tournamentRef,
-              },
-            );
+            print("STRANO");
           },
           child: Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),

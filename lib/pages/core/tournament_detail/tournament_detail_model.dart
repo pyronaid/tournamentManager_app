@@ -188,7 +188,10 @@ class TournamentDetailModel extends ChangeNotifier {
   @override
   void dispose() {
     unfocusNode.dispose();
+    tournamentNameFocusNode?.dispose();
+    tournamentCapacityFocusNode?.dispose();
     _fieldControllerName.dispose();
+    _fieldControllerCapacity.dispose();
     super.dispose();
   }
 

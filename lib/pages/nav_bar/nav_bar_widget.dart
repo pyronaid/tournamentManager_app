@@ -75,7 +75,8 @@ class _NavBarPageState extends State<NavBarPage> {
         ),
       },
     };
-    final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
+    final tabKeys = tabs.keys.toList();
+    final currentIndex = tabKeys.indexOf(_currentPageName);
 
     return Scaffold(
       appBar: AppBar(
@@ -103,8 +104,7 @@ class _NavBarPageState extends State<NavBarPage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (i) => setState(() {
-          _currentPage = null;
-          _currentPageName = tabs.keys.toList()[i];
+          _currentPageName = tabKeys[i];
         }),
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         selectedItemColor: CustomFlowTheme.of(context).primary,

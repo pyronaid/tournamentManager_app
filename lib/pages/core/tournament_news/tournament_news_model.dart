@@ -18,6 +18,9 @@ class TournamentNewsModel extends ChangeNotifier {
   List<NewsRecord> get tournamentNews{
     return tournamentsRef != null ? tournamentsRef!.newsList : [];
   }
+  String? get tournamentId{
+    return tournamentsRef?.uid;
+  }
 
   /////////////////////////////SETTER
 

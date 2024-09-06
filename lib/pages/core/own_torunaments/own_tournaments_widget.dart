@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/components/no_tournament_card/no_tournament_card_widget.dart';
 import '../../../app_flow/app_flow_theme.dart';
@@ -63,6 +64,7 @@ class _OwnTournamentsWidgetState extends State<OwnTournamentsWidget> with Ticker
                 //ACTIVE SECTION
                 /////////////////
                 Container(
+                  width: 100.w,
                   decoration: BoxDecoration(
                     color: CustomFlowTheme.of(context).secondary,
                     borderRadius: const BorderRadius.only(
@@ -140,70 +142,73 @@ class _OwnTournamentsWidgetState extends State<OwnTournamentsWidget> with Ticker
                 ////////////////
                 //PAST SECTION
                 /////////////////
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(24, 54, 24, 54),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
-                          child: Text(
-                            'TERMINATI',
-                            style: CustomFlowTheme.of(context).headlineLarge,
-                            textAlign: TextAlign.center,
+                Container(
+                  width: 100.w,
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(24, 54, 24, 54),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
+                            child: Text(
+                              'TERMINATI',
+                              style: CustomFlowTheme.of(context).headlineLarge,
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
-                      ),
-                      AuthUserStreamWidget(
-                        builder: (context) => StreamBuilder<List<TournamentsRecord>>(
-                          stream: queryTournamentsRecord(
-                            queryBuilder: (tournamentsRecord) => tournamentsRecord
-                                .where('creator_uid', isEqualTo: currentUser?.uid)
-                                .where('state', isEqualTo: StateTournament.close.name),
-                          ),
-                          builder: (BuildContext context, AsyncSnapshot<List<TournamentsRecord>> snapshot) {
-                            /////////////////////////////////////////
-                            ////////////// LOADING OPPORTUNITY
-                            /////////////////////////////////////////
-                            if (!snapshot.hasData) {
-                              return const GenericLoadingWidget();
-                            }
-                            /////////////////////////////////////////
-                            ////////////// EMPTY CASE
-                            /////////////////////////////////////////
-                            List<TournamentsRecord> tournamentsRecordList = snapshot.data!;
-                            if (tournamentsRecordList.isEmpty) {
-                              return const NoTournamentCardWidget(
-                                active: false,
-                                phrase: "Non risultano tornei terminati. Creane uno e gestiscilo da qui!",
+                        AuthUserStreamWidget(
+                          builder: (context) => StreamBuilder<List<TournamentsRecord>>(
+                            stream: queryTournamentsRecord(
+                              queryBuilder: (tournamentsRecord) => tournamentsRecord
+                                  .where('creator_uid', isEqualTo: currentUser?.uid)
+                                  .where('state', isEqualTo: StateTournament.close.name),
+                            ),
+                            builder: (BuildContext context, AsyncSnapshot<List<TournamentsRecord>> snapshot) {
+                              /////////////////////////////////////////
+                              ////////////// LOADING OPPORTUNITY
+                              /////////////////////////////////////////
+                              if (!snapshot.hasData) {
+                                return const GenericLoadingWidget();
+                              }
+                              /////////////////////////////////////////
+                              ////////////// EMPTY CASE
+                              /////////////////////////////////////////
+                              List<TournamentsRecord> tournamentsRecordList = snapshot.data!;
+                              if (tournamentsRecordList.isEmpty) {
+                                return const NoTournamentCardWidget(
+                                  active: false,
+                                  phrase: "Non risultano tornei terminati. Creane uno e gestiscilo da qui!",
+                                );
+                              }
+                              /////////////////////////////////////////
+                              ////////////// STANDARD CASE
+                              /////////////////////////////////////////
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: List.generate(
+                                  tournamentsRecordList.length,
+                                  (index) {
+                                    final tournament = tournamentsRecordList[index];
+                                    return TournamentCardWidget(
+                                      key: Key('Keykia_${tournament.uid}_position_${index}_of_${tournamentsRecordList.length}'),
+                                      last: index == (tournamentsRecordList.length - 1),
+                                      tournamentRef: tournament,
+                                      active: false,
+                                    );
+                                  }
+                                )
                               );
-                            }
-                            /////////////////////////////////////////
-                            ////////////// STANDARD CASE
-                            /////////////////////////////////////////
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: List.generate(
-                                tournamentsRecordList.length,
-                                (index) {
-                                  final tournament = tournamentsRecordList[index];
-                                  return TournamentCardWidget(
-                                    key: Key('Keykia_${tournament.uid}_position_${index}_of_${tournamentsRecordList.length}'),
-                                    last: index == (tournamentsRecordList.length - 1),
-                                    tournamentRef: tournament,
-                                    active: false,
-                                  );
-                                }
-                              )
-                            );
-                          },
+                            },
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],

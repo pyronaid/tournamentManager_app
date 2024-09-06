@@ -4,12 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/backend/schema/news_record.dart';
+import 'package:tournamentmanager/pages/core/create_edit_news/create_edit_news_container.dart';
 import 'package:tournamentmanager/pages/nav_bar/nav_bar_lev2_widget.dart';
 import '../../backend/schema/tournaments_record.dart';
 import '../../pages/core/create_own/create_own_widget.dart';
-import '../../pages/core/my_tournaments/my_tournaments_widget.dart';
-import '../../pages/core/own_torunaments/own_tournaments_widget.dart';
-import '../../pages/core/tournament_detail/tournament_detail_widget.dart';
 import '../../pages/nav_bar/nav_bar_widget.dart';
 import '../../pages/onboarding/onboarding_verify_mail/onboarding_verify_mail_widget.dart';
 import '../../pages/onboarding/onboarding_verify_mail_success/onboarding_verify_mail_success_widget.dart';
@@ -137,7 +136,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             ),
             CustomRoute(
               name: 'TournamentDetails',
-              path: 'tournament-dets/:tournamentRef',
+              path: 'tournament-dets/:tournamentId',
               requireAuth: true,
               asyncParams: {
                 'tournamentRef': getDoc(['tournaments'], TournamentsRecord.fromSnapshot), // tournaments is the name of the firebase table
@@ -146,7 +145,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             ),
             CustomRoute(
               name: 'TournamentNews',
-              path: 'tournament-news/:tournamentRef',
+              path: 'tournament-news/:tournamentId',
               requireAuth: true,
               asyncParams: {
                 'tournamentRef': getDoc(['tournaments'], TournamentsRecord.fromSnapshot), // tournaments is the name of the firebase table
@@ -158,6 +157,29 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               path: 'create-own',
               requireAuth: true,
               builder: (context, params) => const CreateOwnWidget(),
+            ),
+            CustomRoute(
+              name: 'CreateEditNews',
+              path: 'create-edit-news/:newsId',
+              requireAuth: true,
+              asyncParams: {
+                'tournamentRef': getDoc(['tournaments'], TournamentsRecord.fromSnapshot), // tournaments is the name of the firebase table
+                'newsRef': getDoc(['tournaments','news'], NewsRecord.fromSnapshot), // tournaments is the name of the firebase table
+              },
+              builder: (context, params) => CreateEditNewsContainer(
+                tournamentsRef: params.getParam(
+                  'tournamentsRef',
+                  ParamType.Document,
+                ),
+                newsRef: params.getParam(
+                  'newsRef',
+                  ParamType.Document,
+                ),
+                createEditFlag: params.getParam(
+                  'createEditFlag',
+                  ParamType.bool,
+                ),
+              ),
             ),
             CustomRoute(
               name: 'Profile',
@@ -388,7 +410,20 @@ class CustomRoute {
           final page = afParams.hasFutures
               ? FutureBuilder(
                   future: afParams.completeFutures(),
-                  builder: (context, _) => builder(context, afParams),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      // While the Future is still loading, show a loading indicator
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      // If there was an error fetching the data, show an error message
+                      return Center(child: Text('Generic error landing page Error: ${snapshot.error}'));
+                    } else if (snapshot.hasData && snapshot.data == true) {
+                      return builder(context, afParams);
+                    } else {
+                      // If no data is present for some reason
+                      return const Center(child: Text('Generic error landing page in fetching Future data'));
+                    }
+                  },
                 )
               : builder(context, afParams);
           final child = appStateNotifier.loading

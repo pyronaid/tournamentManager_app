@@ -76,7 +76,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
         body: SafeArea(
           top: true,
           child: Align(
-            alignment: const AlignmentDirectional(0, 0),
+            alignment: Alignment.topCenter,
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: SingleChildScrollView(

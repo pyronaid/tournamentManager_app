@@ -50,7 +50,8 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
         'widget' : TournamentNewsContainer(tournamentsRef: _tournamentsRef),
       },
     };
-    final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
+    final tabKeys = tabs.keys.toList();
+    final currentIndex = tabKeys.indexOf(_currentPageName);
 
     return Scaffold(
       appBar: AppBar(
@@ -78,12 +79,14 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
           statusBarBrightness: CustomFlowTheme.bright(context), // For iOS (dark icons)
         ),
       ),
-      body: _currentPage ?? tabs[_currentPageName]?['widget'],
+      body: IndexedStack(
+        index: currentIndex,  //_currentPage ?? tabs[_currentPageName]?['widget']
+        children: tabKeys.map((key) => tabs[key]!['widget'] as Widget).toList(),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (i) => setState(() {
-          _currentPage = null;
-          _currentPageName = tabs.keys.toList()[i];
+          _currentPageName = tabKeys[i];
         }),
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         selectedItemColor: CustomFlowTheme.of(context).primary,

@@ -1,25 +1,5 @@
-pyroe@DESKTOP-EFCP6SI MINGW64 /c/Dev/jdk/jdk-17.0.7-oracle/bin
-$ ./keytool.exe -list -v -alias androiddebugkey -keystore ~/.android/debug.keystore
-Enter keystore password:  android
-Alias name: androiddebugkey
-Creation date: 25 mag 2024
-Entry type: PrivateKeyEntry
-Certificate chain length: 1
-Certificate[1]:
-Owner: C=US, O=Android, CN=Android Debug
-Issuer: C=US, O=Android, CN=Android Debug
-Serial number: 1
-Valid from: Sat May 25 18:29:06 CEST 2024 until: Mon May 18 18:29:06 CEST 2054
-Certificate fingerprints:
-         SHA1: 52:3C:5A:3F:78:B4:93:D5:31:3B:D6:28:5F:8E:1B:8A:0F:76:51:A8
-         SHA256: C7:E9:4F:F1:24:6E:78:15:17:A2:76:63:97:FE:FC:27:A8:54:B7:1C:A1:77:AC:D3:01:82:15:A0:2A:B8:C0:5F
-Signature algorithm name: SHA1withRSA (weak)
-Subject Public Key Algorithm: 2048-bit RSA key
-Version: 1
-
-Warning:
-The certificate uses the SHA1withRSA signature algorithm which is considered a security risk. This algorithm will be disabled in a future update.
-
+capire funzionamento parametri gorouter
+possibile sostituzione di tutte le immagini online con Image.network che prevede il loading builder
 
 
 GESTIONE DEI TESTI E DELLE LINGUE
@@ -28,16 +8,10 @@ GESTIONE ACCESSO CON FIREBASE E OTP SU CELL
 ADD PAGE ENROLLED TOURNAMENT 
          --- TOP CUT CALCULATOR
 
-
-[ALMOST DONE] AGIUNGERE ICONE AI CAMPI FORM E DARE UNA UI PIU' SIMILE A QUELLA IN IMMAGINE
 full screen loader with gif processing data!
 TODO: MODIFICARE GRAFICA SLACK BAR [da sopra per evitare il caso della tastiera aperta]
 TODO: AGGIUNGERE INTEGRAZIONE MAPPE PER INDIRIZZO COMPLETO
-TODO: delete account not remove from user DB -- temporary ignore this
-TODO: creare dettaglio torneo
 TODO: ad oggi i propri tornei o quelli organizzati non hanno la suddivisione per Gioco. Prevedere uno swiper
-
-TODO: spostare tutta la logica di business sui model e gestire meglio la parte di architettura
 
 #################################################
     onPressed:  () async {

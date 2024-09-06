@@ -46,6 +46,10 @@ class NewsRecord extends FirestoreRecord {
   String? get imageNewsUrl => _imageNewsUrl;
   bool hasImageNewsUrl() => _imageNewsUrl != null;
 
+  bool _showTimestampEn = false;
+  bool get showTimestampEn => _showTimestampEn;
+  bool hasShowTimestampEn() => _showTimestampEn;
+
   void _initializeFields() {
     _uid = snapshotData['uid'] as String?;
     _tournamentUid = snapshotData['tournament_uid'] as String;

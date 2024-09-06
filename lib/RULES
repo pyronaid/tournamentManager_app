@@ -17,6 +17,81 @@ GO_ROUTE
             - NEED to be authed to arrive to destination Page
 
 ##################################################################################
+GO_ROUTE
+    pathParameters
+        - Used to extract or pass dynamic parts of the URL path.
+        context.go('/user/123'); // Passes `123` as the path parameter `id`
+        GoRoute(
+          path: '/user/:id', // `:id` is the dynamic path parameter
+          builder: (context, state) {
+            final userId = state.pathParameters['id']; // Extract the dynamic path parameter
+            return UserScreen(userId: userId);
+          },
+        )
+    queryParameters
+        - Used to pass data via the query string in the URL (after the ? in the URL).
+        context.go('/search?term=flutter'); // Passes `flutter` as the query parameter `term`
+        GoRoute(
+          path: '/search',
+          builder: (context, state) {
+            final searchTerm = state.queryParameters['term']; // Extract query parameter `term`
+            return SearchScreen(term: searchTerm);
+          },
+        )
+    extra
+        - Used to pass extra (non-URL) data between routes.
+        final user = User(id: 123, name: 'John Doe');
+        context.go('/user', extra: user); // Pass the `User` object using `extra`
+        GoRoute(
+          path: '/user',
+          builder: (context, state) {
+            final user = state.extra as User; // Extract the extra data
+            return UserScreen(user: user);
+          },
+        )
+
+##################################################################################
+GO_ROUTE
+    Breakdown
+    asyncParams: {
+      'tournamentRef': getDoc(['tournaments'], TournamentsRecord.fromSnapshot), // tournaments is the name of the firebase table
+    },
+    getDoc(['tournaments'], TournamentsRecord.fromSnapshot)
+        ritorna una funzione che prende in input una stringa
+        (String ids)
+        e ritorna la chiamata di una funzione che utilizza i valori di input passati
+        _deserializeDocumentReference(ids, collectionNamePath).get().then((s) => recordBuilder(s));
+    Future<dynamic> Function(String) getDoc(
+      List<String> collectionNamePath,
+      RecordBuilder recordBuilder,
+    ) {
+      return (String ids) => _deserializeDocumentReference(ids, collectionNamePath).get().then((s) => recordBuilder(s));
+    }
+        _deserializeDocumentReference(ids, collectionNamePath).get().then((s) => recordBuilder(s));
+        ritorna un DocumentReference dato da FirebaseFirestore.instance.doc(path) dove il path è '/${collectionNamePath}/${docIds}'
+
+##################################################################################
+GO_ROUTE
+    getParam
+        prende prima da futureParamValues.containsKey(paramName)
+        altrimenti da state.allParams.containsKey(paramName)
+    state.allParams contiene
+        pathParameters
+        uri.queryParameters
+        extraMap
+    futureParamValues contiene tutti i parametri contenuti in state.allParams.entries che però verificano questa condizione
+        asyncParams.containsKey(param.key) && param.value is String;
+
+    quindi per aver il future valorizzato devo
+        - aggiungere in asyncParam la stessa chiave che metto in un altro set di parametri presenti in all (extra ad esempio)
+        - aggiungere in (extra ad esempio) una value che è una stringa che è anche l'identificativo della funzione in extra
+        ESEMPIO
+        extra: {'tournamentRef': widget.tournamentRef?.uid, } //QUANDO LO CHIAMO
+        asyncParams: { 'tournamentRef': getDoc(['tournaments'], TournamentsRecord.fromSnapshot), }, //NEL NAV DECLARATION
+        in questo modo verrà lanciata la funzione contenuta in asyncParams con parametro id preso da extra
+
+
+##################################################################################
 /// Call this method whenever the object changes, to notify any clients the
   /// object may have changed. Listeners that are added during this iteration
   /// will not be visited. Listeners that are removed during this iteration will

@@ -76,13 +76,10 @@ class _TournamentCardWidgetState extends State<TournamentCardWidget> with Ticker
             context.pushNamedAuth(
               'TournamentDetails', context.mounted,
               pathParameters: {
-                'tournamentRef': serializeParam(
-                  widget.tournamentRef,
-                  ParamType.Document,
-                ),
+                'tournamentId': widget.tournamentRef?.uid
               }.withoutNulls,
-              extra: <String, dynamic>{
-                'tournamentRef': widget.tournamentRef,
+              extra: {
+                'tournamentRef': widget.tournamentRef?.uid
               },
             );
           },
