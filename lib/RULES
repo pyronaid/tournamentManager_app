@@ -90,6 +90,10 @@ GO_ROUTE
         asyncParams: { 'tournamentRef': getDoc(['tournaments'], TournamentsRecord.fromSnapshot), }, //NEL NAV DECLARATION
         in questo modo verrà lanciata la funzione contenuta in asyncParams con parametro id preso da extra
 
+##################################################################################
+
+NEVER USE ASYNCPARAMS IN CUSTOMROUTE since FutureBuilder prevent the usage of Form inside the Widgets
+
 
 ##################################################################################
 /// Call this method whenever the object changes, to notify any clients the

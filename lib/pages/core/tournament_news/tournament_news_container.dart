@@ -12,7 +12,7 @@ class TournamentNewsContainer extends StatefulWidget {
     this.tournamentsRef,
   });
 
-  final TournamentsRecord? tournamentsRef;
+  final String? tournamentsRef;
 
   @override
   State<TournamentNewsContainer> createState() => _TournamentNewsContainerState();

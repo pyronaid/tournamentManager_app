@@ -138,19 +138,13 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               name: 'TournamentDetails',
               path: 'tournament-dets/:tournamentId',
               requireAuth: true,
-              asyncParams: {
-                'tournamentRef': getDoc(['tournaments'], TournamentsRecord.fromSnapshot), // tournaments is the name of the firebase table
-              },
-              builder: (context, params) => NavBarLev2Page(initialPage: "DashboardT", tournamentsRef: params.getParam('tournamentRef', ParamType.Document,)),
+              builder: (context, params) => NavBarLev2Page(initialPage: "DashboardT", tournamentsRef: params.getParam('tournamentId', ParamType.String,)),
             ),
             CustomRoute(
               name: 'TournamentNews',
               path: 'tournament-news/:tournamentId',
               requireAuth: true,
-              asyncParams: {
-                'tournamentRef': getDoc(['tournaments'], TournamentsRecord.fromSnapshot), // tournaments is the name of the firebase table
-              },
-              builder: (context, params) => NavBarLev2Page(initialPage: "NewsT", tournamentsRef: params.getParam('tournamentRef', ParamType.Document,)),
+              builder: (context, params) => NavBarLev2Page(initialPage: "NewsT", tournamentsRef: params.getParam('tournamentId', ParamType.String,)),
             ),
             CustomRoute(
               name: 'CreateOwn',
@@ -162,18 +156,14 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               name: 'CreateEditNews',
               path: 'create-edit-news/:newsId',
               requireAuth: true,
-              asyncParams: {
-                'tournamentRef': getDoc(['tournaments'], TournamentsRecord.fromSnapshot), // tournaments is the name of the firebase table
-                'newsRef': getDoc(['tournaments','news'], NewsRecord.fromSnapshot), // tournaments is the name of the firebase table
-              },
               builder: (context, params) => CreateEditNewsContainer(
                 tournamentsRef: params.getParam(
                   'tournamentsRef',
-                  ParamType.Document,
+                  ParamType.String,
                 ),
                 newsRef: params.getParam(
                   'newsRef',
-                  ParamType.Document,
+                  ParamType.String,
                 ),
                 createEditFlag: params.getParam(
                   'createEditFlag',

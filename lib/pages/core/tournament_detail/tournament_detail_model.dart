@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -9,15 +11,17 @@ import '../../../backend/schema/util/firestorage_util.dart';
 
 class TournamentDetailModel extends ChangeNotifier {
 
-  final TournamentsRecord? tournamentsRef;
+  final String? tournamentsRef;
+  late TournamentsRecord? tournamentsRefObj;
+  bool isLoading = true;
 
-  final unfocusNode = FocusNode();
+  final _unfocusNode = FocusNode();
 
   //////////////////////////////NAME DIALOG
-  final formKeyName = GlobalKey<FormState>();
+  final _formKeyName = GlobalKey<FormState>();
   late TextEditingController _fieldControllerName;
   late String? Function(BuildContext, String?)? tournamentNameTextControllerValidator;
-  late FocusNode? tournamentNameFocusNode;
+  late FocusNode? _tournamentNameFocusNode;
   String? _tournamentNameTextControllerValidator(BuildContext context, String? val) {
     if (val == null || val.isEmpty) {
       return 'Il nome del torneo è un parametro obbligatorio';
@@ -29,10 +33,10 @@ class TournamentDetailModel extends ChangeNotifier {
     return null;
   }
   //////////////////////////////CAPACITY DIALOG
-  final formKeyCapacity = GlobalKey<FormState>();
+  final _formKeyCapacity = GlobalKey<FormState>();
   late TextEditingController _fieldControllerCapacity;
   late String? Function(BuildContext, String?)? tournamentCapacityTextControllerValidator;
-  late FocusNode? tournamentCapacityFocusNode;
+  late FocusNode? _tournamentCapacityFocusNode;
   String? _tournamentCapacityTextControllerValidator(BuildContext context, String? val) {
     if (val == null || val.isEmpty) {
       return 'La capienza del torneo è un parametro obbligatorio';
@@ -51,66 +55,67 @@ class TournamentDetailModel extends ChangeNotifier {
 
   /////////////////////////////CONSTRUCTOR
   TournamentDetailModel({required this.tournamentsRef}){
-    _fieldControllerName = TextEditingController(text: tournamentName);
+    _fieldControllerName = TextEditingController();
     tournamentNameTextControllerValidator = _tournamentNameTextControllerValidator;
-    tournamentNameFocusNode = FocusNode();
-    _fieldControllerCapacity = TextEditingController(text: tournamentCapacity);
+    _tournamentNameFocusNode = FocusNode();
+    _fieldControllerCapacity = TextEditingController();
     tournamentCapacityTextControllerValidator = _tournamentCapacityTextControllerValidator;
-    tournamentCapacityFocusNode = FocusNode();
+    _tournamentCapacityFocusNode = FocusNode();
+    fetchObjectUsingId();
   }
 
   /////////////////////////////GETTER
   String? get tournamentOwner{
-    return tournamentsRef?.creatorUid;
+    return tournamentsRefObj?.creatorUid;
   }
   String? get tournamentId{
-    return tournamentsRef?.uid;
+    return tournamentsRefObj?.uid;
   }
   String get tournamentName{
-    return tournamentsRef != null ? tournamentsRef!.name : "UNKNOWN NAME";
+    return tournamentsRefObj != null ? tournamentsRefObj!.name : "UNKNOWN NAME";
   }
   StateTournament get tournamentState{
-    return tournamentsRef != null ? tournamentsRef!.state! : StateTournament.unknown;
+    return tournamentsRefObj != null ? tournamentsRefObj!.state! : StateTournament.unknown;
   }
   String get tournamentCapacity{
-    int capacity = tournamentsRef != null ? tournamentsRef!.capacity : 0;
+    int capacity = tournamentsRefObj != null ? tournamentsRefObj!.capacity : 0;
     String capacityStr = capacity == 0 ? "Illimitata" : capacity.toString();
     return capacityStr;
   }
   DateTime? get tournamentDate{
-    return tournamentsRef?.date;
+    return tournamentsRefObj?.date;
   }
   Game get tournamentGame{
-    return tournamentsRef != null ? tournamentsRef!.game! : Game.unknown;
+    return tournamentsRefObj != null ? tournamentsRefObj!.game! : Game.unknown;
   }
   bool get tournamentPreRegistrationEn{
-    return tournamentsRef != null ? tournamentsRef!.preRegistrationEn : false;
+    return tournamentsRefObj != null ? tournamentsRefObj!.preRegistrationEn : false;
   }
   bool get tournamentWaitingListEn{
-    return tournamentsRef != null ? tournamentsRef!.waitingListEn : false;
+    return tournamentsRefObj != null ? tournamentsRefObj!.waitingListEn : false;
   }
   bool get tournamentWaitingListPossible{
     bool flag = false;
-    if(tournamentsRef != null){
-      flag = tournamentsRef!.preRegistrationEn && tournamentsRef!.capacity > 0;
+    if(tournamentsRefObj != null){
+      flag = tournamentsRefObj!.preRegistrationEn && tournamentsRefObj!.capacity > 0;
     }
     return flag && tournamentInteractPossible;
   }
   bool get tournamentInteractPossible{
     bool flag = false;
-    if(tournamentsRef != null && tournamentsRef!.state!.indexState < 3){
+    if(tournamentsRefObj != null && tournamentsRefObj!.state!.indexState < 3){
       flag = true;
     }
     return flag;
   }
   int get tournamentPreRegisteredSize{
-    return tournamentsRef != null ? tournamentsRef!.preRegisteredList.length : 0;
+    return tournamentsRefObj != null ? tournamentsRefObj!.preRegisteredList.length : 0;
   }
   int get tournamentWaitingListSize{
-    return tournamentsRef != null ? tournamentsRef!.waitingList.length : 0;
+    return tournamentsRefObj != null ? tournamentsRefObj!.waitingList.length : 0;
   }
   int get tournamentRegisteredSize{
-    return tournamentsRef != null ? tournamentsRef!.registeredList.length : 0;
+    return tournamentsRefObj != null ? tournamentsRefObj!.registeredList.length : 0;
   }
   TextEditingController get fieldControllerName{
     return _fieldControllerName;
@@ -118,14 +123,29 @@ class TournamentDetailModel extends ChangeNotifier {
   TextEditingController get fieldControllerCapacity{
     return _fieldControllerCapacity;
   }
+  FocusNode? get tournamentNameFocusNode{
+    return _tournamentNameFocusNode;
+  }
+  FocusNode? get tournamentCapacityFocusNode{
+    return _tournamentCapacityFocusNode;
+  }
+  FocusNode get unfocusNode{
+    return _unfocusNode;
+  }
   String? get tournamentImageUrl{
-    return tournamentsRef?.image;
+    return tournamentsRefObj?.image;
+  }
+  GlobalKey<FormState> get formKeyName{
+    return _formKeyName;
+  }
+  GlobalKey<FormState> get formKeyCapacity{
+    return _formKeyCapacity;
   }
 
   /////////////////////////////SETTER
   Future<void> setTournamentName(String newTournamentName) async {
     if(newTournamentName != tournamentName) {
-      await tournamentsRef?.setName(newTournamentName);
+      await tournamentsRefObj?.setName(newTournamentName);
       notifyListeners();
     }
   }
@@ -137,33 +157,33 @@ class TournamentDetailModel extends ChangeNotifier {
     }
     if(newTournamentCapacity != tournamentCapacity) {
       if(newTournamentCapacityInt == 0 && tournamentWaitingListEn){
-        await tournamentsRef?.switchWaitingListEn();
+        await tournamentsRefObj?.switchWaitingListEn();
       }
-      await tournamentsRef?.setCapacity(newTournamentCapacityInt);
+      await tournamentsRefObj?.setCapacity(newTournamentCapacityInt);
       notifyListeners();
     }
   }
   Future<void> setTournamentData(DateTime newTournamentData) async {
     if(newTournamentData != tournamentDate){
-      await tournamentsRef?.setDate(newTournamentData);
+      await tournamentsRefObj?.setDate(newTournamentData);
       notifyListeners();
     }
   }
   Future<void> setTournamentState(String newTournamentState) async {
     if(newTournamentState != tournamentState.name){
-      await tournamentsRef?.setState(newTournamentState);
+      await tournamentsRefObj?.setState(newTournamentState);
       notifyListeners();
     }
   }
   Future<void> switchTournamentPreIscrizioniEn() async {
-    await tournamentsRef?.switchPreRegistrationEn();
+    await tournamentsRefObj?.switchPreRegistrationEn();
     if(!tournamentWaitingListPossible && tournamentWaitingListEn){
       switchTournamentWaitingListEn();
     }
     notifyListeners();
   }
   Future<void> switchTournamentWaitingListEn() async {
-    await tournamentsRef?.switchWaitingListEn();
+    await tournamentsRefObj?.switchWaitingListEn();
     notifyListeners();
   }
   Future<void> setTournamentImage() async{
@@ -178,7 +198,7 @@ class TournamentDetailModel extends ChangeNotifier {
           imageFile
       );
       if(url != null){
-        await tournamentsRef?.setImage(url);
+        await tournamentsRefObj?.setImage(url);
         notifyListeners();
       }
     }
@@ -187,12 +207,26 @@ class TournamentDetailModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    unfocusNode.dispose();
-    tournamentNameFocusNode?.dispose();
-    tournamentCapacityFocusNode?.dispose();
+    _unfocusNode.dispose();
     _fieldControllerName.dispose();
     _fieldControllerCapacity.dispose();
+    _tournamentNameFocusNode?.dispose();
+    _tournamentCapacityFocusNode?.dispose();
     super.dispose();
+  }
+
+  void fetchObjectUsingId() {
+    if(tournamentsRef != null) {
+      TournamentsRecord.getDocument(TournamentsRecord.collection.doc(tournamentsRef)).listen((snapshot) {
+        tournamentsRefObj = snapshot;
+        _fieldControllerName.text = snapshot.name;
+        int capacity = snapshot.capacity;
+        String capacityStr = capacity == 0 ? "Illimitata" : capacity.toString();
+        _fieldControllerCapacity.text = capacityStr;
+        isLoading = false;
+        notifyListeners();
+      });
+    }
   }
 
 }

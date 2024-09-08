@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_container.dart';
-import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_widget.dart';
 
 import '../../app_flow/app_flow_theme.dart';
 import '../../backend/schema/tournaments_record.dart';
@@ -12,7 +11,7 @@ import '../placeholder_widget.dart';
 class NavBarLev2Page extends StatefulWidget {
   const NavBarLev2Page({super.key, this.initialPage, this.page, required this.tournamentsRef});
 
-  final TournamentsRecord tournamentsRef;
+  final String? tournamentsRef;
   final String? initialPage;
   final Widget? page;
 
@@ -23,7 +22,7 @@ class NavBarLev2Page extends StatefulWidget {
 /// This is the private State class that goes with NavBarLev2Page.
 class _NavBarLev2PageState extends State<NavBarLev2Page> {
   String _currentPageName = 'DashboardT';
-  late TournamentsRecord _tournamentsRef;
+  late String? _tournamentsRef;
   late Widget? _currentPage;
 
   @override
@@ -47,7 +46,7 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
         'widget' : const PlaceholderWidget(),
       },
       'NewsT': {
-        'widget' : TournamentNewsContainer(tournamentsRef: _tournamentsRef),
+        'widget' : const PlaceholderWidget(), //TournamentNewsContainer(tournamentsRef: _tournamentsRef),
       },
     };
     final tabKeys = tabs.keys.toList();

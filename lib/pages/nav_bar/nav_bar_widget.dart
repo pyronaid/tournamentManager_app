@@ -100,7 +100,10 @@ class _NavBarPageState extends State<NavBarPage> {
           statusBarBrightness: CustomFlowTheme.bright(context), // For iOS (dark icons)
         ),
       ),
-      body: _currentPage ?? tabs[_currentPageName]?['widget'],
+      body: IndexedStack(
+        index: currentIndex,  //_currentPage ?? tabs[_currentPageName]?['widget']
+        children: tabKeys.map((key) => tabs[key]!['widget'] as Widget).toList(),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (i) => setState(() {

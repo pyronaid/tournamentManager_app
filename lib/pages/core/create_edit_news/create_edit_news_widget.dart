@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../app_flow/app_flow_model.dart';
 import '../../../app_flow/app_flow_theme.dart';
@@ -30,18 +31,23 @@ class CreateEditNewsWidget extends StatefulWidget {
 
 class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with TickerProviderStateMixin {
 
-  late CreateEditNewsModel createEditNewsModel;
+  late final CreateEditNewsModel createEditNewsModel;
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  late final TextEditingController fieldControllerTitle;
+  FocusNode? newsTitleFocusNode;
+  String? Function(BuildContext, String?)? newsTitleTextControllerValidator;
 
   @override
   void initState() {
     super.initState();
 
     //logFirebaseEvent('screen_view', parameters: {'screen_name': 'CreateNews'});
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
+    //WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
 
     createEditNewsModel = context.read<CreateEditNewsModel>();
-    createEditNewsModel.initContextVars(context);
+    fieldControllerTitle = createEditNewsModel.fieldControllerTitle;
+    newsTitleFocusNode = createEditNewsModel.newsTitleFocusNode;
+    newsTitleTextControllerValidator = createEditNewsModel.newsTitleTextControllerValidator;
   }
 
 
@@ -79,6 +85,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    /*
                     wrapWithModel(
                       model: createEditNewsModel.customAppbarModel,
                       updateCallback: () => setState(() {}),
@@ -88,7 +95,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                         actionButtonAction: () async {},
                         optionsButtonAction: () async {},
                       ),
-                    ),
+                    ),*/
                     ////////////////
                     //PAGE TITLE
                     /////////////////
@@ -107,14 +114,16 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                       autovalidateMode: AutovalidateMode.disabled,
                       child: Column(
                         mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           //////////////////////////////////////////
                           // Title News
                           //////////////////////////////////////////
                           Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                            padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
                             child: Column(
                               mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(
@@ -125,8 +134,8 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: createEditNewsModel.fieldControllerTitle,
-                                  focusNode: createEditNewsModel.newsTitleFocusNode,
+                                  controller: fieldControllerTitle,
+                                  focusNode: newsTitleFocusNode,
                                   autofocus: false,
                                   autofillHints: const [AutofillHints.name],
                                   textCapitalization: TextCapitalization.words,
@@ -135,7 +144,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                   decoration: standardInputDecoration(
                                     context,
                                     prefixIcon: Icon(
-                                      Icons.style,
+                                      Icons.title,
                                       color: CustomFlowTheme.of(context).secondaryText,
                                       size: 18,
                                     ),
@@ -146,175 +155,12 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                   ),
                                   minLines: 1,
                                   cursorColor: CustomFlowTheme.of(context).primary,
-                                  validator: createEditNewsModel.newsTitleTextControllerValidator.asValidator(context),
+                                  validator: newsTitleTextControllerValidator.asValidator(context),
                                 ),
                               ],
                             ),
                           ),
-                          //////////////////////////////////////////
-                          // Image News
-                          //////////////////////////////////////////
-                          Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                  child: Text(
-                                    'Immagine news (facoltativo)',
-                                    style: CustomFlowTheme.of(context).bodyMedium,
-                                  ),
-                                ),
-                                //area
-                                if(createEditNewsModel.newsImageUrl != null)
-                                  Image.network(
-                                    newsImageUrl!,
-                                  )
-                                else
 
-                                // button upload
-                                AFButtonWidget(
-                                  onPressed: () async {
-                                    FocusScope.of(context).unfocus();
-                                    logFirebaseEvent('Button_load_pic');
-                                    createEditNewsModel.setNewsImage();
-                                    logFirebaseEvent('Button_haptic_feedback');
-                                    HapticFeedback.lightImpact();
-                                  },
-                                  text: 'Carica immagine',
-                                  options: AFButtonOptions(
-                                    width: double.infinity,
-                                    height: 50,
-                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                    iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                    color: CustomFlowTheme.of(context).primary,
-                                    textStyle: CustomFlowTheme.of(context).titleSmall,
-                                    elevation: 0,
-                                    borderSide: const BorderSide(
-                                      color: Colors.transparent,
-                                      width: 1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          //////////////////////////////////////////
-                          // Sub-Title News
-                          //////////////////////////////////////////
-                          Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                  child: Text(
-                                    'Sotto Titolo news (facoltativo)',
-                                    style: CustomFlowTheme.of(context).bodyMedium,
-                                  ),
-                                ),
-                                TextFormField(
-                                  controller: createEditNewsModel.fieldControllerSubTitle,
-                                  focusNode: createEditNewsModel.newsSubTitleFocusNode,
-                                  autofocus: false,
-                                  autofillHints: const [AutofillHints.name],
-                                  textCapitalization: TextCapitalization.words,
-                                  textInputAction: TextInputAction.next,
-                                  obscureText: false,
-                                  decoration: standardInputDecoration(
-                                    context,
-                                    prefixIcon: Icon(
-                                      Icons.style,
-                                      color: CustomFlowTheme.of(context).secondaryText,
-                                      size: 18,
-                                    ),
-                                  ),
-                                  style: CustomFlowTheme.of(context).bodyLarge.override(
-                                    fontWeight: FontWeight.w500,
-                                    lineHeight: 1,
-                                  ),
-                                  minLines: 1,
-                                  cursorColor: CustomFlowTheme.of(context).primary,
-                                  validator: createEditNewsModel.newsSubTitleTextControllerValidator.asValidator(context),
-                                ),
-                              ],
-                            ),
-                          ),
-                          //////////////////////////////////////////
-                          // Description News
-                          //////////////////////////////////////////
-                          Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                  child: Text(
-                                    'Testo news',
-                                    style: CustomFlowTheme.of(context).bodyMedium,
-                                  ),
-                                ),
-                                TextFormField(
-                                  controller: createEditNewsModel.fieldControllerDescription,
-                                  focusNode: createEditNewsModel.newsDescriptionFocusNode,
-                                  autofocus: false,
-                                  autofillHints: const [AutofillHints.name],
-                                  textCapitalization: TextCapitalization.words,
-                                  textInputAction: TextInputAction.next,
-                                  obscureText: false,
-                                  decoration: standardInputDecoration(
-                                    context,
-                                    prefixIcon: Icon(
-                                      Icons.style,
-                                      color: CustomFlowTheme.of(context).secondaryText,
-                                      size: 18,
-                                    ),
-                                  ),
-                                  style: CustomFlowTheme.of(context).bodyLarge.override(
-                                    fontWeight: FontWeight.w500,
-                                    lineHeight: 1,
-                                  ),
-                                  minLines: 5,
-                                  maxLines: 5,
-                                  cursorColor: CustomFlowTheme.of(context).primary,
-                                  validator: createEditNewsModel.newsDescriptionTextControllerValidator.asValidator(context),
-                                ),
-                              ],
-                            ),
-                          ),
-                          //////////////////////////////////////////
-                          // SHOW TIMESTAMP switch
-                          //////////////////////////////////////////
-                          Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                  child: Text(
-                                    'Mostra data/ora della notizia',
-                                    style: CustomFlowTheme.of(context).bodyMedium,
-                                  ),
-                                ),
-                                Switch(
-                                  value: newsShowTimestampEn,
-                                  onChanged: (value){
-                                    createEditNewsModel.switchNewsShowTimestampEn();
-                                  }
-                                )
-                              ],
-                            ),
-                          ),
                         ],
                       ),
                     ),

@@ -161,12 +161,12 @@ class CreateEditNewsModel extends ChangeNotifier {
   void dispose() {
     unfocusNode.dispose();
     customAppbarModel.dispose();
-    newsTitleFocusNode?.dispose();
-    newsSubTitleFocusNode?.dispose();
-    newsDescriptionFocusNode?.dispose();
     _fieldControllerTitle.dispose();
     _fieldControllerSubTitle.dispose();
     _fieldControllerDescription.dispose();
+    newsTitleFocusNode?.dispose();
+    newsSubTitleFocusNode?.dispose();
+    newsDescriptionFocusNode?.dispose();
     super.dispose();
   }
 

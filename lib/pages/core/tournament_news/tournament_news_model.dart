@@ -5,7 +5,8 @@ import '../../../backend/schema/tournaments_record.dart';
 
 class TournamentNewsModel extends ChangeNotifier {
 
-  final TournamentsRecord? tournamentsRef;
+  final String? tournamentsRef;
+  late final TournamentsRecord? tournamentsRefObj;
 
   final unfocusNode = FocusNode();
 
@@ -16,10 +17,10 @@ class TournamentNewsModel extends ChangeNotifier {
 
   /////////////////////////////GETTER
   List<NewsRecord> get tournamentNews{
-    return tournamentsRef != null ? tournamentsRef!.newsList : [];
+    return tournamentsRef != null ? tournamentsRefObj!.newsList : [];
   }
   String? get tournamentId{
-    return tournamentsRef?.uid;
+    return tournamentsRefObj?.uid;
   }
 
   /////////////////////////////SETTER
