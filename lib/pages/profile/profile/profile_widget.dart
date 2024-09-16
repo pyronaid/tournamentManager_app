@@ -21,7 +21,7 @@ class ProfileWidget extends StatefulWidget {
 class _ProfileWidgetState extends State<ProfileWidget> {
   late ProfileModel _model;
 
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -53,7 +53,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
           ? FocusScope.of(context).requestFocus(_model.unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
-        key: scaffoldKey,
+        key: _scaffoldKey,
         backgroundColor: CustomFlowTheme
             .of(context)
             .primaryBackground,

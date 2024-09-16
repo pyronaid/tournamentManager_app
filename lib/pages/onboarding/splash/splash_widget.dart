@@ -18,7 +18,8 @@ class SplashWidget extends StatefulWidget {
 
 class _SplashWidgetState extends State<SplashWidget> {
   late SplashModel _model;
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -43,7 +44,7 @@ class _SplashWidgetState extends State<SplashWidget> {
           ? FocusScope.of(context).requestFocus(_model.unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
-        key: scaffoldKey,
+        key: _scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,

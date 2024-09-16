@@ -13,10 +13,9 @@ import '../../../backend/schema/util/firestorage_util.dart';
 class TournamentDetailModel extends ChangeNotifier {
 
   final _unfocusNode = FocusNode();
-  TournamentModel tournamentModel;
+  final String? tournamentsRef;
 
   //////////////////////////////NAME DIALOG
-  final _formKeyName = GlobalKey<FormState>();
   late TextEditingController _fieldControllerName;
   late String? Function(BuildContext, String?, String?)? tournamentNameTextControllerValidator;
   late FocusNode? _tournamentNameFocusNode;
@@ -31,7 +30,6 @@ class TournamentDetailModel extends ChangeNotifier {
     return null;
   }
   //////////////////////////////CAPACITY DIALOG
-  final _formKeyCapacity = GlobalKey<FormState>();
   late TextEditingController _fieldControllerCapacity;
   late String? Function(BuildContext, String?, String?)? tournamentCapacityTextControllerValidator;
   late FocusNode? _tournamentCapacityFocusNode;
@@ -52,7 +50,7 @@ class TournamentDetailModel extends ChangeNotifier {
 
 
   /////////////////////////////CONSTRUCTOR
-  TournamentDetailModel({required this.tournamentModel}){
+  TournamentDetailModel({required this.tournamentsRef}){
     _fieldControllerName = TextEditingController();
     tournamentNameTextControllerValidator = _tournamentNameTextControllerValidator;
     _tournamentNameFocusNode = FocusNode();
@@ -68,7 +66,15 @@ class TournamentDetailModel extends ChangeNotifier {
   TextEditingController get fieldControllerName{
     return _fieldControllerName;
   }
+  TextEditingController fieldControllerNameInitialized(String initText){
+    _fieldControllerName.text = initText;
+    return _fieldControllerName;
+  }
   TextEditingController get fieldControllerCapacity{
+    return _fieldControllerCapacity;
+  }
+  TextEditingController fieldControllerCapacityInitialized(String initText){
+    _fieldControllerCapacity.text = initText;
     return _fieldControllerCapacity;
   }
   FocusNode? get tournamentNameFocusNode{
@@ -77,17 +83,8 @@ class TournamentDetailModel extends ChangeNotifier {
   FocusNode? get tournamentCapacityFocusNode{
     return _tournamentCapacityFocusNode;
   }
-  GlobalKey<FormState> get formKeyName{
-    return _formKeyName;
-  }
-  GlobalKey<FormState> get formKeyCapacity{
-    return _formKeyCapacity;
-  }
 
   /////////////////////////////SETTER
-  void setFieldControllerName(String textVal){
-    _fieldControllerName.text = textVal;
-  }
   void setFieldControllerCapacity(String textVal){
     _fieldControllerCapacity.text = textVal;
   }

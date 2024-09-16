@@ -25,7 +25,8 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
 
   late TournamentDetailModel tournamentDetailModel;
   late TournamentModel tournamentModel;
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -51,7 +52,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
           ? FocusScope.of(context).requestFocus(tournamentDetailModel.unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
-        key: scaffoldKey,
+        key: _scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
@@ -335,7 +336,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                 child: Text(
                                   state.desc,
                                   style: TextStyle(
-                                    color: state.indexState == providerTournament.tournamentState.indexState ? CustomFlowTheme.of(context).primary : CustomFlowTheme.of(context).info,
+                                    color: state.indexState == tournamentModel.tournamentState.indexState ? CustomFlowTheme.of(context).primary : CustomFlowTheme.of(context).info,
                                   ),
                                 ),
                               );
@@ -674,20 +675,20 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 Future<void> _showChangeTournamentNameDialog(BuildContext context) async {
+  final _formKeyName = GlobalKey<FormState>();
   // show the dialog
   await showDialog(
       context: context,
       builder: (_) {
         var tournamentModel = context.read<TournamentModel>();
         var tournamentDetailModel = context.read<TournamentDetailModel>();
-        tournamentDetailModel.setFieldControllerName(tournamentModel.tournamentName);
         return AlertDialog(
           title: const Text('Modifica Nome Torneo'),
           content: Form(
-            key: tournamentDetailModel.formKeyName,
+            key: _formKeyName,
             autovalidateMode: AutovalidateMode.disabled,
             child: TextFormField(
-              controller: tournamentDetailModel.fieldControllerName,
+              controller: tournamentDetailModel.fieldControllerNameInitialized(tournamentModel.tournamentName),
               focusNode: tournamentDetailModel.tournamentNameFocusNode,
               autofocus: false,
               autofillHints: const [AutofillHints.name],
@@ -723,8 +724,8 @@ Future<void> _showChangeTournamentNameDialog(BuildContext context) async {
                 // Handle saving the new value
                 String newTournamentName = tournamentDetailModel.fieldControllerName.text;
                 logFirebaseEvent('Button_validate_form');
-                if (tournamentDetailModel.formKeyName.currentState == null ||
-                    !tournamentDetailModel.formKeyName.currentState!.validate()) {
+                if (_formKeyName.currentState == null ||
+                    !_formKeyName.currentState!.validate()) {
                   return;
                 }
                 tournamentModel.setTournamentName(newTournamentName);
@@ -739,23 +740,23 @@ Future<void> _showChangeTournamentNameDialog(BuildContext context) async {
 }
 
 Future<void> _showChangeTournamentCapacityDialog(BuildContext context) async {
+  final _formKeyCapacity = GlobalKey<FormState>();
   // show the dialog
   await showDialog(
       context: context,
       builder: (_) {
         var tournamentModel = context.read<TournamentModel>();
         var tournamentDetailModel = context.read<TournamentDetailModel>();
-        tournamentDetailModel.setFieldControllerCapacity(tournamentModel.tournamentCapacity);
         return AlertDialog(
           title: const Text('Modifica Capienza Torneo'),
           content: Form(
-            key: tournamentDetailModel.formKeyCapacity,
+            key: _formKeyCapacity,
             autovalidateMode: AutovalidateMode.disabled,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextFormField(
-                  controller: tournamentDetailModel.fieldControllerCapacity,
+                  controller: tournamentDetailModel.fieldControllerCapacityInitialized(tournamentModel.tournamentCapacity),
                   focusNode: tournamentDetailModel.tournamentCapacityFocusNode,
                   autofocus: false,
                   keyboardType: TextInputType.number,
@@ -801,8 +802,8 @@ Future<void> _showChangeTournamentCapacityDialog(BuildContext context) async {
                 // Handle saving the new value
                 String newTournamentCapacity = tournamentDetailModel.fieldControllerCapacity.text;
                 logFirebaseEvent('Button_validate_form');
-                if (tournamentDetailModel.formKeyCapacity.currentState == null ||
-                    !tournamentDetailModel.formKeyCapacity.currentState!.validate()) {
+                if (_formKeyCapacity.currentState == null ||
+                    !_formKeyCapacity.currentState!.validate()) {
                   return;
                 }
                 tournamentModel.setTournamentCapacity(newTournamentCapacity);

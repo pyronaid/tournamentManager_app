@@ -22,7 +22,8 @@ class ForgotPasswordWidget extends StatefulWidget {
 class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
   late ForgotPasswordModel _model;
 
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -52,7 +53,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        key: scaffoldKey,
+        key: _scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
@@ -87,7 +88,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                           ),
                         ),
                         Form(
-                          key: _model.formKey,
+                          key: _formKey,
                           autovalidateMode: AutovalidateMode.disabled,
                           child: Column(
                             mainAxisSize: MainAxisSize.max,
@@ -154,8 +155,8 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                               FocusScope.of(context).unfocus();
                               logFirebaseEvent('FORGOT_PASSWORD_RESET_PASSWORD_BTN_ON_TA');
                               logFirebaseEvent('Button_validate_form');
-                              if (_model.formKey.currentState == null ||
-                                  !_model.formKey.currentState!.validate()) {
+                              if (_formKey.currentState == null ||
+                                  !_formKey.currentState!.validate()) {
                                 return;
                               }
                               logFirebaseEvent('Button_haptic_feedback');

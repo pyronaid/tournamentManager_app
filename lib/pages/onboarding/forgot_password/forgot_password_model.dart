@@ -8,7 +8,6 @@ class ForgotPasswordModel extends CustomFlowModel<ForgotPasswordWidget> {
   ///  State fields for stateful widgets in this page.
 
   final unfocusNode = FocusNode();
-  final formKey = GlobalKey<FormState>();
   // Model for customAppbar component.
   late CustomAppbarModel customAppbarModel;
   // State field(s) for emailAddress widget.

@@ -23,8 +23,7 @@ class OnboardingSlideshowWidget extends StatefulWidget {
 class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> with TickerProviderStateMixin {
   late OnboardingSlideshowModel _model;
 
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final animationsMap = <String, AnimationInfo>{};
 
 
@@ -65,7 +64,7 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> w
           ? FocusScope.of(context).requestFocus(_model.unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
-        key: scaffoldKey,
+        key: _scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,

@@ -21,7 +21,8 @@ class OnboardingCreateAccountWidget extends StatefulWidget {
 class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountWidget> {
   late OnboardingCreateAccountModel _model;
 
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -57,7 +58,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        key: scaffoldKey,
+        key: _scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
@@ -97,7 +98,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                   //FORM
                   /////////////////
                   Form(
-                    key: _model.formKey,
+                    key: _formKey,
                     autovalidateMode: AutovalidateMode.disabled,
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
@@ -253,8 +254,8 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                         FocusScope.of(context).unfocus();
                         logFirebaseEvent('ONBOARDING_CREATE_ACCOUNT_CREATE_ACCOUNT');
                         logFirebaseEvent('Button_validate_form');
-                        if (_model.formKey.currentState == null ||
-                            !_model.formKey.currentState!.validate()) {
+                        if (_formKey.currentState == null ||
+                            !_formKey.currentState!.validate()) {
                           return;
                         }
                         logFirebaseEvent('Button_haptic_feedback');

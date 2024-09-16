@@ -37,12 +37,11 @@ class _TournamentDetailContainerState extends State<TournamentDetailContainer> w
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProxyProvider<TournamentModel, TournamentDetailModel>(
-      create: (_) => TournamentDetailModel(tournamentModel: Provider.of<TournamentModel>(_, listen: false)),
-      update: (_, tournamentModelRef, tournamentDetailModelRef) => TournamentDetailModel(tournamentModel: tournamentModelRef),
-      builder: (context, child) {
-        return const TournamentDetailWidget();
-      }
+    return ChangeNotifierProvider(
+        create: (context) => TournamentDetailModel(tournamentsRef: widget.tournamentsRef),
+        builder: (context, child) {
+          return const TournamentDetailWidget();
+        }
     );
   }
 }

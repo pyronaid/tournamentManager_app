@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../app_flow/app_flow_model.dart';
+import '../../../app_flow/services/ImagePickerService.dart';
 import '../../../components/custom_appbar_model.dart';
 
 class CreateEditNewsModel extends ChangeNotifier {
@@ -8,7 +11,6 @@ class CreateEditNewsModel extends ChangeNotifier {
   final _unfocusNode = FocusNode();
   final bool saveWay;
   late CustomAppbarModel customAppbarModel;
-  final _formKey = GlobalKey<FormState>();
 
   //////////////////////////////FORM TITLE
   late TextEditingController _fieldControllerTitle;
@@ -47,13 +49,13 @@ class CreateEditNewsModel extends ChangeNotifier {
   }
   //////////////////////////////FORM IMAGE
   late String? _newsImageUrlTemp;
+  late bool _useNetworkImage;
   //////////////////////////////FORM SWITCH TIMESTAMP
   late bool _newsShowTimestampEnVar;
 
 
   /////////////////////////////CONSTRUCTOR
   CreateEditNewsModel({required this.saveWay}){
-
     _fieldControllerTitle = TextEditingController();
     newsTitleTextControllerValidator = _newsTitleTextControllerValidator;
     _newsTitleFocusNode = FocusNode();
@@ -64,6 +66,7 @@ class CreateEditNewsModel extends ChangeNotifier {
     newsDescriptionTextControllerValidator = _newsDescriptionTextControllerValidator;
     _newsDescriptionFocusNode = FocusNode();
     _newsShowTimestampEnVar = false;
+    _useNetworkImage = false;
     _newsImageUrlTemp = null;
   }
 
@@ -75,10 +78,11 @@ class CreateEditNewsModel extends ChangeNotifier {
   bool get saveWayEn{
     return saveWay;
   }
-  GlobalKey<FormState> get formKey{
-    return _formKey;
-  }
   TextEditingController get fieldControllerTitle{
+    return _fieldControllerTitle;
+  }
+  TextEditingController fieldControllerTitleInitialized(String initText){
+    _fieldControllerTitle.text = initText;
     return _fieldControllerTitle;
   }
   FocusNode? get newsTitleFocusNode{
@@ -87,10 +91,18 @@ class CreateEditNewsModel extends ChangeNotifier {
   TextEditingController get fieldControllerSubTitle{
     return _fieldControllerSubTitle;
   }
+  TextEditingController fieldControllerSubTitleInitialized(String initText){
+    _fieldControllerSubTitle.text = initText;
+    return _fieldControllerSubTitle;
+  }
   FocusNode? get newsSubTitleFocusNode{
     return _newsSubTitleFocusNode;
   }
   TextEditingController get fieldControllerDescription{
+    return _fieldControllerDescription;
+  }
+  TextEditingController fieldControllerDescriptionInitialized(String initText){
+    _fieldControllerDescription.text = initText;
     return _fieldControllerDescription;
   }
   FocusNode? get newsDescriptionFocusNode{
@@ -99,25 +111,38 @@ class CreateEditNewsModel extends ChangeNotifier {
   bool get newsShowTimestampEnVar{
     return _newsShowTimestampEnVar;
   }
+  bool newsShowTimestampEnVarInitialized(bool initBool){
+    _newsShowTimestampEnVar = initBool;
+    return _newsShowTimestampEnVar;
+  }
   String? get newsImageUrlTemp{
     return _newsImageUrlTemp;
+  }
+  String? newsImageUrlTempInitialized(String? initUrl){
+    if(initUrl != null) {
+      _useNetworkImage = true;
+    }
+    _newsImageUrlTemp = initUrl;
+    return _newsImageUrlTemp;
+  }
+  bool get useNetworkImage{
+    return _useNetworkImage;
   }
 
 
   /////////////////////////////SETTER
-  void setFieldControllerTitle(String textVal){
-    _fieldControllerTitle.text = textVal;
+  Future<void> setNewsImage(bool saveWayEn) async{
+    bool? isCamera = true; //TO FIX WITH DIALOG FUNCTION
+    XFile? imageFile = await ImagePickerService().pickCropImage(
+        cropAspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
+        imageSource: ImageSource.camera
+    );
+    if(imageFile != null) {
+      _newsImageUrlTemp = imageFile.path;
+    }
+    notifyListeners();
   }
-  void setFieldControllerSubTitle(String textVal){
-    _fieldControllerSubTitle.text = textVal;
-  }
-  void setFieldControllerDescription(String textVal){
-    _fieldControllerDescription.text = textVal;
-  }
-  void setNewsShowTimestampEnVar(bool textVal){
-    _newsShowTimestampEnVar = textVal;
-  }
-  Future<void> switchNewsShowTimestampEn() async {
+  void switchShowTimestampEn() async {
     _newsShowTimestampEnVar = !_newsShowTimestampEnVar;
     notifyListeners();
   }

@@ -23,7 +23,9 @@ class SignInWidget extends StatefulWidget {
 class _SignInWidgetState extends State<SignInWidget> {
   late SignInModel _model;
 
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _formKey = GlobalKey<FormState>();
+
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
 
@@ -74,7 +76,7 @@ class _SignInWidgetState extends State<SignInWidget> {
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        key: scaffoldKey,
+        key: _scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
@@ -108,7 +110,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                         ),
                       ),
                       Form(
-                        key: _model.formKey,
+                        key: _formKey,
                         autovalidateMode: AutovalidateMode.disabled,
                         child: Column(
                           mainAxisSize: MainAxisSize.max,
@@ -217,8 +219,8 @@ class _SignInWidgetState extends State<SignInWidget> {
                             FocusScope.of(context).unfocus();
                             logFirebaseEvent('SIGN_IN_PAGE_SIGN_IN_BTN_ON_TAP');
                             logFirebaseEvent('Button_validate_form');
-                            if (_model.formKey.currentState == null ||
-                                !_model.formKey.currentState!.validate()) {
+                            if (_formKey.currentState == null ||
+                                !_formKey.currentState!.validate()) {
                               return;
                             }
                             logFirebaseEvent('Button_haptic_feedback');

@@ -28,8 +28,8 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
   late OnboardingVerifyMailModel _model;
   late String? _email;
 
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final animationsMap = <String, AnimationInfo>{};
-  final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -62,7 +62,7 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
           ? FocusScope.of(context).requestFocus(_model.unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
-        key: scaffoldKey,
+        key: _scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,

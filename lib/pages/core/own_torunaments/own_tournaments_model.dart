@@ -8,7 +8,6 @@ class OwnTournamentsModel extends CustomFlowModel<OwnTournamentsWidget> {
   ///  State fields for stateful widgets in this page.
 
   final unfocusNode = FocusNode();
-  final formKey = GlobalKey<FormState>();
   // Model for customAppbar component.
   late CustomAppbarModel customAppbarModel;
 

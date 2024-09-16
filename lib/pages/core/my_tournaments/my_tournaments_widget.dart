@@ -21,8 +21,7 @@ class MyTournamentsWidget extends StatefulWidget {
 class _MyTournamentsWidgetState extends State<MyTournamentsWidget> with TickerProviderStateMixin {
   late MyTournamentsModel _model;
 
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -50,7 +49,7 @@ class _MyTournamentsWidgetState extends State<MyTournamentsWidget> with TickerPr
           ? FocusScope.of(context).requestFocus(_model.unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
-        key: scaffoldKey,
+        key: _scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,

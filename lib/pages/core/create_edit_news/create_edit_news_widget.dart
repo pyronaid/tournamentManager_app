@@ -28,7 +28,9 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
 
   late CreateEditNewsModel createEditNewsModel;
   late NewsModel newsModel;
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -56,7 +58,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
           ? FocusScope.of(context).requestFocus(createEditNewsModel.unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
-        key: scaffoldKey,
+        key: _scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
@@ -67,15 +69,12 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
               child: SingleChildScrollView(
                 child: Consumer<NewsModel>(
                   builder: (context, providerNews, _){
+                    createEditNewsModel.newsShowTimestampEnVarInitialized(newsModel.newsShowTimestampEn);
+                    createEditNewsModel.newsImageUrlTempInitialized(newsModel.newsImageUrl);
                     print("[REBUILD IN CORSO] create_edit_news_widget.dart");
                     if(newsModel.isLoading){
                       return const Center(child: CircularProgressIndicator());
                     }
-
-                    createEditNewsModel.setFieldControllerTitle(newsModel.newsTitle);
-                    createEditNewsModel.setFieldControllerSubTitle(newsModel.newsSubTitle);
-                    createEditNewsModel.setFieldControllerDescription(newsModel.newsDescription);
-                    createEditNewsModel.setNewsShowTimestampEnVar(newsModel.newsShowTimestampEn);
                     return Column(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -105,7 +104,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                         //FORM
                         /////////////////
                         Form(
-                          key: createEditNewsModel.formKey,
+                          key: _formKey,
                           autovalidateMode: AutovalidateMode.disabled,
                           child: Column(
                             mainAxisSize: MainAxisSize.max,
@@ -129,7 +128,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       ),
                                     ),
                                     TextFormField(
-                                      controller: createEditNewsModel.fieldControllerTitle,
+                                      controller: createEditNewsModel.fieldControllerTitleInitialized(newsModel.newsTitle),
                                       focusNode: createEditNewsModel.newsTitleFocusNode,
                                       autofocus: false,
                                       autofillHints: const [AutofillHints.name],
@@ -171,47 +170,57 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                         style: CustomFlowTheme.of(context).bodyMedium,
                                       ),
                                     ),
-                                    //area
-                                    if(newsModel.newsImageUrl != null)
-                                      Image.network(
-                                        providerNews.newsImageUrl!,
-                                        loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                                          if (loadingProgress == null) {
-                                            return child; // Image has fully loaded
-                                          } else {
-                                            return CircularProgressIndicator(
-                                              value: loadingProgress.expectedTotalBytes != null
-                                                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                                  : null, // Shows a progress indicator if the loading size is known
+                                    Selector<CreateEditNewsModel, String?>(
+                                        selector: (_, model) => model.newsImageUrlTemp,
+                                        builder: (context, newsImageUrlTemp, _) {
+                                          if(createEditNewsModel.useNetworkImage){
+                                            return Image.network(
+                                              providerNews.newsImageUrl!,
+                                              loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                                                if (loadingProgress == null) {
+                                                  return child; // Image has fully loaded
+                                                } else {
+                                                  return CircularProgressIndicator(
+                                                    value: loadingProgress.expectedTotalBytes != null
+                                                        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                                        : null, // Shows a progress indicator if the loading size is known
+                                                  );
+                                                }
+                                              },
+                                              errorBuilder: (context, error, stackTrace) {
+                                                return Icon(
+                                                  Icons.error,
+                                                  color: CustomFlowTheme.of(context).error,
+                                                  size: 18,
+                                                ); // Display an error icon if the image fails to load
+                                              },
                                             );
+                                          } else if(createEditNewsModel.newsImageUrlTemp != null){
+                                            return Padding(
+                                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
+                                              child: Container(
+                                                padding: const EdgeInsets.all(10),
+                                                decoration: BoxDecoration(
+                                                  color: CustomFlowTheme.of(context).accent1,
+                                                ),
+                                                child: Consumer<CreateEditNewsModel>(
+                                                    builder: (context, providerCreateEditNews, _){
+                                                      return Image.file(File(createEditNewsModel.newsImageUrlTemp!),);
+                                                    }
+                                                ),
+                                              ),
+                                            );
+                                          } else {
+                                            return Text("data");
                                           }
-                                        },
-                                        errorBuilder: (context, error, stackTrace) {
-                                          return Icon(
-                                            Icons.error,
-                                            color: CustomFlowTheme.of(context).error,
-                                            size: 18,
-                                          ); // Display an error icon if the image fails to load
-                                        },
-                                      )
-                                    else if(providerNews.newsImageUrlTemp != null)
-                                      Padding(
-                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                            color: CustomFlowTheme.of(context).accent1,
-                                          ),
-                                          child: Image.file(File(providerNews.newsImageUrlTemp!),)
-                                        ),
-                                      ),
-
+                                        }
+                                    ),
                                     // button upload
                                       AFButtonWidget(
                                         onPressed: () async {
                                           FocusScope.of(context).unfocus();
                                           logFirebaseEvent('Button_load_pic');
-                                          newsModel.setNewsImage(createEditNewsModel.saveWay);
+                                          createEditNewsModel.setNewsImage(createEditNewsModel.saveWay);
                                           logFirebaseEvent('Button_haptic_feedback');
                                           HapticFeedback.lightImpact();
                                         },
@@ -251,7 +260,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       ),
                                     ),
                                     TextFormField(
-                                      controller: createEditNewsModel.fieldControllerSubTitle,
+                                      controller: createEditNewsModel.fieldControllerSubTitleInitialized(newsModel.newsSubTitle),
                                       focusNode: createEditNewsModel.newsSubTitleFocusNode,
                                       autofocus: false,
                                       autofillHints: const [AutofillHints.name],
@@ -261,7 +270,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       decoration: standardInputDecoration(
                                         context,
                                         prefixIcon: Icon(
-                                          Icons.style,
+                                          Icons.text_fields,
                                           color: CustomFlowTheme.of(context).secondaryText,
                                           size: 18,
                                         ),
@@ -272,7 +281,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       ),
                                       minLines: 1,
                                       cursorColor: CustomFlowTheme.of(context).primary,
-                                      validator: createEditNewsModel.newsSubTitleTextControllerValidator.asValidator(context, providerNews.newsSubTitle),
+                                      validator: createEditNewsModel.newsSubTitleTextControllerValidator.asValidator(context, newsModel.newsSubTitle),
                                     ),
                                   ],
                                 ),
@@ -294,7 +303,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       ),
                                     ),
                                     TextFormField(
-                                      controller: createEditNewsModel.fieldControllerDescription,
+                                      controller: createEditNewsModel.fieldControllerDescriptionInitialized(newsModel.newsDescription),
                                       focusNode: createEditNewsModel.newsDescriptionFocusNode,
                                       autofocus: false,
                                       autofillHints: const [AutofillHints.name],
@@ -304,7 +313,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       decoration: standardInputDecoration(
                                         context,
                                         prefixIcon: Icon(
-                                          Icons.style,
+                                          Icons.article,
                                           color: CustomFlowTheme.of(context).secondaryText,
                                           size: 18,
                                         ),
@@ -316,7 +325,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       minLines: 5,
                                       maxLines: 5,
                                       cursorColor: CustomFlowTheme.of(context).primary,
-                                      validator: createEditNewsModel.newsDescriptionTextControllerValidator.asValidator(context, providerNews.newsDescription),
+                                      validator: createEditNewsModel.newsDescriptionTextControllerValidator.asValidator(context, newsModel.newsDescription),
                                     ),
                                   ],
                                 ),
@@ -338,12 +347,17 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                         style: CustomFlowTheme.of(context).bodyMedium,
                                       ),
                                     ),
-                                    Switch(
-                                        value: providerNews.newsShowTimestampEn,
-                                        onChanged: (value){
-                                          newsModel.switchTournamentWaitingListEn();
-                                        }
-                                    )
+                                    Selector<CreateEditNewsModel, bool>(
+                                      selector: (_, model) => model.newsShowTimestampEnVar,
+                                      builder: (context, newsShowTimestampEnVar, _) {
+                                        return Switch(
+                                          value: newsShowTimestampEnVar,
+                                          onChanged: (value) {
+                                            Provider.of<CreateEditNewsModel>(context, listen: false).switchShowTimestampEn();
+                                          },
+                                        );
+                                      }
+                                    ),
                                   ],
                                 ),
                               ),
@@ -360,7 +374,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                               FocusScope.of(context).unfocus();
                               createEditNewsModel.saveWayEn ? logFirebaseEvent('ONBOARDING_CREATE_NEWS_CREATE_NEWS') : logFirebaseEvent('ONBOARDING_EDIT_NEWS_EDIT_NEWS');
                               logFirebaseEvent('Button_validate_form');
-                              if (createEditNewsModel.formKey.currentState == null || !createEditNewsModel.formKey.currentState!.validate()) {
+                              if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
                                 return;
                               }
                               if(createEditNewsModel.saveWayEn) {
@@ -368,6 +382,8 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                   createEditNewsModel.fieldControllerTitle.text,
                                   createEditNewsModel.fieldControllerSubTitle.text,
                                   createEditNewsModel.fieldControllerDescription.text,
+                                  createEditNewsModel.newsImageUrlTemp,
+                                  createEditNewsModel.newsShowTimestampEnVar,
                                 ).then((_) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(

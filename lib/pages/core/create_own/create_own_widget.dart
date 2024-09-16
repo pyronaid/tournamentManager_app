@@ -22,8 +22,8 @@ class CreateOwnWidget extends StatefulWidget {
 class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderStateMixin {
   late CreateOwnModel _model;
 
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _formKey = GlobalKey<FormState>();
   final animationsMap = <String, AnimationInfo>{};
 
 
@@ -71,7 +71,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
           ? FocusScope.of(context).requestFocus(_model.unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
-        key: scaffoldKey,
+        key: _scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
@@ -236,7 +236,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                     //FORM
                     /////////////////
                     Form(
-                      key: _model.formKey,
+                      key: _formKey,
                       autovalidateMode: AutovalidateMode.disabled,
                       child: Column(
                           mainAxisSize: MainAxisSize.max,
@@ -531,8 +531,8 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                           FocusScope.of(context).unfocus();
                           logFirebaseEvent('ONBOARDING_CREATE_OWN_CREATE_OWN');
                           logFirebaseEvent('Button_validate_form');
-                          if (_model.formKey.currentState == null ||
-                              !_model.formKey.currentState!.validate()) {
+                          if (_formKey.currentState == null ||
+                              !_formKey.currentState!.validate()) {
                             return;
                           }
                           logFirebaseEvent('Button_haptic_feedback');

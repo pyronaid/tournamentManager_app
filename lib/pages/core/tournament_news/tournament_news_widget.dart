@@ -28,7 +28,8 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> with Ticker
 
   late TournamentNewsModel tournamentNewsModel;
   late TournamentModel tournamentModel;
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -60,7 +61,7 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> with Ticker
           }
 
           return Scaffold(
-            key: scaffoldKey,
+            key: _scaffoldKey,
             backgroundColor: CustomFlowTheme.of(context).primaryBackground,
             floatingActionButton: FloatingActionButton.extended(
               elevation: 4.0,

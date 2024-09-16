@@ -13,8 +13,6 @@ class NewsModel extends ChangeNotifier {
   final String? newsRef;
   late NewsRecord? newsRefObj;
   bool isLoading = true;
-  bool newsShowTimestampEnTemp = false;
-  String? _newsImageUrlTemp;
 
   NewsModel({required this.tournamentsRef, required this.newsRef}){
     fetchObjectUsingId();
@@ -35,13 +33,10 @@ class NewsModel extends ChangeNotifier {
     return newsRefObj != null ? newsRefObj!.description : "";
   }
   bool get newsShowTimestampEn{
-    return newsRefObj != null ? newsRefObj!.showTimestampEn : newsShowTimestampEnTemp;
+    return newsRefObj != null ? newsRefObj!.showTimestampEn : false;
   }
   String? get newsImageUrl{
     return newsRefObj?.imageNewsUrl;
-  }
-  String? get newsImageUrlTemp{
-    return _newsImageUrlTemp;
   }
   String? get newsId{
     return newsRef;
@@ -49,35 +44,22 @@ class NewsModel extends ChangeNotifier {
 
 
   /////////////////////////////SETTER
-  void switchTournamentWaitingListEn() async {
-    newsShowTimestampEnTemp = !newsShowTimestampEnTemp;
-    notifyListeners();
-  }
-  Future<void> setNewsImage(bool saveWayEn) async{
-    bool? isCamera = true; //TO FIX WITH DIALOG FUNCTION
-    XFile? imageFile = await ImagePickerService().pickCropImage(
-        cropAspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
-        imageSource: ImageSource.camera
-    );
-    if(imageFile != null) {
-      _newsImageUrlTemp = imageFile.path;
-      notifyListeners();
-    }
-  }
   Future<void> saveNews(
       String newsTitle,
       String newsSubTitle,
-      String newsDescription) async {
+      String newsDescription,
+      String? newsImageUrlTemp,
+      bool newsShowTimestampEnTemp) async {
     Map<String, dynamic> ownNews = createNewsRecordData(
       tournament_uid: tournamentsRef,
       title: newsTitle,
       description: newsDescription,
       creator_uid: currentUser!.uid,
-      show_timestamp_en: newsShowTimestampEn,
-      image_news_url: _newsImageUrlTemp,
+      show_timestamp_en: newsShowTimestampEnTemp,
+      image_news_url: newsImageUrlTemp,
     );
     DocumentReference documentReferenceNews = await NewsRecord.collection(tournamentsRef!).add(ownNews);
-    if(_newsImageUrlTemp != null) {
+    if(newsImageUrlTemp != null) {
       /*
       String? url = await FirestorageUtilData.uploadImageToStorage(
           "users/$tournamentOwner/$tournamentsRef/news/$newsId/newsImage",
@@ -109,7 +91,6 @@ class NewsModel extends ChangeNotifier {
     if(tournamentsRef != null && (newsRef != null && newsRef != "NEW")) {
       NewsRecord.getDocument(NewsRecord.collection(tournamentsRef!).doc(newsRef)).listen((snapshot) {
         newsRefObj = snapshot;
-        newsShowTimestampEnTemp = newsRefObj!.showTimestampEn;
         notifyListeners();
       });
     } else {
