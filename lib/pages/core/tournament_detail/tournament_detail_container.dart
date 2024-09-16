@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_model.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_widget.dart';
+import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
 import '../../../app_flow/nav/serialization_util.dart';
 import '../../../backend/firebase_analytics/analytics.dart';
@@ -36,8 +37,9 @@ class _TournamentDetailContainerState extends State<TournamentDetailContainer> w
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => TournamentDetailModel(tournamentsRef: widget.tournamentsRef),
+    return ChangeNotifierProxyProvider<TournamentModel, TournamentDetailModel>(
+      create: (_) => TournamentDetailModel(tournamentModel: Provider.of<TournamentModel>(_, listen: false)),
+      update: (_, tournamentModelRef, tournamentDetailModelRef) => TournamentDetailModel(tournamentModel: tournamentModelRef),
       builder: (context, child) {
         return const TournamentDetailWidget();
       }

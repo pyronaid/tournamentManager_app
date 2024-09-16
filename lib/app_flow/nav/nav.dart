@@ -157,18 +157,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               path: 'create-edit-news/:newsId',
               requireAuth: true,
               builder: (context, params) => CreateEditNewsContainer(
-                tournamentsRef: params.getParam(
-                  'tournamentsRef',
-                  ParamType.String,
-                ),
-                newsRef: params.getParam(
-                  'newsRef',
-                  ParamType.String,
-                ),
-                createEditFlag: params.getParam(
-                  'createEditFlag',
-                  ParamType.bool,
-                ),
+                tournamentsRef: params.getParam('tournamentId', ParamType.String,),
+                newsRef: params.getParam('newsId', ParamType.String,),
+                createEditFlag: params.getParam('createEditFlag', ParamType.bool,),
               ),
             ),
             CustomRoute(

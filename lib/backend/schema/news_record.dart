@@ -44,11 +44,20 @@ class NewsRecord extends FirestoreRecord {
   // "imageUrl" field.
   String? _imageNewsUrl;
   String? get imageNewsUrl => _imageNewsUrl;
+  Future<void> setImage(String newImage) async {
+    _imageNewsUrl = newImage;
+    await updateField(tournamentUid, uid, "image_news_url", newImage);
+  }
   bool hasImageNewsUrl() => _imageNewsUrl != null;
 
   bool _showTimestampEn = false;
   bool get showTimestampEn => _showTimestampEn;
   bool hasShowTimestampEn() => _showTimestampEn;
+
+  // "uid" field.
+  String? _creatorUid;
+  String get creatorUid => _creatorUid ?? '';
+  bool hasCreatorUid() => _creatorUid != null;
 
   void _initializeFields() {
     _uid = snapshotData['uid'] as String?;
@@ -57,17 +66,29 @@ class NewsRecord extends FirestoreRecord {
     _subTitle = snapshotData['sub_title'];
     _description = snapshotData['description'];
     _imageNewsUrl = snapshotData['image_news_url'];
+    _creatorUid = snapshotData['creator_uid'];
     _timestamp = snapshotData['timestamp'] as Timestamp?;
+    _showTimestampEn = snapshotData['show_timestamp_en'];
   }
 
-  static CollectionReference get collection =>
-      FirebaseFirestore.instance.collection('rounds');
+  static CollectionReference collection(String tournamentRef) =>
+      FirebaseFirestore.instance.collection('tournaments').doc(tournamentRef).collection('rounds');
 
   static Stream<NewsRecord> getDocument(DocumentReference ref) =>
       ref.snapshots().map((s) => NewsRecord.fromSnapshot(s));
 
   static Future<NewsRecord> getDocumentOnce(DocumentReference ref) =>
       ref.get().then((s) => NewsRecord.fromSnapshot(s));
+
+  static Future<void> updateField(String idT, String idN, String fieldName, dynamic newValue) async {
+    try {
+      await collection(idT).doc(idN).update({
+        fieldName: newValue,
+      });
+    } catch (e) {
+      print("Failed to update field: $e");
+    }
+  }
 
   static NewsRecord fromSnapshot(DocumentSnapshot snapshot) => NewsRecord._(
     snapshot.reference,
@@ -96,10 +117,12 @@ class NewsRecord extends FirestoreRecord {
 Map<String, dynamic> createNewsRecordData({
   String? uid,
   required String? tournament_uid,
-  String? title,
+  required String? title,
   String? sub_title,
-  String? description,
+  required String? description,
   String? image_news_url,
+  required String? creator_uid,
+  bool show_timestamp_en = false,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -110,6 +133,8 @@ Map<String, dynamic> createNewsRecordData({
       'description': description,
       'image_news_url': image_news_url,
       'timestamp': Timestamp.now(),
+      'creator_uid': creator_uid,
+      'show_timestamp_en' : show_timestamp_en,
     }.withoutNulls,
   );
 
@@ -128,6 +153,7 @@ class NewsRecordDocumentEquality implements Equality<NewsRecord> {
         e1?.subTitle == e2?.subTitle &&
         e1?.description == e2?.description &&
         e1?.imageNewsUrl == e2?.imageNewsUrl &&
+        e1?.creatorUid == e2?.creatorUid &&
         e1?.timestamp == e2?.timestamp;
   }
 
@@ -140,6 +166,7 @@ class NewsRecordDocumentEquality implements Equality<NewsRecord> {
     e?.description,
     e?.imageNewsUrl,
     e?.timestamp,
+    e?.creatorUid
   ]);
 
   @override

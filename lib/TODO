@@ -118,3 +118,11 @@ TO DO LIST AFTER PUBLISHING ON PLAYSTORE
 - Replace Debug in project lib/backend/firebase/firebase_config.dart:14 with playIntegrity
 - Link project in play store
 - do the same for web and ios
+
+
+
+SERVICE LOADER
+    ImagePickerService
+    DialogService
+    MailControllerValidatorService
+    ToastService

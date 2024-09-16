@@ -168,6 +168,11 @@ extension TextValidationExtensions on String? Function(BuildContext, String?)? {
       this != null ? (val) => this!(context, val) : null;
 }
 
+extension TextCheckOldValidationExtensions on String? Function(BuildContext, String?, String?)? {
+  String? Function(String?)? asValidator(BuildContext context, String? valOld) =>
+      this != null ? (val) => this!(context, val, valOld) : null;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////

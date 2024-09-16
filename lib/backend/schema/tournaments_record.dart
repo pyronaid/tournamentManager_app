@@ -256,6 +256,7 @@ class TournamentsRecordDocumentEquality implements Equality<TournamentsRecord> {
         e1?.preRegistrationEn == e2?.preRegistrationEn &&
         e1?.waitingListEn == e2?.waitingListEn &&
         e1?.state == e2?.state &&
+        e1?.creatorUid == e2?.creatorUid &&
         listEquality.equals(e1?.roundList, e2?.roundList) &&
         listEquality.equals(e1?.standingList, e2?.standingList) &&
         listEquality.equals(e1?.preRegisteredList, e2?.preRegisteredList) &&
@@ -278,7 +279,8 @@ class TournamentsRecordDocumentEquality implements Equality<TournamentsRecord> {
     e?.standingList,
     e?.preRegisteredList,
     e?.waitingList,
-    e?.registeredList
+    e?.registeredList,
+    e?.creatorUid
   ]);
 
   @override

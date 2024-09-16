@@ -4,6 +4,7 @@ import 'package:tournamentmanager/backend/schema/news_record.dart';
 
 import '../../../backend/firebase_analytics/analytics.dart';
 import '../../../backend/schema/tournaments_record.dart';
+import '../../nav_bar/news_model.dart';
 import 'create_edit_news_model.dart';
 import 'create_edit_news_widget.dart';
 
@@ -15,8 +16,8 @@ class CreateEditNewsContainer extends StatefulWidget {
     required this.createEditFlag,
   });
 
-  final TournamentsRecord? tournamentsRef;
-  final NewsRecord? newsRef;
+  final String? tournamentsRef;
+  final String? newsRef;
   final bool createEditFlag;
 
   @override
@@ -29,7 +30,7 @@ class _CreateEditNewsContainerState extends State<CreateEditNewsContainer> with 
   void initState() {
     super.initState();
 
-    logFirebaseEvent('screen_view', parameters: {'screen_name': 'CreateNews'});
+    logFirebaseEvent('screen_view', parameters: {'screen_name': 'CreateEditNews'});
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }
 
@@ -40,11 +41,19 @@ class _CreateEditNewsContainerState extends State<CreateEditNewsContainer> with 
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => CreateEditNewsModel(tournamentsRef: widget.tournamentsRef, newsRef: widget.newsRef, saveWay: widget.createEditFlag),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CreateEditNewsModel>(
+          create: (context) => CreateEditNewsModel(saveWay: widget.createEditFlag),
+        ),
+        // You can add more providers here if needed, for example:
+        ChangeNotifierProvider<NewsModel>(
+         create: (context) => NewsModel(tournamentsRef: widget.tournamentsRef, newsRef: widget.newsRef),
+        ),
+      ],
       builder: (context, child) {
         return const CreateEditNewsWidget();
-      }
+      },
     );
   }
 }

@@ -11,6 +11,7 @@ import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_util.dart';
 import '../../../backend/schema/tournaments_record.dart';
 import '../../../components/standard_graphics/standard_graphics_widgets.dart';
+import '../../nav_bar/tournament_model.dart';
 
 class TournamentDetailWidget extends StatefulWidget {
   const TournamentDetailWidget({super.key});
@@ -23,6 +24,7 @@ class TournamentDetailWidget extends StatefulWidget {
 class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with TickerProviderStateMixin {
 
   late TournamentDetailModel tournamentDetailModel;
+  late TournamentModel tournamentModel;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -32,6 +34,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
     //logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentDetail'});
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
 
+    tournamentModel = context.read<TournamentModel>();
     tournamentDetailModel = context.read<TournamentDetailModel>();
   }
 
@@ -45,19 +48,21 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
 
     return GestureDetector(
       onTap: () => tournamentDetailModel.unfocusNode.canRequestFocus
-      ? FocusScope.of(context).requestFocus(tournamentDetailModel.unfocusNode)
-      : FocusScope.of(context).unfocus(),
+          ? FocusScope.of(context).requestFocus(tournamentDetailModel.unfocusNode)
+          : FocusScope.of(context).unfocus(),
       child: Scaffold(
-          key: scaffoldKey,
-          backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-          body: SafeArea(
+        key: scaffoldKey,
+        backgroundColor: CustomFlowTheme.of(context).primaryBackground,
+        body: SafeArea(
           top: true,
           child:  SingleChildScrollView(
-            child: Consumer<TournamentDetailModel>(
-              builder: (context, provider, _){
-                if(provider.isLoading){
+            child: Consumer<TournamentModel>(
+              builder: (context, providerTournament, _){
+                print("[REBUILD IN CORSO] tournament_detail_widget.dart");
+                if(tournamentModel.isLoading){
                   return const Center(child: CircularProgressIndicator());
                 }
+
                 return Column(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -77,7 +82,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                             // Background Image
                             Positioned.fill(
                               child: Image.asset(
-                                provider.tournamentGame.resource,
+                                providerTournament.tournamentGame.resource,
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -114,17 +119,17 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                             ),
                                             child: CircleAvatar(
                                               radius: 61,
-                                              backgroundImage: tournamentDetailModel.tournamentImageUrl == null ? const AssetImage('assets/images/icons/default_tournament.png') : NetworkImage(provider.tournamentImageUrl!),
+                                              backgroundImage: tournamentModel.tournamentImageUrl == null ? const AssetImage('assets/images/icons/default_tournament.png') : NetworkImage(providerTournament.tournamentImageUrl!),
                                             ),
                                           ),
-                                          if(tournamentDetailModel.tournamentInteractPossible)
+                                          if(tournamentModel.tournamentInteractPossible)
                                             Positioned(
                                               bottom: 5,
                                               right: 0,
                                               child: InkWell(
                                                 onTap: () async {
                                                   // Add your image change logic here
-                                                  tournamentDetailModel.setTournamentImage();
+                                                  tournamentModel.setTournamentImage();
                                                 },
                                                 borderRadius: BorderRadius.circular(61), // Optional: To match the CircleAvatar shape
                                                 child: CircleAvatar(
@@ -153,17 +158,17 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                                 children: [
                                                   Flexible(
                                                     child: Text(
-                                                      provider.tournamentName,
+                                                      providerTournament.tournamentName,
                                                       style: CustomFlowTheme.of(context).titleLarge,
                                                       textAlign: TextAlign.center,
                                                     ),
                                                   ),
-                                                  if(tournamentDetailModel.tournamentInteractPossible)
+                                                  if(tournamentModel.tournamentInteractPossible)
                                                     Padding(
                                                       padding: const EdgeInsetsDirectional.fromSTEB(5, 0, 0, 20),
                                                       child: InkWell(
                                                         onTap: () {
-                                                          _showChangeTournamentNameDialog(context, tournamentDetailModel);
+                                                          _showChangeTournamentNameDialog(context);
                                                         },
                                                         borderRadius: BorderRadius.circular(61), // Optional: To match the CircleAvatar shape
                                                         child: CircleAvatar(
@@ -195,7 +200,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                                 children: [
                                                   Flexible(
                                                     child: Text(
-                                                      provider.tournamentGame.desc,
+                                                      providerTournament.tournamentGame.desc,
                                                       style: CustomFlowTheme.of(context).titleSmall,
                                                       textAlign: TextAlign.center,
                                                     ),
@@ -226,13 +231,13 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.end,
                                           children: [
-                                            if(tournamentDetailModel.tournamentPreRegistrationEn)
+                                            if(tournamentModel.tournamentPreRegistrationEn)
                                               Text.rich(
                                                 textAlign: TextAlign.right,
                                                 TextSpan(
                                                     children: [
                                                       TextSpan(
-                                                        text: provider.tournamentPreRegisteredSize.toString(),
+                                                        text: providerTournament.tournamentPreRegisteredSize.toString(),
                                                         style: CustomFlowTheme.of(context).headlineSmall,
                                                       ),
                                                       TextSpan(
@@ -242,13 +247,13 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                                     ]
                                                 ),
                                               ),
-                                            if(tournamentDetailModel.tournamentWaitingListEn)
+                                            if(tournamentModel.tournamentWaitingListEn)
                                               Text.rich(
                                                 textAlign: TextAlign.right,
                                                 TextSpan(
                                                     children: [
                                                       TextSpan(
-                                                        text: provider.tournamentWaitingListSize.toString(),
+                                                        text: providerTournament.tournamentWaitingListSize.toString(),
                                                         style: CustomFlowTheme.of(context).headlineSmall,
                                                       ),
                                                       TextSpan(
@@ -263,7 +268,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                               TextSpan(
                                                   children: [
                                                     TextSpan(
-                                                      text: provider.tournamentRegisteredSize.toString(),
+                                                      text: providerTournament.tournamentRegisteredSize.toString(),
                                                       style: CustomFlowTheme.of(context).headlineSmall,
                                                     ),
                                                     TextSpan(
@@ -307,19 +312,19 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                           child: DropdownButton<String>(
                             alignment: Alignment.center,
                             padding: const EdgeInsetsDirectional.fromSTEB(0, 5, 0, 5),
-                            value: provider.tournamentState.name,
+                            value: providerTournament.tournamentState.name,
                             isExpanded: true,
                             icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
                             iconSize: 30,
                             onChanged: (String? newValue){
                               if (newValue != null) {
-                                _showChangeTournamentStateDialog(context, tournamentDetailModel, newValue);
+                                _showChangeTournamentStateDialog(context, newValue);
                               }
                             },
                             underline: const SizedBox(), // Remove the default underline
                             items: StateTournament.values
                                 .where((StateTournament state){
-                              if(state.indexState == 0 || state.indexState > (provider.tournamentState.indexState+1) || state.indexState < (provider.tournamentState.indexState-1)){
+                              if(state.indexState == 0 || state.indexState > (providerTournament.tournamentState.indexState+1) || state.indexState < (providerTournament.tournamentState.indexState-1)){
                                 return false;
                               }
                               return true;
@@ -330,7 +335,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                 child: Text(
                                   state.desc,
                                   style: TextStyle(
-                                    color: state.indexState == provider.tournamentState.indexState ? CustomFlowTheme.of(context).primary : CustomFlowTheme.of(context).info,
+                                    color: state.indexState == providerTournament.tournamentState.indexState ? CustomFlowTheme.of(context).primary : CustomFlowTheme.of(context).info,
                                   ),
                                 ),
                               );
@@ -338,7 +343,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                             selectedItemBuilder: (BuildContext context) {
                               return StateTournament.values
                                   .where((StateTournament state){
-                                if(state.indexState == 0 || state.indexState > (provider.tournamentState.indexState+1) || state.indexState < (provider.tournamentState.indexState-1)){
+                                if(state.indexState == 0 || state.indexState > (providerTournament.tournamentState.indexState+1) || state.indexState < (providerTournament.tournamentState.indexState-1)){
                                   return false;
                                 }
                                 return true;
@@ -370,15 +375,15 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(tournamentDetailModel.tournamentInteractPossible) {
-                              _showChangeTournamentDatePicker(context, tournamentDetailModel);
+                            if(tournamentModel.tournamentInteractPossible) {
+                              _showChangeTournamentDatePicker(context, tournamentModel);
                             }
                           },
                           child: Container(
                             width: 33.w,
                             height: 30.sp,
                             decoration: BoxDecoration(
-                              color: tournamentDetailModel.tournamentInteractPossible ? CustomFlowTheme.of(context).info : Colors.grey,
+                              color: tournamentModel.tournamentInteractPossible ? CustomFlowTheme.of(context).info : Colors.grey,
                               border: Border.all(
                                 color: CustomFlowTheme.of(context).alternate,
                                 width: 1,
@@ -402,9 +407,9 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                       ),
                                       const SizedBox(height: 1),
                                       Text(
-                                        DateFormat('dd/MM/yy').format(provider.tournamentDate!),
+                                        DateFormat('dd/MM/yy').format(providerTournament.tournamentDate!),
                                         style: CustomFlowTheme.of(context).labelLarge.override(
-                                          color: tournamentDetailModel.tournamentInteractPossible ? Colors.grey : Colors.black,
+                                          color: tournamentModel.tournamentInteractPossible ? Colors.grey : Colors.black,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
@@ -425,15 +430,15 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(tournamentDetailModel.tournamentInteractPossible) {
-                              _showChangeTournamentCapacityDialog(context, tournamentDetailModel);
+                            if(tournamentModel.tournamentInteractPossible) {
+                              _showChangeTournamentCapacityDialog(context);
                             }
                           },
                           child: Container(
                             width: 33.w,
                             height: 30.sp,
                             decoration: BoxDecoration(
-                              color: tournamentDetailModel.tournamentInteractPossible ? CustomFlowTheme.of(context).info : Colors.grey,
+                              color: tournamentModel.tournamentInteractPossible ? CustomFlowTheme.of(context).info : Colors.grey,
                               border: Border.all(
                                 color: CustomFlowTheme.of(context).alternate,
                                 width: 1,
@@ -457,9 +462,9 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                       ),
                                       const SizedBox(height: 1),
                                       Text(
-                                        provider.tournamentCapacity,
+                                        providerTournament.tournamentCapacity,
                                         style: CustomFlowTheme.of(context).labelLarge.override(
-                                          color: tournamentDetailModel.tournamentInteractPossible ? Colors.grey : Colors.black,
+                                          color: tournamentModel.tournamentInteractPossible ? Colors.grey : Colors.black,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
@@ -488,8 +493,8 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(tournamentDetailModel.tournamentInteractPossible) {
-                              _showSwitchPreIscrizioniDialog(context, tournamentDetailModel);
+                            if(tournamentModel.tournamentInteractPossible) {
+                              _showSwitchPreIscrizioniDialog(context);
                             }
                           },
                           child: Container(
@@ -500,8 +505,8 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  tournamentDetailModel.tournamentInteractPossible ? CustomFlowTheme.of(context).info : Colors.grey,
-                                  tournamentDetailModel.tournamentPreRegistrationEn ? CustomFlowTheme.of(context).success : CustomFlowTheme.of(context).warning,
+                                  tournamentModel.tournamentInteractPossible ? CustomFlowTheme.of(context).info : Colors.grey,
+                                  tournamentModel.tournamentPreRegistrationEn ? CustomFlowTheme.of(context).success : CustomFlowTheme.of(context).warning,
                                 ],
                               ),
                               color: CustomFlowTheme.of(context).info,
@@ -532,7 +537,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                       ),
                                       const SizedBox(height: 1),
                                       Text(
-                                        provider.tournamentPreRegistrationEn.toString(),
+                                        providerTournament.tournamentPreRegistrationEn.toString(),
                                         style: CustomFlowTheme.of(context).labelLarge.override(color: Colors.grey.shade900),
                                         textAlign: TextAlign.center,
                                       ),
@@ -548,8 +553,8 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(tournamentDetailModel.tournamentWaitingListPossible) {
-                              _showSwitchWaitingListDialog(context, tournamentDetailModel);
+                            if(tournamentModel.tournamentWaitingListPossible) {
+                              _showSwitchWaitingListDialog(context);
                             }
                           },
                           child: Container(
@@ -560,8 +565,8 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  tournamentDetailModel.tournamentWaitingListPossible ? CustomFlowTheme.of(context).info : Colors.grey,
-                                  tournamentDetailModel.tournamentWaitingListEn ? CustomFlowTheme.of(context).success : CustomFlowTheme.of(context).warning,
+                                  tournamentModel.tournamentWaitingListPossible ? CustomFlowTheme.of(context).info : Colors.grey,
+                                  tournamentModel.tournamentWaitingListEn ? CustomFlowTheme.of(context).success : CustomFlowTheme.of(context).warning,
                                 ],
                               ),
                               color: CustomFlowTheme.of(context).info,
@@ -592,7 +597,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
                                       ),
                                       const SizedBox(height: 1),
                                       Text(
-                                        provider.tournamentWaitingListEn.toString(),
+                                        providerTournament.tournamentWaitingListEn.toString(),
                                         style: CustomFlowTheme.of(context).labelLarge.override(color: Colors.grey.shade900),
                                         textAlign: TextAlign.center,
                                       ),
@@ -668,96 +673,31 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with Ti
 //////////////////////////// FUNCTIONS
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
-Future<void> _showChangeTournamentNameDialog(BuildContext context, TournamentDetailModel tournamentDetailModel) async {
+Future<void> _showChangeTournamentNameDialog(BuildContext context) async {
   // show the dialog
   await showDialog(
-    context: context,
-    builder: (dialogContext) => ChangeNotifierProvider.value(
-      value: Provider.of<TournamentDetailModel>(context, listen: false),
-      child: AlertDialog(
-        title: const Text('Modifica Nome Torneo'),
-        content: Form(
-          key: tournamentDetailModel.formKeyName,
-          autovalidateMode: AutovalidateMode.disabled,
-          child: TextFormField(
-            controller: tournamentDetailModel.fieldControllerName,
-            focusNode: tournamentDetailModel.tournamentNameFocusNode,
-            autofocus: false,
-            autofillHints: const [AutofillHints.name],
-            textCapitalization: TextCapitalization.words,
-            textInputAction: TextInputAction.next,
-            obscureText: false,
-            decoration: standardInputDecoration(
-              context,
-              prefixIcon: Icon(
-                Icons.style,
-                color: CustomFlowTheme.of(context).secondaryText,
-                size: 18,
-              ),
-            ),
-            style: CustomFlowTheme.of(context).bodyLarge.override(
-              fontWeight: FontWeight.w500,
-              lineHeight: 1,
-            ),
-            minLines: 1,
-            cursorColor: CustomFlowTheme.of(context).primary,
-            validator: tournamentDetailModel.tournamentNameTextControllerValidator.asValidator(dialogContext),
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop(); // Dismiss the dialog
-            },
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Handle saving the new value
-              String newTournamentName = tournamentDetailModel.fieldControllerName.text;
-              logFirebaseEvent('Button_validate_form');
-              if (tournamentDetailModel.formKeyName.currentState == null ||
-                  !tournamentDetailModel.formKeyName.currentState!.validate()) {
-                return;
-              }
-              tournamentDetailModel.setTournamentName(newTournamentName);
-              Navigator.of(dialogContext).pop(); // Dismiss the dialog
-            },
-            child: const Text('Salva'),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-Future<void> _showChangeTournamentCapacityDialog(BuildContext context, TournamentDetailModel tournamentDetailModel) async {
-  // show the dialog
-  await showDialog(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: const Text('Modifica Capienza Torneo'),
-      content: Form(
-        key: tournamentDetailModel.formKeyCapacity,
-        autovalidateMode: AutovalidateMode.disabled,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextFormField(
-              controller: tournamentDetailModel.fieldControllerCapacity,
-              focusNode: tournamentDetailModel.tournamentCapacityFocusNode,
+      context: context,
+      builder: (_) {
+        var tournamentModel = context.read<TournamentModel>();
+        var tournamentDetailModel = context.read<TournamentDetailModel>();
+        tournamentDetailModel.setFieldControllerName(tournamentModel.tournamentName);
+        return AlertDialog(
+          title: const Text('Modifica Nome Torneo'),
+          content: Form(
+            key: tournamentDetailModel.formKeyName,
+            autovalidateMode: AutovalidateMode.disabled,
+            child: TextFormField(
+              controller: tournamentDetailModel.fieldControllerName,
+              focusNode: tournamentDetailModel.tournamentNameFocusNode,
               autofocus: false,
-              keyboardType: TextInputType.number,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly
-              ],
+              autofillHints: const [AutofillHints.name],
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.next,
               obscureText: false,
               decoration: standardInputDecoration(
                 context,
                 prefixIcon: Icon(
-                  Icons.reduce_capacity,
+                  Icons.style,
                   color: CustomFlowTheme.of(context).secondaryText,
                   size: 18,
                 ),
@@ -768,151 +708,223 @@ Future<void> _showChangeTournamentCapacityDialog(BuildContext context, Tournamen
               ),
               minLines: 1,
               cursorColor: CustomFlowTheme.of(context).primary,
-              validator: tournamentDetailModel.tournamentCapacityTextControllerValidator.asValidator(dialogContext),
+              validator: tournamentDetailModel.tournamentNameTextControllerValidator?.asValidator(context, tournamentModel.tournamentName),
             ),
-            const SizedBox(height: 20),
-            Text(
-              "Utilizza lo 0 se non vuoi impostare un limite alla capacità del torneo",
-              style: CustomFlowTheme.of(context).labelMedium,
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Handle saving the new value
+                String newTournamentName = tournamentDetailModel.fieldControllerName.text;
+                logFirebaseEvent('Button_validate_form');
+                if (tournamentDetailModel.formKeyName.currentState == null ||
+                    !tournamentDetailModel.formKeyName.currentState!.validate()) {
+                  return;
+                }
+                tournamentModel.setTournamentName(newTournamentName);
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: const Text('Salva'),
             ),
           ],
-        ),
-      ),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () {
-            Navigator.of(dialogContext).pop(); // Dismiss the dialog
-          },
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            // Handle saving the new value
-            String newTournamentCapacity = tournamentDetailModel.fieldControllerCapacity.text;
-            logFirebaseEvent('Button_validate_form');
-            if (tournamentDetailModel.formKeyCapacity.currentState == null ||
-                !tournamentDetailModel.formKeyCapacity.currentState!.validate()) {
-              return;
-            }
-            tournamentDetailModel.setTournamentCapacity(newTournamentCapacity);
-            Navigator.of(dialogContext).pop(); // Dismiss the dialog
-          },
-          child: const Text('Salva'),
-        ),
-      ],
-    ),
+        );
+      }
   );
 }
 
-Future<void> _showChangeTournamentDatePicker(BuildContext context, TournamentDetailModel tournamentDetailModel) async {
+Future<void> _showChangeTournamentCapacityDialog(BuildContext context) async {
+  // show the dialog
+  await showDialog(
+      context: context,
+      builder: (_) {
+        var tournamentModel = context.read<TournamentModel>();
+        var tournamentDetailModel = context.read<TournamentDetailModel>();
+        tournamentDetailModel.setFieldControllerCapacity(tournamentModel.tournamentCapacity);
+        return AlertDialog(
+          title: const Text('Modifica Capienza Torneo'),
+          content: Form(
+            key: tournamentDetailModel.formKeyCapacity,
+            autovalidateMode: AutovalidateMode.disabled,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: tournamentDetailModel.fieldControllerCapacity,
+                  focusNode: tournamentDetailModel.tournamentCapacityFocusNode,
+                  autofocus: false,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
+                  textCapitalization: TextCapitalization.words,
+                  textInputAction: TextInputAction.next,
+                  obscureText: false,
+                  decoration: standardInputDecoration(
+                    context,
+                    prefixIcon: Icon(
+                      Icons.reduce_capacity,
+                      color: CustomFlowTheme.of(context).secondaryText,
+                      size: 18,
+                    ),
+                  ),
+                  style: CustomFlowTheme.of(context).bodyLarge.override(
+                    fontWeight: FontWeight.w500,
+                    lineHeight: 1,
+                  ),
+                  minLines: 1,
+                  cursorColor: CustomFlowTheme.of(context).primary,
+                  validator: tournamentDetailModel.tournamentCapacityTextControllerValidator.asValidator(context, tournamentModel.tournamentCapacity),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  "Utilizza lo 0 se non vuoi impostare un limite alla capacità del torneo",
+                  style: CustomFlowTheme.of(context).labelMedium,
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Handle saving the new value
+                String newTournamentCapacity = tournamentDetailModel.fieldControllerCapacity.text;
+                logFirebaseEvent('Button_validate_form');
+                if (tournamentDetailModel.formKeyCapacity.currentState == null ||
+                    !tournamentDetailModel.formKeyCapacity.currentState!.validate()) {
+                  return;
+                }
+                tournamentModel.setTournamentCapacity(newTournamentCapacity);
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: const Text('Salva'),
+            ),
+          ],
+        );
+      }
+  );
+}
+
+Future<void> _showChangeTournamentDatePicker(BuildContext context, TournamentModel tournamentModel) async {
   // show the dialog
   DateTime? pickedDate = await showDatePicker(
     context: context,
-    initialDate: tournamentDetailModel.tournamentDate ?? DateTime.now(),
+    initialDate: tournamentModel.tournamentDate ?? DateTime.now(),
     firstDate: DateTime.now(),
     lastDate: DateTime(2101),
   );
 
   if(pickedDate != null) {
-    tournamentDetailModel.setTournamentData(pickedDate);
+    tournamentModel.setTournamentData(pickedDate);
   }
 }
 
-Future<void> _showSwitchPreIscrizioniDialog(BuildContext context, TournamentDetailModel tournamentDetailModel) async {
+Future<void> _showSwitchPreIscrizioniDialog(BuildContext context) async {
   // show the dialog
   await showDialog(
-    context: context,
-    builder: (_) => ChangeNotifierProvider.value(
-      value: Provider.of<TournamentDetailModel>(context),
-      child: AlertDialog(
-        title: const Text('Switch Pre-Iscrizioni'),
-        content: Text(
-          "Confermando ${tournamentDetailModel.tournamentPreRegistrationEn ? "disabiliterai" : "abiliterai"} la possibilità ai giocatori di pre-iscriversi. ${tournamentDetailModel.tournamentPreRegistrationEn ? "Qualora ci fossero già giocatori pre-iscritti questi verranno eliminati e se in futuro deciderai di riabilitarla dovranno rieffettuare l'azione" : ""}",
-          style: CustomFlowTheme.of(context).labelMedium,
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Dismiss the dialog
-            },
-            child: const Text('Cancel'),
+      context: context,
+      builder: (_) {
+        var tournamentModel = context.read<TournamentModel>();
+        return AlertDialog(
+          title: const Text('Switch Pre-Iscrizioni'),
+          content: Text(
+            "Confermando ${tournamentModel.tournamentPreRegistrationEn ? "disabiliterai" : "abiliterai"} la possibilità ai giocatori di pre-iscriversi. ${tournamentModel.tournamentPreRegistrationEn ? "Qualora ci fossero già giocatori pre-iscritti questi verranno eliminati e se in futuro deciderai di riabilitarla dovranno rieffettuare l'azione" : ""}",
+            style: CustomFlowTheme.of(context).labelMedium,
           ),
-          ElevatedButton(
-            onPressed: () {
-              // Handle saving the new value
-              tournamentDetailModel.switchTournamentPreIscrizioniEn();
-              Navigator.of(context).pop(); // Dismiss the dialog
-            },
-            child: const Text('Continua'),
-          ),
-        ],
-      ),
-    ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Handle saving the new value
+                tournamentModel.switchTournamentPreIscrizioniEn();
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: const Text('Continua'),
+            ),
+          ],
+        );
+      }
   );
 }
 
-Future<void> _showSwitchWaitingListDialog(BuildContext context, TournamentDetailModel tournamentDetailModel) async {
+Future<void> _showSwitchWaitingListDialog(BuildContext context) async {
   // show the dialog
   await showDialog(
-    context: context,
-    builder: (_) => ChangeNotifierProvider.value(
-      value: Provider.of<TournamentDetailModel>(context),
-      child: AlertDialog(
-        title: const Text('Switch Pre-Iscrizioni'),
-        content: Text(
-          "Confermando ${tournamentDetailModel.tournamentWaitingListEn ? "disabiliterai" : "abiliterai"} la possibilità ai giocatori di aggiungersi in waiting list una volta che la capacità del torneo è stata raggiunta. ${tournamentDetailModel.tournamentWaitingListEn ? "Qualora ci fossero già giocatori in waiting-list questi verranno eliminati e se in futuro deciderai di riabilitarla dovranno rieffettuare l'azione" : ""}",
-          style: CustomFlowTheme.of(context).labelMedium,
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Dismiss the dialog
-            },
-            child: const Text('Cancel'),
+      context: context,
+      builder: (_) {
+        var tournamentModel = context.read<TournamentModel>();
+        return AlertDialog(
+          title: const Text('Switch Pre-Iscrizioni'),
+          content: Text(
+            "Confermando ${tournamentModel.tournamentWaitingListEn ? "disabiliterai" : "abiliterai"} la possibilità ai giocatori di aggiungersi in waiting list una volta che la capacità del torneo è stata raggiunta. ${tournamentModel.tournamentWaitingListEn ? "Qualora ci fossero già giocatori in waiting-list questi verranno eliminati e se in futuro deciderai di riabilitarla dovranno rieffettuare l'azione" : ""}",
+            style: CustomFlowTheme.of(context).labelMedium,
           ),
-          ElevatedButton(
-            onPressed: () {
-              // Handle saving the new value
-              tournamentDetailModel.switchTournamentWaitingListEn();
-              Navigator.of(context).pop(); // Dismiss the dialog
-            },
-            child: const Text('Continua'),
-          ),
-        ],
-      ),
-    ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Handle saving the new value
+                tournamentModel.switchTournamentWaitingListEn();
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: const Text('Continua'),
+            ),
+          ],
+        );
+      }
   );
 }
 
-Future<void> _showChangeTournamentStateDialog(BuildContext context, TournamentDetailModel tournamentDetailModel, String newState) async {
+Future<void> _showChangeTournamentStateDialog(BuildContext context, String newState) async {
   // show the dialog
   await showDialog(
-    context: context,
-    builder: (_) => ChangeNotifierProvider.value(
-      value: Provider.of<TournamentDetailModel>(context),
-      child: AlertDialog(
-        title: const Text('Cambia Stato del torneo'),
-        content: Text(
-          "Confermando cambierai lo stato del torneo. Alcune attività possono essere fatte solo in uno specifico stato per cui se hai dei dubbi leggi la legenda degli stati che è riportata di seguito.",
-          style: CustomFlowTheme.of(context).labelMedium,
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Dismiss the dialog
-            },
-            child: const Text('Cancel'),
+      context: context,
+      builder: (_) {
+        var tournamentModel = context.read<TournamentModel>();
+        return AlertDialog(
+          title: const Text('Cambia Stato del torneo'),
+          content: Text(
+            "Confermando cambierai lo stato del torneo. Alcune attività possono essere fatte solo in uno specifico stato per cui se hai dei dubbi leggi la legenda degli stati che è riportata di seguito.",
+            style: CustomFlowTheme.of(context).labelMedium,
           ),
-          ElevatedButton(
-            onPressed: () {
-              // Handle saving the new value
-              tournamentDetailModel.setTournamentState(newState);
-              Navigator.of(context).pop(); // Dismiss the dialog
-            },
-            child: const Text('Continua'),
-          ),
-        ],
-      ),
-    ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Handle saving the new value
+                tournamentModel.setTournamentState(newState);
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: const Text('Continua'),
+            ),
+          ],
+        );
+      }
   );
 }

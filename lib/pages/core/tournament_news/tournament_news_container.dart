@@ -7,12 +7,12 @@ import '../../../backend/firebase_analytics/analytics.dart';
 import '../../../backend/schema/tournaments_record.dart';
 
 class TournamentNewsContainer extends StatefulWidget {
+  final String? tournamentsRef;
+
   const TournamentNewsContainer({
     super.key,
     this.tournamentsRef,
   });
-
-  final String? tournamentsRef;
 
   @override
   State<TournamentNewsContainer> createState() => _TournamentNewsContainerState();
@@ -36,7 +36,7 @@ class _TournamentNewsContainerState extends State<TournamentNewsContainer> with 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => TournamentNewsModel(tournamentsRef: widget.tournamentsRef),
+      create: (context) => TournamentNewsModel(),
       builder: (context, child) {
         return const TournamentNewsWidget();
       }
