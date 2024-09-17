@@ -13,7 +13,6 @@ import '../../../backend/backend.dart';
 import '../../../backend/firebase_analytics/analytics.dart';
 import '../../../components/custom_appbar_widget.dart';
 import '../../../components/standard_graphics/standard_graphics_widgets.dart';
-import '../../nav_bar/news_model.dart';
 import 'create_edit_news_model.dart';
 
 class CreateEditNewsWidget extends StatefulWidget {
@@ -27,7 +26,6 @@ class CreateEditNewsWidget extends StatefulWidget {
 class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with TickerProviderStateMixin {
 
   late CreateEditNewsModel createEditNewsModel;
-  late NewsModel newsModel;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
@@ -39,7 +37,6 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
     //logFirebaseEvent('screen_view', parameters: {'screen_name': 'CreateNews'});
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
 
-    newsModel = context.read<NewsModel>();
     createEditNewsModel = context.read<CreateEditNewsModel>();
     createEditNewsModel.initContextVars(context);
   }
@@ -67,12 +64,10 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: SingleChildScrollView(
-                child: Consumer<NewsModel>(
-                  builder: (context, providerNews, _){
-                    createEditNewsModel.newsShowTimestampEnVarInitialized(newsModel.newsShowTimestampEn);
-                    createEditNewsModel.newsImageUrlTempInitialized(newsModel.newsImageUrl);
+                child: Consumer<CreateEditNewsModel>(
+                  builder: (context, providerCreateEditNews, _){
                     print("[REBUILD IN CORSO] create_edit_news_widget.dart");
-                    if(newsModel.isLoading){
+                    if(providerCreateEditNews.isLoading){
                       return const Center(child: CircularProgressIndicator());
                     }
                     return Column(
@@ -128,7 +123,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       ),
                                     ),
                                     TextFormField(
-                                      controller: createEditNewsModel.fieldControllerTitleInitialized(newsModel.newsTitle),
+                                      controller: createEditNewsModel.fieldControllerTitle,
                                       focusNode: createEditNewsModel.newsTitleFocusNode,
                                       autofocus: false,
                                       autofillHints: const [AutofillHints.name],
@@ -149,7 +144,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       ),
                                       minLines: 1,
                                       cursorColor: CustomFlowTheme.of(context).primary,
-                                      validator: createEditNewsModel.newsTitleTextControllerValidator.asValidator(context, newsModel.newsTitle),
+                                      validator: createEditNewsModel.newsTitleTextControllerValidator.asValidator(context, createEditNewsModel.newsTitle),
                                     ),
                                   ],
                                 ),
@@ -170,50 +165,45 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                         style: CustomFlowTheme.of(context).bodyMedium,
                                       ),
                                     ),
-                                    Selector<CreateEditNewsModel, String?>(
-                                        selector: (_, model) => model.newsImageUrlTemp,
-                                        builder: (context, newsImageUrlTemp, _) {
-                                          if(createEditNewsModel.useNetworkImage){
-                                            return Image.network(
-                                              providerNews.newsImageUrl!,
-                                              loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                                                if (loadingProgress == null) {
-                                                  return child; // Image has fully loaded
-                                                } else {
-                                                  return CircularProgressIndicator(
-                                                    value: loadingProgress.expectedTotalBytes != null
-                                                        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                                        : null, // Shows a progress indicator if the loading size is known
-                                                  );
-                                                }
-                                              },
-                                              errorBuilder: (context, error, stackTrace) {
-                                                return Icon(
-                                                  Icons.error,
-                                                  color: CustomFlowTheme.of(context).error,
-                                                  size: 18,
-                                                ); // Display an error icon if the image fails to load
-                                              },
-                                            );
-                                          } else if(createEditNewsModel.newsImageUrlTemp != null){
-                                            return Padding(
-                                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
-                                              child: Container(
-                                                padding: const EdgeInsets.all(10),
-                                                decoration: BoxDecoration(
-                                                  color: CustomFlowTheme.of(context).accent1,
-                                                ),
-                                                child: Consumer<CreateEditNewsModel>(
-                                                    builder: (context, providerCreateEditNews, _){
-                                                      return Image.file(File(createEditNewsModel.newsImageUrlTemp!),);
-                                                    }
-                                                ),
-                                              ),
-                                            );
-                                          } else {
-                                            return Text("data");
+                                    Padding(
+                                      padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: CustomFlowTheme.of(context).accent1,
+                                        ),
+                                        child: Builder(
+                                          builder: (context) {
+                                            if(createEditNewsModel.useNetworkImage){
+                                              return Image.network(
+                                                providerCreateEditNews.newsImageUrl!,
+                                                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                                                  if (loadingProgress == null) {
+                                                    return child; // Image has fully loaded
+                                                  } else {
+                                                    return CircularProgressIndicator(
+                                                      value: loadingProgress.expectedTotalBytes != null
+                                                          ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                                          : null, // Shows a progress indicator if the loading size is known
+                                                    );
+                                                  }
+                                                },
+                                                errorBuilder: (context, error, stackTrace) {
+                                                  return Icon(
+                                                    Icons.error,
+                                                    color: CustomFlowTheme.of(context).error,
+                                                    size: 18,
+                                                  ); // Display an error icon if the image fails to load
+                                                },
+                                              );
+                                            } else if(createEditNewsModel.newsImageUrlTemp != null){
+                                              return Image.file(File(providerCreateEditNews.newsImageUrlTemp!),);
+                                            } else {
+                                              return Text("data");
+                                            }
                                           }
-                                        }
+                                        ),
+                                      ),
                                     ),
                                     // button upload
                                       AFButtonWidget(
@@ -260,7 +250,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       ),
                                     ),
                                     TextFormField(
-                                      controller: createEditNewsModel.fieldControllerSubTitleInitialized(newsModel.newsSubTitle),
+                                      controller: createEditNewsModel.fieldControllerSubTitle,
                                       focusNode: createEditNewsModel.newsSubTitleFocusNode,
                                       autofocus: false,
                                       autofillHints: const [AutofillHints.name],
@@ -281,7 +271,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       ),
                                       minLines: 1,
                                       cursorColor: CustomFlowTheme.of(context).primary,
-                                      validator: createEditNewsModel.newsSubTitleTextControllerValidator.asValidator(context, newsModel.newsSubTitle),
+                                      validator: createEditNewsModel.newsSubTitleTextControllerValidator.asValidator(context, createEditNewsModel.newsSubTitle),
                                     ),
                                   ],
                                 ),
@@ -303,7 +293,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       ),
                                     ),
                                     TextFormField(
-                                      controller: createEditNewsModel.fieldControllerDescriptionInitialized(newsModel.newsDescription),
+                                      controller: createEditNewsModel.fieldControllerDescription,
                                       focusNode: createEditNewsModel.newsDescriptionFocusNode,
                                       autofocus: false,
                                       autofillHints: const [AutofillHints.name],
@@ -325,7 +315,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       minLines: 5,
                                       maxLines: 5,
                                       cursorColor: CustomFlowTheme.of(context).primary,
-                                      validator: createEditNewsModel.newsDescriptionTextControllerValidator.asValidator(context, newsModel.newsDescription),
+                                      validator: createEditNewsModel.newsDescriptionTextControllerValidator.asValidator(context, providerCreateEditNews.newsDescription),
                                     ),
                                   ],
                                 ),
@@ -347,16 +337,11 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                         style: CustomFlowTheme.of(context).bodyMedium,
                                       ),
                                     ),
-                                    Selector<CreateEditNewsModel, bool>(
-                                      selector: (_, model) => model.newsShowTimestampEnVar,
-                                      builder: (context, newsShowTimestampEnVar, _) {
-                                        return Switch(
-                                          value: newsShowTimestampEnVar,
-                                          onChanged: (value) {
-                                            Provider.of<CreateEditNewsModel>(context, listen: false).switchShowTimestampEn();
-                                          },
-                                        );
-                                      }
+                                    Switch(
+                                      value: providerCreateEditNews.newsShowTimestampEnVar,
+                                      onChanged: (value) {
+                                        createEditNewsModel.switchShowTimestampEn();
+                                      },
                                     ),
                                   ],
                                 ),
@@ -377,41 +362,29 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                               if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
                                 return;
                               }
-                              if(createEditNewsModel.saveWayEn) {
-                                newsModel.saveNews(
-                                  createEditNewsModel.fieldControllerTitle.text,
-                                  createEditNewsModel.fieldControllerSubTitle.text,
-                                  createEditNewsModel.fieldControllerDescription.text,
-                                  createEditNewsModel.newsImageUrlTemp,
-                                  createEditNewsModel.newsShowTimestampEnVar,
-                                ).then((_) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
+
+                              createEditNewsModel.saveEditNews(createEditNewsModel.saveWayEn).then((_) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'News creata con successo',
+                                      style: CustomFlowTheme.of(context).displaySmall.override( color: CustomFlowTheme.of(context).primary ),
+                                    ),
+                                  ),
+                                );
+                                //logFirebaseEvent('Button_navigate_to');
+                                //context.goNamedAuth('Dashboard', context.mounted);
+                              }).catchError((onError){
+                                ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        'News creata con successo',
-                                        style: CustomFlowTheme.of(context).displaySmall.override( color: CustomFlowTheme.of(context).primary ),
+                                        'Errore nella creazione della News. Riprova più tardi',
+                                        style: CustomFlowTheme.of(context).displaySmall.override( color: CustomFlowTheme.of(context).error ),
                                       ),
-                                    ),
-                                  );
-                                  //logFirebaseEvent('Button_navigate_to');
-                                  //context.goNamedAuth('Dashboard', context.mounted);
-                                }).catchError((onError){
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Errore nella creazione della News. Riprova più tardi',
-                                          style: CustomFlowTheme.of(context).displaySmall.override( color: CustomFlowTheme.of(context).error ),
-                                        ),
-                                      )
-                                  );
-                                });
-                              } else {
-                                newsModel.editNews(
-                                  createEditNewsModel.fieldControllerTitle.text,
-                                  createEditNewsModel.fieldControllerSubTitle.text,
-                                  createEditNewsModel.fieldControllerDescription.text,
+                                    )
                                 );
-                              }
+                              });
+
 
                               logFirebaseEvent('Button_haptic_feedback');
                               HapticFeedback.lightImpact();

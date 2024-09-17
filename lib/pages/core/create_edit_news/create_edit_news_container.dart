@@ -43,13 +43,15 @@ class _CreateEditNewsContainerState extends State<CreateEditNewsContainer> with 
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<CreateEditNewsModel>(
-          create: (context) => CreateEditNewsModel(saveWay: widget.createEditFlag),
+        ChangeNotifierProvider<NewsModel>(
+          create: (context) => NewsModel(tournamentsRef: widget.tournamentsRef, newsRef: widget.newsRef),
+        ),
+        ChangeNotifierProxyProvider<NewsModel, CreateEditNewsModel>(
+          create: (_) => CreateEditNewsModel(newsModel: Provider.of<NewsModel>(_, listen: false), saveWay: widget.createEditFlag),
+          update: (_, newsModel, createEditNewsModel) => CreateEditNewsModel(newsModel: newsModel, saveWay: widget.createEditFlag),
         ),
         // You can add more providers here if needed, for example:
-        ChangeNotifierProvider<NewsModel>(
-         create: (context) => NewsModel(tournamentsRef: widget.tournamentsRef, newsRef: widget.newsRef),
-        ),
+        
       ],
       builder: (context, child) {
         return const CreateEditNewsWidget();

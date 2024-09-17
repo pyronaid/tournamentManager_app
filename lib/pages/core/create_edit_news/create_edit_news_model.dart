@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tournamentmanager/pages/nav_bar/news_model.dart';
 
 import '../../../app_flow/app_flow_model.dart';
 import '../../../app_flow/services/ImagePickerService.dart';
@@ -11,6 +12,8 @@ class CreateEditNewsModel extends ChangeNotifier {
   final _unfocusNode = FocusNode();
   final bool saveWay;
   late CustomAppbarModel customAppbarModel;
+
+  final NewsModel newsModel;
 
   //////////////////////////////FORM TITLE
   late TextEditingController _fieldControllerTitle;
@@ -55,19 +58,27 @@ class CreateEditNewsModel extends ChangeNotifier {
 
 
   /////////////////////////////CONSTRUCTOR
-  CreateEditNewsModel({required this.saveWay}){
-    _fieldControllerTitle = TextEditingController();
+  CreateEditNewsModel({required this.saveWay, required this.newsModel}){
+    _initSettings();
+  }
+  Future<void> _initSettings() async {
+    // Wait for the profile to load
+    while (newsModel.isLoading) {
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
+    _fieldControllerTitle = TextEditingController(text: newsModel.newsTitle);
     newsTitleTextControllerValidator = _newsTitleTextControllerValidator;
     _newsTitleFocusNode = FocusNode();
-    _fieldControllerSubTitle = TextEditingController();
+    _fieldControllerSubTitle = TextEditingController(text: newsModel.newsSubTitle);
     newsSubTitleTextControllerValidator = _newsSubTitleTextControllerValidator;
     _newsSubTitleFocusNode = FocusNode();
-    _fieldControllerDescription = TextEditingController();
+    _fieldControllerDescription = TextEditingController(text: newsModel.newsDescription);
     newsDescriptionTextControllerValidator = _newsDescriptionTextControllerValidator;
     _newsDescriptionFocusNode = FocusNode();
-    _newsShowTimestampEnVar = false;
-    _useNetworkImage = false;
-    _newsImageUrlTemp = null;
+    _newsShowTimestampEnVar = newsModel.newsShowTimestampEn;
+    _useNetworkImage = newsModel.newsImageUrl != null;
+    _newsImageUrlTemp = newsModel.newsImageUrl;
   }
 
 
@@ -81,18 +92,10 @@ class CreateEditNewsModel extends ChangeNotifier {
   TextEditingController get fieldControllerTitle{
     return _fieldControllerTitle;
   }
-  TextEditingController fieldControllerTitleInitialized(String initText){
-    _fieldControllerTitle.text = initText;
-    return _fieldControllerTitle;
-  }
   FocusNode? get newsTitleFocusNode{
     return _newsTitleFocusNode;
   }
   TextEditingController get fieldControllerSubTitle{
-    return _fieldControllerSubTitle;
-  }
-  TextEditingController fieldControllerSubTitleInitialized(String initText){
-    _fieldControllerSubTitle.text = initText;
     return _fieldControllerSubTitle;
   }
   FocusNode? get newsSubTitleFocusNode{
@@ -101,33 +104,24 @@ class CreateEditNewsModel extends ChangeNotifier {
   TextEditingController get fieldControllerDescription{
     return _fieldControllerDescription;
   }
-  TextEditingController fieldControllerDescriptionInitialized(String initText){
-    _fieldControllerDescription.text = initText;
-    return _fieldControllerDescription;
-  }
   FocusNode? get newsDescriptionFocusNode{
     return _newsDescriptionFocusNode;
   }
   bool get newsShowTimestampEnVar{
     return _newsShowTimestampEnVar;
   }
-  bool newsShowTimestampEnVarInitialized(bool initBool){
-    _newsShowTimestampEnVar = initBool;
-    return _newsShowTimestampEnVar;
-  }
   String? get newsImageUrlTemp{
-    return _newsImageUrlTemp;
-  }
-  String? newsImageUrlTempInitialized(String? initUrl){
-    if(initUrl != null) {
-      _useNetworkImage = true;
-    }
-    _newsImageUrlTemp = initUrl;
     return _newsImageUrlTemp;
   }
   bool get useNetworkImage{
     return _useNetworkImage;
   }
+  /////////////////////////////GETTER FROM OBJ
+  bool get isLoading => newsModel.isLoading;
+  String? get newsTitle => newsModel.newsTitle;
+  String? get newsSubTitle => newsModel.newsSubTitle;
+  String? get newsDescription => newsModel.newsDescription;
+  get newsImageUrl => newsModel.newsImageUrl;
 
 
   /////////////////////////////SETTER
@@ -146,6 +140,8 @@ class CreateEditNewsModel extends ChangeNotifier {
     _newsShowTimestampEnVar = !_newsShowTimestampEnVar;
     notifyListeners();
   }
+  /////////////////////////////SETTER FROM OBJ
+  saveEditNews(bool saveWayEn) => newsModel.saveEditNews(saveWayEn);
 
 
   @override

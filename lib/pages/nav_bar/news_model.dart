@@ -1,12 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
-
-import '../../app_flow/services/ImagePickerService.dart';
-import '../../auth/base_auth_user_provider.dart';
 import '../../backend/schema/news_record.dart';
-import '../../backend/schema/util/firestorage_util.dart';
 
 class NewsModel extends ChangeNotifier {
   final String? tournamentsRef;
@@ -44,41 +37,7 @@ class NewsModel extends ChangeNotifier {
 
 
   /////////////////////////////SETTER
-  Future<void> saveNews(
-      String newsTitle,
-      String newsSubTitle,
-      String newsDescription,
-      String? newsImageUrlTemp,
-      bool newsShowTimestampEnTemp) async {
-    Map<String, dynamic> ownNews = createNewsRecordData(
-      tournament_uid: tournamentsRef,
-      title: newsTitle,
-      description: newsDescription,
-      creator_uid: currentUser!.uid,
-      show_timestamp_en: newsShowTimestampEnTemp,
-      image_news_url: newsImageUrlTemp,
-    );
-    DocumentReference documentReferenceNews = await NewsRecord.collection(tournamentsRef!).add(ownNews);
-    if(newsImageUrlTemp != null) {
-      /*
-      String? url = await FirestorageUtilData.uploadImageToStorage(
-          "users/$tournamentOwner/$tournamentsRef/news/$newsId/newsImage",
-          XFile(_newsImageUrlTemp!)
-      );
-      if(url != null){
-        await newsRefObj?.setImage(url);
-      }
-
-       */
-    }
-  }
-  Future<void> editNews(
-    String newsTitle,
-    String newsSubTitle,
-    String newsDescription) async {
-    //TODO
-    // no need to notify but just snackbar message
-  }
+  saveEditNews(bool saveWayEn) {}
 
 
   @override
