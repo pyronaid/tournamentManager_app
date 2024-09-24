@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/pages/nav_bar/news_model.dart';
 
 import '../../../app_flow/app_flow_model.dart';
 import '../../../app_flow/app_flow_theme.dart';
@@ -26,6 +27,7 @@ class CreateEditNewsWidget extends StatefulWidget {
 class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with TickerProviderStateMixin {
 
   late CreateEditNewsModel createEditNewsModel;
+  late NewsModel newsModel;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
@@ -39,6 +41,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
 
     createEditNewsModel = context.read<CreateEditNewsModel>();
     createEditNewsModel.initContextVars(context);
+    newsModel = context.read<NewsModel>();
   }
 
 
@@ -64,12 +67,19 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: SingleChildScrollView(
-                child: Consumer<CreateEditNewsModel>(
-                  builder: (context, providerCreateEditNews, _){
+                child: Consumer<NewsModel>(
+                  builder: (context, providerNews, _){
                     print("[REBUILD IN CORSO] create_edit_news_widget.dart");
-                    if(providerCreateEditNews.isLoading){
+                    if(newsModel.isLoading){
                       return const Center(child: CircularProgressIndicator());
                     }
+                    if(newsModel.newsImageUrl != null){
+                      createEditNewsModel.setUseNetworkImage(true);
+                    }
+                    createEditNewsModel.setNewsShowTimestampEnVar(newsModel.newsShowTimestampEn);
+
+
+
                     return Column(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -123,7 +133,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       ),
                                     ),
                                     TextFormField(
-                                      controller: createEditNewsModel.fieldControllerTitle,
+                                      controller: createEditNewsModel.fieldControllerTitleWithInitValue(text: providerNews.newsTitle),
                                       focusNode: createEditNewsModel.newsTitleFocusNode,
                                       autofocus: false,
                                       autofillHints: const [AutofillHints.name],
@@ -144,7 +154,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       ),
                                       minLines: 1,
                                       cursorColor: CustomFlowTheme.of(context).primary,
-                                      validator: createEditNewsModel.newsTitleTextControllerValidator.asValidator(context, createEditNewsModel.newsTitle),
+                                      validator: createEditNewsModel.newsTitleTextControllerValidator.asValidator(context),
                                     ),
                                   ],
                                 ),
@@ -176,7 +186,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                           builder: (context) {
                                             if(createEditNewsModel.useNetworkImage){
                                               return Image.network(
-                                                providerCreateEditNews.newsImageUrl!,
+                                                providerNews.newsImageUrl!,
                                                 loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
                                                   if (loadingProgress == null) {
                                                     return child; // Image has fully loaded
@@ -197,9 +207,14 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                                 },
                                               );
                                             } else if(createEditNewsModel.newsImageUrlTemp != null){
-                                              return Image.file(File(providerCreateEditNews.newsImageUrlTemp!),);
+                                              return Selector<CreateEditNewsModel, String?>(
+                                                selector: (_, createEditNewsModel) => createEditNewsModel.newsImageUrlTemp,
+                                                builder: (context, imageUrl, child) {
+                                                  return Image.file(File(imageUrl!),);
+                                                },
+                                              );
                                             } else {
-                                              return Text("data");
+                                              return Text("Nessuna immagine caricata");
                                             }
                                           }
                                         ),
@@ -250,7 +265,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       ),
                                     ),
                                     TextFormField(
-                                      controller: createEditNewsModel.fieldControllerSubTitle,
+                                      controller: createEditNewsModel.fieldControllerSubTitleWithInitValue(text: providerNews.newsSubTitle),
                                       focusNode: createEditNewsModel.newsSubTitleFocusNode,
                                       autofocus: false,
                                       autofillHints: const [AutofillHints.name],
@@ -271,7 +286,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       ),
                                       minLines: 1,
                                       cursorColor: CustomFlowTheme.of(context).primary,
-                                      validator: createEditNewsModel.newsSubTitleTextControllerValidator.asValidator(context, createEditNewsModel.newsSubTitle),
+                                      validator: createEditNewsModel.newsSubTitleTextControllerValidator.asValidator(context),
                                     ),
                                   ],
                                 ),
@@ -293,7 +308,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       ),
                                     ),
                                     TextFormField(
-                                      controller: createEditNewsModel.fieldControllerDescription,
+                                      controller: createEditNewsModel.fieldControllerDescriptionWithInitValue(text: providerNews.newsDescription),
                                       focusNode: createEditNewsModel.newsDescriptionFocusNode,
                                       autofocus: false,
                                       autofillHints: const [AutofillHints.name],
@@ -315,7 +330,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                       minLines: 5,
                                       maxLines: 5,
                                       cursorColor: CustomFlowTheme.of(context).primary,
-                                      validator: createEditNewsModel.newsDescriptionTextControllerValidator.asValidator(context, providerCreateEditNews.newsDescription),
+                                      validator: createEditNewsModel.newsDescriptionTextControllerValidator.asValidator(context),
                                     ),
                                   ],
                                 ),
@@ -363,7 +378,14 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                 return;
                               }
 
-                              createEditNewsModel.saveEditNews(createEditNewsModel.saveWayEn).then((_) {
+                              newsModel.saveEditNews(
+                                providerCreateEditNews.saveWayEn,
+                                providerCreateEditNews.fieldControllerTitle.text,
+                                providerCreateEditNews.fieldControllerSubTitle.text,
+                                providerCreateEditNews.fieldControllerDescription.text,
+                                providerCreateEditNews.newsImageUrlTemp,
+                                providerCreateEditNews.newsShowTimestampEnVar
+                              ).then((_) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(

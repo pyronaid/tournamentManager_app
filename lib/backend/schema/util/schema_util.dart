@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:from_css_color/from_css_color.dart';
+import 'package:tournamentmanager/backend/schema/news_record.dart';
 
 import '/app_flow/app_flow_util.dart';
 

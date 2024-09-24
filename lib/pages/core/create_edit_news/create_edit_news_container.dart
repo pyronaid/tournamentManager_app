@@ -25,7 +25,6 @@ class CreateEditNewsContainer extends StatefulWidget {
 }
 
 class _CreateEditNewsContainerState extends State<CreateEditNewsContainer> with TickerProviderStateMixin {
-
   @override
   void initState() {
     super.initState();
@@ -46,12 +45,9 @@ class _CreateEditNewsContainerState extends State<CreateEditNewsContainer> with 
         ChangeNotifierProvider<NewsModel>(
           create: (context) => NewsModel(tournamentsRef: widget.tournamentsRef, newsRef: widget.newsRef),
         ),
-        ChangeNotifierProxyProvider<NewsModel, CreateEditNewsModel>(
-          create: (_) => CreateEditNewsModel(newsModel: Provider.of<NewsModel>(_, listen: false), saveWay: widget.createEditFlag),
-          update: (_, newsModel, createEditNewsModel) => CreateEditNewsModel(newsModel: newsModel, saveWay: widget.createEditFlag),
+        ChangeNotifierProvider<CreateEditNewsModel>(
+          create: (context) => CreateEditNewsModel(saveWay: widget.createEditFlag),
         ),
-        // You can add more providers here if needed, for example:
-        
       ],
       builder: (context, child) {
         return const CreateEditNewsWidget();

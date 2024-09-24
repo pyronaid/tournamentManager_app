@@ -24,21 +24,33 @@ class NewsRecord extends FirestoreRecord {
   // "title" field.
   String? _title;
   String get title => _title ?? 'NO_TITLE';
+  Future<void> setTitle(String newTitle) async {
+    _title = newTitle;
+    await updateField(tournamentUid, uid, "title", newTitle);
+  }
   bool hasTitle() => _title != null;
 
   // "sub_title" field.
   String? _subTitle;
   String get subTitle => _subTitle ?? 'NO_SUBTITLE';
+  Future<void> setSubTitle(String newSubTitle) async {
+    _subTitle = newSubTitle;
+    await updateField(tournamentUid, uid, "sub_title", newSubTitle);
+  }
   bool hasSubTitle() => _subTitle != null;
 
   // "description" field.
   String? _description;
   String get description => _description ?? 'NO_DESCRIPTION';
+  Future<void> setDescription(String newDescription) async {
+    _description = newDescription;
+    await updateField(tournamentUid, uid, "description", newDescription);
+  }
   bool hasDescription() => _description != null;
 
   // "timestamp" field.
-  Timestamp? _timestamp;
-  Timestamp? get timestamp => _timestamp;
+  DateTime? _timestamp;
+  DateTime? get timestamp => _timestamp;
   bool hasTimestamp() => _timestamp != null;
 
   // "imageUrl" field.
@@ -52,6 +64,10 @@ class NewsRecord extends FirestoreRecord {
 
   bool _showTimestampEn = false;
   bool get showTimestampEn => _showTimestampEn;
+  Future<void> switchShowTimestampEn() async {
+    _showTimestampEn = !_showTimestampEn;
+    await updateField(tournamentUid, uid, "show_timestamp_en", _showTimestampEn);
+  }
   bool hasShowTimestampEn() => _showTimestampEn;
 
   // "uid" field.
@@ -67,12 +83,15 @@ class NewsRecord extends FirestoreRecord {
     _description = snapshotData['description'];
     _imageNewsUrl = snapshotData['image_news_url'];
     _creatorUid = snapshotData['creator_uid'];
-    _timestamp = snapshotData['timestamp'] as Timestamp?;
+    _timestamp = snapshotData['timestamp'] as DateTime?;
     _showTimestampEn = snapshotData['show_timestamp_en'];
   }
 
   static CollectionReference collection(String tournamentRef) =>
-      FirebaseFirestore.instance.collection('tournaments').doc(tournamentRef).collection('rounds');
+      FirebaseFirestore.instance.collection('tournaments').doc(tournamentRef).collection('news');
+
+  static Stream<List<NewsRecord>> getAllDocuments(String tournamentRef) =>
+      collection(tournamentRef).snapshots().map((snapshot) => snapshot.docs.map((doc) => NewsRecord.fromSnapshot(doc)).toList());
 
   static Stream<NewsRecord> getDocument(DocumentReference ref) =>
       ref.snapshots().map((s) => NewsRecord.fromSnapshot(s));

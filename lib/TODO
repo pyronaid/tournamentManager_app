@@ -126,3 +126,19 @@ SERVICE LOADER
     DialogService
     MailControllerValidatorService
     ToastService
+
+
+
+
+
+  // "news-list" field.
+  List<NewsRecord>? _newsList;
+  List<NewsRecord> get newsList => _newsList ?? const [];
+  bool hasNewsList() => _newsList != null;
+
+
+    _newsList = getSubCollectionList<NewsRecord>("news", reference, (doc) => NewsRecord.fromSnapshot(doc));
+List<T>? getSubCollectionList<T>(String value, DocumentReference<Object?> reference, T Function(DocumentSnapshot doc) fromSnapshot) {
+  var newsSubCollectionSnapshot = await reference.collection(value).get();
+  return newsSubCollectionSnapshot.docs.map((e) => fromSnapshot(e)).toList();
+}

@@ -13,40 +13,31 @@ class CreateEditNewsModel extends ChangeNotifier {
   final bool saveWay;
   late CustomAppbarModel customAppbarModel;
 
-  final NewsModel newsModel;
 
   //////////////////////////////FORM TITLE
   late TextEditingController _fieldControllerTitle;
-  late String? Function(BuildContext, String?, String?)? newsTitleTextControllerValidator;
+  late String? Function(BuildContext, String?)? newsTitleTextControllerValidator;
   late FocusNode? _newsTitleFocusNode;
-  String? _newsTitleTextControllerValidator(BuildContext context, String? val, String? valOld) {
+  String? _newsTitleTextControllerValidator(BuildContext context, String? val) {
     if (val == null || val.isEmpty) {
       return 'Il titolo della News è un parametro obbligatorio';
-    }
-
-    if (!saveWayEn && val == valOld){
-      return "Non hai fatto nessun cambiamento";
     }
     return null;
   }
   //////////////////////////////FORM SUB TITLE
   late TextEditingController _fieldControllerSubTitle;
-  late String? Function(BuildContext, String?, String?)? newsSubTitleTextControllerValidator;
+  late String? Function(BuildContext, String?)? newsSubTitleTextControllerValidator;
   late FocusNode? _newsSubTitleFocusNode;
-  String? _newsSubTitleTextControllerValidator(BuildContext context, String? val, String? valOld) {
+  String? _newsSubTitleTextControllerValidator(BuildContext context, String? val) {
     return null;
   }
   //////////////////////////////FORM DESCR
   late TextEditingController _fieldControllerDescription;
-  late String? Function(BuildContext, String?, String?)? newsDescriptionTextControllerValidator;
+  late String? Function(BuildContext, String?)? newsDescriptionTextControllerValidator;
   late FocusNode? _newsDescriptionFocusNode;
-  String? _newsDescriptionTextControllerValidator(BuildContext context, String? val, String? valOld) {
+  String? _newsDescriptionTextControllerValidator(BuildContext context, String? val) {
     if (val == null || val.isEmpty) {
       return 'Il testo della News è un parametro obbligatorio';
-    }
-
-    if (!saveWayEn && val == valOld){
-      return "Non hai fatto nessun cambiamento";
     }
     return null;
   }
@@ -58,27 +49,19 @@ class CreateEditNewsModel extends ChangeNotifier {
 
 
   /////////////////////////////CONSTRUCTOR
-  CreateEditNewsModel({required this.saveWay, required this.newsModel}){
-    _initSettings();
-  }
-  Future<void> _initSettings() async {
-    // Wait for the profile to load
-    while (newsModel.isLoading) {
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-
-    _fieldControllerTitle = TextEditingController(text: newsModel.newsTitle);
+  CreateEditNewsModel({required this.saveWay}){
+    _fieldControllerTitle = TextEditingController();
     newsTitleTextControllerValidator = _newsTitleTextControllerValidator;
     _newsTitleFocusNode = FocusNode();
-    _fieldControllerSubTitle = TextEditingController(text: newsModel.newsSubTitle);
+    _fieldControllerSubTitle = TextEditingController();
     newsSubTitleTextControllerValidator = _newsSubTitleTextControllerValidator;
     _newsSubTitleFocusNode = FocusNode();
-    _fieldControllerDescription = TextEditingController(text: newsModel.newsDescription);
+    _fieldControllerDescription = TextEditingController();
     newsDescriptionTextControllerValidator = _newsDescriptionTextControllerValidator;
     _newsDescriptionFocusNode = FocusNode();
-    _newsShowTimestampEnVar = newsModel.newsShowTimestampEn;
-    _useNetworkImage = newsModel.newsImageUrl != null;
-    _newsImageUrlTemp = newsModel.newsImageUrl;
+    _newsShowTimestampEnVar = false;
+    _useNetworkImage = false;
+    _newsImageUrlTemp = null;
   }
 
 
@@ -92,17 +75,35 @@ class CreateEditNewsModel extends ChangeNotifier {
   TextEditingController get fieldControllerTitle{
     return _fieldControllerTitle;
   }
+  TextEditingController fieldControllerTitleWithInitValue({required String text}) {
+    if(_fieldControllerTitle.text.isEmpty && text.isNotEmpty){
+      _fieldControllerTitle.text=text;
+    }
+    return fieldControllerTitle;
+  }
   FocusNode? get newsTitleFocusNode{
     return _newsTitleFocusNode;
   }
   TextEditingController get fieldControllerSubTitle{
     return _fieldControllerSubTitle;
   }
+  TextEditingController fieldControllerSubTitleWithInitValue({required String text}) {
+    if(_fieldControllerSubTitle.text.isEmpty && text.isNotEmpty){
+      _fieldControllerSubTitle.text=text;
+    }
+    return fieldControllerSubTitle;
+  }
   FocusNode? get newsSubTitleFocusNode{
     return _newsSubTitleFocusNode;
   }
   TextEditingController get fieldControllerDescription{
     return _fieldControllerDescription;
+  }
+  TextEditingController fieldControllerDescriptionWithInitValue({required String text}) {
+    if(_fieldControllerDescription.text.isEmpty && text.isNotEmpty){
+      _fieldControllerDescription.text=text;
+    }
+    return fieldControllerDescription;
   }
   FocusNode? get newsDescriptionFocusNode{
     return _newsDescriptionFocusNode;
@@ -116,15 +117,15 @@ class CreateEditNewsModel extends ChangeNotifier {
   bool get useNetworkImage{
     return _useNetworkImage;
   }
-  /////////////////////////////GETTER FROM OBJ
-  bool get isLoading => newsModel.isLoading;
-  String? get newsTitle => newsModel.newsTitle;
-  String? get newsSubTitle => newsModel.newsSubTitle;
-  String? get newsDescription => newsModel.newsDescription;
-  get newsImageUrl => newsModel.newsImageUrl;
 
 
   /////////////////////////////SETTER
+  void setUseNetworkImage(bool boolValue) {
+    _useNetworkImage = boolValue;
+  }
+  void setNewsShowTimestampEnVar(bool boolValue) {
+    _newsShowTimestampEnVar = boolValue;
+  }
   Future<void> setNewsImage(bool saveWayEn) async{
     bool? isCamera = true; //TO FIX WITH DIALOG FUNCTION
     XFile? imageFile = await ImagePickerService().pickCropImage(
@@ -133,6 +134,7 @@ class CreateEditNewsModel extends ChangeNotifier {
     );
     if(imageFile != null) {
       _newsImageUrlTemp = imageFile.path;
+      _useNetworkImage = false;
     }
     notifyListeners();
   }
@@ -140,8 +142,6 @@ class CreateEditNewsModel extends ChangeNotifier {
     _newsShowTimestampEnVar = !_newsShowTimestampEnVar;
     notifyListeners();
   }
-  /////////////////////////////SETTER FROM OBJ
-  saveEditNews(bool saveWayEn) => newsModel.saveEditNews(saveWayEn);
 
 
   @override

@@ -6,8 +6,6 @@ import 'package:tournamentmanager/backend/schema/standings_record.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 
-import 'news_record.dart';
-
 class TournamentsRecord extends FirestoreRecord {
   TournamentsRecord._(
       super.reference,
@@ -109,11 +107,6 @@ class TournamentsRecord extends FirestoreRecord {
   List<String>? _involvedList;
   List<String> get involvedList => _involvedList ?? const [];
   bool hasInvolvedList() => _involvedList != null;
-
-  // "news-list" field.
-  List<NewsRecord>? _newsList;
-  List<NewsRecord> get newsList => _newsList ?? const [];
-  bool hasNewsList() => _newsList != null;
 
   // "round-list" field.
   List<RoundsRecord>? _roundList;

@@ -10,7 +10,11 @@ import '../../backend/schema/util/firestorage_util.dart';
 class TournamentModel extends ChangeNotifier {
   final String? tournamentsRef;
   late TournamentsRecord? tournamentsRefObj;
+  late List<NewsRecord>? newsListRefObj;
   bool isLoading = true;
+  bool isTournamentLoaded = false;
+  bool isNewsLoaded = false;
+  bool _toRefresh = false;
 
   TournamentModel({required this.tournamentsRef}){
     fetchObjectUsingId();
@@ -74,12 +78,13 @@ class TournamentModel extends ChangeNotifier {
     return tournamentsRefObj?.image;
   }
   List<NewsRecord> get tournamentNews{
-    return tournamentsRefObj != null ? tournamentsRefObj!.newsList : [];
+    return newsListRefObj != null ? newsListRefObj! : [];
   }
   String? newsId(String newsId){
     var newsRefObj;
     return newsRefObj?.uid;
   }
+  bool get toRefresh => _toRefresh;
 
 
   /////////////////////////////SETTER
@@ -135,7 +140,7 @@ class TournamentModel extends ChangeNotifier {
 
     if(imageFile != null) {
       String? url = await FirestorageUtilData.uploadImageToStorage(
-          "users/$tournamentOwner/$tournamentId/tournamentImage",
+          "users/$tournamentOwner/tournament/$tournamentId/tournamentImage",
           imageFile
       );
       if(url != null){
@@ -143,6 +148,9 @@ class TournamentModel extends ChangeNotifier {
         notifyListeners();
       }
     }
+  }
+  void noRefreshAnymore() {
+    _toRefresh = false;
   }
 
 
@@ -154,12 +162,28 @@ class TournamentModel extends ChangeNotifier {
 
   void fetchObjectUsingId() {
     if(tournamentsRef != null) {
-      TournamentsRecord.getDocument(TournamentsRecord.collection.doc(tournamentsRef)).listen((snapshot) {
+      print("[RELOAD FROM FIREBASE IN CORSO] tournament_model.dart");
+      TournamentsRecord.getDocument(TournamentsRecord.collection.doc(tournamentsRef!)).listen((snapshot) {
         tournamentsRefObj = snapshot;
-        isLoading = false;
-        notifyListeners();
+        isTournamentLoaded = true;
+        _setLoadingFalseIfBothLoaded();
+      });
+      NewsRecord.getAllDocuments(tournamentsRef!).listen((snapshot) {
+        newsListRefObj = snapshot;
+        isNewsLoaded = true;
+        _setLoadingFalseIfBothLoaded();
       });
     }
   }
+
+  void _setLoadingFalseIfBothLoaded() {
+    if (isTournamentLoaded && isNewsLoaded && isLoading) {
+      isLoading = false;
+      _toRefresh = true;
+      notifyListeners();
+    }
+  }
+
+
 
 }
