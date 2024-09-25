@@ -2,31 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
-import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
+import 'package:tournamentmanager/backend/schema/news_record.dart';
 import 'package:tournamentmanager/components/tournament_card/tournament_card_model.dart';
 
 import '../../app_flow/app_flow_animations.dart';
 import '../../app_flow/app_flow_theme.dart';
 import '../standard_graphics/standard_graphics_widgets.dart';
 
-class TournamentCardWidget extends StatefulWidget {
-  const TournamentCardWidget({
+class TournamentNewsCardWidget extends StatefulWidget {
+  const TournamentNewsCardWidget({
     super.key,
-    this.tournamentRef,
-    required this.last,
-    required this.active,
+    required this.newsRef,
   });
 
-  final TournamentsRecord? tournamentRef;
-  final bool last;
-  final bool active;
+  final NewsRecord? newsRef;
 
   @override
-  State<TournamentCardWidget> createState() => _TournamentCardWidgetState();
+  State<TournamentNewsCardWidget> createState() => _TournamentNewsCardWidgetState();
 }
 
-class _TournamentCardWidgetState extends State<TournamentCardWidget> with TickerProviderStateMixin {
-  late TournamentCardModel _model;
+class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> with TickerProviderStateMixin {
+  late TournamentNewsCardModel _model;
 
   final animationsMap = <String, AnimationInfo>{};
 
@@ -39,7 +35,7 @@ class _TournamentCardWidgetState extends State<TournamentCardWidget> with Ticker
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => TournamentCardModel());
+    _model = createModel(context, () => TournamentNewsCardModel());
 
     animationsMap.addAll({
       'iconOnPageLoadAnimation': standardAnimationCard(context),
@@ -57,106 +53,6 @@ class _TournamentCardWidgetState extends State<TournamentCardWidget> with Ticker
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        InkWell(
-          splashColor: Colors.transparent,
-          focusColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          onTap: () async {
-            logFirebaseEvent('TOURN_CARD_COMP_Column_7nse8gf3_ON_TAP');
-            logFirebaseEvent('Column_haptic_feedback');
-            HapticFeedback.lightImpact();
-            logFirebaseEvent('Column_navigate_to');
-
-            //////////////////////////////
-            //////////// REDIRECT ON TAP
-            //////////////////////////////
-            print("STRANO");
-          },
-          child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                ////////////////
-                //DATE
-                /////////////////
-                SizedBox(
-                  width: 15.w,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                      DateFormat('dd').format(widget.tournamentRef!.date!),
-                        style: CustomFlowTheme.of(context).titleLarge,
-                      ),
-                      Text(
-                        DateFormat('MM').format(widget.tournamentRef!.date!),
-                        style: CustomFlowTheme.of(context).bodyMedium,
-                      ),
-                      Text(
-                        DateFormat('yyyy').format(widget.tournamentRef!.date!),
-                        style: CustomFlowTheme.of(context).bodyMedium,
-                      ),
-                    ],
-                  ),
-                ),
-                ////////////////
-                //NAME & ADDRESS
-                /////////////////
-                SizedBox(
-                  width: 60.w,
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(10, 0, 10, 0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.tournamentRef!.name,
-                          style: CustomFlowTheme.of(context).bodyMedium,
-                        ),
-                        const SizedBox(height: 10.0),
-                        Text(
-                          widget.tournamentRef!.address,
-                          style: CustomFlowTheme.of(context).labelMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                ////////////////
-                //STATE
-                /////////////////
-                SizedBox(
-                  width: 12.w,
-                  child: Text(
-                    widget.tournamentRef!.state!.name,
-                    style: CustomFlowTheme.of(context).bodyMicro,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        //////////////////////////////////////
-        //////////// optional divider
-        //////////////////////////////////////
-        if(!widget.last)
-          Divider(
-            thickness: 1,
-            color: !widget.active ? CustomFlowTheme.of(context).primaryText : CustomFlowTheme.of(context).primary,
-            height: 80, // Space around the divider
-          ),
-      ],
-    );
+    return Text("data");
   }
 }

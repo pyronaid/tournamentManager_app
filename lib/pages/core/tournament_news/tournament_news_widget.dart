@@ -6,6 +6,8 @@ import 'package:tournamentmanager/pages/core/tournament_news/tournament_news_mod
 import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_util.dart';
 import '../../../components/no_tournament_news_card/no_tournament_news_card_widget.dart';
+import '../../../components/tournament_card/tournament_card_widget.dart';
+import '../../../components/tournament_news_card/tournament_news_card_widget.dart';
 import '../../nav_bar/tournament_model.dart';
 
 class TournamentNewsWidget extends StatefulWidget {
@@ -45,67 +47,75 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> with Ticker
       onTap: () => tournamentNewsModel.unfocusNode.canRequestFocus
           ? FocusScope.of(context).requestFocus(tournamentNewsModel.unfocusNode)
           : FocusScope.of(context).unfocus(),
-      child: Consumer2<TournamentModel, TournamentNewsModel>(
-        builder: (context, providerTournament, providerTournamentNews, _) {
-          print("[REBUILD IN CORSO] tournament_news_widget.dart");
-          if (tournamentModel.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      child: Consumer<TournamentModel>(
+          builder: (context, providerTournament, _) {
+            print("[REBUILD IN CORSO] tournament_news_widget.dart");
+            if (tournamentModel.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          return Scaffold(
-            key: _scaffoldKey,
-            backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-            floatingActionButton: FloatingActionButton.extended(
-              elevation: 4.0,
-              icon: Icon(
-                Icons.add,
-                color: CustomFlowTheme.of(context).info,
+            return Scaffold(
+              key: _scaffoldKey,
+              backgroundColor: CustomFlowTheme.of(context).primaryBackground,
+              floatingActionButton: FloatingActionButton.extended(
+                elevation: 4.0,
+                icon: Icon(
+                  Icons.add,
+                  color: CustomFlowTheme.of(context).info,
+                ),
+                label: Text(
+                  'Crea una nuova notizia',
+                  style: CustomFlowTheme.of(context).titleSmall,
+                ),
+                backgroundColor: CustomFlowTheme.of(context).primary,
+                onPressed: () {
+                  context.pushNamedAuth(
+                    'CreateEditNews', context.mounted,
+                    pathParameters: {
+                      'newsId': 'NEW',
+                    }.withoutNulls,
+                    extra: {
+                      'tournamentId': providerTournament.tournamentId,
+                      'createEditFlag': true,
+                    },
+                  );
+                },
               ),
-              label: Text(
-                'Crea una nuova notizia',
-                style: CustomFlowTheme.of(context).titleSmall,
-              ),
-              backgroundColor: CustomFlowTheme.of(context).primary,
-              onPressed: () {
-                context.pushNamedAuth(
-                  'CreateEditNews', context.mounted,
-                  pathParameters: {
-                    'newsId': 'NEW',
-                  }.withoutNulls,
-                  extra: {
-                    'tournamentId': providerTournament.tournamentId,
-                    'createEditFlag': true,
-                  },
-                );
-              },
-            ),
-            floatingActionButtonLocation: FloatingActionButtonLocation
-                .centerDocked,
-            body: SafeArea(
-              top: true,
-              child: SingleChildScrollView(
-                child: Container(
-                  width: 100.w,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      if(tournamentModel.tournamentNews.isEmpty)
-                        const NoTournamentNewsCardWidget(
-                          active: true,
-                          phrase: "Nessuna notizia pubblicata",
-                        )
-                      else
-                        Text("£asasasas")
-
-                    ],
+              floatingActionButtonLocation: FloatingActionButtonLocation
+                  .centerDocked,
+              body: SafeArea(
+                top: true,
+                child: SingleChildScrollView(
+                  child: Container(
+                    width: 100.w,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if(tournamentModel.tournamentNews.isEmpty)
+                          const NoTournamentNewsCardWidget(
+                            active: true,
+                            phrase: "Nessuna notizia pubblicata",
+                          )
+                        else
+                          Column(
+                            children: List.generate(providerTournament.newsListRefObj!.length, (index) {
+                                final news = providerTournament.newsListRefObj![index];
+                                return TournamentNewsCardWidget(
+                                  key: Key('Keykia_${news.uid}_position_${index}_of_${providerTournament.newsListRefObj!.length}'),
+                                  newsRef: news,
+                                );
+                              },
+                            ),
+                          )
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        }
+            );
+          }
       ),
     );
   }
@@ -117,3 +127,25 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> with Ticker
 //////////////////////////// FUNCTIONS
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
+
+
+
+
+
+
+/*
+
+* // Fetch news when the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      newsProvider.fetchNews(currentUser?.uid);
+    });
+    *
+    * consider to avoid to fetch in all related pages ----
+*
+* */
+
+
+
+
+//https://pub.dev/packages/flutter_slidable/changelog
+

@@ -3,7 +3,7 @@ import 'package:tournamentmanager/components/tournament_card/tournament_card_wid
 
 import '../../app_flow/app_flow_model.dart';
 
-class TournamentCardModel extends CustomFlowModel<TournamentCardWidget> {
+class TournamentNewsCardModel extends CustomFlowModel<TournamentCardWidget> {
   ///  Local state fields for this component.
 
   @override

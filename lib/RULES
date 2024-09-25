@@ -1,3 +1,11 @@
+List
+    Crea una lista di elementi in memoria.
+    Utile per liste brevi o quando hai bisogno dell'intera lista in memoria
+ListView
+    Crea gli elementi solo quando sono necessari per la visualizzazione, risparmiando memoria
+    Preferibile per liste lunghe, dati provenienti da API, o quando l'efficienza della memoria è cruciale.
+
+##################################################################################
 GO_ROUTE
     goNamed
             - Go to a specific page

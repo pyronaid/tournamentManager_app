@@ -68,159 +68,159 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
               padding: const EdgeInsets.all(24),
               child: SingleChildScrollView(
                 child: Consumer<NewsModel>(
-                  builder: (context, providerNews, _){
-                    print("[REBUILD IN CORSO] create_edit_news_widget.dart");
-                    if(newsModel.isLoading){
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if(newsModel.newsImageUrl != null){
-                      createEditNewsModel.setUseNetworkImage(true);
-                    }
-                    createEditNewsModel.setNewsShowTimestampEnVar(newsModel.newsShowTimestampEn);
+                    builder: (context, providerNews, _){
+                      print("[REBUILD IN CORSO] create_edit_news_widget.dart");
+                      if(newsModel.isLoading){
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if(newsModel.newsImageUrl != null){
+                        createEditNewsModel.setUseNetworkImage(true);
+                      }
+                      createEditNewsModel.setNewsShowTimestampEnVar(newsModel.newsShowTimestampEn);
 
 
 
-                    return Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        wrapWithModel(
-                          model: createEditNewsModel.customAppbarModel,
-                          updateCallback: () => setState(() {}),
-                          child: CustomAppbarWidget(
-                            backButton: true,
-                            actionButton: false,
-                            actionButtonAction: () async {},
-                            optionsButtonAction: () async {},
+                      return Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          wrapWithModel(
+                            model: createEditNewsModel.customAppbarModel,
+                            updateCallback: () => setState(() {}),
+                            child: CustomAppbarWidget(
+                              backButton: true,
+                              actionButton: false,
+                              actionButtonAction: () async {},
+                              optionsButtonAction: () async {},
+                            ),
                           ),
-                        ),
-                        ////////////////
-                        //PAGE TITLE
-                        /////////////////
-                        Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 30),
-                          child: Text(
-                            createEditNewsModel.saveWayEn ? 'Crea una nuova notizia' : 'Modifica notizia',
-                            style: CustomFlowTheme.of(context).displaySmall,
+                          ////////////////
+                          //PAGE TITLE
+                          /////////////////
+                          Padding(
+                            padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 30),
+                            child: Text(
+                              createEditNewsModel.saveWayEn ? 'Crea una nuova notizia' : 'Modifica notizia',
+                              style: CustomFlowTheme.of(context).displaySmall,
+                            ),
                           ),
-                        ),
-                        ////////////////
-                        //FORM
-                        /////////////////
-                        Form(
-                          key: _formKey,
-                          autovalidateMode: AutovalidateMode.disabled,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              //////////////////////////////////////////
-                              // Title News
-                              //////////////////////////////////////////
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                      child: Text(
-                                        'Titolo news',
-                                        style: CustomFlowTheme.of(context).bodyMedium,
-                                      ),
-                                    ),
-                                    TextFormField(
-                                      controller: createEditNewsModel.fieldControllerTitleWithInitValue(text: providerNews.newsTitle),
-                                      focusNode: createEditNewsModel.newsTitleFocusNode,
-                                      autofocus: false,
-                                      autofillHints: const [AutofillHints.name],
-                                      textCapitalization: TextCapitalization.words,
-                                      textInputAction: TextInputAction.next,
-                                      obscureText: false,
-                                      decoration: standardInputDecoration(
-                                        context,
-                                        prefixIcon: Icon(
-                                          Icons.title,
-                                          color: CustomFlowTheme.of(context).secondaryText,
-                                          size: 18,
+                          ////////////////
+                          //FORM
+                          /////////////////
+                          Form(
+                            key: _formKey,
+                            autovalidateMode: AutovalidateMode.disabled,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.max,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                //////////////////////////////////////////
+                                // Title News
+                                //////////////////////////////////////////
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                                        child: Text(
+                                          'Titolo news',
+                                          style: CustomFlowTheme.of(context).bodyMedium,
                                         ),
                                       ),
-                                      style: CustomFlowTheme.of(context).bodyLarge.override(
-                                        fontWeight: FontWeight.w500,
-                                        lineHeight: 1,
+                                      TextFormField(
+                                        controller: createEditNewsModel.fieldControllerTitleWithInitValue(text: providerNews.newsTitle),
+                                        focusNode: createEditNewsModel.newsTitleFocusNode,
+                                        autofocus: false,
+                                        autofillHints: const [AutofillHints.name],
+                                        textCapitalization: TextCapitalization.words,
+                                        textInputAction: TextInputAction.next,
+                                        obscureText: false,
+                                        decoration: standardInputDecoration(
+                                          context,
+                                          prefixIcon: Icon(
+                                            Icons.title,
+                                            color: CustomFlowTheme.of(context).secondaryText,
+                                            size: 18,
+                                          ),
+                                        ),
+                                        style: CustomFlowTheme.of(context).bodyLarge.override(
+                                          fontWeight: FontWeight.w500,
+                                          lineHeight: 1,
+                                        ),
+                                        minLines: 1,
+                                        cursorColor: CustomFlowTheme.of(context).primary,
+                                        validator: createEditNewsModel.newsTitleTextControllerValidator.asValidator(context),
                                       ),
-                                      minLines: 1,
-                                      cursorColor: CustomFlowTheme.of(context).primary,
-                                      validator: createEditNewsModel.newsTitleTextControllerValidator.asValidator(context),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              //////////////////////////////////////////
-                              // Image News
-                              //////////////////////////////////////////
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
-                                      child: Text(
-                                        'Immagine news (facoltativo)',
-                                        style: CustomFlowTheme.of(context).bodyMedium,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                          color: CustomFlowTheme.of(context).accent1,
-                                        ),
-                                        child: Builder(
-                                          builder: (context) {
-                                            if(createEditNewsModel.useNetworkImage){
-                                              return Image.network(
-                                                providerNews.newsImageUrl!,
-                                                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                                                  if (loadingProgress == null) {
-                                                    return child; // Image has fully loaded
-                                                  } else {
-                                                    return CircularProgressIndicator(
-                                                      value: loadingProgress.expectedTotalBytes != null
-                                                          ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                                          : null, // Shows a progress indicator if the loading size is known
-                                                    );
-                                                  }
-                                                },
-                                                errorBuilder: (context, error, stackTrace) {
-                                                  return Icon(
-                                                    Icons.error,
-                                                    color: CustomFlowTheme.of(context).error,
-                                                    size: 18,
-                                                  ); // Display an error icon if the image fails to load
-                                                },
-                                              );
-                                            } else if(createEditNewsModel.newsImageUrlTemp != null){
-                                              return Selector<CreateEditNewsModel, String?>(
-                                                selector: (_, createEditNewsModel) => createEditNewsModel.newsImageUrlTemp,
-                                                builder: (context, imageUrl, child) {
-                                                  return Image.file(File(imageUrl!),);
-                                                },
-                                              );
-                                            } else {
-                                              return Text("Nessuna immagine caricata");
-                                            }
-                                          }
+                                //////////////////////////////////////////
+                                // Image News
+                                //////////////////////////////////////////
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
+                                        child: Text(
+                                          'Immagine news (facoltativo)',
+                                          style: CustomFlowTheme.of(context).bodyMedium,
                                         ),
                                       ),
-                                    ),
-                                    // button upload
+                                      Padding(
+                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            color: CustomFlowTheme.of(context).accent1,
+                                          ),
+                                          child: Builder(
+                                              builder: (context) {
+                                                if(createEditNewsModel.useNetworkImage){
+                                                  return Image.network(
+                                                    providerNews.newsImageUrl!,
+                                                    loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                                                      if (loadingProgress == null) {
+                                                        return child; // Image has fully loaded
+                                                      } else {
+                                                        return CircularProgressIndicator(
+                                                          value: loadingProgress.expectedTotalBytes != null
+                                                              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                                              : null, // Shows a progress indicator if the loading size is known
+                                                        );
+                                                      }
+                                                    },
+                                                    errorBuilder: (context, error, stackTrace) {
+                                                      return Icon(
+                                                        Icons.error,
+                                                        color: CustomFlowTheme.of(context).error,
+                                                        size: 18,
+                                                      ); // Display an error icon if the image fails to load
+                                                    },
+                                                  );
+                                                } else if(createEditNewsModel.newsImageUrlTemp != null){
+                                                  return Selector<CreateEditNewsModel, String?>(
+                                                    selector: (_, createEditNewsModelSelector) => createEditNewsModelSelector.newsImageUrlTemp,
+                                                    builder: (context, imageUrl, child) {
+                                                      return Image.file(File(imageUrl!),);
+                                                    },
+                                                  );
+                                                } else {
+                                                  return Text("Nessuna immagine caricata");
+                                                }
+                                              }
+                                          ),
+                                        ),
+                                      ),
+                                      // button upload
                                       AFButtonWidget(
                                         onPressed: () async {
                                           FocusScope.of(context).unfocus();
@@ -245,192 +245,194 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                           borderRadius: BorderRadius.circular(0),
                                         ),
                                       ),
-                                  ],
-                                ),
-                              ),
-                              //////////////////////////////////////////
-                              // Sub-Title News
-                              //////////////////////////////////////////
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                      child: Text(
-                                        'Sotto Titolo news (facoltativo)',
-                                        style: CustomFlowTheme.of(context).bodyMedium,
-                                      ),
-                                    ),
-                                    TextFormField(
-                                      controller: createEditNewsModel.fieldControllerSubTitleWithInitValue(text: providerNews.newsSubTitle),
-                                      focusNode: createEditNewsModel.newsSubTitleFocusNode,
-                                      autofocus: false,
-                                      autofillHints: const [AutofillHints.name],
-                                      textCapitalization: TextCapitalization.words,
-                                      textInputAction: TextInputAction.next,
-                                      obscureText: false,
-                                      decoration: standardInputDecoration(
-                                        context,
-                                        prefixIcon: Icon(
-                                          Icons.text_fields,
-                                          color: CustomFlowTheme.of(context).secondaryText,
-                                          size: 18,
-                                        ),
-                                      ),
-                                      style: CustomFlowTheme.of(context).bodyLarge.override(
-                                        fontWeight: FontWeight.w500,
-                                        lineHeight: 1,
-                                      ),
-                                      minLines: 1,
-                                      cursorColor: CustomFlowTheme.of(context).primary,
-                                      validator: createEditNewsModel.newsSubTitleTextControllerValidator.asValidator(context),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              //////////////////////////////////////////
-                              // Description News
-                              //////////////////////////////////////////
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                      child: Text(
-                                        'Testo news',
-                                        style: CustomFlowTheme.of(context).bodyMedium,
-                                      ),
-                                    ),
-                                    TextFormField(
-                                      controller: createEditNewsModel.fieldControllerDescriptionWithInitValue(text: providerNews.newsDescription),
-                                      focusNode: createEditNewsModel.newsDescriptionFocusNode,
-                                      autofocus: false,
-                                      autofillHints: const [AutofillHints.name],
-                                      textCapitalization: TextCapitalization.words,
-                                      textInputAction: TextInputAction.next,
-                                      obscureText: false,
-                                      decoration: standardInputDecoration(
-                                        context,
-                                        prefixIcon: Icon(
-                                          Icons.article,
-                                          color: CustomFlowTheme.of(context).secondaryText,
-                                          size: 18,
-                                        ),
-                                      ),
-                                      style: CustomFlowTheme.of(context).bodyLarge.override(
-                                        fontWeight: FontWeight.w500,
-                                        lineHeight: 1,
-                                      ),
-                                      minLines: 5,
-                                      maxLines: 5,
-                                      cursorColor: CustomFlowTheme.of(context).primary,
-                                      validator: createEditNewsModel.newsDescriptionTextControllerValidator.asValidator(context),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              //////////////////////////////////////////
-                              // SHOW TIMESTAMP switch
-                              //////////////////////////////////////////
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 30),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                      child: Text(
-                                        'Mostra data/ora della notizia',
-                                        style: CustomFlowTheme.of(context).bodyMedium,
-                                      ),
-                                    ),
-                                    Switch(
-                                      value: providerCreateEditNews.newsShowTimestampEnVar,
-                                      onChanged: (value) {
-                                        createEditNewsModel.switchShowTimestampEn();
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        ////////////////
-                        //VALIDATION BUTTON
-                        /////////////////
-                        Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                          child: AFButtonWidget(
-                            onPressed: () async {
-                              FocusScope.of(context).unfocus();
-                              createEditNewsModel.saveWayEn ? logFirebaseEvent('ONBOARDING_CREATE_NEWS_CREATE_NEWS') : logFirebaseEvent('ONBOARDING_EDIT_NEWS_EDIT_NEWS');
-                              logFirebaseEvent('Button_validate_form');
-                              if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
-                                return;
-                              }
-
-                              newsModel.saveEditNews(
-                                providerCreateEditNews.saveWayEn,
-                                providerCreateEditNews.fieldControllerTitle.text,
-                                providerCreateEditNews.fieldControllerSubTitle.text,
-                                providerCreateEditNews.fieldControllerDescription.text,
-                                providerCreateEditNews.newsImageUrlTemp,
-                                providerCreateEditNews.newsShowTimestampEnVar
-                              ).then((_) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'News creata con successo',
-                                      style: CustomFlowTheme.of(context).displaySmall.override( color: CustomFlowTheme.of(context).primary ),
-                                    ),
+                                    ],
                                   ),
-                                );
-                                //logFirebaseEvent('Button_navigate_to');
-                                //context.goNamedAuth('Dashboard', context.mounted);
-                              }).catchError((onError){
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Errore nella creazione della News. Riprova più tardi',
-                                        style: CustomFlowTheme.of(context).displaySmall.override( color: CustomFlowTheme.of(context).error ),
+                                ),
+                                //////////////////////////////////////////
+                                // Sub-Title News
+                                //////////////////////////////////////////
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                                        child: Text(
+                                          'Sotto Titolo news (facoltativo)',
+                                          style: CustomFlowTheme.of(context).bodyMedium,
+                                        ),
                                       ),
-                                    )
-                                );
-                              });
-
-
-                              logFirebaseEvent('Button_haptic_feedback');
-                              HapticFeedback.lightImpact();
-                            },
-                            text: createEditNewsModel.saveWayEn ? 'Crea News' : 'Modifica News',
-                            options: AFButtonOptions(
-                              width: double.infinity,
-                              height: 50,
-                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                              iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                              color: CustomFlowTheme.of(context).primary,
-                              textStyle: CustomFlowTheme.of(context).titleSmall,
-                              elevation: 0,
-                              borderSide: const BorderSide(
-                                color: Colors.transparent,
-                                width: 1,
-                              ),
-                              borderRadius: BorderRadius.circular(25),
+                                      TextFormField(
+                                        controller: createEditNewsModel.fieldControllerSubTitleWithInitValue(text: providerNews.newsSubTitle),
+                                        focusNode: createEditNewsModel.newsSubTitleFocusNode,
+                                        autofocus: false,
+                                        autofillHints: const [AutofillHints.name],
+                                        textCapitalization: TextCapitalization.words,
+                                        textInputAction: TextInputAction.next,
+                                        obscureText: false,
+                                        decoration: standardInputDecoration(
+                                          context,
+                                          prefixIcon: Icon(
+                                            Icons.text_fields,
+                                            color: CustomFlowTheme.of(context).secondaryText,
+                                            size: 18,
+                                          ),
+                                        ),
+                                        style: CustomFlowTheme.of(context).bodyLarge.override(
+                                          fontWeight: FontWeight.w500,
+                                          lineHeight: 1,
+                                        ),
+                                        minLines: 1,
+                                        cursorColor: CustomFlowTheme.of(context).primary,
+                                        validator: createEditNewsModel.newsSubTitleTextControllerValidator.asValidator(context),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                //////////////////////////////////////////
+                                // Description News
+                                //////////////////////////////////////////
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                                        child: Text(
+                                          'Testo news',
+                                          style: CustomFlowTheme.of(context).bodyMedium,
+                                        ),
+                                      ),
+                                      TextFormField(
+                                        controller: createEditNewsModel.fieldControllerDescriptionWithInitValue(text: providerNews.newsDescription),
+                                        focusNode: createEditNewsModel.newsDescriptionFocusNode,
+                                        autofocus: false,
+                                        autofillHints: const [AutofillHints.name],
+                                        textCapitalization: TextCapitalization.words,
+                                        textInputAction: TextInputAction.next,
+                                        obscureText: false,
+                                        decoration: standardInputDecoration(
+                                          context,
+                                          prefixIcon: Icon(
+                                            Icons.article,
+                                            color: CustomFlowTheme.of(context).secondaryText,
+                                            size: 18,
+                                          ),
+                                        ),
+                                        style: CustomFlowTheme.of(context).bodyLarge.override(
+                                          fontWeight: FontWeight.w500,
+                                          lineHeight: 1,
+                                        ),
+                                        minLines: 5,
+                                        maxLines: 5,
+                                        cursorColor: CustomFlowTheme.of(context).primary,
+                                        validator: createEditNewsModel.newsDescriptionTextControllerValidator.asValidator(context),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                //////////////////////////////////////////
+                                // SHOW TIMESTAMP switch
+                                //////////////////////////////////////////
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 30),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                        child: Text(
+                                          'Mostra data/ora della notizia',
+                                          style: CustomFlowTheme.of(context).bodyMedium,
+                                        ),
+                                      ),
+                                      Selector<CreateEditNewsModel, bool>(
+                                        selector: (context, createEditNewsModelSelector) => createEditNewsModelSelector.newsShowTimestampEnVar,
+                                        builder: (context, boolVar, child) {
+                                          return Switch(
+                                            value: boolVar,
+                                            onChanged: (value) {
+                                              createEditNewsModel.switchShowTimestampEn();
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                      ],
-                    );
-                  }
+                          ////////////////
+                          //VALIDATION BUTTON
+                          /////////////////
+                          Padding(
+                            padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
+                            child: AFButtonWidget(
+                              onPressed: () async {
+                                FocusScope.of(context).unfocus();
+                                createEditNewsModel.saveWayEn ? logFirebaseEvent('ONBOARDING_CREATE_NEWS_CREATE_NEWS') : logFirebaseEvent('ONBOARDING_EDIT_NEWS_EDIT_NEWS');
+                                logFirebaseEvent('Button_validate_form');
+                                if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
+                                  return;
+                                }
+
+                                newsModel.saveEditNews(
+                                    createEditNewsModel.saveWayEn,
+                                    createEditNewsModel.fieldControllerTitle.text,
+                                    createEditNewsModel.fieldControllerSubTitle.text,
+                                    createEditNewsModel.fieldControllerDescription.text,
+                                    createEditNewsModel.newsImageUrlTemp,
+                                    createEditNewsModel.newsShowTimestampEnVar
+                                ).then((_) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'News creata con successo',
+                                        style: CustomFlowTheme.of(context).displaySmall.override( color: CustomFlowTheme.of(context).primary ),
+                                      ),
+                                    ),
+                                  );
+                                  Navigator.of(context).pop();
+                                }).catchError((onError){
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Errore nella creazione della News. Riprova più tardi',
+                                          style: CustomFlowTheme.of(context).displaySmall.override( color: CustomFlowTheme.of(context).error ),
+                                        ),
+                                      )
+                                  );
+                                });
+                                logFirebaseEvent('Button_haptic_feedback');
+                                HapticFeedback.lightImpact();
+                              },
+                              text: createEditNewsModel.saveWayEn ? 'Crea News' : 'Modifica News',
+                              options: AFButtonOptions(
+                                width: double.infinity,
+                                height: 50,
+                                padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                color: CustomFlowTheme.of(context).primary,
+                                textStyle: CustomFlowTheme.of(context).titleSmall,
+                                elevation: 0,
+                                borderSide: const BorderSide(
+                                  color: Colors.transparent,
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
                 ),
               ),
             ),

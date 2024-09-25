@@ -52,7 +52,6 @@ class NewsModel extends ChangeNotifier {
       bool showTimestamp
   ) async {
     if(saveWayEn) {
-
       Map<String, dynamic> ownNews = createNewsRecordData(
         tournament_uid: tournamentsRef,
         title: title,
@@ -96,6 +95,7 @@ class NewsModel extends ChangeNotifier {
       }
       await NewsRecord.collection(tournamentsRef!).doc(newsId).update(updatedFields);
     }
+    notifyListeners();
   }
   void noRefreshAnymore() {
     _toRefresh = false;
