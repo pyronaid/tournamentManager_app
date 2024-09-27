@@ -10,7 +10,6 @@ class NewsModel extends ChangeNotifier {
   final String? newsRef;
   late NewsRecord? newsRefObj;
   bool isLoading = true;
-  bool _toRefresh = false;
 
   NewsModel({required this.tournamentsRef, required this.newsRef}){
     fetchObjectUsingId();
@@ -39,7 +38,6 @@ class NewsModel extends ChangeNotifier {
   String? get newsId{
     return newsRef;
   }
-  bool get toRefresh => _toRefresh;
 
 
   /////////////////////////////SETTER
@@ -85,20 +83,19 @@ class NewsModel extends ChangeNotifier {
       if(showTimestamp != newsShowTimestampEn){
         updatedFields["show_timestamp_en"] = showTimestamp;
       }
-      if(imgPath != null && imgPath != newsImageUrl){
+      if(imgPath != newsImageUrl){
         String? imgPathDef;
-        imgPathDef = await FirestorageUtilData.uploadImageToStorage(
-            "users/${currentUser!.uid}/tournament/$tournamentsRef/news/$newsId/newsImage",
-            XFile(imgPath)
-        );
+        if(imgPath != null) {
+          imgPathDef = await FirestorageUtilData.uploadImageToStorage(
+              "users/${currentUser!.uid}/tournament/$tournamentsRef/news/$newsId/newsImage",
+              XFile(imgPath)
+          );
+        }
         updatedFields["image_news_url"] = imgPathDef;
       }
       await NewsRecord.collection(tournamentsRef!).doc(newsId).update(updatedFields);
     }
     notifyListeners();
-  }
-  void noRefreshAnymore() {
-    _toRefresh = false;
   }
 
 
@@ -113,12 +110,12 @@ class NewsModel extends ChangeNotifier {
     if(tournamentsRef != null && (newsRef != null && newsRef != "NEW")) {
       NewsRecord.getDocument(NewsRecord.collection(tournamentsRef!).doc(newsRef)).listen((snapshot) {
         newsRefObj = snapshot;
-        _toRefresh = true;
+        isLoading = false;
         notifyListeners();
       });
     } else {
       newsRefObj = null;
+      isLoading = false;
     }
-    isLoading = false;
   }
 }

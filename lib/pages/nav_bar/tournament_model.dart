@@ -14,7 +14,6 @@ class TournamentModel extends ChangeNotifier {
   bool isLoading = true;
   bool isTournamentLoaded = false;
   bool isNewsLoaded = false;
-  bool _toRefresh = false;
 
   TournamentModel({required this.tournamentsRef}){
     fetchObjectUsingId();
@@ -84,7 +83,6 @@ class TournamentModel extends ChangeNotifier {
     var newsRefObj;
     return newsRefObj?.uid;
   }
-  bool get toRefresh => _toRefresh;
 
 
   /////////////////////////////SETTER
@@ -149,10 +147,10 @@ class TournamentModel extends ChangeNotifier {
       }
     }
   }
-  void noRefreshAnymore() {
-    _toRefresh = false;
+  Future<void> deleteNews(String newsId) async {
+    NewsRecord.deleteNews(tournamentsRef!, newsId);
+    notifyListeners();
   }
-
 
   @override
   void dispose() {
@@ -179,11 +177,9 @@ class TournamentModel extends ChangeNotifier {
   void _setLoadingFalseIfBothLoaded() {
     if (isTournamentLoaded && isNewsLoaded && isLoading) {
       isLoading = false;
-      _toRefresh = true;
+    }
+    if (isTournamentLoaded && isNewsLoaded) {
       notifyListeners();
     }
   }
-
-
-
 }

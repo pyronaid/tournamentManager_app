@@ -76,7 +76,7 @@ class NewsRecord extends FirestoreRecord {
   bool hasCreatorUid() => _creatorUid != null;
 
   void _initializeFields() {
-    _uid = snapshotData['uid'] as String?;
+    _uid = reference.id;
     _tournamentUid = snapshotData['tournament_uid'] as String;
     _title = snapshotData['title'];
     _subTitle = snapshotData['sub_title'];
@@ -98,6 +98,14 @@ class NewsRecord extends FirestoreRecord {
 
   static Future<NewsRecord> getDocumentOnce(DocumentReference ref) =>
       ref.get().then((s) => NewsRecord.fromSnapshot(s));
+
+  static Future<void> deleteNews(String idT, String idN) async {
+    try {
+      await collection(idT).doc(idN).delete();
+    } catch (e) {
+      print("Failed to delete news: $e");
+    }
+  }
 
   static Future<void> updateField(String idT, String idN, String fieldName, dynamic newValue) async {
     try {

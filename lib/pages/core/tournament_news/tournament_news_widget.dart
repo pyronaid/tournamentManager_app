@@ -89,7 +89,7 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> with Ticker
                   child: Container(
                     width: 100.w,
                     child: Column(
-                      mainAxisSize: MainAxisSize.max,
+                      mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -105,10 +105,13 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> with Ticker
                                 return TournamentNewsCardWidget(
                                   key: Key('Keykia_${news.uid}_position_${index}_of_${providerTournament.newsListRefObj!.length}'),
                                   newsRef: news,
+                                  indexo: index,
                                 );
                               },
                             ),
-                          )
+                          ),
+
+                        const SizedBox(height: 100),
                       ],
                     ),
                   ),
@@ -127,25 +130,3 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> with Ticker
 //////////////////////////// FUNCTIONS
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
-
-
-
-
-
-
-/*
-
-* // Fetch news when the widget is built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      newsProvider.fetchNews(currentUser?.uid);
-    });
-    *
-    * consider to avoid to fetch in all related pages ----
-*
-* */
-
-
-
-
-//https://pub.dev/packages/flutter_slidable/changelog
-

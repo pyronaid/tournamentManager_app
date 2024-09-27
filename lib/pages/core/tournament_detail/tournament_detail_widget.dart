@@ -717,7 +717,7 @@ Future<void> _showChangeTournamentNameDialog(BuildContext context) async {
               onPressed: () {
                 Navigator.of(context).pop(); // Dismiss the dialog
               },
-              child: const Text('Cancel'),
+              child: const Text('Annulla'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -795,7 +795,7 @@ Future<void> _showChangeTournamentCapacityDialog(BuildContext context) async {
               onPressed: () {
                 Navigator.of(context).pop(); // Dismiss the dialog
               },
-              child: const Text('Cancel'),
+              child: const Text('Annulla'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -834,66 +834,66 @@ Future<void> _showChangeTournamentDatePicker(BuildContext context, TournamentMod
 Future<void> _showSwitchPreIscrizioniDialog(BuildContext context) async {
   // show the dialog
   await showDialog(
-      context: context,
-      builder: (_) {
-        var tournamentModel = context.read<TournamentModel>();
-        return AlertDialog(
-          title: const Text('Switch Pre-Iscrizioni'),
-          content: Text(
-            "Confermando ${tournamentModel.tournamentPreRegistrationEn ? "disabiliterai" : "abiliterai"} la possibilità ai giocatori di pre-iscriversi. ${tournamentModel.tournamentPreRegistrationEn ? "Qualora ci fossero già giocatori pre-iscritti questi verranno eliminati e se in futuro deciderai di riabilitarla dovranno rieffettuare l'azione" : ""}",
-            style: CustomFlowTheme.of(context).labelMedium,
+    context: context,
+    builder: (_) {
+      var tournamentModel = context.read<TournamentModel>();
+      return AlertDialog(
+        title: const Text('Switch Pre-Iscrizioni'),
+        content: Text(
+          "Confermando ${tournamentModel.tournamentPreRegistrationEn ? "disabiliterai" : "abiliterai"} la possibilità ai giocatori di pre-iscriversi. ${tournamentModel.tournamentPreRegistrationEn ? "Qualora ci fossero già giocatori pre-iscritti questi verranno eliminati e se in futuro deciderai di riabilitarla dovranno rieffettuare l'azione" : ""}",
+          style: CustomFlowTheme.of(context).labelMedium,
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Dismiss the dialog
+            },
+            child: const Text('Annulla'),
           ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Dismiss the dialog
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Handle saving the new value
-                tournamentModel.switchTournamentPreIscrizioniEn();
-                Navigator.of(context).pop(); // Dismiss the dialog
-              },
-              child: const Text('Continua'),
-            ),
-          ],
-        );
-      }
+          ElevatedButton(
+            onPressed: () {
+              // Handle saving the new value
+              tournamentModel.switchTournamentPreIscrizioniEn();
+              Navigator.of(context).pop(); // Dismiss the dialog
+            },
+            child: const Text('Continua'),
+          ),
+        ],
+      );
+    }
   );
 }
 
 Future<void> _showSwitchWaitingListDialog(BuildContext context) async {
   // show the dialog
   await showDialog(
-      context: context,
-      builder: (_) {
-        var tournamentModel = context.read<TournamentModel>();
-        return AlertDialog(
-          title: const Text('Switch Pre-Iscrizioni'),
-          content: Text(
-            "Confermando ${tournamentModel.tournamentWaitingListEn ? "disabiliterai" : "abiliterai"} la possibilità ai giocatori di aggiungersi in waiting list una volta che la capacità del torneo è stata raggiunta. ${tournamentModel.tournamentWaitingListEn ? "Qualora ci fossero già giocatori in waiting-list questi verranno eliminati e se in futuro deciderai di riabilitarla dovranno rieffettuare l'azione" : ""}",
-            style: CustomFlowTheme.of(context).labelMedium,
+    context: context,
+    builder: (_) {
+      var tournamentModel = context.read<TournamentModel>();
+      return AlertDialog(
+        title: const Text('Switch Pre-Iscrizioni'),
+        content: Text(
+          "Confermando ${tournamentModel.tournamentWaitingListEn ? "disabiliterai" : "abiliterai"} la possibilità ai giocatori di aggiungersi in waiting list una volta che la capacità del torneo è stata raggiunta. ${tournamentModel.tournamentWaitingListEn ? "Qualora ci fossero già giocatori in waiting-list questi verranno eliminati e se in futuro deciderai di riabilitarla dovranno rieffettuare l'azione" : ""}",
+          style: CustomFlowTheme.of(context).labelMedium,
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Dismiss the dialog
+            },
+            child: const Text('Annulla'),
           ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Dismiss the dialog
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Handle saving the new value
-                tournamentModel.switchTournamentWaitingListEn();
-                Navigator.of(context).pop(); // Dismiss the dialog
-              },
-              child: const Text('Continua'),
-            ),
-          ],
-        );
-      }
+          ElevatedButton(
+            onPressed: () {
+              // Handle saving the new value
+              tournamentModel.switchTournamentWaitingListEn();
+              Navigator.of(context).pop(); // Dismiss the dialog
+            },
+            child: const Text('Continua'),
+          ),
+        ],
+      );
+    }
   );
 }
 
@@ -914,7 +914,7 @@ Future<void> _showChangeTournamentStateDialog(BuildContext context, String newSt
               onPressed: () {
                 Navigator.of(context).pop(); // Dismiss the dialog
               },
-              child: const Text('Cancel'),
+              child: const Text('Annulla'),
             ),
             ElevatedButton(
               onPressed: () {

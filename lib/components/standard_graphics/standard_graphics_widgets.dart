@@ -105,7 +105,7 @@ AlertDialog standardAlert(BuildContext context, String title, String message, {W
   return AlertDialog(
     title: Text(
       title,
-      style: CustomFlowTheme.of(context).displaySmall.override(color: CustomFlowTheme.of(context).warning),
+      style: CustomFlowTheme.of(context).displaySmall.override(color: CustomFlowTheme.of(context).error),
     ),
     content: Text(
       message,

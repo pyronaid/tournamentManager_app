@@ -62,6 +62,9 @@ abstract class CustomFlowTheme {
   late Color warning;
   late Color error;
   late Color info;
+  late Color cardDetail;
+  late Color cardMain;
+  late Color cardSecond;
 
   @Deprecated('Use displaySmallFamily instead')
   String get title1Family => displaySmallFamily;
@@ -93,7 +96,7 @@ abstract class CustomFlowTheme {
   TextStyle get bodyText2 => typography.bodySmall;
   @Deprecated('Use bodyMicroFamily instead')
   String get bodyText3Family => typography.bodyMicroFamily;
-  @Deprecated('Use bodySMicro instead')
+  @Deprecated('Use bodyMicro instead')
   TextStyle get bodyText3 => typography.bodyMicro;
 
   String get displayLargeFamily => typography.displayLargeFamily;
@@ -159,6 +162,9 @@ class LightModeTheme extends CustomFlowTheme {
   late Color warning = const Color(0x4CFF5963);
   late Color error = const Color(0xFFFF5963);
   late Color info = const Color(0xFFFFFFFF);
+  late Color cardDetail = const Color(0xFF211F1F);
+  late Color cardMain = const Color(0xFF001294);
+  late Color cardSecond = const Color(0xFFFFFFFF);
 }
 
 abstract class Typography {
@@ -323,12 +329,12 @@ class ThemeTypography extends Typography {
       );
   String get bodyMicroFamily => 'Inter';
   TextStyle get bodyMicro => GoogleFonts.getFont(
-    'Inter',
-    color: theme.primaryText,
-    fontWeight: FontWeight.w400,
-    fontSize: 12.0,
-    letterSpacing: 0,
-  );
+      'Inter',
+      color: theme.primaryText,
+      fontWeight: FontWeight.w500,
+      fontSize: 8.0,
+      letterSpacing: 0,
+    );
 }
 
 class DarkModeTheme extends CustomFlowTheme {
@@ -358,6 +364,9 @@ class DarkModeTheme extends CustomFlowTheme {
   late Color warning = const Color(0x4DFF5963);
   late Color error = const Color(0xFFFF5963);
   late Color info = const Color(0xFFFFFFFF);
+  late Color cardDetail = const Color(0xFF211F1F);
+  late Color cardMain = const Color(0xFF001294);
+  late Color cardSecond = const Color(0xFFFFFFFF);
 }
 
 extension TextStyleHelper on TextStyle {

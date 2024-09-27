@@ -138,6 +138,11 @@ class CreateEditNewsModel extends ChangeNotifier {
     }
     notifyListeners();
   }
+  Future<void> cleanNewsImage(bool saveWayEn) async{
+    _newsImageUrlTemp = null;
+    _useNetworkImage = false;
+    notifyListeners();
+  }
   void switchShowTimestampEn() async {
     _newsShowTimestampEnVar = !_newsShowTimestampEnVar;
     notifyListeners();

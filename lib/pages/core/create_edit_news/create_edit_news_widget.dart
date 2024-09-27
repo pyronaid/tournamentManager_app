@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/pages/nav_bar/news_model.dart';
+import 'package:tuple/tuple.dart';
 
 import '../../../app_flow/app_flow_model.dart';
 import '../../../app_flow/app_flow_theme.dart';
@@ -137,7 +138,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                         focusNode: createEditNewsModel.newsTitleFocusNode,
                                         autofocus: false,
                                         autofillHints: const [AutofillHints.name],
-                                        textCapitalization: TextCapitalization.words,
+                                        textCapitalization: TextCapitalization.sentences,
                                         textInputAction: TextInputAction.next,
                                         obscureText: false,
                                         decoration: standardInputDecoration(
@@ -182,68 +183,99 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                           decoration: BoxDecoration(
                                             color: CustomFlowTheme.of(context).accent1,
                                           ),
-                                          child: Builder(
-                                              builder: (context) {
-                                                if(createEditNewsModel.useNetworkImage){
-                                                  return Image.network(
-                                                    providerNews.newsImageUrl!,
-                                                    loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                                                      if (loadingProgress == null) {
-                                                        return child; // Image has fully loaded
-                                                      } else {
-                                                        return CircularProgressIndicator(
-                                                          value: loadingProgress.expectedTotalBytes != null
-                                                              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                                              : null, // Shows a progress indicator if the loading size is known
-                                                        );
-                                                      }
-                                                    },
-                                                    errorBuilder: (context, error, stackTrace) {
-                                                      return Icon(
-                                                        Icons.error,
-                                                        color: CustomFlowTheme.of(context).error,
-                                                        size: 18,
-                                                      ); // Display an error icon if the image fails to load
-                                                    },
-                                                  );
-                                                } else if(createEditNewsModel.newsImageUrlTemp != null){
-                                                  return Selector<CreateEditNewsModel, String?>(
-                                                    selector: (_, createEditNewsModelSelector) => createEditNewsModelSelector.newsImageUrlTemp,
-                                                    builder: (context, imageUrl, child) {
-                                                      return Image.file(File(imageUrl!),);
-                                                    },
-                                                  );
-                                                } else {
-                                                  return Text("Nessuna immagine caricata");
-                                                }
+                                          child: Selector<CreateEditNewsModel, Tuple2<String?, bool>>(
+                                            selector: (_, createEditNewsModelSelector) => Tuple2(createEditNewsModelSelector.newsImageUrlTemp, createEditNewsModelSelector.useNetworkImage),
+                                            builder: (context, tuple,child) {
+                                              if(tuple.item2){
+                                                return Image.network(
+                                                  providerNews.newsImageUrl!,
+                                                  loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                                                    if (loadingProgress == null) {
+                                                      return child; // Image has fully loaded
+                                                    } else {
+                                                      return CircularProgressIndicator(
+                                                        value: loadingProgress.expectedTotalBytes != null
+                                                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                                            : null, // Shows a progress indicator if the loading size is known
+                                                      );
+                                                    }
+                                                  },
+                                                  errorBuilder: (context, error, stackTrace) {
+                                                    return Icon(
+                                                      Icons.error,
+                                                      color: CustomFlowTheme.of(context).error,
+                                                      size: 18,
+                                                    ); // Display an error icon if the image fails to load
+                                                  },
+                                                );
+                                              } else if(tuple.item1 != null){
+                                                return Image.file(File(tuple.item1!),);
+                                              } else {
+                                                return Text("Nessuna immagine caricata");
                                               }
+                                            },
                                           ),
                                         ),
                                       ),
-                                      // button upload
-                                      AFButtonWidget(
-                                        onPressed: () async {
-                                          FocusScope.of(context).unfocus();
-                                          logFirebaseEvent('Button_load_pic');
-                                          createEditNewsModel.setNewsImage(createEditNewsModel.saveWay);
-                                          logFirebaseEvent('Button_haptic_feedback');
-                                          HapticFeedback.lightImpact();
-                                        },
-                                        text: 'Carica immagine',
-                                        options: AFButtonOptions(
-                                          width: 40.w,
-                                          height: 50,
-                                          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                          iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                          color: CustomFlowTheme.of(context).primary,
-                                          textStyle: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).info),
-                                          elevation: 0,
-                                          borderSide: const BorderSide(
-                                            color: Colors.transparent,
-                                            width: 1,
-                                          ),
-                                          borderRadius: BorderRadius.circular(0),
-                                        ),
+                                      Selector<CreateEditNewsModel, bool>(
+                                        selector: (_, createEditNewsModelSelector) => createEditNewsModelSelector.useNetworkImage,
+                                        builder: (context, flag, child) {
+                                          return Row(
+                                            children: [
+                                              AFButtonWidget(
+                                                onPressed: () async {
+                                                  FocusScope.of(context).unfocus();
+                                                  logFirebaseEvent('Button_load_pic');
+                                                  createEditNewsModel.setNewsImage(createEditNewsModel.saveWay);
+                                                  logFirebaseEvent('Button_haptic_feedback');
+                                                  HapticFeedback.lightImpact();
+                                                },
+                                                text: 'Carica immagine',
+                                                options: AFButtonOptions(
+                                                  width: 40.w,
+                                                  height: 50,
+                                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                                  iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                                  color: CustomFlowTheme.of(context).primary,
+                                                  textStyle: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).info),
+                                                  elevation: 0,
+                                                  borderSide: const BorderSide(
+                                                    color: Colors.transparent,
+                                                    width: 1,
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(0),
+                                                ),
+                                              ),
+                                              if(flag) ...[
+                                                const SizedBox(width: 10,),
+                                                AFButtonWidget(
+                                                  onPressed: () async {
+                                                    FocusScope.of(context).unfocus();
+                                                    logFirebaseEvent('Button_load_pic');
+                                                    createEditNewsModel.cleanNewsImage(createEditNewsModel.saveWay);
+                                                    logFirebaseEvent('Button_haptic_feedback');
+                                                    HapticFeedback.lightImpact();
+                                                  },
+                                                  text: 'Elimina immagine',
+                                                  options: AFButtonOptions(
+                                                    width: 40.w,
+                                                    height: 50,
+                                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                                    iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                                    color: CustomFlowTheme.of(context).primary,
+                                                    textStyle: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).info),
+                                                    elevation: 0,
+                                                    borderSide: const BorderSide(
+                                                      color: Colors.transparent,
+                                                      width: 1,
+                                                    ),
+                                                    borderRadius: BorderRadius.circular(0),
+                                                  ),
+                                                ),
+                                              ]
+                                            ],
+                                          );
+                                        }
                                       ),
                                     ],
                                   ),
@@ -269,7 +301,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                         focusNode: createEditNewsModel.newsSubTitleFocusNode,
                                         autofocus: false,
                                         autofillHints: const [AutofillHints.name],
-                                        textCapitalization: TextCapitalization.words,
+                                        textCapitalization: TextCapitalization.sentences,
                                         textInputAction: TextInputAction.next,
                                         obscureText: false,
                                         decoration: standardInputDecoration(
@@ -312,7 +344,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                         focusNode: createEditNewsModel.newsDescriptionFocusNode,
                                         autofocus: false,
                                         autofillHints: const [AutofillHints.name],
-                                        textCapitalization: TextCapitalization.words,
+                                        textCapitalization: TextCapitalization.sentences,
                                         textInputAction: TextInputAction.next,
                                         obscureText: false,
                                         decoration: standardInputDecoration(
@@ -394,7 +426,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        'News creata con successo',
+                                        'News creata/modificata con successo',
                                         style: CustomFlowTheme.of(context).displaySmall.override( color: CustomFlowTheme.of(context).primary ),
                                       ),
                                     ),
