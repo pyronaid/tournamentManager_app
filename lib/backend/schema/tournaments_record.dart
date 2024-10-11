@@ -282,14 +282,14 @@ class TournamentsRecordDocumentEquality implements Equality<TournamentsRecord> {
 
 
 enum Game {
-  none("", 'assets/images/card_back/game_ygo_adv.jpg'),
   ygoAdv("Yu-Gi-Oh! Avanzato", 'assets/images/card_back/game_ygo_adv.jpg'),
   ygoRetro("Yu-Gi-Oh! Retroformat", 'assets/images/card_back/game_ygo_adv.jpg'),
   lorcana("Lorcana", 'assets/images/card_back/game_ygo_adv.jpg'),
   onepiece("One Piece", 'assets/images/card_back/game_ygo_adv.jpg'),
   altered("Altered", 'assets/images/card_back/game_ygo_adv.jpg'),
   magic("Magic", 'assets/images/card_back/game_ygo_adv.jpg'),
-  unknown("UNKNOWN", 'assets/images/card_back/game_ygo_adv.jpg');
+  unknown("UNKNOWN", 'assets/images/card_back/game_ygo_adv.jpg'),
+  none("", 'assets/images/card_back/game_ygo_adv.jpg');
 
   final String desc;
   final String resource;

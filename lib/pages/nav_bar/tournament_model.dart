@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -8,6 +9,9 @@ import '../../backend/schema/tournaments_record.dart';
 import '../../backend/schema/util/firestorage_util.dart';
 
 class TournamentModel extends ChangeNotifier {
+
+  late ImagePickerService imagePickerService;
+
   final String? tournamentsRef;
   late TournamentsRecord? tournamentsRefObj;
   late List<NewsRecord>? newsListRefObj;
@@ -17,6 +21,7 @@ class TournamentModel extends ChangeNotifier {
 
   TournamentModel({required this.tournamentsRef}){
     fetchObjectUsingId();
+    imagePickerService = GetIt.instance<ImagePickerService>();
   }
 
 
@@ -131,7 +136,7 @@ class TournamentModel extends ChangeNotifier {
   }
   Future<void> setTournamentImage() async{
     bool? isCamera = true; //TO FIX WITH DIALOG FUNCTION
-    XFile? imageFile = await ImagePickerService().pickCropImage(
+    XFile? imageFile = await imagePickerService.pickCropImage(
         cropAspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
         imageSource: ImageSource.camera
     );

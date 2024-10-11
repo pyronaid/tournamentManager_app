@@ -7,6 +7,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'app_flow/app_flow_theme.dart';
 import 'app_flow/internationalization.dart';
 import 'app_flow/nav/nav.dart';
+import 'app_flow/services/locator.dart';
 import 'app_state.dart';
 import 'auth/firebase_auth/auth_util.dart';
 import 'auth/firebase_auth/firebase_user_provider.dart';
@@ -24,6 +25,9 @@ void main() async {
 
   final appState = CustomAppState();
   await appState.initializePersistedState();
+
+  //Service Locator
+  serviceLocatorSetUp();
 
   runApp(ChangeNotifierProvider(
       create: (context) => appState,

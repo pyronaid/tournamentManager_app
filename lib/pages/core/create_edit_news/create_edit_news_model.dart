@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tournamentmanager/pages/nav_bar/news_model.dart';
@@ -12,6 +13,7 @@ class CreateEditNewsModel extends ChangeNotifier {
   final _unfocusNode = FocusNode();
   final bool saveWay;
   late CustomAppbarModel customAppbarModel;
+  late ImagePickerService imagePickerService;
 
 
   //////////////////////////////FORM TITLE
@@ -62,6 +64,7 @@ class CreateEditNewsModel extends ChangeNotifier {
     _newsShowTimestampEnVar = false;
     _useNetworkImage = false;
     _newsImageUrlTemp = null;
+    imagePickerService = GetIt.instance<ImagePickerService>();
   }
 
 
@@ -128,7 +131,7 @@ class CreateEditNewsModel extends ChangeNotifier {
   }
   Future<void> setNewsImage(bool saveWayEn) async{
     bool? isCamera = true; //TO FIX WITH DIALOG FUNCTION
-    XFile? imageFile = await ImagePickerService().pickCropImage(
+    XFile? imageFile = await imagePickerService.pickCropImage(
         cropAspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
         imageSource: ImageSource.camera
     );
@@ -151,7 +154,7 @@ class CreateEditNewsModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    unfocusNode.dispose();
+    _unfocusNode.dispose();
     customAppbarModel.dispose();
     _fieldControllerTitle.dispose();
     _fieldControllerSubTitle.dispose();

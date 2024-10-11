@@ -8,6 +8,7 @@ import 'package:tournamentmanager/backend/schema/news_record.dart';
 import 'package:tournamentmanager/pages/core/create_edit_news/create_edit_news_container.dart';
 import 'package:tournamentmanager/pages/nav_bar/nav_bar_lev2_widget.dart';
 import '../../backend/schema/tournaments_record.dart';
+import '../../pages/core/create_own/create_own_container.dart';
 import '../../pages/core/create_own/create_own_widget.dart';
 import '../../pages/nav_bar/nav_bar_widget.dart';
 import '../../pages/onboarding/onboarding_verify_mail/onboarding_verify_mail_widget.dart';
@@ -150,7 +151,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               name: 'CreateOwn',
               path: 'create-own',
               requireAuth: true,
-              builder: (context, params) => const CreateOwnWidget(),
+              builder: (context, params) => const CreateOwnContainer(),
             ),
             CustomRoute(
               name: 'CreateEditNews',
