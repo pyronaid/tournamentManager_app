@@ -49,7 +49,7 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> with Ticker
           : FocusScope.of(context).unfocus(),
       child: Consumer<TournamentModel>(
           builder: (context, providerTournament, _) {
-            print("[REBUILD IN CORSO] tournament_news_widget.dart");
+            print("[BUILD IN CORSO] tournament_news_widget.dart");
             if (tournamentModel.isLoading) {
               return const Center(child: CircularProgressIndicator());
             }
@@ -123,10 +123,3 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> with Ticker
     );
   }
 }
-
-
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
-//////////////////////////// FUNCTIONS
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////

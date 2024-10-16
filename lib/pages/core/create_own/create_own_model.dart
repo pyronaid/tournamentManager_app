@@ -1,8 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:tournamentmanager/app_flow/services/PlacesApiManagerService.dart';
+import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/SnackBarClasses.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../app_flow/app_flow_animations.dart';
@@ -24,6 +24,8 @@ class CreateOwnModel extends ChangeNotifier {
   var uuid =  const Uuid();
   List<dynamic> _placeList = [];
   dynamic _selectedPlace;
+
+  late SnackBarService snackBarService;
 
   //////////////////////////////CAROUSEL
   late PageController _pageViewController;
@@ -114,6 +116,7 @@ class CreateOwnModel extends ChangeNotifier {
     _waitingListEnabledVar = false;
     placesApiManagerService = GetIt.instance.getAsync<PlacesApiManagerService>();
     _sessionToken = uuid.v4();
+    snackBarService = GetIt.instance<SnackBarService>();
   }
 
 
@@ -194,7 +197,7 @@ class CreateOwnModel extends ChangeNotifier {
     _sessionToken = uuid.v4();
     notifyListeners();
   }
-  Future<void> saveTournament() async{
+  Future<bool> saveTournament() async{
     Map<String, dynamic> ownTournament = createTournamentsRecordData(
       game: Game.values[pageViewController.page!.round()],
       name: tournamentNameTextController.text,
@@ -205,7 +208,22 @@ class CreateOwnModel extends ChangeNotifier {
       capacity: int.tryParse(tournamentCapacityTextController.text),
       creator_uid: currentUser!.uid,
     );
-    await TournamentsRecord.collection.add(ownTournament);
+    try {
+      await TournamentsRecord.collection.add(ownTournament);
+      snackBarService.showSnackBar(
+        message: 'Torneo creato con successo',
+        title: 'Creazione Torneo',
+        sentiment: Sentiment.completed,
+      );
+      return true;
+    } catch (e){
+      snackBarService.showSnackBar(
+        message: 'Errore nella creazione del Torneo. Riprova più tardi',
+        title: 'Creazione Torneo',
+        sentiment: Sentiment.error,
+      );
+    }
+    return false;
   }
 
 

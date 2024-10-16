@@ -163,21 +163,15 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                               HapticFeedback.lightImpact();
                               logFirebaseEvent('Button_auth');
                               if (_model.emailAddressTextController!.text.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Email necessaria!',
-                                    ),
-                                  ),
+                                _model.showResetPasswordIssueSnackBar();
+                              } else {
+                                await authManager.resetPassword(
+                                  email: _model.emailAddressTextController!.text,
+                                  context: context,
                                 );
-                                return;
+                                logFirebaseEvent('Button_navigate_back');
+                                context.pop();
                               }
-                              await authManager.resetPassword(
-                                email: _model.emailAddressTextController!.text,
-                                context: context,
-                              );
-                              logFirebaseEvent('Button_navigate_back');
-                              context.pop();
                             },
                             text: 'Reset Password',
                             options: AFButtonOptions(

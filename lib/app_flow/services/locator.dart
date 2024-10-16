@@ -1,7 +1,9 @@
 import 'package:get_it/get_it.dart';
+import 'package:tournamentmanager/app_flow/services/DialogService.dart';
 import 'package:tournamentmanager/app_flow/services/PlacesApiManagerService.dart';
 
 import 'ImagePickerService.dart';
+import 'SnackBarService.dart';
 
 final serviceLocator = GetIt.instance; // GetIt.I is also valid
 
@@ -24,6 +26,8 @@ void serviceLocatorSetUp(){
     await secretManagerService.initialize();
     return secretManagerService;
   });
+  serviceLocator.registerLazySingleton<DialogService>(() => DialogService());
+  serviceLocator.registerLazySingleton<SnackBarService>(() => SnackBarService());
   //serviceLocator.registerSingleton<Model>(()=> MyModel());
   //serviceLocator.registerFactory<Model>(()=>MyModel());
   //serviceLocator.registerFactoryParam<Person,String,int>((name, age) => Person(name,age));

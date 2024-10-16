@@ -7,12 +7,14 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/backend/schema/news_record.dart';
 import 'package:tournamentmanager/pages/core/create_edit_news/create_edit_news_container.dart';
 import 'package:tournamentmanager/pages/nav_bar/nav_bar_lev2_widget.dart';
+import 'package:tournamentmanager/pages/profile/edit_profile/edit_profile_container.dart';
 import '../../backend/schema/tournaments_record.dart';
 import '../../pages/core/create_own/create_own_container.dart';
 import '../../pages/core/create_own/create_own_widget.dart';
 import '../../pages/nav_bar/nav_bar_widget.dart';
 import '../../pages/onboarding/onboarding_verify_mail/onboarding_verify_mail_widget.dart';
 import '../../pages/onboarding/onboarding_verify_mail_success/onboarding_verify_mail_success_widget.dart';
+import '../services/ServiceManager.dart';
 import '/backend/backend.dart';
 
 import '/auth/base_auth_user_provider.dart';
@@ -90,7 +92,14 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: '_initialize',
           path: '/',
           builder: (context, _) =>
-          appStateNotifier.loggedIn ? (appStateNotifier.emailVerified ? const NavBarPage() : const OnboardingVerifyMailWidget()) : const SplashWidget(),
+            ServiceManager(
+              child: appStateNotifier.loggedIn
+                  ? (appStateNotifier.emailVerified
+                  ? const NavBarPage()
+                  : const OnboardingVerifyMailWidget()
+              )
+                  : const SplashWidget(),
+            ),
           routes: [
             CustomRoute(
               name: 'Splash',
@@ -173,7 +182,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               name: 'EditProfile',
               path: 'edit-profile',
               requireAuth: true,
-              builder: (context, params) => const EditProfileWidget(),
+              builder: (context, params) => const EditProfileContainer(),
             ),
             CustomRoute(
               name: 'AboutUs',
@@ -367,118 +376,118 @@ class CustomRoute {
   final List<GoRoute> routes;
 
   GoRoute toRoute(AppStateNotifier appStateNotifier) => GoRoute(
-        name: name,
-        path: path,
-        redirect: (context, state) {
-          if (appStateNotifier.shouldRedirect) {
-            final redirectLocation = appStateNotifier.getRedirectLocation();
-            appStateNotifier.clearRedirectLocation();
-            return redirectLocation;
-          }
+    name: name,
+    path: path,
+    redirect: (context, state) {
+      if (appStateNotifier.shouldRedirect) {
+        final redirectLocation = appStateNotifier.getRedirectLocation();
+        appStateNotifier.clearRedirectLocation();
+        return redirectLocation;
+      }
 
-          if (requireAuth && (!appStateNotifier.loggedIn || !appStateNotifier.emailVerified)) {
-            appStateNotifier.setRedirectLocationIfUnset(state.uri.toString());
-            if(!appStateNotifier.loggedIn) {
-              return '/splash';
-            } else {
-              return '/onboarding-verify-mail';
-            }
-          }
-          return null;
-        },
-        pageBuilder: (context, state) {
-          fixStatusBarOniOS16AndBelow(context);
-          final afParams = AFParameters(state, asyncParams);
-          final page = afParams.hasFutures
-              ? FutureBuilder(
-                  future: afParams.completeFutures(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      // While the Future is still loading, show a loading indicator
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      // If there was an error fetching the data, show an error message
-                      return Center(child: Text('Generic error landing page Error: ${snapshot.error}'));
-                    } else if (snapshot.hasData && snapshot.data == true) {
-                      return builder(context, afParams);
-                    } else {
-                      // If no data is present for some reason
-                      return const Center(child: Text('Generic error landing page in fetching Future data'));
-                    }
-                  },
-                )
-              : builder(context, afParams);
-          final child = appStateNotifier.loading
-              ? Container(
-                  width: 92.w,
-                  padding: EdgeInsets.all(4.w),
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft,
-                        colors: [
-                          CustomFlowTheme.of(context).gradientBackgroundBegin,
-                          CustomFlowTheme.of(context).gradientBackgroundEnd,
-                        ],
-                      )
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Center(
-                        child: Lottie.asset(
-                          'assets/animation/splash_animation.json',
-                          fit: BoxFit.cover,
-                          width: 80.sp, // Adjust the width and height as needed
-                          height: 70.sp,
-                          repeat: true, // Set to true if you want the animation to loop
-                        ),
-                      ),
-                      Center(
-                        child: DefaultTextStyle(
-                          style: TextStyle(
-                              fontSize: 30.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blueAccent
-                          ),
-                          child: const Center(
-                            child: Text(
-                              "Tournament Manager",
-                              textAlign: TextAlign.center,
-                            )
-                          ),
-                        ),
-                      )
+      if (requireAuth && (!appStateNotifier.loggedIn || !appStateNotifier.emailVerified)) {
+        appStateNotifier.setRedirectLocationIfUnset(state.uri.toString());
+        if(!appStateNotifier.loggedIn) {
+          return '/splash';
+        } else {
+          return '/onboarding-verify-mail';
+        }
+      }
+      return null;
+    },
+    pageBuilder: (context, state) {
+      fixStatusBarOniOS16AndBelow(context);
+      final afParams = AFParameters(state, asyncParams);
+      final page = afParams.hasFutures
+          ? FutureBuilder(
+              future: afParams.completeFutures(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // While the Future is still loading, show a loading indicator
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  // If there was an error fetching the data, show an error message
+                  return Center(child: Text('Generic error landing page Error: ${snapshot.error}'));
+                } else if (snapshot.hasData && snapshot.data == true) {
+                  return builder(context, afParams);
+                } else {
+                  // If no data is present for some reason
+                  return const Center(child: Text('Generic error landing page in fetching Future data'));
+                }
+              },
+            )
+          : builder(context, afParams);
+      final child = appStateNotifier.loading
+          ? Container(
+              width: 92.w,
+              padding: EdgeInsets.all(4.w),
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                    colors: [
+                      CustomFlowTheme.of(context).gradientBackgroundBegin,
+                      CustomFlowTheme.of(context).gradientBackgroundEnd,
                     ],
+                  )
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Lottie.asset(
+                      'assets/animation/splash_animation.json',
+                      fit: BoxFit.cover,
+                      width: 80.sp, // Adjust the width and height as needed
+                      height: 70.sp,
+                      repeat: true, // Set to true if you want the animation to loop
+                    ),
                   ),
-                )
-              : page;
+                  Center(
+                    child: DefaultTextStyle(
+                      style: TextStyle(
+                          fontSize: 30.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueAccent
+                      ),
+                      child: const Center(
+                        child: Text(
+                          "Tournament Manager",
+                          textAlign: TextAlign.center,
+                        )
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            )
+          : page;
 
-          final transitionInfo = state.transitionInfo;
-          return transitionInfo.hasTransition
-              ? CustomTransitionPage(
-                  key: state.pageKey,
-                  child: child,
-                  transitionDuration: transitionInfo.duration,
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) =>
-                          PageTransition(
-                    type: transitionInfo.transitionType,
-                    duration: transitionInfo.duration,
-                    reverseDuration: transitionInfo.duration,
-                    alignment: transitionInfo.alignment,
-                    child: child,
-                  ).buildTransitions(
-                    context,
-                    animation,
-                    secondaryAnimation,
-                    child,
-                  ),
-                )
-              : MaterialPage(key: state.pageKey, child: child);
-        },
-        routes: routes,
+      final transitionInfo = state.transitionInfo;
+      return transitionInfo.hasTransition
+        ? CustomTransitionPage(
+            key: state.pageKey,
+            child: child,
+            transitionDuration: transitionInfo.duration,
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) =>
+                    PageTransition(
+              type: transitionInfo.transitionType,
+              duration: transitionInfo.duration,
+              reverseDuration: transitionInfo.duration,
+              alignment: transitionInfo.alignment,
+              child: child,
+            ).buildTransitions(
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ),
+          )
+        : MaterialPage(key: state.pageKey, child: child);
+    },
+    routes: routes,
   );
 }
 

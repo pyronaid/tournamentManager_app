@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import '../../../app_flow/app_flow_util.dart';
+import '../../../app_flow/services/SnackBarService.dart';
+import '../../../app_flow/services/supportClass/SnackBarClasses.dart';
 import '../../../components/custom_appbar_model.dart';
 import 'forgot_password_widget.dart';
 
@@ -10,6 +13,7 @@ class ForgotPasswordModel extends CustomFlowModel<ForgotPasswordWidget> {
   final unfocusNode = FocusNode();
   // Model for customAppbar component.
   late CustomAppbarModel customAppbarModel;
+  late SnackBarService snackBarService;
   // State field(s) for emailAddress widget.
   FocusNode? emailAddressFocusNode;
   TextEditingController? emailAddressTextController;
@@ -29,6 +33,7 @@ class ForgotPasswordModel extends CustomFlowModel<ForgotPasswordWidget> {
   @override
   void initState(BuildContext context) {
     customAppbarModel = createModel(context, () => CustomAppbarModel());
+    snackBarService = GetIt.instance<SnackBarService>();
     emailAddressTextControllerValidator = _emailAddressTextControllerValidator;
   }
 
@@ -38,5 +43,13 @@ class ForgotPasswordModel extends CustomFlowModel<ForgotPasswordWidget> {
     customAppbarModel.dispose();
     emailAddressFocusNode?.dispose();
     emailAddressTextController?.dispose();
+  }
+
+  void showResetPasswordIssueSnackBar() {
+    snackBarService.showSnackBar(
+      message: 'Problema con il reset della password. Riprova più tardi',
+      title: 'Reset password',
+      sentiment: Sentiment.warning,
+    );
   }
 }

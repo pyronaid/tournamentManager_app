@@ -70,7 +70,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
               child: SingleChildScrollView(
                 child: Consumer<NewsModel>(
                     builder: (context, providerNews, _){
-                      print("[REBUILD IN CORSO] create_edit_news_widget.dart");
+                      print("[BUILD IN CORSO] create_edit_news_widget.dart");
                       if(newsModel.isLoading){
                         return const Center(child: CircularProgressIndicator());
                       }
@@ -78,7 +78,6 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                         createEditNewsModel.setUseNetworkImage(true);
                       }
                       createEditNewsModel.setNewsShowTimestampEnVar(newsModel.newsShowTimestampEn);
-
 
 
                       return Column(
@@ -415,33 +414,15 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with Ticker
                                   return;
                                 }
 
-                                newsModel.saveEditNews(
+                                bool result = await newsModel.saveEditNews(
                                     createEditNewsModel.saveWayEn,
                                     createEditNewsModel.fieldControllerTitle.text,
                                     createEditNewsModel.fieldControllerSubTitle.text,
                                     createEditNewsModel.fieldControllerDescription.text,
                                     createEditNewsModel.newsImageUrlTemp,
                                     createEditNewsModel.newsShowTimestampEnVar
-                                ).then((_) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'News creata/modificata con successo',
-                                        style: CustomFlowTheme.of(context).displaySmall.override( color: CustomFlowTheme.of(context).primary ),
-                                      ),
-                                    ),
-                                  );
-                                  Navigator.of(context).pop();
-                                }).catchError((onError){
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Errore nella creazione della News. Riprova più tardi',
-                                          style: CustomFlowTheme.of(context).displaySmall.override( color: CustomFlowTheme.of(context).error ),
-                                        ),
-                                      )
-                                  );
-                                });
+                                );
+                                if(result){ Navigator.of(context).pop(); }
                                 logFirebaseEvent('Button_haptic_feedback');
                                 HapticFeedback.lightImpact();
                               },

@@ -465,28 +465,8 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                           }
                           logFirebaseEvent('Button_haptic_feedback');
                           HapticFeedback.lightImpact();
-
-                          createOwnModel.saveTournament().then((_) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Torneo creato con successo',
-                                  style: CustomFlowTheme.of(context).displaySmall.override( color: CustomFlowTheme.of(context).primary ),
-                                ),
-                              ),
-                            );
-                            logFirebaseEvent('Button_navigate_to');
-                            context.goNamedAuth('Dashboard', context.mounted);
-                          }).catchError((onError){
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Errore nella creazione del Torneo. Riprova più tardi',
-                                  style: CustomFlowTheme.of(context).displaySmall.override( color: CustomFlowTheme.of(context).error ),
-                                ),
-                              )
-                            );
-                          });
+                          bool result = await createOwnModel.saveTournament();
+                          if(result){ context.goNamedAuth('Dashboard', context.mounted); }
                         },
                         text: 'Crea Torneo',
                         options: AFButtonOptions(

@@ -1,9 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:tournamentmanager/backend/schema/news_record.dart';
 
 import '../../../backend/firebase_analytics/analytics.dart';
-import '../../../backend/schema/tournaments_record.dart';
 import '../../nav_bar/news_model.dart';
 import 'create_edit_news_model.dart';
 import 'create_edit_news_widget.dart';

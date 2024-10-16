@@ -7,6 +7,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'app_flow/app_flow_theme.dart';
 import 'app_flow/internationalization.dart';
 import 'app_flow/nav/nav.dart';
+import 'app_flow/services/ServiceManager.dart';
 import 'app_flow/services/locator.dart';
 import 'app_state.dart';
 import 'auth/firebase_auth/auth_util.dart';
@@ -42,8 +43,7 @@ class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
 
-  static _MyAppState of(BuildContext context) =>
-      context.findAncestorStateOfType<_MyAppState>()!;
+  static _MyAppState of(BuildContext context) => context.findAncestorStateOfType<_MyAppState>()!;
 }
 
 
@@ -92,33 +92,31 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
 
     return ResponsiveSizer(
-        builder: (context, orientation, deviceType){
-          return MaterialApp.router(
-            title: 'TournamentManager',
-            localizationsDelegates: const [
-              CustomLocalizationsDelegate(),
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            locale: _locale,
-            supportedLocales: const [
-              Locale('en'),
-            ],
-            theme: ThemeData(
-              brightness: Brightness.light,
-              useMaterial3: false,
-            ),
-            darkTheme: ThemeData(
-              brightness: Brightness.dark,
-              useMaterial3: false,
-            ),
-            themeMode: _themeMode,
-            routerConfig: _router,
-          );
-        }
+      builder: (context, orientation, deviceType){
+        return MaterialApp.router(
+          title: 'TournamentManager',
+          localizationsDelegates: const [
+            CustomLocalizationsDelegate(),
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          locale: _locale,
+          supportedLocales: const [
+            Locale('en'),
+          ],
+          theme: ThemeData(
+            brightness: Brightness.light,
+            useMaterial3: false,
+          ),
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            useMaterial3: false,
+          ),
+          themeMode: _themeMode,
+          routerConfig: _router,
+        );
+      }
     );
-
-
   }
 }

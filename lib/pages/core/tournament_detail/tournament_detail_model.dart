@@ -1,19 +1,17 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
 import '../../../app_flow/app_flow_util.dart';
-import '../../../app_flow/services/ImagePickerService.dart';
-import '../../../backend/schema/tournaments_record.dart';
-import '../../../backend/schema/util/firestorage_util.dart';
+import '../../../app_flow/services/DialogService.dart';
+import '../../../app_flow/services/supportClass/AlertClasses.dart';
 
 class TournamentDetailModel extends ChangeNotifier {
 
   final _unfocusNode = FocusNode();
   final String? tournamentsRef;
+  late DialogService dialogService;
 
   //////////////////////////////NAME DIALOG
   late TextEditingController _fieldControllerName;
@@ -57,7 +55,9 @@ class TournamentDetailModel extends ChangeNotifier {
     _fieldControllerCapacity = TextEditingController();
     tournamentCapacityTextControllerValidator = _tournamentCapacityTextControllerValidator;
     _tournamentCapacityFocusNode = FocusNode();
+    dialogService = GetIt.instance<DialogService>();
   }
+
 
   /////////////////////////////GETTER
   FocusNode get unfocusNode{
@@ -84,10 +84,83 @@ class TournamentDetailModel extends ChangeNotifier {
     return _tournamentCapacityFocusNode;
   }
 
+
   /////////////////////////////SETTER
   void setFieldControllerCapacity(String textVal){
     _fieldControllerCapacity.text = textVal;
   }
+  void showChangeTournamentStateDialog(String newState, TournamentModel tournamentModel) async {
+    AlertResponse resp = await dialogService.showDialog(
+      title: 'Cambia Stato del torneo',
+      description: "Confermando cambierai lo stato del torneo. Alcune attività possono essere fatte solo in uno specifico stato per cui se hai dei dubbi leggi la legenda degli stati che è riportata di seguito.",
+      buttonTitleCancelled: "Annulla",
+      buttonTitleConfirmed: "Continua",
+    );
+    if(resp.confirmed){
+      await tournamentModel.setTournamentState(newState);
+    }
+  }
+  void showSwitchWaitingListDialog(TournamentModel tournamentModel) async {
+    AlertResponse resp = await dialogService.showDialog(
+      title: 'Switch Waiting-List',
+      description: "Confermando ${tournamentModel.tournamentWaitingListEn ? "disabiliterai" : "abiliterai"} la possibilità ai giocatori di aggiungersi in waiting list una volta che la capacità del torneo è stata raggiunta. ${tournamentModel.tournamentWaitingListEn ? "Qualora ci fossero già giocatori in waiting-list questi verranno eliminati e se in futuro deciderai di riabilitarla dovranno rieffettuare l'azione" : ""}",
+      buttonTitleCancelled: "Annulla",
+      buttonTitleConfirmed: "Continua",
+    );
+    if(resp.confirmed){
+      await tournamentModel.switchTournamentWaitingListEn();
+    }
+  }
+  void showSwitchPreIscrizioniDialog(TournamentModel tournamentModel) async {
+    AlertResponse resp = await dialogService.showDialog(
+      title: 'Switch Pre-Iscrizioni',
+      description: "Confermando ${tournamentModel.tournamentPreRegistrationEn ? "disabiliterai" : "abiliterai"} la possibilità ai giocatori di pre-iscriversi. ${tournamentModel.tournamentPreRegistrationEn ? "Qualora ci fossero già giocatori pre-iscritti questi verranno eliminati e se in futuro deciderai di riabilitarla dovranno rieffettuare l'azione" : ""}",
+      buttonTitleCancelled: "Annulla",
+      buttonTitleConfirmed: "Continua",
+    );
+    if(resp.confirmed){
+      await tournamentModel.switchTournamentPreIscrizioniEn();
+    }
+  }
+  void showChangeTournamentCapacityDialog(TournamentModel tournamentModel) async {
+    AlertResponse resp = await dialogService.showDialogForm(
+      title: 'Modifica Capienza Torneo',
+      description: "Utilizza lo 0 se non vuoi impostare un limite alla capacità del torneo",
+      buttonTitleCancelled: "Annulla",
+      buttonTitleConfirmed: "Salva",
+      controller: fieldControllerCapacityInitialized(tournamentModel.tournamentCapacity),
+      focusNode: tournamentCapacityFocusNode!,
+      keyboardType: TextInputType.number,
+      inputFormatters: <TextInputFormatter>[
+        FilteringTextInputFormatter.digitsOnly
+      ],
+      iconPrefix: Icons.reduce_capacity,
+      validatorFunction: tournamentCapacityTextControllerValidator,
+      validatorParameter: tournamentModel.tournamentCapacity,
+    );
+    if(resp.confirmed && resp.formValue != null){
+      String newValueFromForm = resp.formValue!;
+      await tournamentModel.setTournamentCapacity(newValueFromForm);
+    }
+  }
+  void showChangeTournamentNameDialog(TournamentModel tournamentModel) async {
+    AlertResponse resp = await dialogService.showDialogForm(
+      title: 'Modifica Nome Torneo',
+      description: "",
+      buttonTitleCancelled: "Annulla",
+      buttonTitleConfirmed: "Salva",
+      controller: fieldControllerNameInitialized(tournamentModel.tournamentName),
+      focusNode: tournamentNameFocusNode!,
+      iconPrefix: Icons.style,
+      validatorFunction: tournamentNameTextControllerValidator,
+      validatorParameter: tournamentModel.tournamentName,
+    );
+    if(resp.confirmed && resp.formValue != null){
+      String newValueFromForm = resp.formValue!;
+      await tournamentModel.setTournamentName(newValueFromForm);
+    }
+  }
+
 
 
   @override

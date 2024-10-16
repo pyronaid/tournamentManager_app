@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -10,6 +12,9 @@ import '../../backend/schema/util/firestorage_util.dart';
 
 class TournamentModel extends ChangeNotifier {
 
+  StreamSubscription<TournamentsRecord>? _tournamentSubscription;
+  StreamSubscription<List<NewsRecord>>? _newsSubscription;
+
   late ImagePickerService imagePickerService;
 
   final String? tournamentsRef;
@@ -20,6 +25,7 @@ class TournamentModel extends ChangeNotifier {
   bool isNewsLoaded = false;
 
   TournamentModel({required this.tournamentsRef}){
+    print("[CREATE] TournamentModel");
     fetchObjectUsingId();
     imagePickerService = GetIt.instance<ImagePickerService>();
   }
@@ -159,19 +165,22 @@ class TournamentModel extends ChangeNotifier {
 
   @override
   void dispose() {
+    print("[DISPOSE] TournamentModel");
+    _tournamentSubscription?.cancel(); // Cancel the tournament subscription
+    _newsSubscription?.cancel(); // Cancel the news subscription
     super.dispose();
   }
 
 
   void fetchObjectUsingId() {
     if(tournamentsRef != null) {
-      print("[RELOAD FROM FIREBASE IN CORSO] tournament_model.dart");
-      TournamentsRecord.getDocument(TournamentsRecord.collection.doc(tournamentsRef!)).listen((snapshot) {
+      print("[LOAD FROM FIREBASE IN CORSO] tournament_model.dart");
+      _tournamentSubscription = TournamentsRecord.getDocument(TournamentsRecord.collection.doc(tournamentsRef!)).listen((snapshot) {
         tournamentsRefObj = snapshot;
         isTournamentLoaded = true;
         _setLoadingFalseIfBothLoaded();
       });
-      NewsRecord.getAllDocuments(tournamentsRef!).listen((snapshot) {
+      _newsSubscription = NewsRecord.getAllDocuments(tournamentsRef!).listen((snapshot) {
         newsListRefObj = snapshot;
         isNewsLoaded = true;
         _setLoadingFalseIfBothLoaded();

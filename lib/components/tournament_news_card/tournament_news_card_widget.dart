@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:provider/provider.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/backend/schema/news_record.dart';
-import 'package:tournamentmanager/components/tournament_card/tournament_card_model.dart';
+import 'package:tournamentmanager/components/tournament_news_card/tournament_news_card_model.dart';
 
 import '../../app_flow/app_flow_animations.dart';
 import '../../app_flow/app_flow_theme.dart';
-import '../../pages/nav_bar/tournament_model.dart';
 import '../standard_graphics/standard_graphics_widgets.dart';
 
 class TournamentNewsCardWidget extends StatefulWidget {
 
   const TournamentNewsCardWidget({
     super.key,
-    required this.newsRef, required this.indexo,
+    required this.newsRef,
+    required this.indexo,
   });
+
 
   final NewsRecord? newsRef;
   final int indexo;
@@ -86,7 +85,7 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> wit
             ),
             SlidableAction(
               onPressed: (context){
-                _showDeleteNewsDialog(context, widget.newsRef!.uid);
+                _model.showDeleteNewsDialog(widget.newsRef!.uid);
               },
               backgroundColor: CustomFlowTheme.of(context).error,
               foregroundColor: CustomFlowTheme.of(context).info,
@@ -164,47 +163,4 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> wit
       ),
     );
   }
-}
-
-
-
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
-//////////////////////////// FUNCTIONS
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
-Future<void> _showDeleteNewsDialog(BuildContext context, String newsId) async {
-  // show the dialog
-  await showDialog(
-    context: context,
-    builder: (contextDialog) {
-      var tournamentModel = context.read<TournamentModel>();
-      return AlertDialog(
-        title: Text(
-          'Attenzione',
-          style: CustomFlowTheme.of(context).displaySmall.override(color: CustomFlowTheme.of(context).error),
-        ),
-        content: Text(
-          "Sei sicuro di voler eliminare questa Nota? ",
-          style: CustomFlowTheme.of(context).labelMedium,
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(contextDialog).pop(); // Dismiss the dialog
-            },
-            child: const Text('Annulla'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Handle saving the new value
-              tournamentModel.deleteNews(newsId);
-              Navigator.of(contextDialog).pop(); // Dismiss the dialog
-            },
-            child: const Text('Continua',),
-          ),
-        ],
-      );
-    }
-  );
 }

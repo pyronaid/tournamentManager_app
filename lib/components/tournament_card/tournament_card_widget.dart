@@ -26,7 +26,7 @@ class TournamentCardWidget extends StatefulWidget {
 }
 
 class _TournamentCardWidgetState extends State<TournamentCardWidget> with TickerProviderStateMixin {
-  late TournamentNewsCardModel _model;
+  late TournamentCardModel _model;
 
   final animationsMap = <String, AnimationInfo>{};
 
@@ -39,7 +39,7 @@ class _TournamentCardWidgetState extends State<TournamentCardWidget> with Ticker
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => TournamentNewsCardModel());
+    _model = createModel(context, () => TournamentCardModel());
 
     animationsMap.addAll({
       'iconOnPageLoadAnimation': standardAnimationCard(context),

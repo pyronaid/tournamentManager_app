@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:tournamentmanager/pages/nav_bar/news_model.dart';
 
 import '../../../app_flow/app_flow_model.dart';
 import '../../../app_flow/services/ImagePickerService.dart';
