@@ -8,16 +8,6 @@ plugins {
     // END: FlutterFire Configuration
 }
 
-dependencies {
-     // Import the Firebase BoM
-  implementation platform('com.google.firebase:firebase-bom:33.1.2')
-
-
-  // TODO: Add the dependencies for Firebase products you want to use
-  // When using the BoM, don't specify versions in Firebase dependencies
-  implementation 'com.google.firebase:firebase-analytics'
-}
-
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
@@ -44,7 +34,7 @@ if (keystorePropertiesFile.exists()) {
 
 
 android {
-    namespace = "com.pyroanid.tournament_manager"
+    namespace = "com.pyronaid.tournament_manager"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -55,7 +45,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.pyroanid.tournament_manager"
+        applicationId = "com.pyronaid.tournament_manager"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdk = localProperties.getProperty('flutter.minSdkVersion').toInteger()

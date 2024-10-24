@@ -1,11 +1,12 @@
-import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/AlertClasses.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/SnackBarClasses.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_content.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_overlay.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../backend/firebase_analytics/analytics.dart';
 import '../../components/standard_graphics/standard_graphics_widgets.dart';
@@ -23,8 +24,9 @@ class ServiceManager extends StatefulWidget {
 class _ServiceManagerState extends State<ServiceManager> {
 
   final DialogService _dialogService = GetIt.instance<DialogService>();
+
   final SnackBarService _snackBarService = GetIt.instance<SnackBarService>();
-  //Declare SneakToast service
+  final List<SnackbarOverlay> _overlays = [];
   //Declare Loader service
 
   @override
@@ -40,6 +42,11 @@ class _ServiceManagerState extends State<ServiceManager> {
   @override
   Widget build(BuildContext context) {
     return widget.child;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   void _showDialog(AlertRequest request) {
@@ -158,7 +165,90 @@ class _ServiceManagerState extends State<ServiceManager> {
     );
   }
 
-  void _showSnackBar(SnackBarRequest request){
+  void _showSnackBar(SnackBarRequest request) async {
+
+    if (request.message.isEmpty) { return; }
+    OverlayState? overlayState = Overlay.of(context);
+    final overlay = SnackbarOverlay(id: const Uuid().v4());
+    OverlayEntry overlayEntry = OverlayEntry(builder: (context) {
+      return SnackBarContent(
+        overlay: overlay,
+        message: request.message,
+        style: request.style,
+        position: request.position,
+        onCloseClicked: (currentOverlay) {
+          _removeOverlay(currentOverlay);
+        },
+      );
+    });
+    overlay.overlay = overlayEntry;
+    _overlays.add(overlay);
+    overlayState.insert(overlayEntry);
+  }
+
+  _removeOverlay(SnackbarOverlay overlay) {
+    overlay.overlay.remove();
+    _overlays.removeWhere((element) => element.id == overlay.id);
+  }
+}
+
+
+/*
+ScaffoldMessenger.of(context).hideCurrentSnackBar(); // Dismiss the SnackBar
+    final snackBar = SnackBar(
+      content: Container(
+        padding: const EdgeInsetsDirectional.fromSTEB(15, 10, 15, 10),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [CustomFlowTheme.of(context).gradientBackgroundBegin, CustomFlowTheme.of(context).gradientBackgroundEnd]),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if(request.sentiment != null) ...[
+              Icon(
+                request.sentiment!.icon,
+                color: request.sentiment!.color,
+              ),
+              // Icon in SnackBar
+              const SizedBox(width: 10),
+            ],
+            Expanded(
+              child: Text(
+                request.message,
+                style: CustomFlowTheme.of(context).bodyMedium ,
+              ), // SnackBar message
+            ),
+            IconButton(
+              icon: const Icon(Icons.close, color: Colors.amber,),
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar(); // Dismiss the SnackBar
+              },
+            ),
+          ],
+        ),
+      ),
+      behavior: SnackBarBehavior.floating, // Makes the SnackBar float
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(0),
+      backgroundColor: Colors.transparent,
+      shape: RoundedRectangleBorder( // Rounded corners
+        borderRadius:BorderRadius.circular(8),
+      ),
+      duration: request.duration,
+      dismissDirection: DismissDirection.horizontal,
+    );
+
+    // Show the SnackBar
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+* */
+
+
+
+
+/*
     late Flushbar flush;
     flush = Flushbar<void>(
       title: request.title, //ignored since titleText != null
@@ -199,6 +289,4 @@ class _ServiceManagerState extends State<ServiceManager> {
         request.message,
         style: CustomFlowTheme.of(context).bodyMedium,
       ),
-    )..show(context);
-  }
-}
+    )..show(context);*/

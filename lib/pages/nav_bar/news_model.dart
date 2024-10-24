@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../app_flow/services/SnackBarService.dart';
 import '../../app_flow/services/supportClass/SnackBarClasses.dart';
+import '../../app_flow/services/supportClass/snackbar_style.dart';
 import '../../auth/base_auth_user_provider.dart';
 import '../../backend/schema/news_record.dart';
 import '../../backend/schema/util/firestorage_util.dart';
@@ -122,13 +123,13 @@ class NewsModel extends ChangeNotifier {
       snackBarService.showSnackBar(
         message: 'News creata/modificata con successo',
         title: 'Creazione/Modifica News',
-        sentiment: Sentiment.completed,
+        style: SnackbarStyle.success
       );
     } else {
       snackBarService.showSnackBar(
         message: 'Errore nella creazione della News. Riprova più tardi',
         title: 'Creazione/Modifica News',
-        sentiment: Sentiment.error,
+        style: SnackbarStyle.error
       );
     }
     notifyListeners();

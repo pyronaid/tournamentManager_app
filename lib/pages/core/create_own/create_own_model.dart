@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:tournamentmanager/app_flow/services/PlacesApiManagerService.dart';
 import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/SnackBarClasses.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_style.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../app_flow/app_flow_animations.dart';
@@ -209,18 +210,18 @@ class CreateOwnModel extends ChangeNotifier {
       creator_uid: currentUser!.uid,
     );
     try {
-      await TournamentsRecord.collection.add(ownTournament);
+      //await TournamentsRecord.collection.add(ownTournament);
       snackBarService.showSnackBar(
         message: 'Torneo creato con successo',
         title: 'Creazione Torneo',
-        sentiment: Sentiment.completed,
+        style: SnackbarStyle.success
       );
       return true;
     } catch (e){
       snackBarService.showSnackBar(
         message: 'Errore nella creazione del Torneo. Riprova più tardi',
         title: 'Creazione Torneo',
-        sentiment: Sentiment.error,
+          style: SnackbarStyle.error
       );
     }
     return false;

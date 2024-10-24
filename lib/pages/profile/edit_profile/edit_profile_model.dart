@@ -5,7 +5,7 @@ import '../../../app_flow/app_flow_util.dart';
 import '../../../app_flow/services/DialogService.dart';
 import '../../../app_flow/services/SnackBarService.dart';
 import '../../../app_flow/services/supportClass/AlertClasses.dart';
-import '../../../app_flow/services/supportClass/SnackBarClasses.dart';
+import '../../../app_flow/services/supportClass/snackbar_style.dart';
 import '../../../auth/firebase_auth/auth_util.dart';
 import '../../../backend/schema/users_record.dart';
 import '../../../components/custom_appbar_model.dart';
@@ -93,7 +93,7 @@ class EditProfileModel extends ChangeNotifier {
     snackBarService.showSnackBar(
       message: 'Problema con il reset della password. Riprova più tardi',
       title: 'Reset password',
-      sentiment: Sentiment.warning,
+      style: SnackbarStyle.error
     );
   }
 

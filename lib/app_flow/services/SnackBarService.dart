@@ -1,11 +1,6 @@
-
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:tournamentmanager/app_flow/services/supportClass/AlertClasses.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/SnackBarClasses.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_position.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_style.dart';
 
 class SnackBarService {
   late Function(SnackBarRequest) _showSnackBarListener;
@@ -19,18 +14,16 @@ class SnackBarService {
   void showSnackBar({
     required String title,
     required String message,
-    bool isDismissibleFlag = false,
-    bool showProgressIndicatorFlag = false,
     Duration duration = const Duration(milliseconds: 2500),
-    required Sentiment sentiment,
+    SnackbarStyle style = SnackbarStyle.normal,
+    SnackbarPosition position = SnackbarPosition.top,
   }) {
     _showSnackBarListener(SnackBarRequest(
       title: title,
       message: message,
       duration: duration,
-      isDismissibleFlag: isDismissibleFlag,
-      showProgressIndicatorFlag : showProgressIndicatorFlag,
-      sentiment: sentiment,
+      style: style,
+      position: position,
     ));
   }
 

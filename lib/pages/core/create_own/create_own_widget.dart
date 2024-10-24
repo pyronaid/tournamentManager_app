@@ -466,7 +466,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> with TickerProviderSt
                           logFirebaseEvent('Button_haptic_feedback');
                           HapticFeedback.lightImpact();
                           bool result = await createOwnModel.saveTournament();
-                          if(result){ context.goNamedAuth('Dashboard', context.mounted); }
+                          //if(result){ context.goNamedAuth('Dashboard', context.mounted); }
                         },
                         text: 'Crea Torneo',
                         options: AFButtonOptions(

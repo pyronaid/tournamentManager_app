@@ -1,34 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_position.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_style.dart';
 
 class SnackBarRequest{
   final String title;
   final String message;
   final Duration duration;
-  final bool isDismissibleFlag;
-  final bool showProgressIndicatorFlag;
-  final Sentiment? sentiment;
+  final SnackbarStyle style;
+  final SnackbarPosition position;
 
   SnackBarRequest({
     required this.title,
     required this.message,
     required this.duration,
-    required this.isDismissibleFlag,
-    required this.showProgressIndicatorFlag,
-    this.sentiment,
+    required this.style,
+    required this.position,
   });
-}
-
-
-enum Sentiment {
-  completed(Icons.check_circle, Colors.green),
-  error(Icons.cancel, Colors.red),
-  warning(Icons.warning, Colors.orangeAccent),
-  networkIssue(Icons.signal_cellular_connected_no_internet_4_bar, Colors.red );
-
-  final IconData icon;
-  final Color color;
-
-  const Sentiment(this.icon, this.color);
-
 }

@@ -1,4 +1,4 @@
-package com.pyroanid.tournament_manager
+package com.pyronaid.tournament_manager
 
 import io.flutter.embedding.android.FlutterActivity
 
