@@ -65,6 +65,8 @@ abstract class CustomFlowTheme {
   late Color cardDetail;
   late Color cardMain;
   late Color cardSecond;
+  late Color markerUser;
+  late Color markerTournament;
 
   @Deprecated('Use displaySmallFamily instead')
   String get title1Family => displaySmallFamily;
@@ -165,6 +167,8 @@ class LightModeTheme extends CustomFlowTheme {
   late Color cardDetail = const Color(0xFF211F1F);
   late Color cardMain = const Color(0xFF001294);
   late Color cardSecond = const Color(0xFFFFFFFF);
+  late Color markerUser = Colors.red;
+  late Color markerTournament = const Color(0xFF448AFF);
 }
 
 abstract class Typography {
@@ -367,6 +371,8 @@ class DarkModeTheme extends CustomFlowTheme {
   late Color cardDetail = const Color(0xFF211F1F);
   late Color cardMain = const Color(0xFF001294);
   late Color cardSecond = const Color(0xFFFFFFFF);
+  late Color markerUser = Colors.red;
+  late Color markerTournament = const Color(0xFF448AFF);
 }
 
 extension TextStyleHelper on TextStyle {

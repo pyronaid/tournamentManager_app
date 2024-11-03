@@ -5,7 +5,7 @@ import 'package:tournamentmanager/components/tournament_news_card/tournament_new
 
 import '../../app_flow/app_flow_model.dart';
 import '../../app_flow/services/DialogService.dart';
-import '../../app_flow/services/supportClass/AlertClasses.dart';
+import '../../app_flow/services/supportClass/alert_classes.dart';
 import '../../pages/nav_bar/tournament_model.dart';
 
 class TournamentNewsCardModel extends CustomFlowModel<TournamentNewsCardWidget> {

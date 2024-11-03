@@ -1,42 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
+import 'package:tournamentmanager/app_flow/services/LoaderService.dart';
 import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
-import 'package:tournamentmanager/app_flow/services/supportClass/AlertClasses.dart';
-import 'package:tournamentmanager/app_flow/services/supportClass/SnackBarClasses.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/loader_classes.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/loader_route.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_classes.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_content.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_overlay.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../backend/firebase_analytics/analytics.dart';
+import '../../components/generic_loading/generic_loading_widget.dart';
 import '../../components/standard_graphics/standard_graphics_widgets.dart';
 import '../app_flow_theme.dart';
 import 'DialogService.dart';
 
 class ServiceManager extends StatefulWidget {
   final Widget child;
-  const ServiceManager({super.key, required this.child});
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  const ServiceManager({
+    super.key,
+    required this.navigatorKey,
+    required this.child,
+  });
 
   @override
   State<ServiceManager> createState() => _ServiceManagerState();
 }
 
 class _ServiceManagerState extends State<ServiceManager> {
-
+  //////////////////////////DIALOG SERVICE
   final DialogService _dialogService = GetIt.instance<DialogService>();
-
+  //////////////////////////SNACKBAR SERVICE
   final SnackBarService _snackBarService = GetIt.instance<SnackBarService>();
   final List<SnackbarOverlay> _overlays = [];
-  //Declare Loader service
+  //////////////////////////LOADER SERVICE
+  final LoaderService _loaderService = GetIt.instance<LoaderService>();
+  final List<LoaderRoute> _loaders = [];
 
   @override
   void initState() {
     super.initState();
-
+    //////////////////////////DIALOG SERVICE
     _dialogService.registerDialogListener(_showDialog);
     _dialogService.registerDialogFormListener(_showDialogForm);
-
+    //////////////////////////SNACKBAR SERVICE
     _snackBarService.registerSnackBarListener(_showSnackBar);
+    //////////////////////////LOADER SERVICE
+    _loaderService.registerLoaderListener(_showLoader);
+    _loaderService.registerLoaderCompleter(_hideLoader);
   }
 
   @override
@@ -48,7 +63,7 @@ class _ServiceManagerState extends State<ServiceManager> {
   void dispose() {
     super.dispose();
   }
-
+  //////////////////////////DIALOG SERVICE
   void _showDialog(AlertRequest request) {
     showDialog(
       context: context,
@@ -89,39 +104,40 @@ class _ServiceManagerState extends State<ServiceManager> {
   void _showDialogForm(AlertFormRequest request) {
     GlobalKey<FormState> formKey = GlobalKey<FormState>();
     showDialog(
-        context: context,
-        builder: (_) {
-          return AlertDialog(
-            title: Text(request.title),
-            content: Form(
-              key: formKey,
-              autovalidateMode: AutovalidateMode.disabled,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: Text(request.title),
+          content: Form(
+            key: formKey,
+            autovalidateMode: AutovalidateMode.disabled,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for(int i=0; i < request.formInfo.length; i++)...[
                   TextFormField(
-                    controller: request.controller,
-                    focusNode: request.focusNode,
-                    autofocus: request.autofocus,
-                    keyboardType: request.keyboardType,
-                    inputFormatters: request.inputFormatters,
+                    controller: request.formInfo[i].controller,
+                    focusNode: request.formInfo[i].focusNode,
+                    autofocus: request.formInfo[i].autofocus,
+                    keyboardType: request.formInfo[i].keyboardType,
+                    inputFormatters: request.formInfo[i].inputFormatters,
                     textCapitalization: TextCapitalization.words,
                     textInputAction: TextInputAction.next,
                     obscureText: false,
                     decoration: standardInputDecoration(
                       context,
-                      prefixIcon: request.iconPrefix != null ?
-                        Icon(
-                          request.iconPrefix,
-                          color: CustomFlowTheme.of(context).secondaryText,
-                          size: 18,
-                        ) : null,
-                      suffixIcon: request.iconSuffix != null ?
-                        Icon(
-                          request.iconSuffix,
-                          color: CustomFlowTheme.of(context).secondaryText,
-                          size: 18,
-                        ) : null,
+                      prefixIcon: request.formInfo[i].iconPrefix != null ?
+                      Icon(
+                        request.formInfo[i].iconPrefix,
+                        color: CustomFlowTheme.of(context).secondaryText,
+                        size: 18,
+                      ) : null,
+                      suffixIcon: request.formInfo[i].iconSuffix != null ?
+                      Icon(
+                        request.formInfo[i].iconSuffix,
+                        color: CustomFlowTheme.of(context).secondaryText,
+                        size: 18,
+                      ) : null,
                     ),
                     style: CustomFlowTheme.of(context).bodyLarge.override(
                       fontWeight: FontWeight.w500,
@@ -129,44 +145,44 @@ class _ServiceManagerState extends State<ServiceManager> {
                     ),
                     minLines: 1,
                     cursorColor: CustomFlowTheme.of(context).primary,
-                    validator: request.validatorFunction?.asValidator(context, request.validatorParameter),
+                    validator: request.formInfo[i].validatorFunction?.asValidator(context, request.formInfo[i].validatorParameter),
                   ),
                   const SizedBox(height: 20),
                   Text(
                     request.description,
                     style: CustomFlowTheme.of(context).labelMedium,
                   ),
-                ],
-              ),
+                ]
+              ],
             ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  _dialogService.dialogComplete(AlertResponse(confirmed: false));
-                  Navigator.of(context).pop(); // Dismiss the dialog
-                },
-                child: Text(request.buttonTitleCancelled),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  logFirebaseEvent('Button_validate_form');
-                  if (formKey.currentState == null ||
-                      !formKey.currentState!.validate()) {
-                    return;
-                  }
-                  _dialogService.dialogComplete(AlertResponse(confirmed: true, formValue: request.controller.text));
-                  Navigator.of(context).pop(); // Dismiss the dialog
-                },
-                child: Text(request.buttonTitleConfirmed),
-              ),
-            ],
-          );
-        }
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _dialogService.dialogComplete(AlertResponse(confirmed: false));
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: Text(request.buttonTitleCancelled),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                logFirebaseEvent('Button_validate_form');
+                if (formKey.currentState == null ||
+                    !formKey.currentState!.validate()) {
+                  return;
+                }
+                _dialogService.dialogComplete(AlertResponse(confirmed: true, formValues: request.formInfo.map((inf) => inf.controller.text).toList()));
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: Text(request.buttonTitleConfirmed),
+            ),
+          ],
+        );
+      }
     );
   }
-
+  //////////////////////////SNACKBAR SERVICE
   void _showSnackBar(SnackBarRequest request) async {
-
     if (request.message.isEmpty) { return; }
     OverlayState? overlayState = Overlay.of(context);
     final overlay = SnackbarOverlay(id: const Uuid().v4());
@@ -176,6 +192,7 @@ class _ServiceManagerState extends State<ServiceManager> {
         message: request.message,
         style: request.style,
         position: request.position,
+        duration: request.duration,
         onCloseClicked: (currentOverlay) {
           _removeOverlay(currentOverlay);
         },
@@ -185,108 +202,51 @@ class _ServiceManagerState extends State<ServiceManager> {
     _overlays.add(overlay);
     overlayState.insert(overlayEntry);
   }
-
-  _removeOverlay(SnackbarOverlay overlay) {
+  void _removeOverlay(SnackbarOverlay overlay) {
     overlay.overlay.remove();
     _overlays.removeWhere((element) => element.id == overlay.id);
   }
-}
-
-
-/*
-ScaffoldMessenger.of(context).hideCurrentSnackBar(); // Dismiss the SnackBar
-    final snackBar = SnackBar(
-      content: Container(
-        padding: const EdgeInsetsDirectional.fromSTEB(15, 10, 15, 10),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [CustomFlowTheme.of(context).gradientBackgroundBegin, CustomFlowTheme.of(context).gradientBackgroundEnd]),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            if(request.sentiment != null) ...[
-              Icon(
-                request.sentiment!.icon,
-                color: request.sentiment!.color,
-              ),
-              // Icon in SnackBar
-              const SizedBox(width: 10),
-            ],
-            Expanded(
-              child: Text(
-                request.message,
-                style: CustomFlowTheme.of(context).bodyMedium ,
-              ), // SnackBar message
-            ),
-            IconButton(
-              icon: const Icon(Icons.close, color: Colors.amber,),
-              onPressed: () {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar(); // Dismiss the SnackBar
-              },
-            ),
-          ],
-        ),
-      ),
-      behavior: SnackBarBehavior.floating, // Makes the SnackBar float
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(0),
-      backgroundColor: Colors.transparent,
-      shape: RoundedRectangleBorder( // Rounded corners
-        borderRadius:BorderRadius.circular(8),
-      ),
-      duration: request.duration,
-      dismissDirection: DismissDirection.horizontal,
+  //////////////////////////LOADER SERVICE
+  void _showLoader(LoaderRequest request){
+    assert(widget.navigatorKey.currentState != null, 'Tried to show dialog but navigatorState was null. Key was :${widget.navigatorKey}');
+    final navigatorState = widget.navigatorKey.currentState!;
+    assert(
+      _loaders.where((element) => element.id == request.id).toList().isEmpty,
+      'There is already a loader showing with id: ${request.id}',
     );
 
-    // Show the SnackBar
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-* */
-
-
-
-
-/*
-    late Flushbar flush;
-    flush = Flushbar<void>(
-      title: request.title, //ignored since titleText != null
-      titleColor: Colors.white,
-      message: request.message, //ignored since messageText != null
-      flushbarPosition: FlushbarPosition.TOP,
-      flushbarStyle: FlushbarStyle.FLOATING,
-      margin: const EdgeInsets.all(8),
-      borderRadius: BorderRadius.circular(8),
-      reverseAnimationCurve: Curves.decelerate,
-      //forwardAnimationCurve: Curves.elasticOut,
-      backgroundColor: CustomFlowTheme.of(context).primaryBackground, //ignored since backgroundGradient != null
-      //boxShadows: [BoxShadow(color: Colors.blue[800]!, offset: const Offset(0.0, 2.0), blurRadius: 3.0)],
-      backgroundGradient: LinearGradient(colors: [CustomFlowTheme.of(context).gradientBackgroundBegin, CustomFlowTheme.of(context).gradientBackgroundEnd]),
-      isDismissible: request.isDismissibleFlag,
-      duration: request.duration,
-      icon: request.sentiment != null ? Icon(
-        request.sentiment!.icon,
-        color: request.sentiment!.color,
-      ) : null,
-      shouldIconPulse: false, //close
-      mainButton: TextButton(
-        onPressed: () {
-          flush.dismiss();
+    final route = LoaderRoute(
+      id: request.id,
+      barrierDismissible: request.barrierDismissible,
+      context: navigatorState.context,
+      builder: (context) => PopScope(
+        canPop: false,
+        onPopInvoked: (bool didPop) {
         },
-        child: const Icon(
-          Icons.close,
-          color: Colors.amber,
+        child: const Center(
+          child: GenericLoadingWidget(),
         ),
       ),
-      showProgressIndicator: request.showProgressIndicatorFlag,
-      progressIndicatorBackgroundColor: Colors.blueGrey,
-      titleText: Text(
-        request.title,
-        style: CustomFlowTheme.of(context).titleMedium,
-      ),
-      messageText: Text(
-        request.message,
-        style: CustomFlowTheme.of(context).bodyMedium,
-      ),
-    )..show(context);*/
+    );
+
+    _loaders.add(route);
+    navigatorState.push(route);
+  }
+  void _hideLoader(LoaderRequest request) {
+    if (_loaders.isEmpty) {
+      debugPrint('There is no loader to hide');
+      return;
+    }
+    assert(
+      _loaders.where((element) => element.id == request.id).toList().isNotEmpty,
+      'Tried to close loader with id: ${request.id} which does not exist',
+    );
+    assert(
+      widget.navigatorKey.currentState !=null,
+      'Tried to hide dialog but navigatorState was null. Key was :${widget.navigatorKey}');
+    final navigatorState = widget.navigatorKey.currentState!;
+    final routeIndex = _loaders.indexWhere((element) =>
+    element.id == request.id);
+    navigatorState.removeRoute(_loaders.removeAt(routeIndex));
+  }
+}

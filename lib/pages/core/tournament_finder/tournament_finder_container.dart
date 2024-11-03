@@ -2,28 +2,25 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_model.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_widget.dart';
+import 'package:tournamentmanager/pages/core/tournament_finder/tournament_finder_model.dart';
+import 'package:tournamentmanager/pages/core/tournament_finder/tournament_finder_widget.dart';
 
 import '../../../backend/firebase_analytics/analytics.dart';
 
-class TournamentDetailContainer extends StatefulWidget {
-  const TournamentDetailContainer({
-    super.key,
-    this.tournamentsRef,
-  });
-
-  final String? tournamentsRef;
+class TournamentFinderContainer extends StatefulWidget {
+  const TournamentFinderContainer({super.key});
 
   @override
-  State<TournamentDetailContainer> createState() => _TournamentDetailContainerState();
+  State<TournamentFinderContainer> createState() => _TournamentFinderContainerState();
 }
 
-class _TournamentDetailContainerState extends State<TournamentDetailContainer> {
+class _TournamentFinderContainerState extends State<TournamentFinderContainer> {
 
   @override
   void initState() {
     super.initState();
 
-    logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentDetail'});
+    logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentFinder'});
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }
 
@@ -35,9 +32,9 @@ class _TournamentDetailContainerState extends State<TournamentDetailContainer> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-        create: (context) => TournamentDetailModel(tournamentsRef: widget.tournamentsRef),
+        create: (context) => TournamentFinderModel(),
         builder: (context, child) {
-          return const TournamentDetailWidget();
+          return const TournamentFinderWidget();
         }
     );
   }

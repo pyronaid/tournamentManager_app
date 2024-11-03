@@ -1,6 +1,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:tournamentmanager/backend/schema/rounds_record.dart';
 import 'package:tournamentmanager/backend/schema/standings_record.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
@@ -47,12 +48,28 @@ class TournamentsRecord extends FirestoreRecord {
   }
   bool hasDate() => _date != null;
 
-  // "address" field.
+  // "address" and lat long field.
   String? _address;
   String get address => _address ?? '';
   bool hasAddress() => _address != null;
+  double? _lat;
+  double get latitude => _lat ?? 0;
+  double? _long;
+  double get longitude => _long ?? 0;
+  bool hasLatLong() => _lat != null && _long != null;
+  Future<void> setAddress(String newAddress, LatLng coordinates) async {
+    _address = newAddress;
+    _lat = coordinates.latitude;
+    _long = coordinates.longitude;
+    await updateFields(uid, {
+      "address": _address,
+      "latitude": _lat,
+      "longitude": _long
+    });
+  }
 
-  // "address" field.
+
+  // "capacity" field.
   int? _capacity;
   int get capacity => _capacity ?? 0;
   Future<void> setCapacity(int newCapacity) async {
@@ -134,6 +151,8 @@ class TournamentsRecord extends FirestoreRecord {
     _image = snapshotData['image'];
     _date = snapshotData['date'] as DateTime?;
     _address = snapshotData['address'];
+    _lat = snapshotData['latitude'];
+    _long = snapshotData['longitude'];
     _capacity = snapshotData['capacity'];
     _creatorUid = snapshotData['creator_uid'];
     _preRegistrationEn = snapshotData['pre_registration_en'] as bool;
@@ -153,6 +172,12 @@ class TournamentsRecord extends FirestoreRecord {
   static Stream<TournamentsRecord> getDocument(DocumentReference ref) =>
       ref.snapshots().map((s) => TournamentsRecord.fromSnapshot(s));
 
+  static Stream<List<TournamentsRecord>> getDocuments(Query<Object?> query) {
+    return query.snapshots().map((snapshot) => snapshot.docs.map((doc) {
+      return TournamentsRecord.fromSnapshot(doc);
+    }).toList());
+  }
+
   static Future<TournamentsRecord> getDocumentOnce(DocumentReference ref) =>
       ref.get().then((s) => TournamentsRecord.fromSnapshot(s));
 
@@ -163,6 +188,14 @@ class TournamentsRecord extends FirestoreRecord {
       });
     } catch (e) {
       print("Failed to update field: $e");
+    }
+  }
+
+  static Future<void> updateFields(String id, Map<Object, Object?> dataToUpdate) async {
+    try {
+      await collection.doc(id).update(dataToUpdate);
+    } catch (e) {
+      print("Failed to update fields: $e");
     }
   }
 
@@ -210,6 +243,8 @@ Map<String, dynamic> createTournamentsRecordData({
   required String name,
   required DateTime date,
   required String address,
+  required double latitude,
+  required double longitude,
   int? capacity,
   required bool pre_registration_en,
   required bool waiting_list_en,
@@ -223,11 +258,33 @@ Map<String, dynamic> createTournamentsRecordData({
       'name': name,
       'date': date,
       'address': address,
+      'latitude': latitude,
+      'longitude': longitude,
       'pre_registration_en': pre_registration_en,
       'waiting_list_en': waiting_list_en,
       'state': state != null ? state.name : StateTournament.open.name,
       'capacity': capacity ?? 0,
       'creator_uid': creator_uid,
+    }.withoutNulls,
+  );
+
+  return firestoreData;
+}
+Map<String, dynamic> createTournamentsRecordDataFromObj(TournamentsRecord record) {
+  final firestoreData = mapToFirestore(
+    <String, dynamic>{
+      'uid': record.uid,
+      'game': record.game?.name ?? Game.unknown,
+      'name': record.name,
+      'date': record.date,
+      'address': record.address,
+      'latitude': record.latitude,
+      'longitude': record.longitude,
+      'pre_registration_en': record.preRegistrationEn,
+      'waiting_list_en': record.waitingListEn,
+      'state': record.state,
+      'capacity': record.capacity,
+      'creator_uid': record.creatorUid,
     }.withoutNulls,
   );
 
@@ -241,6 +298,8 @@ class TournamentsRecordDocumentEquality implements Equality<TournamentsRecord> {
   bool equals(TournamentsRecord? e1, TournamentsRecord? e2) {
     const listEquality = ListEquality();
     return e1?.address == e2?.address &&
+        e1?.latitude == e2?.latitude &&
+        e1?.longitude == e2?.longitude &&
         e1?.date == e2?.date &&
         e1?.game == e2?.game &&
         e1?.uid == e2?.uid &&
@@ -260,6 +319,8 @@ class TournamentsRecordDocumentEquality implements Equality<TournamentsRecord> {
   @override
   int hash(TournamentsRecord? e) => const ListEquality().hash([
     e?.address,
+    e?.latitude,
+    e?.longitude,
     e?.date,
     e?.game,
     e?.uid,

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:latlong2/latlong.dart';
 
 import '/backend/schema/util/schema_util.dart';
 import '/app_flow/app_flow_util.dart';

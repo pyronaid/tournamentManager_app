@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/pages/core/tournament_finder/tournament_finder_container.dart';
 
+import '../../app_flow/app_flow_icon_button.dart';
 import '../../app_flow/app_flow_theme.dart';
+import '../../backend/firebase_analytics/analytics.dart';
 import '../core/my_tournaments/my_tournaments_widget.dart';
 import '../core/own_tournaments/own_tournaments_widget.dart';
 import '../placeholder_widget.dart';
@@ -57,10 +60,17 @@ class _NavBarPageState extends State<NavBarPage> {
           fit: BoxFit.cover,
         ),
       },
-      'FindNew': {
-        'widget' : const PlaceholderWidget(),
-        'name' : const Text('AppBar Example'),
-        'icon' : Icon(Icons.star, color: CustomFlowTheme.of(context).info),
+      'TournamentFinder': {
+        'widget' : const TournamentFinderContainer(),
+        'name' : Text(
+          'Cerca tornei',
+          style: CustomFlowTheme.of(context).headlineSmall,
+        ),
+        'icon' : Image.asset(
+          'assets/images/icons/location.png',
+          height: 30.sp,
+          fit: BoxFit.cover,
+        ),
       },
       'Profile': {
         'widget' : const ProfileWidget(),

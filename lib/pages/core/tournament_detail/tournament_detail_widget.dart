@@ -19,7 +19,7 @@ class TournamentDetailWidget extends StatefulWidget {
 }
 
 
-class _TournamentDetailWidgetState extends State<TournamentDetailWidget> with TickerProviderStateMixin {
+class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
 
   late TournamentDetailModel tournamentDetailModel;
   late TournamentModel tournamentModel;

@@ -1,4 +1,5 @@
-import 'lat_lng.dart';
+import 'package:latlong2/latlong.dart';
+
 
 class CustomPlace {
   const CustomPlace({

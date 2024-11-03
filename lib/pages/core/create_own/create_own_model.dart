@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:tournamentmanager/app_flow/services/LoaderService.dart';
 import 'package:tournamentmanager/app_flow/services/PlacesApiManagerService.dart';
 import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
-import 'package:tournamentmanager/app_flow/services/supportClass/SnackBarClasses.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_classes.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_style.dart';
 import 'package:uuid/uuid.dart';
 
@@ -27,6 +28,8 @@ class CreateOwnModel extends ChangeNotifier {
   dynamic _selectedPlace;
 
   late SnackBarService snackBarService;
+  
+  late LoaderService loaderService;
 
   //////////////////////////////CAROUSEL
   late PageController _pageViewController;
@@ -51,9 +54,9 @@ class CreateOwnModel extends ChangeNotifier {
     }
 
     if(_selectedPlace == null){
-      return 'Non hai selezionato un indirizzo valido.';
+      return 'Non hai selezionato un indirizzo valido. Devi sceglierlo dalla lista dei suggerimenti';
     } else if(_selectedPlace['description'] != val){
-      return 'Non hai selezionato un indirizzo valido.';
+      return 'Non hai selezionato un indirizzo valido. Devi sceglierlo dalla lista dei suggerimenti';
     }
 
     return null;
@@ -118,6 +121,7 @@ class CreateOwnModel extends ChangeNotifier {
     placesApiManagerService = GetIt.instance.getAsync<PlacesApiManagerService>();
     _sessionToken = uuid.v4();
     snackBarService = GetIt.instance<SnackBarService>();
+    loaderService = GetIt.instance<LoaderService>();
   }
 
 
@@ -199,18 +203,27 @@ class CreateOwnModel extends ChangeNotifier {
     notifyListeners();
   }
   Future<bool> saveTournament() async{
-    Map<String, dynamic> ownTournament = createTournamentsRecordData(
-      game: Game.values[pageViewController.page!.round()],
-      name: tournamentNameTextController.text,
-      address: tournamentAddressTextController.text,
-      pre_registration_en: preRegistrationEnabledVar,
-      waiting_list_en : waitingListEnabledVar,
-      date: DateFormat('dd/MM/yyyy').parse(tournamentDateTextController.text),
-      capacity: int.tryParse(tournamentCapacityTextController.text),
-      creator_uid: currentUser!.uid,
-    );
+    String executionId = const Uuid().v4();
+    loaderService.showLoader(id: executionId);
     try {
-      //await TournamentsRecord.collection.add(ownTournament);
+      PlacesApiManagerService placesApiManagerServiceCompleted = await placesApiManagerService;
+      Map<String, dynamic>? placeDetail = await placesApiManagerServiceCompleted.getPlaceDetail(_selectedPlace['place_id']);
+      Map<String, dynamic> ownTournament = createTournamentsRecordData(
+        game: Game.values[pageViewController.page!.round()],
+        name: tournamentNameTextController.text,
+        address: tournamentAddressTextController.text,
+        latitude: placeDetail!['lat'],
+        longitude: placeDetail['lng'],
+        pre_registration_en: preRegistrationEnabledVar,
+        waiting_list_en : waitingListEnabledVar,
+        date: DateFormat('dd/MM/yyyy').parse(tournamentDateTextController.text),
+        capacity: int.tryParse(tournamentCapacityTextController.text),
+        creator_uid: currentUser!.uid,
+      );
+
+
+      await TournamentsRecord.collection.add(ownTournament);
+      loaderService.hideLoader(id: executionId);
       snackBarService.showSnackBar(
         message: 'Torneo creato con successo',
         title: 'Creazione Torneo',
@@ -218,6 +231,7 @@ class CreateOwnModel extends ChangeNotifier {
       );
       return true;
     } catch (e){
+      loaderService.hideLoader(id: executionId);
       snackBarService.showSnackBar(
         message: 'Errore nella creazione del Torneo. Riprova più tardi',
         title: 'Creazione Torneo',

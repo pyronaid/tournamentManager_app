@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
@@ -10,7 +9,6 @@ import '../../../app_flow/app_flow_animations.dart';
 import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_widgets.dart';
 import '../../../auth/firebase_auth/auth_util.dart';
-import '../../../auth/verify_mail_controller.dart';
 import '../../../components/custom_appbar_widget.dart';
 import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 import 'onboarding_verify_mail_model.dart';
@@ -43,20 +41,18 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
     });
     
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
+    checkEmailVerification();
   }
 
   @override
   void dispose() {
     _model.dispose();
-
     super.dispose();
   }
 
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(VerifyMailController(_email, context));
-
     return GestureDetector(
       onTap: () => _model.unfocusNode.canRequestFocus
           ? FocusScope.of(context).requestFocus(_model.unfocusNode)
@@ -218,5 +214,12 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
         ),
       ),
     );
+  }
+
+  void checkEmailVerification() async{
+    bool isVerified = await _model.interceptVerification();
+    if (mounted && isVerified) {
+      context.goNamedAuth('Onboarding_VerifyMailSuccess', context.mounted );
+    }
   }
 }

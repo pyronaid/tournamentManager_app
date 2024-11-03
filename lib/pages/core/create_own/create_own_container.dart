@@ -12,7 +12,7 @@ class CreateOwnContainer extends StatefulWidget {
   State<CreateOwnContainer> createState() => _CreateOwnContainerState();
 }
 
-class _CreateOwnContainerState extends State<CreateOwnContainer> with TickerProviderStateMixin {
+class _CreateOwnContainerState extends State<CreateOwnContainer> {
   @override
   void initState() {
     super.initState();

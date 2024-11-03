@@ -15,7 +15,19 @@ class AlertRequest {
   });
 }
 
-class AlertFormRequest<T> extends AlertRequest{
+class AlertFormRequest extends AlertRequest{
+  final List<FormInformation> formInfo;
+
+  AlertFormRequest({
+    required this.formInfo,
+    required super.title,
+    required super.description,
+    required super.buttonTitleConfirmed,
+    required super.buttonTitleCancelled
+  });
+}
+
+class FormInformation {
   final TextEditingController controller;
   final FocusNode focusNode;
   final bool autofocus;
@@ -24,31 +36,29 @@ class AlertFormRequest<T> extends AlertRequest{
   final IconData? iconPrefix;
   final IconData? iconSuffix;
   final String? Function(BuildContext, String?, String?)? validatorFunction;
-  final T validatorParameter;
+  final String validatorParameter;
+  final String label;
 
-  AlertFormRequest({
+  FormInformation({
     required this.controller,
     required this.focusNode,
-    required this.autofocus,
-    required this.keyboardType,
+    this.autofocus = false,
+    this.keyboardType = TextInputType.text,
     this.inputFormatters,
     this.iconPrefix,
     this.iconSuffix,
-    required this.validatorFunction,
+    this.validatorFunction,
     required this.validatorParameter,
-    required super.title,
-    required super.description,
-    required super.buttonTitleConfirmed,
-    required super.buttonTitleCancelled
+    required this.label,
   });
 }
 
 class AlertResponse {
   final bool confirmed;
-  final String? formValue;
+  final List<String?>? formValues;
 
   AlertResponse({
     required this.confirmed,
-    this.formValue,
+    this.formValues,
   });
 }

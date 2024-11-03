@@ -10,6 +10,7 @@ class SnackBarContent extends StatefulWidget {
   final String message;
   final SnackbarStyle style;
   final SnackbarPosition position;
+  final Duration duration;
   final Function(SnackbarOverlay)? onCloseClicked;
 
   const SnackBarContent(
@@ -18,6 +19,7 @@ class SnackBarContent extends StatefulWidget {
         required this.style,
         required this.position,
         this.onCloseClicked,
+        required this.duration,
         super.key});
 
   @override
@@ -28,15 +30,17 @@ class _SnackBarContentState extends State<SnackBarContent> {
   bool _showsSnackbar = false;
   bool _hasShownSnackbar = false;
   Future? overlayRemoveFuture;
+
   @override
   void initState() {
     super.initState();
+
     Future.delayed(const Duration(milliseconds: 10)).whenComplete(() {
       setState(() {
         _showsSnackbar = true;
       });
 
-      overlayRemoveFuture = Future.delayed(const Duration(seconds: SnackbarConstants.snackbarDuration, milliseconds: 510)).whenComplete(() {
+      overlayRemoveFuture = Future.delayed(widget.duration).whenComplete(() {
         _closeNotification();
       });
     });

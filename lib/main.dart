@@ -62,7 +62,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
 
     _appStateNotifier = AppStateNotifier.instance;
-    _router = createRouter(_appStateNotifier);
+    _router = createRouter(_appStateNotifier, GlobalKey<NavigatorState>());
     userStream = firebaseUserStream()..listen(
             (user) => _appStateNotifier.update(user)
     );

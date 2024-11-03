@@ -43,7 +43,7 @@ class PlacesApiManagerService {
     }
     return _placeList;
   }
-  Future<dynamic> getPlaceDetail(String placeId) async {
+  Future<Map<String, dynamic>?> getPlaceDetail(String placeId) async {
     dynamic formattedAddress;
     try {
       String baseURL = 'https://maps.googleapis.com/maps/api/place/details/json';
@@ -51,7 +51,7 @@ class PlacesApiManagerService {
       var response = await http.get(Uri.parse(request));
       var data = json.decode(response.body);
       if (response.statusCode == 200) {
-        formattedAddress = json.decode(response.body)['predictions'];
+        formattedAddress = data['result']['geometry']['location'];
       } else {
         throw Exception('Failed to load predictions');
       }

@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 
-import '../lat_lng.dart';
 import '/backend/backend.dart';
 
 import '../../app_flow/place.dart';
@@ -17,7 +17,7 @@ String dateTimeRangeToString(DateTimeRange dateTimeRange) {
 }
 
 String placeToString(CustomPlace place) => jsonEncode({
-      'latLng': place.latLng.serialize(),
+      'latLng': place.latLng.toJson(),
       'name': place.name,
       'address': place.address,
       'city': place.city,
@@ -73,7 +73,7 @@ String? serializeParam(
       case ParamType.DateTimeRange:
         return dateTimeRangeToString(param as DateTimeRange);
       case ParamType.LatLng:
-        return (param as LatLng).serialize();
+        return (param as LatLng).toJson().toString();
       case ParamType.Color:
         return (param as Color).toCssString();
       case ParamType.FFPlace:

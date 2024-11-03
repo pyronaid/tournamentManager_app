@@ -6,7 +6,6 @@ import 'package:tournamentmanager/pages/core/tournament_news/tournament_news_mod
 import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_util.dart';
 import '../../../components/no_tournament_news_card/no_tournament_news_card_widget.dart';
-import '../../../components/tournament_card/tournament_card_widget.dart';
 import '../../../components/tournament_news_card/tournament_news_card_widget.dart';
 import '../../nav_bar/tournament_model.dart';
 
@@ -18,7 +17,7 @@ class TournamentNewsWidget extends StatefulWidget {
 }
 
 
-class _TournamentNewsWidgetState extends State<TournamentNewsWidget> with TickerProviderStateMixin {
+class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
 
   late TournamentNewsModel tournamentNewsModel;
   late TournamentModel tournamentModel;
@@ -81,8 +80,7 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> with Ticker
                   );
                 },
               ),
-              floatingActionButtonLocation: FloatingActionButtonLocation
-                  .centerDocked,
+              floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
               body: SafeArea(
                 top: true,
                 child: SingleChildScrollView(

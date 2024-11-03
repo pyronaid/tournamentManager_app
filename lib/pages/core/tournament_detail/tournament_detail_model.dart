@@ -5,7 +5,7 @@ import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
 import '../../../app_flow/app_flow_util.dart';
 import '../../../app_flow/services/DialogService.dart';
-import '../../../app_flow/services/supportClass/AlertClasses.dart';
+import '../../../app_flow/services/supportClass/alert_classes.dart';
 
 class TournamentDetailModel extends ChangeNotifier {
 
@@ -128,18 +128,23 @@ class TournamentDetailModel extends ChangeNotifier {
       description: "Utilizza lo 0 se non vuoi impostare un limite alla capacità del torneo",
       buttonTitleCancelled: "Annulla",
       buttonTitleConfirmed: "Salva",
-      controller: fieldControllerCapacityInitialized(tournamentModel.tournamentCapacity),
-      focusNode: tournamentCapacityFocusNode!,
-      keyboardType: TextInputType.number,
-      inputFormatters: <TextInputFormatter>[
-        FilteringTextInputFormatter.digitsOnly
+      formInfo: [
+        FormInformation(
+          controller: fieldControllerCapacityInitialized(tournamentModel.tournamentCapacity),
+          focusNode: tournamentCapacityFocusNode!,
+          keyboardType: TextInputType.number,
+          inputFormatters: <TextInputFormatter>[
+            FilteringTextInputFormatter.digitsOnly
+          ],
+          iconPrefix: Icons.reduce_capacity,
+          validatorFunction: tournamentCapacityTextControllerValidator,
+          validatorParameter: tournamentModel.tournamentCapacity,
+          label: "Capienza Torneo",
+        )
       ],
-      iconPrefix: Icons.reduce_capacity,
-      validatorFunction: tournamentCapacityTextControllerValidator,
-      validatorParameter: tournamentModel.tournamentCapacity,
     );
-    if(resp.confirmed && resp.formValue != null){
-      String newValueFromForm = resp.formValue!;
+    if(resp.confirmed && resp.formValues![0] != null){
+      String newValueFromForm = resp.formValues![0]!;
       await tournamentModel.setTournamentCapacity(newValueFromForm);
     }
   }
@@ -149,14 +154,19 @@ class TournamentDetailModel extends ChangeNotifier {
       description: "",
       buttonTitleCancelled: "Annulla",
       buttonTitleConfirmed: "Salva",
-      controller: fieldControllerNameInitialized(tournamentModel.tournamentName),
-      focusNode: tournamentNameFocusNode!,
-      iconPrefix: Icons.style,
-      validatorFunction: tournamentNameTextControllerValidator,
-      validatorParameter: tournamentModel.tournamentName,
+      formInfo: [
+        FormInformation(
+          controller: fieldControllerNameInitialized(tournamentModel.tournamentName),
+          focusNode: tournamentNameFocusNode!,
+          iconPrefix: Icons.style,
+          validatorFunction: tournamentNameTextControllerValidator,
+          validatorParameter: tournamentModel.tournamentName,
+          label: "Nome Torneo",
+        )
+      ],
     );
-    if(resp.confirmed && resp.formValue != null){
-      String newValueFromForm = resp.formValue!;
+    if(resp.confirmed && resp.formValues![0] != null){
+      String newValueFromForm = resp.formValues![0]!;
       await tournamentModel.setTournamentName(newValueFromForm);
     }
   }

@@ -4,8 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
+import '../../app_flow/services/LoaderService.dart';
 import '../../app_flow/services/SnackBarService.dart';
-import '../../app_flow/services/supportClass/SnackBarClasses.dart';
 import '../../app_flow/services/supportClass/snackbar_style.dart';
 import '../../auth/base_auth_user_provider.dart';
 import '../../backend/schema/news_record.dart';
@@ -22,9 +23,12 @@ class NewsModel extends ChangeNotifier {
 
   late SnackBarService snackBarService;
 
+  late LoaderService loaderService;
+
   NewsModel({required this.tournamentsRef, required this.newsRef}){
     print("[CREATE] NewsModel");
     snackBarService = GetIt.instance<SnackBarService>();
+    loaderService = GetIt.instance<LoaderService>();
     fetchObjectUsingId();
   }
 
@@ -63,6 +67,8 @@ class NewsModel extends ChangeNotifier {
       bool showTimestamp
   ) async {
     bool flag = false;
+    String executionId = const Uuid().v4();
+    loaderService.showLoader(id: executionId);
     if(saveWayEn) {
       try {
         Map<String, dynamic> ownNews = createNewsRecordData(
@@ -119,6 +125,7 @@ class NewsModel extends ChangeNotifier {
         flag = false;
       }
     }
+    loaderService.hideLoader(id: executionId);
     if(flag){
       snackBarService.showSnackBar(
         message: 'News creata/modificata con successo',

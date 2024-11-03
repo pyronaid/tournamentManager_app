@@ -4,7 +4,7 @@ import 'package:get_it/get_it.dart';
 import '../../../app_flow/app_flow_util.dart';
 import '../../../app_flow/services/DialogService.dart';
 import '../../../app_flow/services/SnackBarService.dart';
-import '../../../app_flow/services/supportClass/AlertClasses.dart';
+import '../../../app_flow/services/supportClass/alert_classes.dart';
 import '../../../app_flow/services/supportClass/snackbar_style.dart';
 import '../../../auth/firebase_auth/auth_util.dart';
 import '../../../backend/schema/users_record.dart';

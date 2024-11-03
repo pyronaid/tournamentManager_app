@@ -22,7 +22,7 @@ class CreateEditNewsContainer extends StatefulWidget {
   State<CreateEditNewsContainer> createState() => _CreateEditNewsContainerState();
 }
 
-class _CreateEditNewsContainerState extends State<CreateEditNewsContainer> with TickerProviderStateMixin {
+class _CreateEditNewsContainerState extends State<CreateEditNewsContainer> {
   @override
   void initState() {
     super.initState();

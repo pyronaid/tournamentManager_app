@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_util.dart';
 import '../../../app_flow/app_flow_widgets.dart';
-import '../../../app_flow/services/supportClass/AlertClasses.dart';
+import '../../../app_flow/services/supportClass/alert_classes.dart';
 import '../../../auth/firebase_auth/auth_util.dart';
 import '../../../components/custom_appbar_widget.dart';
 import '../../../components/standard_graphics/standard_graphics_widgets.dart';
@@ -19,7 +19,7 @@ class EditProfileWidget extends StatefulWidget {
   State<EditProfileWidget> createState() => _EditProfileWidgetState();
 }
 
-class _EditProfileWidgetState extends State<EditProfileWidget> with TickerProviderStateMixin {
+class _EditProfileWidgetState extends State<EditProfileWidget> {
 
   late EditProfileModel editProfileModel;
 

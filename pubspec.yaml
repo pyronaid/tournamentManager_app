@@ -59,6 +59,8 @@ dependencies:
   firebase_storage: ^12.2.0
   flutter_animate: ^4.5.0
   flutter_cache_manager: ^3.4.0   #ADDED_NOT_DEMANDED
+  flutter_map: ^7.0.2
+  flutter_map_marker_cluster: ^1.4.0
   flutter_keyboard_visibility: ^6.0.0
   flutter_slidable: ^3.1.1
   flutter_typeahead: ^5.2.0
@@ -76,6 +78,8 @@ dependencies:
   image_picker: ^1.1.2
   intl: ^0.19.0
   json_path: ^0.7.2
+  latlong2: ^0.9.1
+  location: ^7.0.1
   lottie: ^3.1.2
   page_transition: ^2.1.0
   path_provider: ^2.1.2   #ADDED_NOT_DEMANDED
@@ -97,6 +101,7 @@ dependencies:
   sign_in_with_apple_platform_interface: ^1.1.0    #ADDED_NOT_DEMANDED
   sign_in_with_apple_web: ^2.1.0   #ADDED_NOT_DEMANDED
   simple_accordion: ^0.1.5
+  sliding_up_panel: ^2.0.0+1
   smooth_page_indicator: ^1.2.0+3
   sqflite: ^2.3.3+1    #ADDED_NOT_DEMANDED
   stream_transform: ^2.1.0
@@ -107,8 +112,6 @@ dependencies:
   url_launcher_android: 6.3.0   #ADDED_NOT_DEMANDED
   url_launcher_ios: 6.2.5   #ADDED_NOT_DEMANDED
   url_launcher_platform_interface: 2.3.2    #ADDED_NOT_DEMANDED
-
-  get: ^4.6.6
 
 dev_dependencies:
   flutter_test:
@@ -150,6 +153,7 @@ flutter:
      - assets/images/icons/default_tournament.png
      - assets/images/icons/detail_tournament.png
      - assets/images/icons/news.png
+     - assets/images/icons/location.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

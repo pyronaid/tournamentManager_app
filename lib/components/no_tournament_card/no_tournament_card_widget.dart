@@ -19,7 +19,7 @@ class NoTournamentCardWidget extends StatefulWidget {
   State<NoTournamentCardWidget> createState() => _NoTournamentCardWidgetState();
 }
 
-class _NoTournamentCardWidgetState extends State<NoTournamentCardWidget> with TickerProviderStateMixin {
+class _NoTournamentCardWidgetState extends State<NoTournamentCardWidget> {
   late NoTournamentCardModel _model;
 
   @override

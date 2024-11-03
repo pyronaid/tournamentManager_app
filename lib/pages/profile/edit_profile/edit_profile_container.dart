@@ -12,7 +12,7 @@ class EditProfileContainer extends StatefulWidget {
   State<EditProfileContainer> createState() => _EditProfileContainerState();
 }
 
-class _EditProfileContainerState extends State<EditProfileContainer> with TickerProviderStateMixin {
+class _EditProfileContainerState extends State<EditProfileContainer> {
   @override
   void initState() {
     super.initState();

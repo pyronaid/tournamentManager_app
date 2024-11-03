@@ -20,7 +20,7 @@ class OnboardingSlideshowWidget extends StatefulWidget {
 }
 
 
-class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> with TickerProviderStateMixin {
+class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> {
   late OnboardingSlideshowModel _model;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();

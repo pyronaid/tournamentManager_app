@@ -276,27 +276,6 @@ extension QueryExtension on Query {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class FFFirestorePage<T> {
   final List<T> data;
   final Stream<List<T>>? dataStream;

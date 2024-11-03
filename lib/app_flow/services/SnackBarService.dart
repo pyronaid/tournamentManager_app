@@ -1,9 +1,13 @@
-import 'package:tournamentmanager/app_flow/services/supportClass/SnackBarClasses.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_classes.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_position.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_style.dart';
 
 class SnackBarService {
   late Function(SnackBarRequest) _showSnackBarListener;
+
+  SnackBarService(){
+    print("[SERVICE CONSTRUCTOR] SnackBarService");
+  }
 
   /// Registers a callback function. Typically to show the dialog
   void registerSnackBarListener(Function(SnackBarRequest) showSnackBarListener) {
@@ -14,7 +18,7 @@ class SnackBarService {
   void showSnackBar({
     required String title,
     required String message,
-    Duration duration = const Duration(milliseconds: 2500),
+    Duration duration = const Duration(milliseconds: 3000),
     SnackbarStyle style = SnackbarStyle.normal,
     SnackbarPosition position = SnackbarPosition.top,
   }) {

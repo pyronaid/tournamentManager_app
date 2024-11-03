@@ -24,7 +24,7 @@ class TournamentNewsCardWidget extends StatefulWidget {
   State<TournamentNewsCardWidget> createState() => _TournamentNewsCardWidgetState();
 }
 
-class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> with TickerProviderStateMixin {
+class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
   late TournamentNewsCardModel _model;
 
   final animationsMap = <String, AnimationInfo>{};

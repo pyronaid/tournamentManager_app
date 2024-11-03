@@ -4,12 +4,16 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:tournamentmanager/app_flow/services/supportClass/AlertClasses.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
 
 class DialogService {
   late Function(AlertRequest) _showDialogListener;
   late Function(AlertFormRequest) _showDialogFormListener;
   late Completer<AlertResponse> _dialogCompleter;
+
+  DialogService(){
+    print("[SERVICE CONSTRUCTOR] DialogService");
+  }
 
   /// Registers a callback function. Typically to show the dialog
   void registerDialogListener(Function(AlertRequest) showDialogListener) {
@@ -40,15 +44,7 @@ class DialogService {
     required String description,
     String buttonTitleConfirmed = 'Ok',
     String buttonTitleCancelled = 'Annulla',
-    required TextEditingController controller,
-    required FocusNode focusNode,
-    bool autofocus = false,
-    TextInputType keyboardType = TextInputType.text,
-    List<TextInputFormatter>? inputFormatters,
-    IconData? iconPrefix,
-    IconData? iconSuffix,
-    required String? Function(BuildContext, String?, String?)? validatorFunction,
-    required String validatorParameter,
+    required List<FormInformation> formInfo,
   }) {
     _dialogCompleter = Completer<AlertResponse>();
     _showDialogFormListener(AlertFormRequest(
@@ -56,14 +52,7 @@ class DialogService {
       description: description,
       buttonTitleConfirmed: buttonTitleConfirmed,
       buttonTitleCancelled: buttonTitleCancelled,
-      controller: controller,
-      focusNode: focusNode,
-      autofocus: autofocus,
-      keyboardType: keyboardType,
-      iconPrefix: iconPrefix,
-      iconSuffix: iconSuffix,
-      validatorFunction: validatorFunction,
-      validatorParameter: validatorParameter,
+      formInfo: formInfo,
     ));
     return _dialogCompleter.future;
   }

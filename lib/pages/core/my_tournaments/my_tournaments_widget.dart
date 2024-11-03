@@ -18,7 +18,7 @@ class MyTournamentsWidget extends StatefulWidget {
 }
 
 
-class _MyTournamentsWidgetState extends State<MyTournamentsWidget> with TickerProviderStateMixin {
+class _MyTournamentsWidgetState extends State<MyTournamentsWidget> {
   late MyTournamentsModel _model;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();

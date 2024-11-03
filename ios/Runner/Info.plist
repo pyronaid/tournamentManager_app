@@ -48,8 +48,12 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-    <true/>
+    <string>Quest'app necessita l'accesso alla fotocamera per alcune funzioni</string>
     <key>NSMicrophoneUsageDescription</key>
-    <true/>
+    <string>Quest'app necessita l'accesso al microfono per alcune funzioni</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Quest'app necessita l'accesso alla posizione per alcune funzioni</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Quest'app necessita l'accesso alla posizione per alcune funzioni</string>
 </dict>
 </plist>

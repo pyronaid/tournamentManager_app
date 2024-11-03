@@ -4,13 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:tournamentmanager/backend/schema/news_record.dart';
 import 'package:tournamentmanager/pages/core/create_edit_news/create_edit_news_container.dart';
 import 'package:tournamentmanager/pages/nav_bar/nav_bar_lev2_widget.dart';
 import 'package:tournamentmanager/pages/profile/edit_profile/edit_profile_container.dart';
-import '../../backend/schema/tournaments_record.dart';
 import '../../pages/core/create_own/create_own_container.dart';
-import '../../pages/core/create_own/create_own_widget.dart';
 import '../../pages/nav_bar/nav_bar_widget.dart';
 import '../../pages/onboarding/onboarding_verify_mail/onboarding_verify_mail_widget.dart';
 import '../../pages/onboarding/onboarding_verify_mail_success/onboarding_verify_mail_success_widget.dart';
@@ -81,7 +78,9 @@ class AppStateNotifier extends ChangeNotifier {
   }
 }
 
-GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
+GoRouter createRouter(AppStateNotifier appStateNotifier, GlobalKey<NavigatorState> key) {
+  return GoRouter(
+      navigatorKey: key,
       initialLocation: '/',
       debugLogDiagnostics: true,
       refreshListenable: appStateNotifier,
@@ -93,6 +92,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: '/',
           builder: (context, _) =>
             ServiceManager(
+              navigatorKey: key,
               child: appStateNotifier.loggedIn
                   ? (appStateNotifier.emailVerified
                   ? const NavBarPage()
@@ -143,6 +143,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               path: 'own-tournaments',
               requireAuth: true,
               builder: (context, params) => const NavBarPage(initialPage: 'OwnTournaments'),
+            ),
+            CustomRoute(
+              name: 'TournamentFinder',
+              path: 'tournament-finder',
+              requireAuth: true,
+              builder: (context, params) => const NavBarPage(initialPage: 'TournamentFinder'),
             ),
             CustomRoute(
               name: 'TournamentDetails',
@@ -221,6 +227,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
+}
 
 extension NavParamExtensions on Map<String, String?> {
   Map<String, String> get withoutNulls => Map.fromEntries(

@@ -19,7 +19,7 @@ class TournamentNewsContainer extends StatefulWidget {
   State<TournamentNewsContainer> createState() => _TournamentNewsContainerState();
 }
 
-class _TournamentNewsContainerState extends State<TournamentNewsContainer> with TickerProviderStateMixin {
+class _TournamentNewsContainerState extends State<TournamentNewsContainer> {
 
   @override
   void initState() {

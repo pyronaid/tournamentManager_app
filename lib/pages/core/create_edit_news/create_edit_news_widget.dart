@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +10,6 @@ import 'package:tuple/tuple.dart';
 import '../../../app_flow/app_flow_model.dart';
 import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_widgets.dart';
-import '../../../backend/backend.dart';
 import '../../../backend/firebase_analytics/analytics.dart';
 import '../../../components/custom_appbar_widget.dart';
 import '../../../components/standard_graphics/standard_graphics_widgets.dart';
@@ -25,7 +23,7 @@ class CreateEditNewsWidget extends StatefulWidget {
 }
 
 
-class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> with TickerProviderStateMixin {
+class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
 
   late CreateEditNewsModel createEditNewsModel;
   late NewsModel newsModel;
