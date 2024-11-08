@@ -107,7 +107,16 @@ class _ServiceManagerState extends State<ServiceManager> {
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: Text(request.title),
+          title: Column(
+            children: [
+              Text(request.title),
+              const SizedBox(height: 20,),
+              Text(
+                request.description,
+                style: CustomFlowTheme.of(context).labelMedium,
+              ),
+            ]
+          ),
           content: Form(
             key: formKey,
             autovalidateMode: AutovalidateMode.disabled,
@@ -115,43 +124,7 @@ class _ServiceManagerState extends State<ServiceManager> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 for(int i=0; i < request.formInfo.length; i++)...[
-                  TextFormField(
-                    controller: request.formInfo[i].controller,
-                    focusNode: request.formInfo[i].focusNode,
-                    autofocus: request.formInfo[i].autofocus,
-                    keyboardType: request.formInfo[i].keyboardType,
-                    inputFormatters: request.formInfo[i].inputFormatters,
-                    textCapitalization: TextCapitalization.words,
-                    textInputAction: TextInputAction.next,
-                    obscureText: false,
-                    decoration: standardInputDecoration(
-                      context,
-                      prefixIcon: request.formInfo[i].iconPrefix != null ?
-                      Icon(
-                        request.formInfo[i].iconPrefix,
-                        color: CustomFlowTheme.of(context).secondaryText,
-                        size: 18,
-                      ) : null,
-                      suffixIcon: request.formInfo[i].iconSuffix != null ?
-                      Icon(
-                        request.formInfo[i].iconSuffix,
-                        color: CustomFlowTheme.of(context).secondaryText,
-                        size: 18,
-                      ) : null,
-                    ),
-                    style: CustomFlowTheme.of(context).bodyLarge.override(
-                      fontWeight: FontWeight.w500,
-                      lineHeight: 1,
-                    ),
-                    minLines: 1,
-                    cursorColor: CustomFlowTheme.of(context).primary,
-                    validator: request.formInfo[i].validatorFunction?.asValidator(context, request.formInfo[i].validatorParameter),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    request.description,
-                    style: CustomFlowTheme.of(context).labelMedium,
-                  ),
+                  request.formInfo[i],
                 ]
               ],
             ),
@@ -171,7 +144,7 @@ class _ServiceManagerState extends State<ServiceManager> {
                     !formKey.currentState!.validate()) {
                   return;
                 }
-                _dialogService.dialogComplete(AlertResponse(confirmed: true, formValues: request.formInfo.map((inf) => inf.controller.text).toList()));
+                _dialogService.dialogComplete(AlertResponse(confirmed: true, formValues: request.formInfo.map((inf) => inf.result()).toList()));
                 Navigator.of(context).pop(); // Dismiss the dialog
               },
               child: Text(request.buttonTitleConfirmed),

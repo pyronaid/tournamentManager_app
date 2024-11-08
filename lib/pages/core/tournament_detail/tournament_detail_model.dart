@@ -129,7 +129,7 @@ class TournamentDetailModel extends ChangeNotifier {
       buttonTitleCancelled: "Annulla",
       buttonTitleConfirmed: "Salva",
       formInfo: [
-        FormInformation(
+        TextFormElement(
           controller: fieldControllerCapacityInitialized(tournamentModel.tournamentCapacity),
           focusNode: tournamentCapacityFocusNode!,
           keyboardType: TextInputType.number,
@@ -155,7 +155,7 @@ class TournamentDetailModel extends ChangeNotifier {
       buttonTitleCancelled: "Annulla",
       buttonTitleConfirmed: "Salva",
       formInfo: [
-        FormInformation(
+        TextFormElement(
           controller: fieldControllerNameInitialized(tournamentModel.tournamentName),
           focusNode: tournamentNameFocusNode!,
           iconPrefix: Icons.style,

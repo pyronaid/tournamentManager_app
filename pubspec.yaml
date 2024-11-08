@@ -154,6 +154,12 @@ flutter:
      - assets/images/icons/detail_tournament.png
      - assets/images/icons/news.png
      - assets/images/icons/location.png
+     - assets/images/icons/altered_pointer.png
+     - assets/images/icons/lorcana_pointer.png
+     - assets/images/icons/magic_pointer.png
+     - assets/images/icons/onepiece_pointer.png
+     - assets/images/icons/ygoadv_pointer.png
+     - assets/images/icons/ygoretro_pointer.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

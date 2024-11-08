@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import '../backend/schema/tournaments_record.dart';
 
 class AFButtonOptions {
   const AFButtonOptions({
@@ -46,7 +49,6 @@ class AFButtonOptions {
   final double? hoverElevation;
 }
 
-
 class AFButtonWidget extends StatefulWidget {
   const AFButtonWidget({
     super.key,
@@ -68,7 +70,6 @@ class AFButtonWidget extends StatefulWidget {
   @override
   State<AFButtonWidget> createState() => _AFButtonWidgetState();
 }
-
 
 class _AFButtonWidgetState extends State<AFButtonWidget> {
   bool loading = false;
@@ -285,3 +286,18 @@ double? _getTextWidth(String? text, TextStyle? style, int maxLines) =>
         .size
         .width
         : null;
+
+class CustomMarker extends Marker {
+  final Game game;
+
+  const CustomMarker({
+    required this.game,
+    super.key,
+    required super.point,
+    required super.child,
+    super.width = 30,
+    super.height = 30,
+    super.alignment,
+    super.rotate,
+  });
+}

@@ -6,13 +6,10 @@ import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:tournamentmanager/pages/core/tournament_finder/tournament_finder_model.dart';
-import 'package:tournamentmanager/pages/core/tournament_news/tournament_news_model.dart';
 
 import '../../../app_flow/app_flow_theme.dart';
-import '../../../app_flow/app_flow_util.dart';
-import '../../../components/no_tournament_news_card/no_tournament_news_card_widget.dart';
-import '../../../components/tournament_news_card/tournament_news_card_widget.dart';
-import '../../nav_bar/tournament_model.dart';
+import '../../../app_flow/app_flow_widgets.dart';
+import '../../../backend/schema/tournaments_record.dart';
 
 class TournamentFinderWidget extends StatefulWidget {
   const TournamentFinderWidget({super.key});
@@ -82,9 +79,7 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                   elevation: 4.0,
                   backgroundColor: CustomFlowTheme.of(context).primary,
                   onPressed: () async {
-                    LatLng initpos = await tournamentFinderModel.initialLocation;
-                    tournamentFinderModel.mapController.move(initpos, 13);
-                    tournamentFinderModel.mapController.rotate(0);
+                    tournamentFinderModel.showChangeTournamentCapacityDialog();
                   },
                   child: Icon(
                     Icons.filter_alt,
@@ -119,7 +114,7 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                                 initialRotation: 0,
                                 interactionOptions: const InteractionOptions(flags: InteractiveFlag.all & ~InteractiveFlag.rotate),
                                 onPositionChanged: (position, hasGesture) {
-                                  tournamentFinderModel.refreshSearch(position);
+                                  tournamentFinderModel.refreshSearchByTap(position);
                                 },
                               ),
                               children: [
@@ -157,34 +152,81 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                                     maxZoom: 15,
                                     markers: [
                                       for(var to in tournamentFinderModel.tournamentsListRefObj)...[
-                                        Marker(
+                                        CustomMarker(
                                           point: LatLng(to.latitude, to.longitude),
-                                          width: 80,
-                                          height: 80,
-                                          child: Icon(
-                                            Icons.tour,
-                                            color: CustomFlowTheme.of(context).markerTournament,
-                                            size: 40,
-                                          ),
+                                          width: 60,
+                                          height: 60,
+                                          game: to.game!,
+                                          child: to.game!.iconResource != null ?
+                                            Image.asset(
+                                              to.game!.iconResource!,
+                                              width: 40,
+                                              height: 40,
+                                            ) :
+                                            Icon(
+                                              Icons.tour,
+                                              color: CustomFlowTheme.of(context).markerTournament,
+                                              size: 40,
+                                            ),
                                         ),
                                       ],
                                     ],
                                     builder: (context, markers) {
+                                      List<Color> colors = [];
+                                      List<double> stops = [0.0];
+                                      final Map<Game, double> percentageMap = markers.map((m) => (m as CustomMarker).game)
+                                        .fold<Map<Game, double>>(
+                                          {}, (map, game) =>  map..update(
+                                            game,
+                                            (count) => count + 1,
+                                            ifAbsent: () => 1,
+                                          )
+                                        );
+                                      for (var entry in percentageMap.entries) {
+                                        int index=1;
+                                        Game game = entry.key;
+                                        double value = entry.value;
+                                        colors.add(game.color);
+                                        colors.add(game.color);
+
+                                        if(index != percentageMap.keys.length){
+                                          double toAdd = (stops.last + value)/markers.length;
+                                          stops.add(toAdd);
+                                          stops.add(toAdd);
+                                        } else {
+                                          stops.add(1);
+                                        }
+                                        index++;
+                                      }
                                       return Container(
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(20),
-                                            color: CustomFlowTheme.of(context).primary),
-                                        child: Center(
-                                          child: Text(
-                                            markers.length.toString(),
-                                            style: TextStyle(color: CustomFlowTheme.of(context).info),
+                                          width: 80,
+                                          height: 80,
+                                          decoration: BoxDecoration(
+                                            gradient: SweepGradient(
+                                              stops: stops,
+                                              colors: colors,
+                                            ),
+                                            borderRadius: BorderRadius.circular(40),
                                           ),
-                                        ),
+                                          child: Container(
+                                            margin: const EdgeInsets.all(7),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(35),
+                                              color: CustomFlowTheme.of(context).primary,
+                                            ),
+                                            width: 70,
+                                            height: 70,
+                                            child: Center(
+                                              child: Text(
+                                                markers.length.toString(),
+                                                style: TextStyle(color: CustomFlowTheme.of(context).info),
+                                              ),
+                                            ),
+                                          )
                                       );
                                     },
                                   ),
                                 ),
-
                               ],
                             ),
                           ],

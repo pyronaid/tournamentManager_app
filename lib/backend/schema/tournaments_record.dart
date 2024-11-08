@@ -343,19 +343,21 @@ class TournamentsRecordDocumentEquality implements Equality<TournamentsRecord> {
 
 
 enum Game {
-  ygoAdv("Yu-Gi-Oh! Avanzato", 'assets/images/card_back/game_ygo_adv.jpg'),
-  ygoRetro("Yu-Gi-Oh! Retroformat", 'assets/images/card_back/game_ygo_adv.jpg'),
-  lorcana("Lorcana", 'assets/images/card_back/game_ygo_adv.jpg'),
-  onepiece("One Piece", 'assets/images/card_back/game_ygo_adv.jpg'),
-  altered("Altered", 'assets/images/card_back/game_ygo_adv.jpg'),
-  magic("Magic", 'assets/images/card_back/game_ygo_adv.jpg'),
-  unknown("UNKNOWN", 'assets/images/card_back/game_ygo_adv.jpg'),
-  none("", 'assets/images/card_back/game_ygo_adv.jpg');
+  ygoAdv("Yu-Gi-Oh! Avanzato", 'assets/images/card_back/game_ygo_adv.jpg', 'assets/images/icons/ygoadv_pointer.png', Colors.orange),
+  ygoRetro("Yu-Gi-Oh! Retroformat", 'assets/images/card_back/game_ygo_adv.jpg', 'assets/images/icons/ygoretro_pointer.png', Colors.deepOrangeAccent),
+  lorcana("Lorcana", 'assets/images/card_back/game_ygo_adv.jpg', 'assets/images/icons/lorcana_pointer.png', Colors.deepPurpleAccent),
+  onepiece("One Piece", 'assets/images/card_back/game_ygo_adv.jpg', 'assets/images/icons/onepiece_pointer.png', Colors.red),
+  altered("Altered", 'assets/images/card_back/game_ygo_adv.jpg', 'assets/images/icons/altered_pointer.png', Colors.lightBlueAccent),
+  magic("Magic", 'assets/images/card_back/game_ygo_adv.jpg', 'assets/images/icons/magic_pointer.png', Colors.black54),
+  unknown("UNKNOWN", 'assets/images/card_back/game_ygo_adv.jpg', null, Colors.white),
+  none("", 'assets/images/card_back/game_ygo_adv.jpg', null, Colors.white);
 
   final String desc;
   final String resource;
+  final String? iconResource;
+  final Color color;
 
-  const Game(this.desc, this.resource);
+  const Game(this.desc, this.resource, this.iconResource, this.color);
 
 }
 
