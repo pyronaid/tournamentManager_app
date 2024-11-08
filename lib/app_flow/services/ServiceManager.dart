@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/services/LoaderService.dart';
 import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
@@ -117,16 +118,23 @@ class _ServiceManagerState extends State<ServiceManager> {
               ),
             ]
           ),
-          content: Form(
-            key: formKey,
-            autovalidateMode: AutovalidateMode.disabled,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for(int i=0; i < request.formInfo.length; i++)...[
-                  request.formInfo[i],
-                ]
-              ],
+          content: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: 50.h,
+            ),
+            child: SingleChildScrollView(
+              child: Form(
+                key: formKey,
+                autovalidateMode: AutovalidateMode.disabled,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for(int i=0; i < request.formInfo.length; i++)...[
+                      request.formInfo[i],
+                    ]
+                  ],
+                ),
+              ),
             ),
           ),
           actions: [

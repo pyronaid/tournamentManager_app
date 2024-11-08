@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:multi_select_flutter/chip_field/multi_select_chip_field.dart';
+import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:table_calendar/table_calendar.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 
 import '../../../components/standard_graphics/standard_graphics_widgets.dart';
@@ -41,7 +44,7 @@ abstract class FormInformation extends StatefulWidget {
     required this.label,
   });
 
-  String result();
+  dynamic result();
 }
 
 class TextFormElement extends FormInformation {
@@ -55,6 +58,7 @@ class TextFormElement extends FormInformation {
   final Future<void> Function(BuildContext)? iconSuffixOnTapFunction;
   final String? Function(BuildContext, String?, String?)? validatorFunction;
   final String? validatorParameter;
+  final bool readOnly;
 
   const TextFormElement({
     super.key,
@@ -69,13 +73,14 @@ class TextFormElement extends FormInformation {
     this.validatorFunction,
     required this.validatorParameter,
     required super.label,
+    this.readOnly = false,
   });
 
   @override
   State<TextFormElement> createState() => _TextFormElementState();
 
   @override
-  String result() {
+  dynamic result() {
     return controller.text;
   }
 }
@@ -103,6 +108,7 @@ class _TextFormElementState extends State<TextFormElement> {
           textCapitalization: TextCapitalization.words,
           textInputAction: TextInputAction.next,
           obscureText: false,
+          readOnly: widget.readOnly,
           decoration: standardInputDecoration(
             context,
             prefixIcon: widget.iconPrefix != null ?
@@ -162,7 +168,7 @@ class SliderFormElement extends FormInformation {
   State<SliderFormElement> createState() => SliderFormElementState();
 
   @override
-  String result() {
+  dynamic result() {
     final currentState = (key as GlobalKey<SliderFormElementState>).currentState;
     return currentState?.currentValue.toString() ?? sliderValue.toString();
   }
@@ -229,29 +235,32 @@ class DropdownFormElement<T> extends FormInformation {
   final String Function(T) nameExtractor;
 
   const DropdownFormElement({
-    super.key,
+    required GlobalKey<DropdownFormElementState> key,
     required super.label,
     required this.value,
     required this.items,
     required this.nameExtractor,
-  });
+  }) : super(key: key);
 
   @override
-  State<DropdownFormElement<T>> createState() => _DropdownFormElementState<T>();
+  State<DropdownFormElement<T>> createState() => DropdownFormElementState<T>();
 
   @override
-  String result() {
-    return "";
+  dynamic result() {
+    final currentState = (key as GlobalKey<DropdownFormElementState>).currentState;
+    return currentState?._selectedItems ?? [];
   }
 }
 
-class _DropdownFormElementState<T> extends State<DropdownFormElement<T>> {
-  List<T> _selectedItems = [];
+class DropdownFormElementState<T> extends State<DropdownFormElement<T>> {
+  List<T?> _selectedItems = [];
+  List<T> _allItems = [];
 
   @override
   void initState() {
     super.initState();
     _selectedItems = List.from(widget.items);
+    _allItems = List.from(widget.items);
   }
 
   @override
@@ -266,47 +275,159 @@ class _DropdownFormElementState<T> extends State<DropdownFormElement<T>> {
             style: CustomFlowTheme.of(context).bodyMedium,
           ),
         ),
-        DropdownButtonFormField(
-          value: widget.value,
-          menuMaxHeight: 30.h,
-          items: widget.items.map((item) {
-            return DropdownMenuItem<T>(
-              value: item,
-              key: ValueKey(item),
-              child: SizedBox(
-                width: 50.w,
-                child: CheckboxListTile(
-                  title: Text(
-                    widget.nameExtractor(item),
-                    style: CustomFlowTheme.of(context).bodyLarge.override(
-                      fontWeight: FontWeight.w500,
-                      lineHeight: 1,
-                    ),
-                  ),
-                  value: _selectedItems.contains(item),
-                  onChanged: (bool? value) {
-                    setState(() {
-                      if (value ?? false) {
-                        _selectedItems.add(item);
-                      } else {
-                        _selectedItems.remove(item);
-                      }
-                    });
-                  },
-                ),
-              ),
-            );
-          }).toList(),
-          hint: const Text("Scegli"),
-          decoration: standardInputDecoration(context),
-          style: CustomFlowTheme.of(context).bodyLarge.override(
-            fontWeight: FontWeight.w500,
-            lineHeight: 1,
+        MultiSelectChipField(
+          showHeader: false,
+          initialValue: _selectedItems,
+          items: _allItems.map((e) => MultiSelectItem<T>(e, widget.nameExtractor(e))).toList(),
+          icon: const Icon(
+            Icons.check,
+            color: Colors.white,
           ),
-          onChanged: (T? value) {
-            // Do nothing, as we handle selection in the CheckboxListTile
-            print("hello");
+          headerColor: Colors.blue,
+          onTap: (values) {
+            _selectedItems = values;
           },
+          selectedChipColor: CustomFlowTheme.of(context).primary,
+          selectedTextStyle: const TextStyle(color: Colors.white),
+          textStyle: const TextStyle(color: Colors.black54,),
+          scroll: false,
+          decoration:  const BoxDecoration(),
+          chipShape: RoundedRectangleBorder(
+            side: const BorderSide(
+              color: Colors.transparent,
+              width: 0,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class CalendarPickerFormElement<T> extends FormInformation {
+  final DateTime from;
+  final DateTime to;
+
+  const CalendarPickerFormElement({
+    required GlobalKey<CalendarPickerFormElementState> key,
+    required super.label,
+    required this.from,
+    required this.to,
+  }) : super(key: key);
+
+  @override
+  State<CalendarPickerFormElement> createState() => CalendarPickerFormElementState();
+
+  @override
+  dynamic result() {
+    return "";
+  }
+}
+
+class CalendarPickerFormElementState extends State<CalendarPickerFormElement> {
+  late DateTime? _rangeStart;
+  late DateTime? _rangeEnd;
+  late DateTime _focusedDay;
+  late DateTime? _selectedDay;
+  final CalendarFormat _calendarFormat = CalendarFormat.month;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusedDay = DateTime.now();
+    _selectedDay = _focusedDay;
+    _rangeStart = widget.from;
+    _rangeEnd = widget.to;
+  }
+
+  void _onRangeSelected(DateTime? start, DateTime? end, DateTime focused){
+    setState(() {
+      _selectedDay = null;
+      _focusedDay = focused;
+      _rangeStart = start;
+      _rangeEnd = end;
+    });
+  }
+
+  void _onDaySelected(DateTime? selected, DateTime focused){
+    if(!isSameDay(selected, _selectedDay)){
+      setState(() {
+        _selectedDay = selected;
+        _selectedDay = focused;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 4),
+          child: Text(
+            widget.label,
+            style: CustomFlowTheme.of(context).bodyMedium,
+          ),
+        ),
+        SizedBox(
+          width: 100 .w,
+          height: 450,
+          child: TableCalendar(
+            availableGestures: AvailableGestures.horizontalSwipe,
+            locale: 'it_IT',
+            firstDay: DateTime.now(),
+            lastDay: DateTime(2101),
+            focusedDay: _focusedDay,
+            rangeStartDay: _rangeStart,
+            rangeEndDay: _rangeEnd,
+            onRangeSelected: _onRangeSelected,
+            rangeSelectionMode: RangeSelectionMode.toggledOn,
+            calendarFormat: _calendarFormat,
+            onDaySelected: _onDaySelected,
+            daysOfWeekStyle: DaysOfWeekStyle(
+              weekdayStyle: TextStyle(
+                color: CustomFlowTheme.of(context).primary,
+              ),
+              weekendStyle: TextStyle(
+                color: CustomFlowTheme.of(context).primary,
+              ),
+            ),
+            calendarStyle: const CalendarStyle(
+              outsideDaysVisible: false,
+              weekendTextStyle: TextStyle(
+                color: Colors.white,
+              ),
+              withinRangeTextStyle : TextStyle(
+                color: Colors.black54, // Text color for weekend days
+                fontWeight: FontWeight.bold, // Font style for weekend days
+              ),
+              disabledTextStyle : TextStyle(
+                color: Colors.grey
+              ),
+            ),
+            startingDayOfWeek: StartingDayOfWeek.monday,
+            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+            /*
+            onFormatChanged: (format) {
+              if (_calendarFormat != format) {
+                setState(() {
+                  _calendarFormat = format;
+                });
+              }
+            },
+            */
+            onPageChanged: (focusedDay) {
+              _focusedDay = focusedDay;
+            },
+            headerStyle: const HeaderStyle(
+              formatButtonVisible: false,
+              titleCentered: true,
+            ),
+
+          ),
         ),
       ],
     );
@@ -408,7 +529,7 @@ class _TextAheadAddressFormElementState extends State<TextAheadAddressFormElemen
 
 class AlertResponse {
   final bool confirmed;
-  final List<String?>? formValues;
+  final List<dynamic>? formValues;
 
   AlertResponse({
     required this.confirmed,

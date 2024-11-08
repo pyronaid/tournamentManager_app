@@ -247,7 +247,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
                                       decoration: standardInputDecoration(
                                         context,
                                         suffixIcon: IconButton(
-                                          icon: const Icon(Icons.calendar_today),
+                                          icon: const Icon(Icons.calendar_month),
                                           onPressed: () async {
                                             _showChangeTournamentDatePicker(context, createOwnModel);
                                           },

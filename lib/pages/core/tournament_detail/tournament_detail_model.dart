@@ -143,8 +143,8 @@ class TournamentDetailModel extends ChangeNotifier {
         )
       ],
     );
-    if(resp.confirmed && resp.formValues![0] != null){
-      String newValueFromForm = resp.formValues![0]!;
+    if(resp.confirmed && (resp.formValues![0] as String?) != null){
+      String newValueFromForm = (resp.formValues![0]! as String);
       await tournamentModel.setTournamentCapacity(newValueFromForm);
     }
   }
@@ -165,8 +165,8 @@ class TournamentDetailModel extends ChangeNotifier {
         )
       ],
     );
-    if(resp.confirmed && resp.formValues![0] != null){
-      String newValueFromForm = resp.formValues![0]!;
+    if(resp.confirmed && (resp.formValues![0] as String?) != null){
+      String newValueFromForm = (resp.formValues![0]! as String);
       await tournamentModel.setTournamentName(newValueFromForm);
     }
   }

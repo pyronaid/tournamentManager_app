@@ -118,6 +118,12 @@ class TournamentFinderModel extends ChangeNotifier {
   FocusNode get tournamentNameFocusNode{
     return _tournamentNameFocusNode!;
   }
+  TextEditingController get tournamentDateRangeTextController{
+    return _fieldControllerDateRange;
+  }
+  FocusNode get tournamentDateRangeFocusNode{
+    return _tournamentDateRangeFocusNode!;
+  }
 
   /////////////////////////////SETTER
   void setRadiusInKm(double value) {
@@ -207,6 +213,13 @@ class TournamentFinderModel extends ChangeNotifier {
           value: null,
           items: Game.values.where((game) => game.desc.isNotEmpty).toList(),
           nameExtractor: (Game item) => item.desc,
+          key: GlobalKey<DropdownFormElementState>(),
+        ),
+        CalendarPickerFormElement(
+          from: _dateStart,
+          to: _dateEnd,
+          label: "Date di ricerca",
+          key: GlobalKey<CalendarPickerFormElementState>(),
         ),
       ],
     );
@@ -248,7 +261,5 @@ class TournamentFinderModel extends ChangeNotifier {
       notifyListeners();
     });
   }
-
-
 
 }
