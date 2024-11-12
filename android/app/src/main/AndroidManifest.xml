@@ -52,5 +52,15 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <!-- If your app checks for maps support -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="geo" />
+        </intent>
+        <!-- If your app checks for mailto support -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="mailto" />
+        </intent>
     </queries>
 </manifest>

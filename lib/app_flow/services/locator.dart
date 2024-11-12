@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:tournamentmanager/app_flow/services/DialogService.dart';
+import 'package:tournamentmanager/app_flow/services/ExternalAppManagerService.dart';
 import 'package:tournamentmanager/app_flow/services/LoaderService.dart';
 import 'package:tournamentmanager/app_flow/services/PlacesApiManagerService.dart';
 import 'package:tournamentmanager/app_flow/services/VerifyMailService.dart';
@@ -32,6 +33,7 @@ void serviceLocatorSetUp(){
   serviceLocator.registerLazySingleton<SnackBarService>(() => SnackBarService());
   serviceLocator.registerLazySingleton<LoaderService>(() => LoaderService());
   serviceLocator.registerLazySingleton<VerifyMailService>(() => VerifyMailService());
+  serviceLocator.registerLazySingleton<ExternalAppManagerService>(() => ExternalAppManagerService());
   //serviceLocator.registerSingleton<Model>(()=> MyModel());
   //serviceLocator.registerFactory<Model>(()=>MyModel());
   //serviceLocator.registerFactoryParam<Person,String,int>((name, age) => Person(name,age));

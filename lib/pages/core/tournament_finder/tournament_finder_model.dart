@@ -23,6 +23,7 @@ class TournamentFinderModel extends ChangeNotifier {
   final _unfocusNode = FocusNode();
   late DialogService dialogService;
   bool isLoading = true;
+  bool isLoadingFetch = false;
   Timer? _debounce;
 
   late Future<PlacesApiManagerService> placesApiManagerService;

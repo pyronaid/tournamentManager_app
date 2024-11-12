@@ -5,7 +5,9 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:tournamentmanager/components/tournament_pick_card/tournament_pick_card_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_finder/tournament_finder_model.dart';
+import 'package:very_good_infinite_list/very_good_infinite_list.dart';
 
 import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_widgets.dart';
@@ -92,7 +94,15 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
             body: SafeArea(
               top: true,
               child: SlidingUpPanel(
-                panel: const Center(child: Text("data"),),
+                panel: Column(
+                  children: List.generate(providerTournamentFinder.tournamentsListRefObj.length, (index) {
+                    final trnmt = providerTournamentFinder.tournamentsListRefObj[index];
+                    return TournamentPickCardWidget(
+                      key: Key('Keykia_${trnmt.uid}_position_${index}_of_${providerTournamentFinder.tournamentsListRefObj.length}'),
+                      tournamentRef: trnmt,
+                    );
+                  }),
+                ),
                 body: Container(
                   width: 100.w,
                   child: Column(

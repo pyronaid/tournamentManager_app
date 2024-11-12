@@ -55,5 +55,10 @@
     <string>Quest'app necessita l'accesso alla posizione per alcune funzioni</string>
     <key>NSLocationAlwaysUsageDescription</key>
     <string>Quest'app necessita l'accesso alla posizione per alcune funzioni</string>
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+      <string>maps</string>
+      <string>mailto</string>
+    </array>
 </dict>
 </plist>
