@@ -7,9 +7,11 @@ import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../app_flow/app_flow_util.dart';
 import '../../../app_flow/services/DialogService.dart';
+import '../../../app_flow/services/PlacesApiManagerService.dart';
 import '../../../app_flow/services/supportClass/alert_classes.dart';
 import '../../../backend/backend.dart';
 
@@ -23,13 +25,16 @@ class TournamentFinderModel extends ChangeNotifier {
   bool isLoading = true;
   Timer? _debounce;
 
+  late Future<PlacesApiManagerService> placesApiManagerService;
+  late String _sessionToken;
+  var uuid =  const Uuid();
+  List<dynamic> _placeList = [];
+  dynamic _selectedPlace;
 
   //////////////////////////////MAP
   late MapController _mapController;
   late LatLng _firstLocation;
   //FILTER PARAMETERS
-  late DateTime _dateStart;
-  late DateTime _dateEnd;
   late LatLng _lastLocation;
   final double minRadius = 50;
   final int zoom_constant = 125; //1000
@@ -47,10 +52,15 @@ class TournamentFinderModel extends ChangeNotifier {
   }
   //////////////////////////////CENTER PLACE DIALOG
   late TextEditingController _fieldControllerCenterPlace;
-  late String? Function(BuildContext, String?, String?)? tournamentCenterPlaceTextControllerValidator;
   late FocusNode? _tournamentCenterPlaceFocusNode;
-  String? _tournamentCenterPlaceTextControllerValidator(BuildContext context, String? val, String? oldVal) {
-    //getplacedetails and check it
+  String? _tournamentCenterPlaceTextControllerValidator(BuildContext context, String? val, String? placeId, String? lastSelected) {
+    if(lastSelected != null && lastSelected != val){
+      return "Non hai inserito un indirizzo valido";
+    }
+
+    if(lastSelected != null && placeId == null){
+      return "Non hai inserito un indirizzo valido";
+    }
     return null;
   }
   //////////////////////////////DATERANGE DIALOG
@@ -75,7 +85,9 @@ class TournamentFinderModel extends ChangeNotifier {
   late double _radiusInKm;
   //////////////////////////////DROPDOWN GAMES DIALOG
   late List<String> _games;
-
+  //////////////////////////////DATARANGE DIALOG
+  late DateTime _dateStart;
+  late DateTime _dateEnd;
 
 
   /////////////////////////////CONSTRUCTOR
@@ -86,12 +98,13 @@ class TournamentFinderModel extends ChangeNotifier {
     tournamentNameTextControllerValidator = _tournamentNameTextControllerValidator;
     _tournamentNameFocusNode = FocusNode();
     _fieldControllerCenterPlace = TextEditingController();
-    tournamentCenterPlaceTextControllerValidator = _tournamentCenterPlaceTextControllerValidator;
     _tournamentCenterPlaceFocusNode = FocusNode();
     _fieldControllerDateRange = TextEditingController();
     tournamentDateRangeTextControllerValidator = _tournamentDateRangeTextControllerValidator;
     _tournamentDateRangeFocusNode = FocusNode();
 
+    placesApiManagerService = GetIt.instance.getAsync<PlacesApiManagerService>();
+    _sessionToken = uuid.v4();
 
     _radiusInKm = 50;
     _dateStart = DateTime.now();
@@ -123,6 +136,12 @@ class TournamentFinderModel extends ChangeNotifier {
   }
   FocusNode get tournamentDateRangeFocusNode{
     return _tournamentDateRangeFocusNode!;
+  }
+  TextEditingController get tournamentCenterPlaceTextController{
+    return _fieldControllerCenterPlace;
+  }
+  FocusNode get tournamentCenterPlaceFocusNode{
+    return _tournamentCenterPlaceFocusNode!;
   }
 
   /////////////////////////////SETTER
@@ -199,6 +218,15 @@ class TournamentFinderModel extends ChangeNotifier {
           validatorParameter: null,
           label: "Nome Torneo",
         ),
+        TextAheadAddressFormElement(
+          controller: tournamentCenterPlaceTextController,
+          focusNode: tournamentCenterPlaceFocusNode,
+          iconPrefix: Icons.place,
+          validatorFunction: _tournamentCenterPlaceTextControllerValidator,
+          label: "Area di ricerca",
+          callHintFunc: callAddressHint,
+          key: GlobalKey<TextAheadAddressFormElementState>(),
+        ),
         SliderFormElement(
           label: "Raggio (in km) di ricerca",
           sliderValue: _radiusInKm,
@@ -260,6 +288,17 @@ class TournamentFinderModel extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     });
+  }
+
+
+
+  Future<List> callAddressHint() async {
+    if(_fieldControllerCenterPlace.text.isNotEmpty) {
+      print("[PLACES-API] CALL");
+      PlacesApiManagerService placesApiManagerServiceCompleted = await placesApiManagerService;
+      _placeList = await placesApiManagerServiceCompleted.getSuggestion(_fieldControllerCenterPlace.text, _sessionToken);
+    }
+    return _placeList;
   }
 
 }

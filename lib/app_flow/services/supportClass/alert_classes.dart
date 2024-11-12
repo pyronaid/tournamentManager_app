@@ -321,7 +321,8 @@ class CalendarPickerFormElement<T> extends FormInformation {
 
   @override
   dynamic result() {
-    return "";
+    final currentState = (key as GlobalKey<CalendarPickerFormElementState>).currentState;
+    return [currentState?._rangeStart, currentState?._rangeEnd ?? currentState?._rangeStart];
   }
 }
 
@@ -443,11 +444,10 @@ class TextAheadAddressFormElement extends FormInformation {
   final IconData? iconPrefix;
   final IconData? iconSuffix;
   final Future<List> Function() callHintFunc;
-  final String? Function(BuildContext, String?, String?)? validatorFunction;
-  final String validatorParameter;
+  final String? Function(BuildContext, String?, String?, String?)? validatorFunction;
 
   const TextAheadAddressFormElement({
-    super.key,
+    required GlobalKey<TextAheadAddressFormElementState> key,
     required this.controller,
     required this.focusNode,
     this.autofocus = false,
@@ -457,26 +457,36 @@ class TextAheadAddressFormElement extends FormInformation {
     this.iconSuffix,
     required this.callHintFunc,
     this.validatorFunction,
-    required this.validatorParameter,
     required super.label,
-  });
+  }) : super(key: key);
 
   @override
-  State<TextAheadAddressFormElement> createState() => _TextAheadAddressFormElementState();
+  State<TextAheadAddressFormElement> createState() => TextAheadAddressFormElementState();
 
   @override
-  String result() {
-    return controller.text;
+  dynamic result() {
+    final currentState = (key as GlobalKey<TextAheadAddressFormElementState>).currentState;
+    return currentState?.placeId;
   }
 }
 
-class _TextAheadAddressFormElementState extends State<TextAheadAddressFormElement> {
+class TextAheadAddressFormElementState extends State<TextAheadAddressFormElement> {
+  String? placeId;
+  String? lastSelected;
+
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 4),
+          child: Text(
+            widget.label,
+            style: CustomFlowTheme.of(context).bodyMedium,
+          ),
+        ),
         TypeAheadField<dynamic>(
           controller: widget.controller,
           focusNode: widget.focusNode,
@@ -492,6 +502,7 @@ class _TextAheadAddressFormElementState extends State<TextAheadAddressFormElemen
               inputFormatters: widget.inputFormatters,
               textInputAction: TextInputAction.next,
               obscureText: false,
+              readOnly: false,
               decoration: standardInputDecoration(
                 context,
                 prefixIcon: widget.iconPrefix != null ?
@@ -507,7 +518,7 @@ class _TextAheadAddressFormElementState extends State<TextAheadAddressFormElemen
               ),
               minLines: 1,
               cursorColor: CustomFlowTheme.of(context).primary,
-              validator: widget.validatorFunction?.asValidator(context, widget.validatorParameter),
+              validator: (val) => widget.validatorFunction!(context, val, placeId, lastSelected),
             );
           },
           itemBuilder: (context, place) {
@@ -517,7 +528,11 @@ class _TextAheadAddressFormElementState extends State<TextAheadAddressFormElemen
             );
           },
           onSelected: (place) {
-            //tbd
+            placeId = place["place_id"];
+            lastSelected = place["description"];
+            setState(() {
+              widget.controller.text = place["description"];
+            });
           },
         ),
       ],
