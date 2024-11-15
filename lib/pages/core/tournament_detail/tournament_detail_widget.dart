@@ -677,7 +677,7 @@ Future<void> _showChangeTournamentDatePicker(BuildContext context, TournamentMod
   DateTime? pickedDate = await showDatePicker(
     context: context,
     initialDate: tournamentModel.tournamentDate ?? DateTime.now(),
-    firstDate: DateTime.now(),
+    firstDate: tournamentModel.tournamentDate ?? DateTime.now(),
     lastDate: DateTime(2101),
   );
 

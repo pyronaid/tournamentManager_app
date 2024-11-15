@@ -7,11 +7,11 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:tournamentmanager/components/tournament_pick_card/tournament_pick_card_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_finder/tournament_finder_model.dart';
-import 'package:very_good_infinite_list/very_good_infinite_list.dart';
 
 import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_widgets.dart';
 import '../../../backend/schema/tournaments_record.dart';
+import '../../../components/no_tournament_pick_card/no_tournament_pick_card_widget.dart';
 
 class TournamentFinderWidget extends StatefulWidget {
   const TournamentFinderWidget({super.key});
@@ -66,8 +66,8 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                   elevation: 4.0,
                   backgroundColor: CustomFlowTheme.of(context).primary,
                   onPressed: () async {
-                    LatLng initpos = await tournamentFinderModel.initialLocation;
-                    tournamentFinderModel.mapController.move(initpos, 13);
+                    LatLng initPos = await tournamentFinderModel.initialLocation;
+                    tournamentFinderModel.mapController.move(initPos, 13);
                     tournamentFinderModel.mapController.rotate(0);
                   },
                   child: Icon(
@@ -94,15 +94,24 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
             body: SafeArea(
               top: true,
               child: SlidingUpPanel(
-                panel: Column(
-                  children: List.generate(providerTournamentFinder.tournamentsListRefObj.length, (index) {
-                    final trnmt = providerTournamentFinder.tournamentsListRefObj[index];
-                    return TournamentPickCardWidget(
-                      key: Key('Keykia_${trnmt.uid}_position_${index}_of_${providerTournamentFinder.tournamentsListRefObj.length}'),
-                      tournamentRef: trnmt,
-                    );
-                  }),
-                ),
+                controller: tournamentFinderModel.panelController,
+                panel: providerTournamentFinder.tournamentsListRefObjToDetail.isNotEmpty
+                  ? ListView.builder(
+                      controller: tournamentFinderModel.scrollController,
+                      itemCount: providerTournamentFinder.tournamentsListRefObjToDetail.length,
+                      itemBuilder: (context, index) {
+                        final trnmt = providerTournamentFinder.tournamentsListRefObjToDetail[index];
+                        return TournamentPickCardWidget(
+                          key: Key(
+                            'Keykia_${trnmt.uid}_position_${index}_of_${providerTournamentFinder.tournamentsListRefObjToDetail.length}',
+                          ),
+                          tournamentRef: trnmt,
+                        );
+                      },
+                    ):
+                    const NoTournamentPickCardWidget(
+                      phrase: "Non risultano tornei in questa zona.",
+                    ),
                 body: Container(
                   width: 100.w,
                   child: Column(
@@ -126,6 +135,7 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                                 onPositionChanged: (position, hasGesture) {
                                   tournamentFinderModel.refreshSearchByTap(position);
                                 },
+                                onMapReady: () => tournamentFinderModel.populateListToDet(),
                               ),
                               children: [
                                 ///##################################
@@ -168,15 +178,21 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                                           height: 60,
                                           game: to.game!,
                                           child: to.game!.iconResource != null ?
-                                            Image.asset(
-                                              to.game!.iconResource!,
-                                              width: 40,
-                                              height: 40,
+                                            InkWell(
+                                              onTap: () => tournamentFinderModel.onMarkerTap(to.uid),
+                                              child: Image.asset(
+                                                to.game!.iconResource!,
+                                                width: 40,
+                                                height: 40,
+                                              )
                                             ) :
-                                            Icon(
-                                              Icons.tour,
-                                              color: CustomFlowTheme.of(context).markerTournament,
-                                              size: 40,
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.tour,
+                                                color: CustomFlowTheme.of(context).markerTournament,
+                                                size: 40,
+                                              ),
+                                              onPressed: () => tournamentFinderModel.onMarkerTap(to.uid),
                                             ),
                                         ),
                                       ],

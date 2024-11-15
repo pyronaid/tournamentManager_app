@@ -15,8 +15,8 @@ class TournamentPickCardModel extends CustomFlowModel<TournamentPickCardWidget> 
   }
 
   /////////////////////////////SETTER
-  void showMapApp(double lat, double long) async {
-    externalAppManagerService.launchMapApp(lat, long);
+  void showMapApp(double lat, double long, String label) async {
+    externalAppManagerService.launchMapApp(lat, long, label);
   }
 
   @override

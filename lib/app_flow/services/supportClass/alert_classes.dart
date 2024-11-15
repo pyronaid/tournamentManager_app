@@ -170,7 +170,7 @@ class SliderFormElement extends FormInformation {
   @override
   dynamic result() {
     final currentState = (key as GlobalKey<SliderFormElementState>).currentState;
-    return currentState?.currentValue.toString() ?? sliderValue.toString();
+    return currentState?.currentValue ?? sliderValue;
   }
 }
 
@@ -232,6 +232,7 @@ class SliderFormElementState extends State<SliderFormElement> {
 class DropdownFormElement<T> extends FormInformation {
   final T? value;
   final List<T> items;
+  final List<T>? selectedItems;
   final String Function(T) nameExtractor;
 
   const DropdownFormElement({
@@ -239,6 +240,7 @@ class DropdownFormElement<T> extends FormInformation {
     required super.label,
     required this.value,
     required this.items,
+    this.selectedItems,
     required this.nameExtractor,
   }) : super(key: key);
 
@@ -248,7 +250,7 @@ class DropdownFormElement<T> extends FormInformation {
   @override
   dynamic result() {
     final currentState = (key as GlobalKey<DropdownFormElementState>).currentState;
-    return currentState?._selectedItems ?? [];
+    return currentState?._selectedItems.whereType<T>().toList() ?? [];
   }
 }
 
@@ -259,7 +261,7 @@ class DropdownFormElementState<T> extends State<DropdownFormElement<T>> {
   @override
   void initState() {
     super.initState();
-    _selectedItems = List.from(widget.items);
+    _selectedItems = List.from(widget.selectedItems ?? widget.items);
     _allItems = List.from(widget.items);
   }
 

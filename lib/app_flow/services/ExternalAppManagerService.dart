@@ -12,13 +12,13 @@ class ExternalAppManagerService {
   }
 
   //////////////////////////GETTER
-  void launchMapApp(double lat, double long) async {
+  void launchMapApp(double lat, double long, String label) async {
     try{
       late final url;
       //IOS
       final urlIos = Uri.parse('maps:$lat,$long?q=$lat,$long');
       //Android
-      const String markerLabel = 'Here';
+      String markerLabel = label;
       final urlAndroid = Uri.parse('geo:$lat,$long?q=$lat,$long($markerLabel)');
       //WEB
       final urlWeb = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$long');

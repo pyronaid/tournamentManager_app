@@ -23,6 +23,7 @@ class TournamentsRecord extends FirestoreRecord {
   // "uid" field.
   String? _creatorUid;
   String get creatorUid => _creatorUid ?? '';
+  void setCreatorUid(String newCreatorUid) => _creatorUid = newCreatorUid;
   bool hasCreatorUid() => _creatorUid != null;
 
   // "game" field.

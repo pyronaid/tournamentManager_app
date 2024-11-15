@@ -125,7 +125,7 @@ class _TournamentPickCardWidgetState extends State<TournamentPickCardWidget> {
                                     size: 18,
                                   ),
                                   onPressed: () async {
-                                    _model.showMapApp(widget.tournamentRef!.latitude, widget.tournamentRef!.longitude);
+                                    _model.showMapApp(widget.tournamentRef!.latitude, widget.tournamentRef!.longitude, widget.tournamentRef!.name);
                                   },
                                 ),
                               )
