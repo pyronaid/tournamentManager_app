@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
+import 'package:tournamentmanager/components/custom_appbar_widget.dart';
+import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
+import 'package:tournamentmanager/pages/core/create_edit_news/create_edit_news_model.dart';
 import 'package:tournamentmanager/pages/nav_bar/news_model.dart';
 import 'package:tuple/tuple.dart';
 
-import '../../../app_flow/app_flow_model.dart';
-import '../../../app_flow/app_flow_theme.dart';
-import '../../../app_flow/app_flow_widgets.dart';
-import '../../../backend/firebase_analytics/analytics.dart';
-import '../../../components/custom_appbar_widget.dart';
-import '../../../components/standard_graphics/standard_graphics_widgets.dart';
-import 'create_edit_news_model.dart';
 
 class CreateEditNewsWidget extends StatefulWidget {
   const CreateEditNewsWidget({super.key});
@@ -208,7 +208,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
                                               } else if(tuple.item1 != null){
                                                 return Image.file(File(tuple.item1!),);
                                               } else {
-                                                return Text("Nessuna immagine caricata");
+                                                return const Text("Nessuna immagine caricata");
                                               }
                                             },
                                           ),

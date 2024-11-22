@@ -1,12 +1,12 @@
 import 'package:get_it/get_it.dart';
 import 'package:tournamentmanager/app_flow/services/DialogService.dart';
 import 'package:tournamentmanager/app_flow/services/ExternalAppManagerService.dart';
+import 'package:tournamentmanager/app_flow/services/ImagePickerService.dart';
 import 'package:tournamentmanager/app_flow/services/LoaderService.dart';
 import 'package:tournamentmanager/app_flow/services/PlacesApiManagerService.dart';
+import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
 import 'package:tournamentmanager/app_flow/services/VerifyMailService.dart';
 
-import 'ImagePickerService.dart';
-import 'SnackBarService.dart';
 
 final serviceLocator = GetIt.instance; // GetIt.I is also valid
 

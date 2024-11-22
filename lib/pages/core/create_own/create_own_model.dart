@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:tournamentmanager/app_flow/app_flow_animations.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/services/LoaderService.dart';
 import 'package:tournamentmanager/app_flow/services/PlacesApiManagerService.dart';
 import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_style.dart';
+import 'package:tournamentmanager/auth/base_auth_user_provider.dart';
+import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
+import 'package:tournamentmanager/components/custom_appbar_model.dart';
+import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../app_flow/app_flow_animations.dart';
-import '../../../app_flow/app_flow_util.dart';
-import '../../../auth/base_auth_user_provider.dart';
-import '../../../backend/schema/tournaments_record.dart';
-import '../../../components/custom_appbar_model.dart';
-import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 
 class CreateOwnModel extends ChangeNotifier {
   ///  State fields for stateful widgets in this page.

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/components/no_tournament_news_card/no_tournament_news_card_widget.dart';
+import 'package:tournamentmanager/components/tournament_news_card/tournament_news_card_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_news/tournament_news_model.dart';
+import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
-import '../../../app_flow/app_flow_theme.dart';
-import '../../../app_flow/app_flow_util.dart';
-import '../../../components/no_tournament_news_card/no_tournament_news_card_widget.dart';
-import '../../../components/tournament_news_card/tournament_news_card_widget.dart';
-import '../../nav_bar/tournament_model.dart';
 
 class TournamentNewsWidget extends StatefulWidget {
   const TournamentNewsWidget({super.key});
@@ -84,7 +84,7 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
               body: SafeArea(
                 top: true,
                 child: SingleChildScrollView(
-                  child: Container(
+                  child: SizedBox(
                     width: 100.w,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

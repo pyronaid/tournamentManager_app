@@ -2,10 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-
-import '../../../app_flow/app_flow_model.dart';
-import '../../../app_flow/services/ImagePickerService.dart';
-import '../../../components/custom_appbar_model.dart';
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
+import 'package:tournamentmanager/app_flow/services/ImagePickerService.dart';
+import 'package:tournamentmanager/components/custom_appbar_model.dart';
 
 class CreateEditNewsModel extends ChangeNotifier {
 

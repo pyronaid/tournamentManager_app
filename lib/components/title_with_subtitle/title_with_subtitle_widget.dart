@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/components/title_with_subtitle/title_with_subtitle_model.dart';
 
-import '../../app_flow/app_flow_theme.dart';
-import '../../app_flow/app_flow_util.dart';
 
 class TitleWithSubtitleWidget extends StatefulWidget {
   const TitleWithSubtitleWidget({

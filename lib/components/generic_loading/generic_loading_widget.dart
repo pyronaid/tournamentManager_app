@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:lottie/lottie.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import '../../app_flow/app_flow_model.dart';
-import 'generic_loading_model.dart';
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
+import 'package:tournamentmanager/components/generic_loading/generic_loading_model.dart';
 
 class GenericLoadingWidget extends StatefulWidget {
   const GenericLoadingWidget({super.key});

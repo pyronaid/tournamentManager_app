@@ -1,16 +1,19 @@
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
+import 'package:tournamentmanager/app_flow/nav/nav.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
+import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
+import 'package:tournamentmanager/components/custom_appbar_widget.dart';
+import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
+import 'package:tournamentmanager/components/title_with_subtitle/title_with_subtitle_widget.dart';
+import 'package:tournamentmanager/pages/profile/edit_profile/edit_profile_model.dart';
 
-import '../../../app_flow/app_flow_theme.dart';
-import '../../../app_flow/app_flow_util.dart';
-import '../../../app_flow/app_flow_widgets.dart';
-import '../../../app_flow/services/supportClass/alert_classes.dart';
-import '../../../auth/firebase_auth/auth_util.dart';
-import '../../../components/custom_appbar_widget.dart';
-import '../../../components/standard_graphics/standard_graphics_widgets.dart';
-import '../../../components/title_with_subtitle/title_with_subtitle_widget.dart';
-import 'edit_profile_model.dart';
 
 class EditProfileWidget extends StatefulWidget {
   const EditProfileWidget({super.key});
@@ -144,7 +147,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                   ),
                                   minLines: 1,
                                   cursorColor: CustomFlowTheme.of(context).primary,
-                                  validator: editProfileModel.fullNameTextControllerValidator.asValidator(context),
+                                  validator: editProfileModel.fullNameTextControllerValidator?.asValidator(context),
                                 ),
                               ),
                             ),

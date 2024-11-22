@@ -1,21 +1,20 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/app_flow/services/DialogService.dart';
+import 'package:tournamentmanager/app_flow/services/PlacesApiManagerService.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_with_creator_record.dart';
 import 'package:uuid/uuid.dart';
-
-import '../../../app_flow/app_flow_util.dart';
-import '../../../app_flow/services/DialogService.dart';
-import '../../../app_flow/services/PlacesApiManagerService.dart';
-import '../../../app_flow/services/supportClass/alert_classes.dart';
-import '../../../backend/backend.dart';
 
 class TournamentFinderModel extends ChangeNotifier {
 
@@ -184,9 +183,9 @@ class TournamentFinderModel extends ChangeNotifier {
     final double viewportWidthPixels = WidgetsBinding.instance.platformDispatcher.views.first.physicalSize.width / WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio;
     final double pixelsPerKm = viewportWidthPixels / (2 * radius);
 
-    final double zoom_level = log(earthCircumferenceKm * latitudeCorrection * pixelsPerKm / 110)/log(2);
-    print("zoom_level $zoom_level pre clamp");
-    return zoom_level.clamp(1.0, 18.0); // FlutterMap zoom range is 1-18
+    final double zoomLevel = log(earthCircumferenceKm * latitudeCorrection * pixelsPerKm / 110)/log(2);
+    print("zoom_level $zoomLevel pre clamp");
+    return zoomLevel.clamp(1.0, 18.0); // FlutterMap zoom range is 1-18
   }
   void refreshSearchByTap(MapCamera position) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
@@ -249,15 +248,15 @@ class TournamentFinderModel extends ChangeNotifier {
         Map<String,dynamic>? placeDetail = await placesApiManagerServiceCompleted.getPlaceDetail(placeIdToFilter);
         if(placeDetail != null) {
           LatLng selectedPos = LatLng(placeDetail['lat'], placeDetail['lng'],);
-          double zoom_level = computeZoomByRadius(_radiusInKm, placeDetail['lat'], placeDetail['lng']);
-          mapController.move(selectedPos, zoom_level);
+          double zoomLevel = computeZoomByRadius(_radiusInKm, placeDetail['lat'], placeDetail['lng']);
+          mapController.move(selectedPos, zoomLevel);
           mapController.rotate(0);
         }
       } catch (e){
       }
     } else {
-      double zoom_level = computeZoomByRadius(_radiusInKm, _mapController.camera.center.latitude,_mapController.camera.center.longitude);
-      mapController.move(_mapController.camera.center, zoom_level);
+      double zoomLevel = computeZoomByRadius(_radiusInKm, _mapController.camera.center.latitude,_mapController.camera.center.longitude);
+      mapController.move(_mapController.camera.center, zoomLevel);
       mapController.rotate(0);
     }
     await _tournamentsSubscription?.cancel();

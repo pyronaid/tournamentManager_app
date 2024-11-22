@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import '../../../app_flow/app_flow_animations.dart';
-import '../../../app_flow/app_flow_model.dart';
-import '../../../app_flow/app_flow_theme.dart';
-import '../../../app_flow/app_flow_widgets.dart';
-import '../../../backend/firebase_analytics/analytics.dart';
-import '../../../components/custom_appbar_widget.dart';
-import '../../../components/standard_graphics/standard_graphics_widgets.dart';
+import 'package:tournamentmanager/app_flow/app_flow_animations.dart';
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
+import 'package:tournamentmanager/components/custom_appbar_widget.dart';
+import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
+
 import 'onboarding_slideshow_model.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart' as smooth_page_indicator;
 
@@ -91,7 +92,7 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> {
                           ),
                         ),
                         Expanded(
-                          child: Container(
+                          child: SizedBox(
                             width: double.infinity,
                             height: 500,  //TODO convert percentage 
                             child: Stack(

@@ -9,9 +9,6 @@ Future initFirebase() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Set Firebase Auth language code
-  FirebaseAuth.instance.setLanguageCode("en"); // Replace "en" with desired locale
-
   // Activate app check after initialization, but before
   // usage of any Firebase services.
   await FirebaseAppCheck.instance.activate(
@@ -19,4 +16,17 @@ Future initFirebase() async {
     appleProvider: AppleProvider.debug,
     webProvider: ReCaptchaV3Provider("kWebRecaptchaSiteKey"),
   );
+
+  // Set Firebase Auth language code
+  FirebaseAuth.instance.setLanguageCode("en"); // Replace "en" with desired locale
+
+  //ONLY FOR ANDROID
+  /*
+  GooglePlayServicesAvailability availability = await GoogleApiAvailability.instance.checkGooglePlayServicesAvailability();
+  if (availability != GooglePlayServicesAvailability.success) {
+    print('Google Play Services not available: $availability');
+  } else {
+    print('Google Play Services is available.');
+  }*/
+
 }

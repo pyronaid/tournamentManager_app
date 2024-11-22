@@ -1,29 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
+import 'package:tournamentmanager/backend/schema/company_information_record.dart';
+import 'package:tournamentmanager/backend/schema/feedback_record.dart';
+import 'package:tournamentmanager/backend/schema/onboarding_options_record.dart';
+import 'package:tournamentmanager/backend/schema/support_center_record.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
-import '../auth/firebase_auth/auth_util.dart';
-
-import '../app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/backend/schema/users_record.dart';
 import 'schema/util/firestore_util.dart';
-
-import 'schema/users_record.dart';
-import 'schema/onboarding_options_record.dart';
-import 'schema/company_information_record.dart';
-import 'schema/feedback_record.dart';
-import 'schema/support_center_record.dart';
-
 export 'dart:async' show StreamSubscription;
 export 'package:cloud_firestore/cloud_firestore.dart' hide Order;
 export 'package:firebase_core/firebase_core.dart';
-export 'schema/index.dart';
-export 'schema/util/firestore_util.dart';
-export 'schema/util/schema_util.dart';
-
-export 'schema/users_record.dart';
-export 'schema/onboarding_options_record.dart';
-export 'schema/company_information_record.dart';
-export 'schema/feedback_record.dart';
-export 'schema/support_center_record.dart';
 
 /// /////////////////////////////////////////////////////////////////
 /// Functions to query UsersRecords (as a Stream and as a Future).

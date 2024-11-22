@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:tournamentmanager/app_flow/place.dart';
+import 'package:tournamentmanager/app_flow/uploaded_file.dart';
+import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
+import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 
-import '/backend/backend.dart';
-
-import '../../app_flow/place.dart';
-import '../../app_flow/uploaded_file.dart';
 
 /// SERIALIZATION HELPERS
 

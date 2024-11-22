@@ -1,0 +1,82 @@
+REF: https://www.youtube.com/watch?v=2u6Zb36OQjM&t=743s
+
+####################################
+################## SEGREGATION
+####################################
+firebase/
+  ├── cloud-function/
+      ├── functions/
+          ├── src/
+              ├── helloWorld.ts
+              ├── anotherFunction.ts
+              ├── index.ts
+          ├── package.json
+          ├── tsconfig.json
+helloWorld.ts
+import * as functions from "firebase-functions";
+
+export const helloWorld = functions.https.onRequest((request, response) => {
+  response.send("Hello, World!");
+});
+anotherFunction.ts
+import * as functions from "firebase-functions";
+
+export const anotherFunction = functions.https.onCall((data, context) => {
+  return { message: "This is another function" };
+});
+index.ts
+export { helloWorld } from "./helloWorld";
+export { anotherFunction } from "./anotherFunction";
+
+####################################
+################## DEBUG & EMULATOR
+####################################
+export const helloWorld = onRequest((request, response) => {
+   debugger;  <-------------------------------------------------------------------ADD THIS
+   logger.info("Hello logs!", {structuredData: true});
+   const name = request.params[0];
+   const items: Indexable = { lamp: 'this is a lamp', chair: 'this is a chair'};
+   const message = items[name];
+   response.send("<h1>" + message + "</h1>");
+});
+USING THE FUNCTION IN firebase/cloud-functions/functions/package.json
+CONSOLE 1: (START EMULATOR WITH DEBUGGER ON) npm run dev
+CONSOLE 2: (BUILD FUNCTIONS) npm run build:watch
+----------------------------------------
+EMULATOR FOR FIREBASE
+npx firebase init emulator
+    select firestore among functions/database/hosting/pubsub/storage
+npx firebase emulators:start --only firestore
+
+
+
+####################################
+################## DEPLOY
+####################################
+npm run lint:fix
+
+
+####################################
+################## DEPLOY
+####################################
+firebase deploy --only functions:myFunction --set-secrets MY_SECRET=my-secret-name
+firebase deploy --only functions:getApiKeyFromSecret
+
+
+
+####################################
+################## THEORY
+####################################
+- onRequest
+Type: Cloud Function for HTTP requests.
+Usage: You use onRequest to handle any kind of HTTP request (GET, POST, PUT, DELETE, etc.). It provides you with complete control over the request and response, so you can set headers, handle routing, and return custom status codes.
+Response: You manually manage the HTTP response, including sending data and status codes.
+Flexibility: It is more flexible because you can respond with any type of HTTP response and customize the behavior of your endpoint.
+Authentication: You need to implement any necessary authentication and authorization manually (e.g., using Firebase Authentication or custom tokens).
+- onCall
+Type: Firebase Callable Function (specifically for Firebase SDK clients).
+Usage: You use onCall when you want to invoke a backend function directly from a Firebase client SDK (iOS, Android, or Web). It is specifically designed for client-server communication where you don't need to manage HTTP requests and responses directly.
+Response: It returns a promise and the response is automatically serialized and sent back to the client. Firebase handles the response, so you don’t manually send status codes or manage headers.
+Authentication: Firebase automatically handles authentication, so if the client is authenticated (e.g., via Firebase Authentication), the function is triggered with the user's identity. You don’t have to worry about manually checking authentication, as Firebase provides the context.auth object.
+Security: onCall automatically provides security features, including Firebase Authentication, which makes it easier to protect your functions by checking the user's authentication status and enforcing security rules.
+Error Handling: With onCall, you use functions.https.HttpsError to throw errors, which are automatically formatted in a way that Firebase handles on the client-side.

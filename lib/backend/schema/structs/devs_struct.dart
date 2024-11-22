@@ -1,5 +1,7 @@
-import '../../../app_flow/nav/serialization_util.dart';
-import '../../backend.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/app_flow/nav/serialization_util.dart';
+import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 
 class DevsStruct extends AFFirebaseStruct {
   DevsStruct({

@@ -3,14 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
+import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
+import 'package:tournamentmanager/components/custom_appbar_widget.dart';
+import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 import 'package:tournamentmanager/pages/onboarding/sign_in/sign_in_model.dart';
 
-import '../../../app_flow/app_flow_theme.dart';
-import '../../../app_flow/app_flow_util.dart';
-import '../../../app_flow/app_flow_widgets.dart';
-import '../../../auth/firebase_auth/auth_util.dart';
-import '../../../components/custom_appbar_widget.dart';
-import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 
 class SignInWidget extends StatefulWidget {
   const SignInWidget({super.key});

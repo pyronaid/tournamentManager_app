@@ -4,24 +4,29 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/app_flow/nav/serialization_util.dart';
+import 'package:tournamentmanager/app_flow/services/ServiceManager.dart';
+import 'package:tournamentmanager/auth/base_auth_user_provider.dart';
+import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 import 'package:tournamentmanager/pages/core/create_edit_news/create_edit_news_container.dart';
+import 'package:tournamentmanager/pages/core/create_own/create_own_container.dart';
 import 'package:tournamentmanager/pages/nav_bar/nav_bar_lev2_widget.dart';
+import 'package:tournamentmanager/pages/nav_bar/nav_bar_widget.dart';
+import 'package:tournamentmanager/pages/onboarding/forgot_password/forgot_password_widget.dart';
+import 'package:tournamentmanager/pages/onboarding/onboarding/onboarding_widget.dart';
+import 'package:tournamentmanager/pages/onboarding/onboarding_create_account/onboarding_create_account_widget.dart';
+import 'package:tournamentmanager/pages/onboarding/onboarding_slideshow/onboarding_slideshow_widget.dart';
+import 'package:tournamentmanager/pages/onboarding/onboarding_verify_mail/onboarding_verify_mail_widget.dart';
+import 'package:tournamentmanager/pages/onboarding/onboarding_verify_mail_success/onboarding_verify_mail_success_widget.dart';
+import 'package:tournamentmanager/pages/onboarding/sign_in/sign_in_widget.dart';
+import 'package:tournamentmanager/pages/onboarding/splash/splash_widget.dart';
+import 'package:tournamentmanager/pages/profile/about_us/about_us_widget.dart';
+import 'package:tournamentmanager/pages/profile/edit_preferences/edit_preferences_widget.dart';
 import 'package:tournamentmanager/pages/profile/edit_profile/edit_profile_container.dart';
-import '../../pages/core/create_own/create_own_container.dart';
-import '../../pages/nav_bar/nav_bar_widget.dart';
-import '../../pages/onboarding/onboarding_verify_mail/onboarding_verify_mail_widget.dart';
-import '../../pages/onboarding/onboarding_verify_mail_success/onboarding_verify_mail_success_widget.dart';
-import '../services/ServiceManager.dart';
-import '/backend/backend.dart';
-
-import '/auth/base_auth_user_provider.dart';
-
-import '/index.dart';
-import '/app_flow/app_flow_theme.dart';
-import '/app_flow/app_flow_util.dart';
-
+import 'package:tournamentmanager/pages/profile/support_center/support_center_widget.dart';
 export 'package:go_router/go_router.dart';
-export 'serialization_util.dart';
 
 const kTransitionInfoKey = '__transition_info__';
 
@@ -246,7 +251,7 @@ extension NavigationExtensions on BuildContext {
     Object? extra,
     bool ignoreRedirect = false,
   }) =>
-      !mounted || GoRouter.of(this).shouldRedirect(ignoreRedirect)
+      !mounted || GoRouterExtensions(GoRouter.of(this)).shouldRedirect(ignoreRedirect)
           ? null
           : goNamed(
               name,
@@ -263,7 +268,7 @@ extension NavigationExtensions on BuildContext {
     Object? extra,
     bool ignoreRedirect = false,
   }) =>
-      !mounted || GoRouter.of(this).shouldRedirect(ignoreRedirect)
+      !mounted || GoRouterExtensions(GoRouter.of(this)).shouldRedirect(ignoreRedirect)
           ? null
           : pushNamed(
               name,

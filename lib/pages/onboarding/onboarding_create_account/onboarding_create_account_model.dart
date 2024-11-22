@@ -1,7 +1,8 @@
-import '../../../app_flow/app_flow_util.dart';
-import 'onboarding_create_account_widget.dart' show OnboardingCreateAccountWidget;
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/components/custom_appbar_model.dart';
+
 import 'package:flutter/material.dart';
-import '../../../components/custom_appbar_model.dart';
+import 'package:tournamentmanager/pages/onboarding/onboarding_create_account/onboarding_create_account_widget.dart';
 
 class OnboardingCreateAccountModel extends CustomFlowModel<OnboardingCreateAccountWidget> {
   ///  State fields for stateful widgets in this page.

@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import '../../auth/firebase_auth/auth_util.dart';
+import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
+
 
 class VerifyMailService {
 

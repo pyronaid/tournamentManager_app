@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_style.dart';
 
-import '../../app_flow_theme.dart';
 
 class SnackbarMainContent extends StatelessWidget {
   final SnackbarStyle style;

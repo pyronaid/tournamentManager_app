@@ -1,19 +1,17 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import '../../../app_flow/app_flow_animations.dart';
-import '../../../app_flow/app_flow_theme.dart';
-import '../../../app_flow/app_flow_util.dart';
-import '../../../app_flow/app_flow_widgets.dart';
-import '../../../auth/base_auth_user_provider.dart';
-import '../../../backend/schema/tournaments_record.dart';
-import '../../../components/custom_appbar_widget.dart';
-import '../../../components/standard_graphics/standard_graphics_widgets.dart';
-import 'create_own_model.dart';
+import 'package:tournamentmanager/app_flow/app_flow_animations.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
+import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
+import 'package:tournamentmanager/components/custom_appbar_widget.dart';
+import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
+import 'package:tournamentmanager/pages/core/create_own/create_own_model.dart';
 
 class CreateOwnWidget extends StatefulWidget {
   const CreateOwnWidget({super.key});
@@ -92,7 +90,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
                     ////////////////
                     //CAROUSEL
                     /////////////////
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       height: 22.h,
                       child: Padding(
@@ -214,7 +212,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
                                   ),
                                   minLines: 1,
                                   cursorColor: CustomFlowTheme.of(context).primary,
-                                  validator: createOwnModel.tournamentNameTextControllerValidator.asValidator(context),
+                                  validator: createOwnModel.tournamentNameTextControllerValidator?.asValidator(context),
                                 ),
                               ],
                             ),

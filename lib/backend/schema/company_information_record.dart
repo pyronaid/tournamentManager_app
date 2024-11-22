@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:tournamentmanager/backend/schema/structs/devs_struct.dart';
+import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 
-import '/backend/schema/util/firestore_util.dart';
 
 import 'index.dart';
 

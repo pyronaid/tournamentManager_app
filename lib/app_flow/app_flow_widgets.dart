@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-import '../backend/schema/tournaments_record.dart';
+import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 
 class AFButtonOptions {
   const AFButtonOptions({
@@ -124,9 +123,9 @@ class _AFButtonWidgetState extends State<AFButtonWidget> {
         : null;
 
     ButtonStyle style = ButtonStyle(
-      shape: MaterialStateProperty.resolveWith<OutlinedBorder>(
+      shape: WidgetStateProperty.resolveWith<OutlinedBorder>(
             (states) {
-          if (states.contains(MaterialState.hovered) &&
+          if (states.contains(WidgetState.hovered) &&
               widget.options.hoverBorderSide != null) {
             return RoundedRectangleBorder(
               borderRadius:
@@ -141,43 +140,43 @@ class _AFButtonWidgetState extends State<AFButtonWidget> {
           );
         },
       ),
-      foregroundColor: MaterialStateProperty.resolveWith<Color?>(
+      foregroundColor: WidgetStateProperty.resolveWith<Color?>(
             (states) {
-          if (states.contains(MaterialState.disabled) &&
+          if (states.contains(WidgetState.disabled) &&
               widget.options.disabledTextColor != null) {
             return widget.options.disabledTextColor;
           }
-          if (states.contains(MaterialState.hovered) &&
+          if (states.contains(WidgetState.hovered) &&
               widget.options.hoverTextColor != null) {
             return widget.options.hoverTextColor;
           }
           return widget.options.textStyle?.color ?? Colors.white;
         },
       ),
-      backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+      backgroundColor: WidgetStateProperty.resolveWith<Color?>(
             (states) {
-          if (states.contains(MaterialState.disabled) &&
+          if (states.contains(WidgetState.disabled) &&
               widget.options.disabledColor != null) {
             return widget.options.disabledColor;
           }
-          if (states.contains(MaterialState.hovered) &&
+          if (states.contains(WidgetState.hovered) &&
               widget.options.hoverColor != null) {
             return widget.options.hoverColor;
           }
           return widget.options.color;
         },
       ),
-      overlayColor: MaterialStateProperty.resolveWith<Color?>((states) {
-        if (states.contains(MaterialState.pressed)) {
+      overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
+        if (states.contains(WidgetState.pressed)) {
           return widget.options.splashColor;
         }
         return widget.options.hoverColor == null ? null : Colors.transparent;
       }),
-      padding: MaterialStateProperty.all(widget.options.padding ??
+      padding: WidgetStateProperty.all(widget.options.padding ??
           const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0)),
-      elevation: MaterialStateProperty.resolveWith<double?>(
+      elevation: WidgetStateProperty.resolveWith<double?>(
             (states) {
-          if (states.contains(MaterialState.hovered) &&
+          if (states.contains(WidgetState.hovered) &&
               widget.options.hoverElevation != null) {
             return widget.options.hoverElevation!;
           }

@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class PlacesApiManagerService {
-  final HttpsCallable callablePlaceApiKey = FirebaseFunctions.instance.httpsCallable('getSecretApiKey');
+  final HttpsCallable callablePlaceApiKey = FirebaseFunctions.instance.httpsCallable('getApiKeyFromSecret');
   late final String _placeApiKey;
 
   PlacesApiManagerService(){
@@ -29,21 +29,21 @@ class PlacesApiManagerService {
     return _placeApiKey;
   }
   Future<List<dynamic>> getSuggestion(String input, String sessionToken) async {
-    List<dynamic> _placeList = [];
+    List<dynamic> placeList = [];
     try{
       String baseURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
       String request = '$baseURL?input=$input&key=$placeApiKey&language=it&sessiontoken=$sessionToken';
       var response = await http.get(Uri.parse(request));
       var data = json.decode(response.body);
       if (response.statusCode == 200) {
-        _placeList = json.decode(response.body)['predictions'];
+        placeList = json.decode(response.body)['predictions'];
       } else {
         throw Exception('Failed to load predictions');
       }
     } catch(e){
       print(e);
     }
-    return _placeList;
+    return placeList;
   }
   Future<Map<String, dynamic>?> getPlaceDetail(String placeId) async {
     dynamic formattedAddress;
@@ -64,7 +64,7 @@ class PlacesApiManagerService {
   }
   void launchMap(double lat, double long) async {
     try{
-      late final url;
+      late final Uri url;
       //IOS
       final urlIos = Uri.parse('maps:$lat,$long?q=$lat,$long');
       //Android

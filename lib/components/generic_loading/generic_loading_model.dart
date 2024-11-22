@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../app_flow/app_flow_model.dart';
-import 'generic_loading_widget.dart';
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
+import 'package:tournamentmanager/components/generic_loading/generic_loading_widget.dart';
 
 class GenericLoadingModel extends CustomFlowModel<GenericLoadingWidget> {
   @override

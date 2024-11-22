@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
+import 'package:tournamentmanager/app_flow/nav/serialization_util.dart';
+import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
+import 'package:tournamentmanager/backend/backend.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
+import 'package:tournamentmanager/backend/schema/company_information_record.dart';
+import 'package:tournamentmanager/backend/schema/users_record.dart';
+import 'package:tournamentmanager/components/custom_appbar_widget.dart';
+import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 
-import '../../../app_flow/app_flow_theme.dart';
-import '../../../app_flow/app_flow_util.dart';
-import '../../../app_flow/app_flow_widgets.dart';
-import '../../../auth/firebase_auth/auth_util.dart';
-import '../../../backend/backend.dart';
-import '../../../components/custom_appbar_widget.dart';
-import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 import 'onboarding_create_account_model.dart';
 
 class OnboardingCreateAccountWidget extends StatefulWidget {

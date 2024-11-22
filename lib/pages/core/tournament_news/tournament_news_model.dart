@@ -6,8 +6,7 @@ class TournamentNewsModel extends ChangeNotifier {
 
 
   /////////////////////////////CONSTRUCTOR
-  TournamentNewsModel(){
-  }
+  TournamentNewsModel();
 
   /////////////////////////////GETTER
   FocusNode get unfocusNode{

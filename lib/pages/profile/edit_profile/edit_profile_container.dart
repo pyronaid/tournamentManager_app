@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-
-import '../../../backend/firebase_analytics/analytics.dart';
-import 'edit_profile_model.dart';
-import 'edit_profile_widget.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
+import 'package:tournamentmanager/pages/profile/edit_profile/edit_profile_model.dart';
+import 'package:tournamentmanager/pages/profile/edit_profile/edit_profile_widget.dart';
 
 class EditProfileContainer extends StatefulWidget {
   const EditProfileContainer({super.key,});

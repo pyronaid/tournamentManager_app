@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_constants.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_main_content.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_overlay.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_position.dart';

@@ -1,7 +1,8 @@
-import '../../../app_flow/app_flow_model.dart';
-import '../../../components/custom_appbar_model.dart';
-import 'onboarding_slideshow_widget.dart' show OnboardingSlideshowWidget;
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
+import 'package:tournamentmanager/components/custom_appbar_model.dart';
+
 import 'package:flutter/material.dart';
+import 'package:tournamentmanager/pages/onboarding/onboarding_slideshow/onboarding_slideshow_widget.dart';
 
 class OnboardingSlideshowModel extends CustomFlowModel<OnboardingSlideshowWidget> {
   ///  State fields for stateful widgets in this page.

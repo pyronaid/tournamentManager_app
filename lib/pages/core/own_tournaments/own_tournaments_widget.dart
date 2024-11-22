@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
+import 'package:tournamentmanager/backend/backend.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
+import 'package:tournamentmanager/components/generic_loading/generic_loading_widget.dart';
 import 'package:tournamentmanager/components/no_tournament_card/no_tournament_card_widget.dart';
-import '../../../app_flow/app_flow_theme.dart';
-import '../../../app_flow/app_flow_util.dart';
-import '../../../auth/firebase_auth/auth_util.dart';
-import '../../../backend/backend.dart';
-import '../../../components/generic_loading/generic_loading_widget.dart';
-import '../../../components/tournament_card/tournament_card_widget.dart';
-import 'own_tournaments_model.dart';
+import 'package:tournamentmanager/components/tournament_card/tournament_card_widget.dart';
+import 'package:tournamentmanager/pages/core/own_tournaments/own_tournaments_model.dart';
+
 
 class OwnTournamentsWidget extends StatefulWidget {
   const OwnTournamentsWidget({super.key});
@@ -141,7 +143,7 @@ class _OwnTournamentsWidgetState extends State<OwnTournamentsWidget> {
                 ////////////////
                 //PAST SECTION
                 /////////////////
-                Container(
+                SizedBox(
                   width: 100.w,
                   child: Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(24, 54, 24, 54),

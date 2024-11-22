@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
-import 'package:tournamentmanager/backend/backend.dart';
-
-import 'matches_record.dart';
+import 'package:tournamentmanager/backend/schema/index.dart';
+import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 
 class NewsRecord extends FirestoreRecord {
   NewsRecord._(

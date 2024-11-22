@@ -1,25 +1,26 @@
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
-
-import 'app_flow/app_flow_theme.dart';
-import 'app_flow/internationalization.dart';
-import 'app_flow/nav/nav.dart';
-import 'app_flow/services/ServiceManager.dart';
-import 'app_flow/services/locator.dart';
-import 'app_state.dart';
-import 'auth/firebase_auth/auth_util.dart';
-import 'auth/firebase_auth/firebase_user_provider.dart';
-import 'backend/firebase/firebase_config.dart';
-
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/internationalization.dart';
+import 'package:tournamentmanager/app_flow/nav/nav.dart';
+import 'package:tournamentmanager/app_flow/services/locator.dart';
+import 'package:tournamentmanager/app_state.dart';
+import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
+import 'package:tournamentmanager/auth/firebase_auth/firebase_user_provider.dart';
+import 'package:tournamentmanager/backend/firebase/firebase_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GoRouter.optionURLReflectsImperativeAPIs = true;
-  usePathUrlStrategy();
+
+  if (kIsWeb) {
+    usePathUrlStrategy();
+  }
+
   await initFirebase();
 
   await CustomFlowTheme.initialize();

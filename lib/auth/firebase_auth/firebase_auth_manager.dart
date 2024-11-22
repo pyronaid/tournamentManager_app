@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../auth_manager.dart';
-import '../../app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/auth/auth_manager.dart';
+import 'package:tournamentmanager/auth/base_auth_user_provider.dart';
+import 'package:tournamentmanager/backend/backend.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 
-import '/backend/backend.dart';
 import 'anonymous_auth.dart';
 import 'apple_auth.dart';
 import 'email_auth.dart';
 import 'firebase_user_provider.dart';
-import 'google_auth.dart';
 import 'jwt_token_auth.dart';
 import 'github_auth.dart';
 
@@ -161,7 +161,10 @@ class FirebaseAuthManager extends AuthManager
 
   @override
   Future<BaseAuthUser?> signInWithGoogle(BuildContext context) =>
-      _signInOrCreateAccount(context, googleSignInFunc, 'GOOGLE');
+      _signInOrCreateAccount(context, appleSignIn, 'APPLE');
+  /*
+  Future<BaseAuthUser?> signInWithGoogle(BuildContext context) =>
+      _signInOrCreateAccount(context, googleSignInFunc, 'GOOGLE');*/
 
   @override
   Future<BaseAuthUser?> signInWithGithub(BuildContext context) =>

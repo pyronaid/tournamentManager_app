@@ -5,13 +5,12 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
+import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
+import 'package:tournamentmanager/components/no_tournament_pick_card/no_tournament_pick_card_widget.dart';
 import 'package:tournamentmanager/components/tournament_pick_card/tournament_pick_card_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_finder/tournament_finder_model.dart';
-
-import '../../../app_flow/app_flow_theme.dart';
-import '../../../app_flow/app_flow_widgets.dart';
-import '../../../backend/schema/tournaments_record.dart';
-import '../../../components/no_tournament_pick_card/no_tournament_pick_card_widget.dart';
 
 class TournamentFinderWidget extends StatefulWidget {
   const TournamentFinderWidget({super.key});
@@ -66,7 +65,7 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                   elevation: 4.0,
                   backgroundColor: CustomFlowTheme.of(context).primary,
                   onPressed: () async {
-                    LatLng initPos = await tournamentFinderModel.initialLocation;
+                    LatLng initPos = tournamentFinderModel.initialLocation;
                     tournamentFinderModel.mapController.move(initPos, 13);
                     tournamentFinderModel.mapController.rotate(0);
                   },
@@ -112,7 +111,7 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                     const NoTournamentPickCardWidget(
                       phrase: "Non risultano tornei in questa zona.",
                     ),
-                body: Container(
+                body: SizedBox(
                   width: 100.w,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -143,7 +142,7 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                                 ///##################################
                                 TileLayer(
                                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                  userAgentPackageName: 'com.pyronaid.tournament_manager',
+                                  userAgentPackageName: 'com.pyronaid.tournamentmanager',
                                 ),
                                 ///##################################
                                 ///################### MARKERS SOURCE

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/app_flow/services/DialogService.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
-
-import '../../../app_flow/app_flow_util.dart';
-import '../../../app_flow/services/DialogService.dart';
-import '../../../app_flow/services/supportClass/alert_classes.dart';
 
 class TournamentDetailModel extends ChangeNotifier {
 

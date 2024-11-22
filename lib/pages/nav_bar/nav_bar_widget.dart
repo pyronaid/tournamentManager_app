@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/pages/core/my_tournaments/my_tournaments_widget.dart';
+import 'package:tournamentmanager/pages/core/own_tournaments/own_tournaments_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_finder/tournament_finder_container.dart';
-
-import '../../app_flow/app_flow_theme.dart';
-import '../core/my_tournaments/my_tournaments_widget.dart';
-import '../core/own_tournaments/own_tournaments_widget.dart';
-import '../profile/profile/profile_widget.dart';
+import 'package:tournamentmanager/pages/profile/profile/profile_widget.dart';
 
 class NavBarPage extends StatefulWidget {
   const NavBarPage({super.key, this.initialPage, this.page});

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/components/no_tournament_card/no_tournament_card_model.dart';
 
-import '../../app_flow/app_flow_theme.dart';
-import 'no_tournament_card_model.dart';
 
 class NoTournamentCardWidget extends StatefulWidget {
   const NoTournamentCardWidget({

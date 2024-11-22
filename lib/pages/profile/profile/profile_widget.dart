@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/app_flow/custom_functions.dart' as functions;
+import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
+import 'package:tournamentmanager/backend/backend.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
+import 'package:tournamentmanager/backend/schema/company_information_record.dart';
 import 'package:tournamentmanager/pages/profile/profile/profile_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../app_flow/app_flow_theme.dart';
-import '../../../app_flow/app_flow_util.dart';
-import '../../../app_flow/custom_functions.dart' as functions;
-import '../../../auth/firebase_auth/auth_util.dart';
-import '../../../backend/backend.dart';
 
 class ProfileWidget extends StatefulWidget {
   const ProfileWidget({super.key});

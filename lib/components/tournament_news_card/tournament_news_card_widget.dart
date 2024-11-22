@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:tournamentmanager/app_flow/app_flow_animations.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/backend/schema/news_record.dart';
+import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 import 'package:tournamentmanager/components/tournament_news_card/tournament_news_card_model.dart';
-
-import '../../app_flow/app_flow_animations.dart';
-import '../../app_flow/app_flow_theme.dart';
-import '../standard_graphics/standard_graphics_widgets.dart';
 
 class TournamentNewsCardWidget extends StatefulWidget {
 

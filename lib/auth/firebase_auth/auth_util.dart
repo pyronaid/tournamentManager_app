@@ -1,9 +1,10 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tournamentmanager/backend/schema/users_record.dart';
 
-import '/backend/backend.dart';
 import 'package:stream_transform/stream_transform.dart';
 import 'firebase_auth_manager.dart';
 

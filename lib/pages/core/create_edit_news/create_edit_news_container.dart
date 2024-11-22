@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-
-import '../../../backend/firebase_analytics/analytics.dart';
-import '../../nav_bar/news_model.dart';
-import 'create_edit_news_model.dart';
-import 'create_edit_news_widget.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
+import 'package:tournamentmanager/pages/core/create_edit_news/create_edit_news_model.dart';
+import 'package:tournamentmanager/pages/core/create_edit_news/create_edit_news_widget.dart';
+import 'package:tournamentmanager/pages/nav_bar/news_model.dart';
 
 class CreateEditNewsContainer extends StatefulWidget {
   const CreateEditNewsContainer({

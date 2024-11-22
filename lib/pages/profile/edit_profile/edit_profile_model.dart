@@ -1,14 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../../app_flow/app_flow_util.dart';
-import '../../../app_flow/services/DialogService.dart';
-import '../../../app_flow/services/SnackBarService.dart';
-import '../../../app_flow/services/supportClass/alert_classes.dart';
-import '../../../app_flow/services/supportClass/snackbar_style.dart';
-import '../../../auth/firebase_auth/auth_util.dart';
-import '../../../backend/schema/users_record.dart';
-import '../../../components/custom_appbar_model.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/app_flow/services/DialogService.dart';
+import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_style.dart';
+import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
+import 'package:tournamentmanager/backend/schema/users_record.dart';
+import 'package:tournamentmanager/components/custom_appbar_model.dart';
 
 class EditProfileModel extends ChangeNotifier {
 

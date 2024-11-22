@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/services/DialogService.dart';
 import 'package:tournamentmanager/app_flow/services/LoaderService.dart';
 import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
@@ -10,13 +11,10 @@ import 'package:tournamentmanager/app_flow/services/supportClass/loader_route.da
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_classes.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_content.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_overlay.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
+import 'package:tournamentmanager/components/generic_loading/generic_loading_widget.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../backend/firebase_analytics/analytics.dart';
-import '../../components/generic_loading/generic_loading_widget.dart';
-import '../../components/standard_graphics/standard_graphics_widgets.dart';
-import '../app_flow_theme.dart';
-import 'DialogService.dart';
 
 class ServiceManager extends StatefulWidget {
   final Widget child;

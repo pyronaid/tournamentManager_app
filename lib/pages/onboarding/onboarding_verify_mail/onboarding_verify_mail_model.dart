@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/services/VerifyMailService.dart';
+import 'package:tournamentmanager/components/custom_appbar_model.dart';
 
-import '../../../app_flow/app_flow_model.dart';
-import '../../../components/custom_appbar_model.dart';
 import 'onboarding_verify_mail_widget.dart';
 
 class OnboardingVerifyMailModel extends CustomFlowModel<OnboardingVerifyMailWidget> {

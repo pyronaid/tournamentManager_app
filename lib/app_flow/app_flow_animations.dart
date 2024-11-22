@@ -1,4 +1,3 @@
-import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 

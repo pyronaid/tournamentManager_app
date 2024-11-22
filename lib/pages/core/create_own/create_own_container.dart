@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
+import 'package:tournamentmanager/pages/core/create_own/create_own_model.dart';
+import 'package:tournamentmanager/pages/core/create_own/create_own_widget.dart';
 
-import '../../../backend/firebase_analytics/analytics.dart';
-import 'create_own_model.dart';
-import 'create_own_widget.dart';
 
 class CreateOwnContainer extends StatefulWidget {
   const CreateOwnContainer({super.key,});

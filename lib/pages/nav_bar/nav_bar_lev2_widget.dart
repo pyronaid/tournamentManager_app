@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_container.dart';
+import 'package:tournamentmanager/pages/core/tournament_news/tournament_news_container.dart';
+import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_container.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
-
-import '../../app_flow/app_flow_theme.dart';
-import '../core/tournament_news/tournament_news_container.dart';
-import '../placeholder_widget.dart';
+import 'package:tournamentmanager/pages/placeholder_widget.dart';
 
 class NavBarLev2Page extends StatefulWidget {
   const NavBarLev2Page({super.key, this.initialPage, this.page, required this.tournamentsRef});
@@ -47,7 +47,7 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
               'widget' : const PlaceholderWidget(),
             },
             'PlayersT': {
-              'widget' : const PlaceholderWidget(),
+              'widget' : TournamentPeopleContainer(tournamentsRef: _tournamentsRef),
             },
             'NewsT': {
               'widget' : TournamentNewsContainer(tournamentsRef: _tournamentsRef),

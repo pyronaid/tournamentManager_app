@@ -224,6 +224,7 @@ abstract class CustomProviderModel<W extends Widget> extends ChangeNotifier {
   // disposed. By default this is true for pages and false for components,
   // as page/component models handle the disposal of their children.
   bool disposeOnWidgetDisposal = true;
+  @override
   void dispose();
   void maybeDispose() {
     if (disposeOnWidgetDisposal) {

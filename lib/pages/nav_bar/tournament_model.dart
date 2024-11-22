@@ -4,11 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-
-import '../../app_flow/services/ImagePickerService.dart';
-import '../../backend/schema/news_record.dart';
-import '../../backend/schema/tournaments_record.dart';
-import '../../backend/schema/util/firestorage_util.dart';
+import 'package:tournamentmanager/app_flow/services/ImagePickerService.dart';
+import 'package:tournamentmanager/backend/schema/news_record.dart';
+import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
+import 'package:tournamentmanager/backend/schema/util/firestorage_util.dart';
 
 class TournamentModel extends ChangeNotifier {
 

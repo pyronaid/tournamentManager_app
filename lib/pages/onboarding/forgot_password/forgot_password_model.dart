@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import '../../../app_flow/app_flow_util.dart';
-import '../../../app_flow/services/SnackBarService.dart';
-import '../../../app_flow/services/supportClass/snackbar_classes.dart';
-import '../../../app_flow/services/supportClass/snackbar_style.dart';
-import '../../../components/custom_appbar_model.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_style.dart';
+import 'package:tournamentmanager/components/custom_appbar_model.dart';
+
 import 'forgot_password_widget.dart';
 
 class ForgotPasswordModel extends CustomFlowModel<ForgotPasswordWidget> {

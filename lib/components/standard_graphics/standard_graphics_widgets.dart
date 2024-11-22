@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:tournamentmanager/app_flow/app_flow_animations.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 
-import '../../app_flow/app_flow_animations.dart';
-import '../../app_flow/app_flow_theme.dart';
 
 InputDecoration standardInputDecoration(BuildContext context, {Widget? suffixIcon, Widget? prefixIcon}) {
   return InputDecoration(

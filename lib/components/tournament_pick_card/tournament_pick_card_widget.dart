@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
-import 'package:tournamentmanager/components/tournament_card/tournament_card_model.dart';
 import 'package:tournamentmanager/components/tournament_pick_card/tournament_pick_card_model.dart';
 
-import '../../app_flow/app_flow_animations.dart';
-import '../../app_flow/app_flow_theme.dart';
-import '../standard_graphics/standard_graphics_widgets.dart';
 
 class TournamentPickCardWidget extends StatefulWidget {
   const TournamentPickCardWidget({

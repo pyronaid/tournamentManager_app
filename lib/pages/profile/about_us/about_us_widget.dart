@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/backend/backend.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
+import 'package:tournamentmanager/backend/schema/company_information_record.dart';
+import 'package:tournamentmanager/components/custom_appbar_widget.dart';
 
-import '../../../app_flow/app_flow_theme.dart';
-import '../../../app_flow/app_flow_util.dart';
-import '../../../backend/backend.dart';
-import '../../../components/custom_appbar_widget.dart';
 import 'about_us_model.dart';
 
 class AboutUsWidget extends StatefulWidget {
@@ -195,7 +197,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                             /////////////////////////////
                             ///////////////////////////// CASO DEVELOPERS PRESENTI 
                             /////////////////////////////
-                            if (columnCompanyInformationRecord!.devInfo.isNotEmpty)
+                            if (columnCompanyInformationRecord.devInfo.isNotEmpty)
                               Padding(
                                 padding:const EdgeInsetsDirectional.fromSTEB(0, 32, 0, 0),
                                 child: Column(
@@ -210,7 +212,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                       padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
                                       child: Builder(
                                         builder: (context) {
-                                          final devs = columnCompanyInformationRecord?.devInfo?.toList() ?? [];
+                                          final devs = columnCompanyInformationRecord.devInfo.toList();
                                           return Column(
                                             mainAxisSize: MainAxisSize.max,
                                             children: List.generate(devs.length, (devsIndex) {
@@ -223,19 +225,15 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                                     /////////////////////////////
                                                     ///////////////////////////// CASO DEVELOPERS ABBIA IMMAGINE PROFILO 
                                                     /////////////////////////////
-                                                    if (devsItem.profilePicture != null && devsItem.profilePicture !='')
+                                                    if (devsItem.profilePicture !='')
                                                       Container(
                                                         width: 100,
                                                         height: 100,
                                                         decoration: BoxDecoration(
-                                                          color: CustomFlowTheme
-                                                                .of(context)
-                                                                .secondaryBackground,
+                                                          color: CustomFlowTheme.of(context).secondaryBackground,
                                                           image: DecorationImage(
                                                               fit: BoxFit.cover,
-                                                              image:Image.network(
-                                                                devsItem.profilePicture,
-                                                              ).image,
+                                                              image:Image.network(devsItem.profilePicture,).image,
                                                           ),
                                                           borderRadius:BorderRadius.circular(12),
                                                         ),
@@ -254,7 +252,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                                             /////////////////////////////
                                                             ///////////////////////////// CASO DEVELOPERS ABBIA BIOGRAFIA 
                                                             /////////////////////////////
-                                                            if (devsItem.bio != null && devsItem.bio != '')
+                                                            if (devsItem.bio != '')
                                                               Padding(
                                                                 padding: const EdgeInsetsDirectional.fromSTEB(0, 6, 0, 0),
                                                                 child: Text(

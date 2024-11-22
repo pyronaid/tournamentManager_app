@@ -1,15 +1,15 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_accordion/simple_accordion.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_model.dart';
+import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
-import '../../../app_flow/app_flow_theme.dart';
-import '../../../app_flow/app_flow_util.dart';
-import '../../../backend/schema/tournaments_record.dart';
-import '../../nav_bar/tournament_model.dart';
 
 class TournamentDetailWidget extends StatefulWidget {
   const TournamentDetailWidget({super.key});
@@ -149,7 +149,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                       /////////////////
                                       Padding(
                                           padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 5),
-                                          child: Container(
+                                          child: SizedBox(
                                             width: 75.w,
                                             child: Center(
                                               child: Row(
@@ -221,7 +221,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                       ////////////////
                                       //COUNTERS AREA -- SX
                                       /////////////////
-                                      Text("quattro"),
+                                      const Text("quattro"),
                                       ////////////////
                                       //COUNTERS AREA -- DX
                                       /////////////////

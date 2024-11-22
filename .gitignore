@@ -42,3 +42,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /env/*.env
+/firebase/cloud-functions/node_modules/
+/node_modules/
+/package-lock.json
+/.firebaserc
+/package.json

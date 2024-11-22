@@ -1,8 +1,7 @@
-
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/components/title_with_subtitle/title_with_subtitle_widget.dart';
 
-import '../../app_flow/app_flow_model.dart';
 
 class TitleWithSubtitleModel extends CustomFlowModel<TitleWithSubtitleWidget> {
   @override

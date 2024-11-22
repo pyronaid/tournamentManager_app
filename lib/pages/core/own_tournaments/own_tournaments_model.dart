@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
+import 'package:tournamentmanager/components/custom_appbar_model.dart';
+import 'package:tournamentmanager/pages/core/own_tournaments/own_tournaments_widget.dart';
 
-import '../../../app_flow/app_flow_util.dart';
-import '../../../components/custom_appbar_model.dart';
-import 'own_tournaments_widget.dart';
 
 class OwnTournamentsModel extends CustomFlowModel<OwnTournamentsWidget> {
   ///  State fields for stateful widgets in this page.

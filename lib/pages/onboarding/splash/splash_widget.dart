@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/pages/onboarding/splash/splash_model.dart';
 
-import '../../../app_flow/app_flow_model.dart';
-import '../../../app_flow/app_flow_theme.dart';
-import '../../../app_flow/app_flow_widgets.dart';
-import '../../../backend/firebase_analytics/analytics.dart';
 
 class SplashWidget extends StatefulWidget {
   const SplashWidget({super.key});

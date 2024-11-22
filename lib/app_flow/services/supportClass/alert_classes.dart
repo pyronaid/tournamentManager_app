@@ -6,9 +6,8 @@ import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
-
-import '../../../components/standard_graphics/standard_graphics_widgets.dart';
-import '../../app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 
 class AlertRequest {
   final String title;
@@ -206,7 +205,7 @@ class SliderFormElementState extends State<SliderFormElement> {
             ),
             Expanded(
               child: Slider(
-                value: currentValue ?? 0,
+                value: currentValue,
                 min: widget.min,
                 max: widget.max,
                 divisions: widget.divisions,
@@ -215,7 +214,7 @@ class SliderFormElementState extends State<SliderFormElement> {
                     currentValue = newValue;
                   });
                 },
-                label: widget.valueLabel?.call(currentValue ?? 0) ?? currentValue.toString(),
+                label: widget.valueLabel?.call(currentValue) ?? currentValue.toString(),
               ),
             ),
             Text(

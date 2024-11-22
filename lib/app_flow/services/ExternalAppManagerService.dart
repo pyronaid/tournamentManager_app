@@ -1,8 +1,4 @@
-import 'dart:convert';
 import 'dart:io';
-
-import 'package:cloud_functions/cloud_functions.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class ExternalAppManagerService {
@@ -14,7 +10,7 @@ class ExternalAppManagerService {
   //////////////////////////GETTER
   void launchMapApp(double lat, double long, String label) async {
     try{
-      late final url;
+      late final Uri url;
       //IOS
       final urlIos = Uri.parse('maps:$lat,$long?q=$lat,$long');
       //Android
