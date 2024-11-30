@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tournamentmanager/auth/auth_manager.dart';
 import 'package:tournamentmanager/auth/base_auth_user_provider.dart';
+import 'package:tournamentmanager/auth/firebase_auth/google_auth.dart';
 import 'package:tournamentmanager/backend/backend.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 
@@ -161,10 +162,7 @@ class FirebaseAuthManager extends AuthManager
 
   @override
   Future<BaseAuthUser?> signInWithGoogle(BuildContext context) =>
-      _signInOrCreateAccount(context, appleSignIn, 'APPLE');
-  /*
-  Future<BaseAuthUser?> signInWithGoogle(BuildContext context) =>
-      _signInOrCreateAccount(context, googleSignInFunc, 'GOOGLE');*/
+      _signInOrCreateAccount(context, googleSignInFunc, 'GOOGLE');
 
   @override
   Future<BaseAuthUser?> signInWithGithub(BuildContext context) =>
