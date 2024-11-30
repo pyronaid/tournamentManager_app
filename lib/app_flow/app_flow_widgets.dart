@@ -201,8 +201,8 @@ class _AFButtonWidgetState extends State<AFButtonWidget> {
             border: Border.fromBorderSide(
               widget.options.borderSide ?? BorderSide.none,
             ),
-            borderRadius:
-            widget.options.borderRadius ?? BorderRadius.circular(8),
+            borderRadius: widget.options.borderRadius ?? BorderRadius.circular(8),
+            color: widget.options.color,
           ),
           child: IconButton(
             splashRadius: 1.0,
