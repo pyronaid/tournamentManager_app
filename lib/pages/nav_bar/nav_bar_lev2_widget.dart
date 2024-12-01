@@ -37,7 +37,7 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-        create: (context) => TournamentModel(tournamentsRef: widget.tournamentsRef),
+        create: (context) => TournamentModel(tournamentsRef: widget.tournamentsRef)..fetchObjectUsingId(),
         builder: (context, child) {
           final tabs = {
             'DashboardT': {

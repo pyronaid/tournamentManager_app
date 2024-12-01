@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_model.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_widget.dart';
+import 'package:tournamentmanager/pages/nav_bar/people_list_model.dart';
+import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
 class TournamentPeopleContainer extends StatefulWidget {
   final String? tournamentsRef;
@@ -33,11 +35,30 @@ class _TournamentPeopleContainerState extends State<TournamentPeopleContainer> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-        create: (context) => TournamentPeopleModel(),
-        builder: (context, child) {
-          return const TournamentPeopleWidget();
-        }
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => TournamentPeopleModel(),
+        ),
+        ChangeNotifierProxyProvider<TournamentModel, PeopleListModel>(
+          create: (context) => PeopleListModel(
+            // Retrieve tournament provider from widget tree
+              tournamentModel: context.read<TournamentModel>()
+          ),
+          update: (context, tournamentModel, previousPeopleListModel) {
+            // Optional update method
+            if (previousPeopleListModel == null || previousPeopleListModel.tournamentModel != tournamentModel) {
+              return PeopleListModel(
+                  tournamentModel: tournamentModel
+              );
+            }
+            return previousPeopleListModel;
+          },
+        ),
+      ],
+      builder: (context, child) {
+        return const TournamentPeopleWidget();
+      },
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:tournamentmanager/app_flow/services/AlgoliaService.dart';
 import 'package:tournamentmanager/app_flow/services/DialogService.dart';
 import 'package:tournamentmanager/app_flow/services/ExternalAppManagerService.dart';
 import 'package:tournamentmanager/app_flow/services/ImagePickerService.dart';
@@ -28,6 +29,11 @@ void serviceLocatorSetUp(){
     final secretManagerService = PlacesApiManagerService();
     await secretManagerService.initialize();
     return secretManagerService;
+  });
+  serviceLocator.registerLazySingletonAsync<AlgoliaService>(() async {
+    final algoliaService = AlgoliaService();
+    await algoliaService.initialize();
+    return algoliaService;
   });
   serviceLocator.registerLazySingleton<DialogService>(() => DialogService());
   serviceLocator.registerLazySingleton<SnackBarService>(() => SnackBarService());

@@ -25,7 +25,6 @@ class TournamentModel extends ChangeNotifier {
 
   TournamentModel({required this.tournamentsRef}){
     print("[CREATE] TournamentModel");
-    fetchObjectUsingId();
     imagePickerService = GetIt.instance<ImagePickerService>();
   }
 

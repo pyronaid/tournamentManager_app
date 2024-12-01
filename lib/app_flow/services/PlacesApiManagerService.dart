@@ -25,9 +25,7 @@ class PlacesApiManagerService {
 
 
   //////////////////////////GETTER
-  String get placeApiKey{
-    return _placeApiKey;
-  }
+  String get placeApiKey => _placeApiKey;
   Future<List<dynamic>> getSuggestion(String input, String sessionToken) async {
     List<dynamic> placeList = [];
     try{
