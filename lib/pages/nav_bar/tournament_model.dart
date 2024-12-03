@@ -74,13 +74,13 @@ class TournamentModel extends ChangeNotifier {
     return flag;
   }
   int get tournamentPreRegisteredSize{
-    return tournamentsRefObj != null ? tournamentsRefObj!.preRegisteredList.length : 0;
+    return tournamentsRefObj != null ? tournamentsRefObj!.preRegisteredListCounter : 0;
   }
   int get tournamentWaitingListSize{
-    return tournamentsRefObj != null ? tournamentsRefObj!.waitingList.length : 0;
+    return tournamentsRefObj != null ? tournamentsRefObj!.waitingListCounter : 0;
   }
   int get tournamentRegisteredSize{
-    return tournamentsRefObj != null ? tournamentsRefObj!.registeredList.length : 0;
+    return tournamentsRefObj != null ? tournamentsRefObj!.registeredListCounter : 0;
   }
   String? get tournamentImageUrl{
     return tournamentsRefObj?.image;

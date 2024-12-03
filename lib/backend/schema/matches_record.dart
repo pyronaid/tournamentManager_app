@@ -124,7 +124,6 @@ class MatchesRecordDocumentEquality implements Equality<MatchesRecord> {
 
   @override
   bool equals(MatchesRecord? e1, MatchesRecord? e2) {
-    const listEquality = ListEquality();
     return e1?.tournamentUid == e2?.tournamentUid &&
         e1?.uid == e2?.uid &&
         e1?.roundUid == e2?.roundUid &&

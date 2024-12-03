@@ -4,8 +4,6 @@ import 'package:collection/collection.dart';
 import 'package:tournamentmanager/backend/schema/index.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 
-import 'index.dart';
-
 class SupportCenterRecord extends FirestoreRecord {
   SupportCenterRecord._(
     super.reference,

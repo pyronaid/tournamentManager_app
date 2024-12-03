@@ -142,7 +142,6 @@ class PositionsRecordDocumentEquality implements Equality<PositionsRecord> {
 
   @override
   bool equals(PositionsRecord? e1, PositionsRecord? e2) {
-    const listEquality = ListEquality();
     return e1?.standingUid == e2?.standingUid &&
         e1?.uid == e2?.uid &&
         e1?.position == e2?.position &&

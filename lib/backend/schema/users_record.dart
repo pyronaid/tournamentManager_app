@@ -43,10 +43,10 @@ class UsersRecord extends FirestoreRecord {
   String get phoneNumber => _phoneNumber ?? '';
   bool hasPhoneNumber() => _phoneNumber != null;
 
-  // "ingredient_dislikes" field.
-  List<String>? _genericList;
-  List<String> get genericList => _genericList ?? const [];
-  bool hasGenericList() => _genericList != null;
+  // "waitinglist-list" field.
+  List<String>? _waitingTournamentsList;
+  List<String> get waitingTournamentsList => _waitingTournamentsList ?? const [];
+  bool hasWaitingTournamentsList() => _waitingTournamentsList != null;
 
   void _initializeFields() {
     _email = snapshotData['email'] as String?;
@@ -55,7 +55,6 @@ class UsersRecord extends FirestoreRecord {
     _uid = snapshotData['uid'] as String?;
     _createdTime = snapshotData['created_time'] as DateTime?;
     _phoneNumber = snapshotData['phone_number'] as String?;
-    _genericList = getDataList(snapshotData['generic_list']);
   }
 
   static CollectionReference get collection =>
@@ -118,14 +117,12 @@ class UsersRecordDocumentEquality implements Equality<UsersRecord> {
 
   @override
   bool equals(UsersRecord? e1, UsersRecord? e2) {
-    const listEquality = ListEquality();
     return e1?.email == e2?.email &&
         e1?.displayName == e2?.displayName &&
         e1?.photoUrl == e2?.photoUrl &&
         e1?.uid == e2?.uid &&
         e1?.createdTime == e2?.createdTime &&
-        e1?.phoneNumber == e2?.phoneNumber &&
-        listEquality.equals(e1?.genericList, e2?.genericList);
+        e1?.phoneNumber == e2?.phoneNumber;
   }
 
   @override
@@ -136,7 +133,6 @@ class UsersRecordDocumentEquality implements Equality<UsersRecord> {
         e?.uid,
         e?.createdTime,
         e?.phoneNumber,
-        e?.genericList
       ]);
 
   @override

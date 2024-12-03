@@ -172,7 +172,6 @@ class NewsRecordDocumentEquality implements Equality<NewsRecord> {
 
   @override
   bool equals(NewsRecord? e1, NewsRecord? e2) {
-    const listEquality = ListEquality();
     return e1?.tournamentUid == e2?.tournamentUid &&
         e1?.uid == e2?.uid &&
         e1?.title == e2?.title &&

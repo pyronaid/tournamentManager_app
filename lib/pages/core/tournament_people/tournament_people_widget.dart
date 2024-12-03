@@ -9,7 +9,6 @@ import 'package:tournamentmanager/components/standard_graphics/standard_graphics
 import 'package:tournamentmanager/components/tournament_people_card/tournament_people_card_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_model.dart';
 import 'package:tournamentmanager/pages/nav_bar/people_list_model.dart';
-import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
 class TournamentPeopleWidget extends StatefulWidget {
   const TournamentPeopleWidget({super.key});

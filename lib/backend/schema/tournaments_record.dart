@@ -107,24 +107,19 @@ class TournamentsRecord extends FirestoreRecord {
   bool hasImage() => _image != null;
 
   // "preregistration-list" field.
-  List<String>? _preRegisteredList;
-  List<String> get preRegisteredList => _preRegisteredList ?? const [];
-  bool hasPreRegistered() => _preRegisteredList != null;
+  int? _preRegisteredListCounter;
+  int get preRegisteredListCounter => _preRegisteredListCounter ?? 0;
+  bool hasPreRegisteredCounter() => _preRegisteredListCounter != null;
 
   // "waitinglist-list" field.
-  List<String>? _waitingList;
-  List<String> get waitingList => _waitingList ?? const [];
-  bool hasWaitingList() => _waitingList != null;
+  int? _waitingListCounter;
+  int get waitingListCounter => _waitingListCounter ?? 0;
+  bool hasWaitingListCounter() => _waitingListCounter != null;
 
   // "registered-list" field.
-  List<String>? _registeredList;
-  List<String> get registeredList => _registeredList ?? const [];
-  bool hasRegisteredList() => _registeredList != null;
-
-  // "involved-list" field. Every time a user is added to one of the above three list is also added here if not present yet
-  List<String>? _involvedList;
-  List<String> get involvedList => _involvedList ?? const [];
-  bool hasInvolvedList() => _involvedList != null;
+  int? _registeredListCounter;
+  int get registeredListCounter => _registeredListCounter ?? 0;
+  bool hasRegisteredList() => _registeredListCounter != null;
 
   // "round-list" field.
   List<RoundsRecord>? _roundList;
@@ -158,10 +153,9 @@ class TournamentsRecord extends FirestoreRecord {
     _creatorUid = snapshotData['creator_uid'];
     _preRegistrationEn = snapshotData['pre_registration_en'] as bool;
     _waitingListEn = snapshotData['waiting_list_en'] as bool;
-    _preRegisteredList = getDataList<String>(snapshotData['pre_registered_list']);
-    _waitingList = getDataList<String>(snapshotData['waiting_list']);
-    _registeredList = getDataList<String>(snapshotData['registered_list']);
-    _involvedList = getDataList<String>(snapshotData['involved_list']);
+    _preRegisteredListCounter = snapshotData['pre_registered_list_counter'];
+    _waitingListCounter = snapshotData['waiting_list_counter'];
+    _registeredListCounter = snapshotData['registered_list_counter'];
     _roundList = getDataList<RoundsRecord>(snapshotData['round_list']);
     _standingList = getDataList<StandingsRecord>(snapshotData['standing_list']);
     _state = getStateEnum(snapshotData['state']);
@@ -312,9 +306,9 @@ class TournamentsRecordDocumentEquality implements Equality<TournamentsRecord> {
         e1?.creatorUid == e2?.creatorUid &&
         listEquality.equals(e1?.roundList, e2?.roundList) &&
         listEquality.equals(e1?.standingList, e2?.standingList) &&
-        listEquality.equals(e1?.preRegisteredList, e2?.preRegisteredList) &&
-        listEquality.equals(e1?.waitingList, e2?.waitingList) &&
-        listEquality.equals(e1?.registeredList, e2?.registeredList);
+        e1?.preRegisteredListCounter == e2?.preRegisteredListCounter &&
+        e1?.waitingListCounter == e2?.waitingListCounter &&
+        e1?.registeredListCounter == e2?.registeredListCounter;
   }
 
   @override
@@ -332,9 +326,9 @@ class TournamentsRecordDocumentEquality implements Equality<TournamentsRecord> {
     e?.state,
     e?.roundList,
     e?.standingList,
-    e?.preRegisteredList,
-    e?.waitingList,
-    e?.registeredList,
+    e?.preRegisteredListCounter,
+    e?.waitingListCounter,
+    e?.registeredListCounter,
     e?.creatorUid
   ]);
 

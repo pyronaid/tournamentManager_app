@@ -253,6 +253,7 @@ class CreateOwnModel extends ChangeNotifier {
     _tournamentAddressFocusNode.dispose();
     _tournamentCapacityFocusNode.dispose();
     _tournamentDateFocusNode.dispose();
+    super.dispose();
   }
 
   Future<void> initContextVars(BuildContext context) async {

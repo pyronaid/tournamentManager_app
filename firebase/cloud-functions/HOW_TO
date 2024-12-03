@@ -80,3 +80,9 @@ Response: It returns a promise and the response is automatically serialized and 
 Authentication: Firebase automatically handles authentication, so if the client is authenticated (e.g., via Firebase Authentication), the function is triggered with the user's identity. You don’t have to worry about manually checking authentication, as Firebase provides the context.auth object.
 Security: onCall automatically provides security features, including Firebase Authentication, which makes it easier to protect your functions by checking the user's authentication status and enforcing security rules.
 Error Handling: With onCall, you use functions.https.HttpsError to throw errors, which are automatically formatted in a way that Firebase handles on the client-side.
+
+
+REF https://medium.com/@marwa.diab/firebase-cloud-functions-event-triggers-57d9a039bc7f
+####################################
+################## FIRESTORE TRIGGER
+####################################

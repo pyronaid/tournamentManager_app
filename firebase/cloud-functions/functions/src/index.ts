@@ -11,3 +11,4 @@
 export {helloWorld} from "./helloWorld";
 export {getApiKeyFromSecret} from "./getApiKeyFromSecret";
 export {getAlgoliaApiKeyFromSecret} from "./getAlgoliaApiKeyFromSecret";
+export {userUpdatedTrigger} from "./syncUserDetails";
