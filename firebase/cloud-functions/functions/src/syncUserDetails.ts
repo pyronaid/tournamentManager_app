@@ -385,3 +385,96 @@ export const updateCounterRegisteredDecr = onDocumentDeleted(
     }
   }
 );
+
+// //////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////
+export const tournamentUpdatedTrigger = onDocumentUpdated(
+  "tournaments/{tournamentId}",
+  async (event) => {
+    // debugger;
+    const oldDocument = event.data?.before.data();
+    const updatedDocument = event.data?.after.data();
+    const tournamentId = event.params?.tournamentId;
+
+    // to remove
+    console.log(oldDocument);
+    console.log(updatedDocument);
+    console.log(tournamentId);
+
+    if (!updatedDocument) {
+      console.error("No updated document found.");
+      return null;
+    }
+
+    const preregistrationChanged =
+      oldDocument?.pre_registration_en !== updatedDocument.pre_registration_en;
+    const waitingListChanged =
+      oldDocument?.waiting_list_en !== updatedDocument.waiting_list_en;
+
+    if (!preregistrationChanged && !waitingListChanged) {
+      console.info("No relevant changes detected.");
+      return null;
+    }
+
+    const db = admin.firestore();
+
+    if (preregistrationChanged && !updatedDocument.pre_registration_en) {
+      console.info("No need to cascade any update for pre_registration_en.");
+    } else {
+      try {
+        const snapshot1 = await db
+          .collection("preregistered_list_info")
+          .where("tournament_uid", "==", tournamentId)
+          .get();
+        if (snapshot1.empty) {
+          console.log(
+            `No preregistered_list_info found for tournament_uid: ${tournamentId}`
+          );
+        } else {
+          const deletes = snapshot1.docs.map((doc) => doc.ref.delete());
+          await Promise.all(deletes);
+          console.log(
+            `Success cleaned preregistered_list_info for tournament_uid: ${tournamentId}`
+          );
+        }
+      } catch (error) {
+        console.error(
+          `Error deleting preregistered for tournamentId: ${tournamentId}`,
+          error
+        );
+        throw new HttpsError("internal", "Error syncing user details");
+      }
+    }
+
+    if (waitingListChanged && !updatedDocument.waiting_list_en) {
+      console.info("No need to cascade any update for waiting_list_en.");
+    } else {
+      try {
+        const snapshot1 = await db
+          .collection("waiting_list_info")
+          .where("tournament_uid", "==", tournamentId)
+          .get();
+        if (snapshot1.empty) {
+          console.log(
+            `No waiting_list_info found for tournament_uid: ${tournamentId}`
+          );
+        } else {
+          const deletes = snapshot1.docs.map((doc) => doc.ref.delete());
+          await Promise.all(deletes);
+          console.log(
+            `Success cleaned waiting_list_info for tournament_uid: ${tournamentId}`
+          );
+        }
+      } catch (error) {
+        console.error(
+          `Error deleting waiting for tournamentId: ${tournamentId}`,
+          error
+        );
+        throw new HttpsError("internal", "Error syncing user details");
+      }
+    }
+
+    return null;
+  }
+);

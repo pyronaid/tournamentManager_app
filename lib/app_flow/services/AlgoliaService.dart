@@ -4,6 +4,9 @@ import 'package:cloud_functions/cloud_functions.dart';
 class AlgoliaService {
   final HttpsCallable callableAlgoliaApiKey = FirebaseFunctions.instance.httpsCallable('getAlgoliaApiKeyFromSecret');
   static const String indexPeople = "users_index";
+  static const String indexRegisteredPeople = "registered_list_info_index";
+  static const String indexPreregisteredPeople = "preregistered_list_info_index";
+  static const String indexWaitingPeople = "waiting_list_info_index";
   static const List<String> indexResearchableAttributes = ['display_name'];
   late final String _algoliaApiKey;
   late final SearchClient searchClient;
@@ -30,13 +33,14 @@ class AlgoliaService {
   String get algoliaApiKey => _algoliaApiKey;
   Future<SearchResponse?> searchPeople({
     required String query,
+    required String indexName,
     int hitsPerPage = 10,
     int page = 0,
     String filters = '',
   }) async {
     try {
       var searchRequest = SearchForHits(
-        indexName: AlgoliaService.indexPeople,
+        indexName: indexName,
         query: query,
         hitsPerPage: hitsPerPage,
         page: page,

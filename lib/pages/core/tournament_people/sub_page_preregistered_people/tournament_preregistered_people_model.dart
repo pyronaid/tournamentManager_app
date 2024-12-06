@@ -7,13 +7,14 @@ import 'package:tournamentmanager/app_flow/services/AlgoliaService.dart';
 import 'package:tournamentmanager/backend/schema/users_algolia_record.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
-class PeopleListModel extends ChangeNotifier {
+class TournamentPreregisteredPeopleModel extends ChangeNotifier {
 
   final TournamentModel tournamentModel;
-  late TextEditingController _peopleNameTextController;
-  late FocusNode _peopleNameFocusNode;
+  late TextEditingController _preregisteredPeopleNameTextController;
+  late FocusNode _preregisteredPeopleNameFocusNode;
 
-  late ScrollController _scrollController;
+  late ScrollController _preregisteredScrollController;
+
   late Future<AlgoliaService> algoliaService;
   bool algoliaServiceIsLoading = true;
   List<UsersAlgoliaRecord> _usersList = [];
@@ -24,28 +25,25 @@ class PeopleListModel extends ChangeNotifier {
   Timer? _debounce;
 
 
-  PeopleListModel({required this.tournamentModel}){
-    print("[CREATE] PeopleListModel");
-    _peopleNameTextController = TextEditingController();
-    _peopleNameFocusNode = FocusNode();
+  TournamentPreregisteredPeopleModel({required this.tournamentModel}){
+    print("[CREATE] TournamentPreregisteredPeopleModel");
+    _preregisteredPeopleNameTextController = TextEditingController();
+    _preregisteredPeopleNameFocusNode = FocusNode();
 
-    _scrollController = ScrollController();
+    _preregisteredScrollController = ScrollController();
+
     algoliaService = GetIt.instance.getAsync<AlgoliaService>();
     algoliaService.whenComplete(() {
       algoliaServiceIsLoading = false;
       notifyListeners();
-      /*
-      algoliaService.then((loaded){
-
-      });*/
     });
 
     /// LISTENERS
-    _peopleNameTextController.addListener(() => updateQuery(_peopleNameTextController.text));
-    _scrollController.addListener(() {
-      if(_scrollController.hasClients &&
-          _scrollController.offset >= (_scrollController.position.maxScrollExtent * 0.9)){
-        fetchNextPage(query: _peopleNameTextController.text);
+    _preregisteredPeopleNameTextController.addListener(() => updateQuery(_preregisteredPeopleNameTextController.text));
+    _preregisteredScrollController.addListener(() {
+      if(_preregisteredScrollController.hasClients &&
+          _preregisteredScrollController.offset >= (_preregisteredScrollController.position.maxScrollExtent * 0.9)){
+        fetchNextPage(query: _preregisteredPeopleNameTextController.text);
       }
     });
   }
@@ -53,19 +51,21 @@ class PeopleListModel extends ChangeNotifier {
 
   /////////////////////////////GETTER
   bool get isLoading => tournamentModel.isLoading && algoliaServiceIsLoading;
-  TextEditingController get peopleNameTextController => _peopleNameTextController;
-  FocusNode get peopleNameFocusNode => _peopleNameFocusNode;
-  ScrollController get scrollController => _scrollController;
+  TextEditingController get preregisteredPeopleNameTextController => _preregisteredPeopleNameTextController;
+  FocusNode get preregisteredPeopleNameFocusNode => _preregisteredPeopleNameFocusNode;
+
+  ScrollController get scrollController => _preregisteredScrollController;
+
   List<UsersAlgoliaRecord> get usersList => _usersList;
   int get userNum => _userNum;
   bool get listLoading => _listLoading;
   bool get listHasReachedMax => _listHasReachedMax;
+  String get tournamentId => tournamentModel.tournamentId!;
 
 
   /////////////////////////////SETTER
   Future<SearchResponse?> _fetchAlgoliaSearchResults({
     required String query,
-    int hitsPerPage = 10,
     int page = 0,
     String filters = '',
   }) async {
@@ -74,7 +74,7 @@ class PeopleListModel extends ChangeNotifier {
       AlgoliaService algoliaServiceCompleted = await algoliaService;
       return await algoliaServiceCompleted.searchPeople(
         query: query,
-        hitsPerPage: hitsPerPage,
+        indexName: AlgoliaService.indexPreregisteredPeople,
         page: page,
         filters: filters,
       );
@@ -97,6 +97,7 @@ class PeopleListModel extends ChangeNotifier {
       SearchResponse? responseHits = await _fetchAlgoliaSearchResults(
         query: query,
         page: 0,
+        filters: "tournament_uid:'$tournamentId'"
       );
       if(responseHits != null){
         _userNum = responseHits.nbHits!;
@@ -118,7 +119,7 @@ class PeopleListModel extends ChangeNotifier {
     }
   }
   Future<void> fetchNextPage({String query = ""}) async {
-    if (_listHasReachedMax || _listLoading) return;
+    if (listHasReachedMax || listLoading) return;
     _listLoading = true;
     notifyListeners();
     try{
@@ -126,6 +127,7 @@ class PeopleListModel extends ChangeNotifier {
       SearchResponse? responseHits = await _fetchAlgoliaSearchResults(
         query: query,
         page: aimingPage,
+        filters: "tournament_uid:'$tournamentId'"
       );
       if(responseHits != null){
         _userNum = responseHits.nbHits!;
@@ -156,9 +158,9 @@ class PeopleListModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _peopleNameTextController.dispose();
-    _peopleNameFocusNode.dispose();
-    _scrollController.dispose();
+    _preregisteredPeopleNameTextController.dispose();
+    _preregisteredPeopleNameFocusNode.dispose();
+    _preregisteredScrollController.dispose();
     //searchClient.dispose();
     super.dispose();
   }

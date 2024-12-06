@@ -5,7 +5,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_container.dart';
 import 'package:tournamentmanager/pages/core/tournament_news/tournament_news_container.dart';
-import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_container.dart';
+import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_widget.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 import 'package:tournamentmanager/pages/placeholder_widget.dart';
 
@@ -47,7 +47,7 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
               'widget' : const PlaceholderWidget(),
             },
             'PlayersT': {
-              'widget' : TournamentPeopleContainer(tournamentsRef: _tournamentsRef),
+              'widget' : const TournamentPeopleWidget(),
             },
             'NewsT': {
               'widget' : TournamentNewsContainer(tournamentsRef: _tournamentsRef),
