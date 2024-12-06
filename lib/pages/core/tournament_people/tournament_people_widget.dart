@@ -10,6 +10,8 @@ import 'package:tournamentmanager/components/tournament_people_card/tournament_p
 import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_model.dart';
 import 'package:tournamentmanager/pages/nav_bar/people_list_model.dart';
 
+import '../../../components/fab_expandable/fab_expandable_widget.dart';
+
 class TournamentPeopleWidget extends StatefulWidget {
   const TournamentPeopleWidget({super.key});
 
@@ -53,6 +55,71 @@ class _TournamentPeopleWidgetState extends State<TournamentPeopleWidget> {
             return Scaffold(
               key: _scaffoldKey,
               backgroundColor: CustomFlowTheme.of(context).primaryBackground,
+              floatingActionButton: FabExpandableWidget(
+                distance: 60,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: CustomFlowTheme.of(context).primary, // Background color
+                          borderRadius: BorderRadius.circular(12), // Rounded edges
+                        ),
+                        child: Text(
+                          " Waiting list ",
+                          style: CustomFlowTheme.of(context).titleLarge.override(color: CustomFlowTheme.of(context).info),
+                        ),
+                      ),
+                      const SizedBox(width: 10,),
+                      ActionButton(
+                        onPressed: () => print("tre"),
+                        icon: const Icon(Icons.sensor_occupied),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: CustomFlowTheme.of(context).primary, // Background color
+                          borderRadius: BorderRadius.circular(12), // Rounded edges
+                        ),
+                        child: Text(
+                          " Pre iscritti list ",
+                          style: CustomFlowTheme.of(context).titleLarge.override(color: CustomFlowTheme.of(context).info),
+                        ),
+                      ),
+                      const SizedBox(width: 10,),
+                      ActionButton(
+                        onPressed: () => print("due"),
+                        icon: const Icon(Icons.airline_seat_recline_normal),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: CustomFlowTheme.of(context).primary, // Background color
+                          borderRadius: BorderRadius.circular(12), // Rounded edges
+                        ),
+                        child: Text(
+                          " Iscritti list ",
+                          style: CustomFlowTheme.of(context).titleLarge.override(color: CustomFlowTheme.of(context).info),
+                        ),
+                      ),
+                      const SizedBox(width: 10,),
+                      ActionButton(
+                        onPressed: () => print("uno"),
+                        icon: const Icon(Icons.remember_me),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
               body: SafeArea(
                 top: true,
                 child: SingleChildScrollView(
