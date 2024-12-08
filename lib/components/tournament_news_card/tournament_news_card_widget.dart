@@ -7,17 +7,21 @@ import 'package:tournamentmanager/backend/schema/news_record.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 import 'package:tournamentmanager/components/tournament_news_card/tournament_news_card_model.dart';
 
+import '../../pages/nav_bar/tournament_model.dart';
+
 class TournamentNewsCardWidget extends StatefulWidget {
 
   const TournamentNewsCardWidget({
     super.key,
     required this.newsRef,
     required this.indexo,
+    required this.tournamentModel,
   });
 
 
   final NewsRecord? newsRef;
   final int indexo;
+  final TournamentModel tournamentModel;
 
   @override
   State<TournamentNewsCardWidget> createState() => _TournamentNewsCardWidgetState();
@@ -37,7 +41,7 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => TournamentNewsCardModel());
+    _model = createModel(context, () => TournamentNewsCardModel(widget.tournamentModel));
 
     animationsMap.addAll({
       'iconOnPageLoadAnimation': standardAnimationCard(context),

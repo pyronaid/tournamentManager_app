@@ -13,10 +13,11 @@ class TournamentNewsCardModel extends CustomFlowModel<TournamentNewsCardWidget> 
   late DialogService dialogService;
   late TournamentModel tournamentModel;
 
+  TournamentNewsCardModel(this.tournamentModel);
+
   @override
   void initState(BuildContext context) {
     dialogService = GetIt.instance<DialogService>();
-    tournamentModel = context.read<TournamentModel>();
   }
 
   /////////////////////////////SETTER

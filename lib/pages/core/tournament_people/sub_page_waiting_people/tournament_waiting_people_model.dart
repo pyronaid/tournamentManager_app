@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:tournamentmanager/app_flow/services/AlgoliaService.dart';
 import 'package:tournamentmanager/backend/schema/users_algolia_record.dart';
+import 'package:tournamentmanager/backend/schema/waitinglist_record.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
 class TournamentWaitingPeopleModel extends ChangeNotifier {
@@ -153,6 +154,10 @@ class TournamentWaitingPeopleModel extends ChangeNotifier {
     _debounce = Timer(const Duration(milliseconds: 300), () async {
       fetchInitialResults(query: textToSearch);
     });
+  }
+  Future<void> deletePeople(String userId) async {
+    WaitinglistRecord.deletePeople(userId);
+    notifyListeners();
   }
 
 

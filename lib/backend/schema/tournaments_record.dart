@@ -356,6 +356,16 @@ enum Game {
 
 }
 
+enum ListType {
+  waiting("waiting_list_info"),
+  preregistered("preregistered_list_info"),
+  registered("registered_list_info");
+
+  final String listName;
+
+  const ListType(this.listName);
+}
+
 enum StateTournament {
   open("Creato", 1),
   ready("Aperto", 2),

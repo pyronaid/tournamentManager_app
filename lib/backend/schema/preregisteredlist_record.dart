@@ -60,6 +60,19 @@ class PreregisteredlistRecord extends FirestoreRecord {
   static Future<PreregisteredlistRecord> getDocumentOnce(DocumentReference ref) =>
       ref.get().then((s) => PreregisteredlistRecord.fromSnapshot(s));
 
+  static Future<void> deletePeople(String idU) async {
+    try {
+      QuerySnapshot querySnapshot = await collection.where('user_uid', isEqualTo: idU).get();
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+      for (DocumentSnapshot doc in querySnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+    } catch (e) {
+      print("Failed to delete news: $e");
+    }
+  }
+
   static Future<void> updateField(String id, String fieldName, dynamic newValue) async {
     try {
       await collection.doc(id).update({

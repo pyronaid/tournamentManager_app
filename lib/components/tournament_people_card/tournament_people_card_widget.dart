@@ -5,17 +5,23 @@ import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/backend/schema/users_algolia_record.dart';
 import 'package:tournamentmanager/components/tournament_people_card/tournament_people_card_model.dart';
 
+import '../../backend/schema/tournaments_record.dart';
+
 class TournamentPeopleCardWidget extends StatefulWidget {
 
   const TournamentPeopleCardWidget({
     super.key,
     required this.userRef,
     required this.indexo,
+    required this.listType,
+    required this.peopleModel,
   });
 
 
   final UsersAlgoliaRecord? userRef;
   final int indexo;
+  final ListType listType;
+  final ChangeNotifier peopleModel;
 
   @override
   State<TournamentPeopleCardWidget> createState() => _TournamentPeopleCardWidgetState();
@@ -33,7 +39,7 @@ class _TournamentPeopleCardWidgetState extends State<TournamentPeopleCardWidget>
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => TournamentPeopleCardModel());
+    _model = createModel(context, () => TournamentPeopleCardModel(widget.peopleModel, widget.listType));
 
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }

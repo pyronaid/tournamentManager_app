@@ -7,6 +7,8 @@ import 'package:tournamentmanager/app_flow/services/AlgoliaService.dart';
 import 'package:tournamentmanager/backend/schema/users_algolia_record.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
+import '../../../../backend/schema/registeredlist_record.dart';
+
 class TournamentRegisteredPeopleModel extends ChangeNotifier {
 
   final TournamentModel tournamentModel;
@@ -153,6 +155,10 @@ class TournamentRegisteredPeopleModel extends ChangeNotifier {
     _debounce = Timer(const Duration(milliseconds: 300), () async {
       fetchInitialResults(query: textToSearch);
     });
+  }
+  Future<void> deletePeople(String userId) async {
+    RegisteredlistRecord.deletePeople(userId);
+    notifyListeners();
   }
 
 

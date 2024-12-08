@@ -104,6 +104,7 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
                                   key: Key('Keykia_${news.uid}_position_${index}_of_${providerTournament.newsListRefObj!.length}'),
                                   newsRef: news,
                                   indexo: index,
+                                  tournamentModel: providerTournament,
                                 );
                               },
                             ),

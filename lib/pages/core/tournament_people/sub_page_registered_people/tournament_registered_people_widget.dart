@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/sub_page_registered_people/tournament_registered_people_model.dart';
 
 import '../../../../app_flow/app_flow_theme.dart';
@@ -166,6 +167,8 @@ class _TournamentRegisteredPeopleWidgetState extends State<TournamentRegisteredP
                             key: Key('Keykia_user.uid.toadd_position_${index}_of_${providerRegisteredPeople.usersList.length}'),
                             userRef: user,
                             indexo: index,
+                            listType: ListType.registered,
+                            peopleModel: providerRegisteredPeople,
                           );
                         },
                         ),
