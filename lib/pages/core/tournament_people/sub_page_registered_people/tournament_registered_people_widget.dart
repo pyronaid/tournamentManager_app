@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/sub_page_registered_people/tournament_registered_people_model.dart';
 
@@ -75,8 +76,8 @@ class _TournamentRegisteredPeopleWidgetState extends State<TournamentRegisteredP
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 5),
                               child: TextField(
-                                controller: providerRegisteredPeople.registeredPeopleNameTextController,
-                                focusNode: providerRegisteredPeople.registeredPeopleNameFocusNode,
+                                controller: providerRegisteredPeople.peopleNameTextController,
+                                focusNode: providerRegisteredPeople.peopleNameFocusNode,
                                 autofocus: false,
                                 obscureText: false,
                                 decoration: standardInputDecoration(
@@ -101,7 +102,14 @@ class _TournamentRegisteredPeopleWidgetState extends State<TournamentRegisteredP
                               onPressed: () async {
                                 FocusScope.of(context).unfocus();
                                 logFirebaseEvent('Button_load_pic');
-                                print("button_pressed");
+                                context.pushNamedAuth(
+                                  'AddPeople', context.mounted,
+                                  extra: {
+                                    'tournamentId': providerRegisteredPeople.tournamentId,
+                                    'listType' : ListType.registered.name,
+                                    'provider' : providerRegisteredPeople
+                                  },
+                                );
                                 logFirebaseEvent('Button_haptic_feedback');
                                 HapticFeedback.lightImpact();
                               },
@@ -169,6 +177,7 @@ class _TournamentRegisteredPeopleWidgetState extends State<TournamentRegisteredP
                             indexo: index,
                             listType: ListType.registered,
                             peopleModel: providerRegisteredPeople,
+                            promote: false,
                           );
                         },
                         ),

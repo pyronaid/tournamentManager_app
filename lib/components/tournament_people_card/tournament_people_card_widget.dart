@@ -15,6 +15,7 @@ class TournamentPeopleCardWidget extends StatefulWidget {
     required this.indexo,
     required this.listType,
     required this.peopleModel,
+    required this.promote,
   });
 
 
@@ -22,6 +23,7 @@ class TournamentPeopleCardWidget extends StatefulWidget {
   final int indexo;
   final ListType listType;
   final ChangeNotifier peopleModel;
+  final bool promote;
 
   @override
   State<TournamentPeopleCardWidget> createState() => _TournamentPeopleCardWidgetState();
@@ -62,15 +64,17 @@ class _TournamentPeopleCardWidgetState extends State<TournamentPeopleCardWidget>
         endActionPane: ActionPane(
           motion: const ScrollMotion(),
           children: [
-            SlidableAction(
-              onPressed: (context){
-                print("ciao");
-              },
-              backgroundColor: CustomFlowTheme.of(context).accent1,
-              foregroundColor: CustomFlowTheme.of(context).info,
-              icon: Icons.edit,
-              label: 'Promote',
-            ),
+            if (widget.promote) ...[
+              SlidableAction(
+                onPressed: (context){
+                  print("ciao");
+                },
+                backgroundColor: CustomFlowTheme.of(context).accent1,
+                foregroundColor: CustomFlowTheme.of(context).info,
+                icon: Icons.file_upload,
+                label: 'Promote',
+              ),
+            ],
             SlidableAction(
               onPressed: (context){
                 print("ciao");

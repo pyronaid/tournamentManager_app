@@ -10,8 +10,13 @@ import 'package:tournamentmanager/app_flow/nav/serialization_util.dart';
 import 'package:tournamentmanager/app_flow/services/ServiceManager.dart';
 import 'package:tournamentmanager/auth/base_auth_user_provider.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
+import 'package:tournamentmanager/pages/core/add_people/add_people_container.dart';
 import 'package:tournamentmanager/pages/core/create_edit_news/create_edit_news_container.dart';
 import 'package:tournamentmanager/pages/core/create_own/create_own_container.dart';
+import 'package:tournamentmanager/pages/core/tournament_people/sub_page_preregistered_people/tournament_preregistered_people_model.dart';
+import 'package:tournamentmanager/pages/core/tournament_people/sub_page_registered_people/tournament_registered_people_model.dart';
+import 'package:tournamentmanager/pages/core/tournament_people/sub_page_waiting_people/tournament_waiting_people_model.dart';
+import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_model.dart';
 import 'package:tournamentmanager/pages/nav_bar/nav_bar_lev2_widget.dart';
 import 'package:tournamentmanager/pages/nav_bar/nav_bar_widget.dart';
 import 'package:tournamentmanager/pages/onboarding/forgot_password/forgot_password_widget.dart';
@@ -26,6 +31,8 @@ import 'package:tournamentmanager/pages/profile/about_us/about_us_widget.dart';
 import 'package:tournamentmanager/pages/profile/edit_preferences/edit_preferences_widget.dart';
 import 'package:tournamentmanager/pages/profile/edit_profile/edit_profile_container.dart';
 import 'package:tournamentmanager/pages/profile/support_center/support_center_widget.dart';
+
+import '../../pages/core/add_people/barcode_scanner_zoom.dart';
 export 'package:go_router/go_router.dart';
 
 const kTransitionInfoKey = '__transition_info__';
@@ -138,6 +145,32 @@ GoRouter createRouter(AppStateNotifier appStateNotifier, GlobalKey<NavigatorStat
               builder: (context, params) => const OnboardingCreateAccountWidget(),
             ),
             CustomRoute(
+              name: 'Profile',
+              path: 'profile',
+              requireAuth: true,
+              builder: (context, params) => const NavBarPage(initialPage: 'Profile'),
+              routes: [
+                CustomRoute(
+                  name: 'EditProfile',
+                  path: 'edit-profile',
+                  requireAuth: true,
+                  builder: (context, params) => const EditProfileContainer(),
+                ),
+                CustomRoute(
+                  name: 'AboutUs',
+                  path: 'about-us',
+                  requireAuth: true,
+                  builder: (context, params) => const AboutUsWidget(),
+                ),
+                CustomRoute(
+                  name: 'SupportCenter',
+                  path: 'support-center',
+                  requireAuth: true,
+                  builder: (context, params) => const SupportCenterWidget(),
+                ),
+              ].map((r) => r.toRoute(appStateNotifier)).toList(),
+            ),
+            CustomRoute(
               name: 'Dashboard',
               path: 'dashboard',
               requireAuth: true,
@@ -168,6 +201,28 @@ GoRouter createRouter(AppStateNotifier appStateNotifier, GlobalKey<NavigatorStat
               builder: (context, params) => NavBarLev2Page(initialPage: "NewsT", tournamentsRef: params.getParam('tournamentId', ParamType.String,)),
             ),
             CustomRoute(
+              name: 'TournamentPeople',
+              path: 'tournament-people/:tournamentId',
+              requireAuth: true,
+              builder: (context, params) => NavBarLev2Page(initialPage: "PlayersT", tournamentsRef: params.getParam('tournamentId', ParamType.String,)),
+            ),
+            CustomRoute(
+              name: 'AddPeople',
+              path: 'tournament-add-people',
+              requireAuth: true,
+              builder: (context, params) => MultiProvider(
+                providers: [
+                  ChangeNotifierProvider.value(
+                    value: (params.state.extra as Map<String, dynamic>)["provider"] as TournamentPeopleModel,
+                  ),
+                ],
+                child: AddPeopleContainer(
+                  tournamentsRef: params.getParam('tournamentId', ParamType.String,),
+                  listType: params.getParam('listType', ParamType.String,),
+                ),
+              ),
+            ),
+            CustomRoute(
               name: 'CreateOwn',
               path: 'create-own',
               requireAuth: true,
@@ -182,30 +237,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier, GlobalKey<NavigatorStat
                 newsRef: params.getParam('newsId', ParamType.String,),
                 createEditFlag: params.getParam('createEditFlag', ParamType.bool,),
               ),
-            ),
-            CustomRoute(
-              name: 'Profile',
-              path: 'profile',
-              requireAuth: true,
-              builder: (context, params) => const NavBarPage(initialPage: 'Profile'),
-            ),
-            CustomRoute(
-              name: 'EditProfile',
-              path: 'edit-profile',
-              requireAuth: true,
-              builder: (context, params) => const EditProfileContainer(),
-            ),
-            CustomRoute(
-              name: 'AboutUs',
-              path: 'about-us',
-              requireAuth: true,
-              builder: (context, params) => const AboutUsWidget(),
-            ),
-            CustomRoute(
-              name: 'SupportCenter',
-              path: 'support-center',
-              requireAuth: true,
-              builder: (context, params) => const SupportCenterWidget(),
             ),
             CustomRoute(
               name: 'ForgotPassword',
@@ -227,7 +258,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier, GlobalKey<NavigatorStat
               name: 'Onboarding',
               path: 'preferences-onboarding',
               builder: (context, params) => const OnboardingWidget(),
-            )
+            ),
+            CustomRoute(
+              name: 'ScannerCode',
+              path: 'scanner',
+              builder: (context, params) => const BarcodeScannerWithZoom(),
+            ),
           ].map((r) => r.toRoute(appStateNotifier)).toList(),
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
@@ -260,7 +296,7 @@ extension NavigationExtensions on BuildContext {
               extra: extra,
             );
 
-  void pushNamedAuth(
+  Future<T?>? pushNamedAuth<T extends Object?>(
     String name,
     bool mounted, {
     Map<String, String> pathParameters = const <String, String>{},

@@ -181,6 +181,7 @@ enum ParamType {
   Document,
   DocumentReference,
   DataStruct,
+  Provider
 }
 
 dynamic deserializeParam<T>(

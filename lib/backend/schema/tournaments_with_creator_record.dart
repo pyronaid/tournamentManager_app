@@ -23,7 +23,7 @@ class TournamentsWithCreatorRecord {
         return UsersRecord.getDocument(UsersRecord.collection.doc(tournament.creatorUid))
             .map((user) => TournamentsWithCreatorRecord(
           tournament: tournament,
-          creatorName: user.displayName,
+          creatorName: user!.displayName,
         )).onErrorReturn(TournamentsWithCreatorRecord(
           tournament: tournament,
           creatorName: 'Unknown User',

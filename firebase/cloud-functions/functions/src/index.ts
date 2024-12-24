@@ -20,4 +20,5 @@ export {
   updateCounterPreregisteredDecr,
   updateCounterRegisteredIncr,
   updateCounterRegisteredDecr,
+  tournamentUpdatedTrigger,
 } from "./syncUserDetails";

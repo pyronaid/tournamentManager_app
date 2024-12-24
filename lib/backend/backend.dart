@@ -26,7 +26,7 @@ Future<int> queryUsersRecordCount({ Query Function(Query)? queryBuilder, int lim
 Stream<List<UsersRecord>> queryUsersRecord({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
     queryCollection(
       UsersRecord.collection,
-      UsersRecord.fromSnapshot,
+      UsersRecord.fromSnapshotStrict,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -35,7 +35,7 @@ Stream<List<UsersRecord>> queryUsersRecord({ Query Function(Query)? queryBuilder
 Future<List<UsersRecord>> queryUsersRecordOnce({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
     queryCollectionOnce(
       UsersRecord.collection,
-      UsersRecord.fromSnapshot,
+      UsersRecord.fromSnapshotStrict,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,

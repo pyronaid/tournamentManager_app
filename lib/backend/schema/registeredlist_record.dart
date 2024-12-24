@@ -60,9 +60,18 @@ class RegisteredlistRecord extends FirestoreRecord {
   static Future<RegisteredlistRecord> getDocumentOnce(DocumentReference ref) =>
       ref.get().then((s) => RegisteredlistRecord.fromSnapshot(s));
 
-  static Future<void> deletePeople(String idU) async {
+  static Future<List<RegisteredlistRecord>> getDocumentsOnce(Query query) {
+    return query.get().then((s) => s.docs.map((doc) {
+      return RegisteredlistRecord.fromSnapshot(doc);
+    }).toList());
+  }
+
+  static Future<void> deletePeople(String idU, String idT) async {
     try {
-      QuerySnapshot querySnapshot = await collection.where('user_uid', isEqualTo: idU).get();
+      QuerySnapshot querySnapshot = await collection
+          .where('user_uid', isEqualTo: idU)
+          .where('tournament_uid', isEqualTo: idT)
+          .get();
       WriteBatch batch = FirebaseFirestore.instance.batch();
       for (DocumentSnapshot doc in querySnapshot.docs) {
         batch.delete(doc.reference);

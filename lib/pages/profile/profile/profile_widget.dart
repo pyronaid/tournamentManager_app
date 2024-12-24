@@ -146,7 +146,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                         //////////////////////////////
                         Padding(
                           padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                          child: StreamBuilder<List<CompanyInformationRecord>>(
+                          child: StreamBuilder<List<CompanyInformationRecord?>>(
                             stream: queryCompanyInformationRecord(
                               singleRecord: true,
                             ),
@@ -165,7 +165,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                   ),
                                 );
                               }
-                              List<CompanyInformationRecord> columnCompanyInformationRecordList = snapshot.data!;
+                              List<CompanyInformationRecord?> columnCompanyInformationRecordList = snapshot.data!;
                               // Return an empty Container when the item does not exist.
                               if (snapshot.data!.isEmpty) {
                                 return Container();

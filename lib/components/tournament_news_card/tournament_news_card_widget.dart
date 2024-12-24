@@ -30,8 +30,6 @@ class TournamentNewsCardWidget extends StatefulWidget {
 class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
   late TournamentNewsCardModel _model;
 
-  final animationsMap = <String, AnimationInfo>{};
-
   @override
   void setState(VoidCallback callback) {
     super.setState(callback);
@@ -42,10 +40,6 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => TournamentNewsCardModel(widget.tournamentModel));
-
-    animationsMap.addAll({
-      'iconOnPageLoadAnimation': standardAnimationCard(context),
-    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }

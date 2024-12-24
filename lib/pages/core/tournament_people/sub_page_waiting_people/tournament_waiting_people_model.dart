@@ -1,33 +1,23 @@
 import 'dart:async';
-import 'dart:io';
-import 'package:algoliasearch/algoliasearch.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:tournamentmanager/app_flow/services/AlgoliaService.dart';
-import 'package:tournamentmanager/backend/schema/users_algolia_record.dart';
 import 'package:tournamentmanager/backend/schema/waitinglist_record.dart';
-import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
+import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_model.dart';
 
-class TournamentWaitingPeopleModel extends ChangeNotifier {
+import '../../../../backend/schema/tournaments_record.dart';
 
-  final TournamentModel tournamentModel;
+class TournamentWaitingPeopleModel extends TournamentPeopleModel {
+
   late TextEditingController _waitingPeopleNameTextController;
   late FocusNode _waitingPeopleNameFocusNode;
 
   late ScrollController _waitingScrollController;
 
-  late Future<AlgoliaService> algoliaService;
-  bool algoliaServiceIsLoading = true;
-  List<UsersAlgoliaRecord> _usersList = [];
-  int _userNum = 0;
-  bool _listLoading = false;
-  bool _listHasReachedMax = false;
-  int _listCurrentPage = 0;
-  Timer? _debounce;
 
-
-  TournamentWaitingPeopleModel({required this.tournamentModel}){
+  TournamentWaitingPeopleModel({required tournamentModel}){
     print("[CREATE] TournamentWaitingPeopleModel");
+    super.tournamentModel = tournamentModel;
     _waitingPeopleNameTextController = TextEditingController();
     _waitingPeopleNameFocusNode = FocusNode();
 
@@ -40,123 +30,35 @@ class TournamentWaitingPeopleModel extends ChangeNotifier {
     });
 
     /// LISTENERS
-    _waitingPeopleNameTextController.addListener(() => updateQuery(_waitingPeopleNameTextController.text));
+    _waitingPeopleNameTextController.addListener(() => updateQuery(listType: ListType.waiting, textToSearch: _waitingPeopleNameTextController.text));
     _waitingScrollController.addListener(() {
       if(_waitingScrollController.hasClients &&
           _waitingScrollController.offset >= (_waitingScrollController.position.maxScrollExtent * 0.9)){
-        fetchNextPage(query: _waitingPeopleNameTextController.text);
+        fetchNextPage(query: _waitingPeopleNameTextController.text, listType: ListType.waiting);
       }
     });
   }
 
 
   /////////////////////////////GETTER
-  bool get isLoading => tournamentModel.isLoading && algoliaServiceIsLoading;
-  TextEditingController get waitingPeopleNameTextController => _waitingPeopleNameTextController;
-  FocusNode get waitingPeopleNameFocusNode => _waitingPeopleNameFocusNode;
-
+  @override
+  TextEditingController get peopleNameTextController => _waitingPeopleNameTextController;
+  @override
+  FocusNode get peopleNameFocusNode => _waitingPeopleNameFocusNode;
+  @override
   ScrollController get scrollController => _waitingScrollController;
 
-  List<UsersAlgoliaRecord> get usersList => _usersList;
-  int get userNum => _userNum;
-  bool get listLoading => _listLoading;
-  bool get listHasReachedMax => _listHasReachedMax;
-  String get tournamentId => tournamentModel.tournamentId!;
 
 
   /////////////////////////////SETTER
-  Future<SearchResponse?> _fetchAlgoliaSearchResults({
-    required String query,
-    int page = 0,
-    String filters = '',
-  }) async {
-    try {
-      print("[ALGOLIA-API] CALL");
-      AlgoliaService algoliaServiceCompleted = await algoliaService;
-      return await algoliaServiceCompleted.searchPeople(
-        query: query,
-        indexName: AlgoliaService.indexWaitingPeople,
-        page: page,
-        filters: filters,
-      );
-    } on AlgoliaIOException catch (e) {
-      print('Algolia Connection Error: ${e.toString()}');
-      return null;
-    } on SocketException catch (e) {
-      print('Socket Connection Error: ${e.toString()}');
-      return null;
-    } catch (e) {
-      print('Unexpected Error: ${e.toString()}');
-      return null;
-    }
-  }
-  Future<void> fetchInitialResults({String query = ""}) async {
-    if(_listLoading) return;
-    _listLoading = true;
-    notifyListeners();
-    try{
-      SearchResponse? responseHits = await _fetchAlgoliaSearchResults(
-        query: query,
-        page: 0,
-        filters: "tournament_uid:'$tournamentId'"
-      );
-      if(responseHits != null){
-        _userNum = responseHits.nbHits!;
-        _usersList = responseHits.hits.map((e) => UsersAlgoliaRecord(displayName: e['display_name'])).toList();
-        _listCurrentPage = 0;
-        _listHasReachedMax = _usersList.length == _userNum;
-      } else {
-        _usersList.clear();
-        _listHasReachedMax = true;
-      }
-      _listLoading = false;
-      notifyListeners();
-    } catch (e) {
-      _listLoading = false;
-      _usersList.clear();
-      _listHasReachedMax = true;
-      print('Error fetching initial results: $e');
-      notifyListeners();
-    }
-  }
-  Future<void> fetchNextPage({String query = ""}) async {
-    if (listHasReachedMax || listLoading) return;
-    _listLoading = true;
-    notifyListeners();
-    try{
-      int aimingPage = _listCurrentPage + 1;
-      SearchResponse? responseHits = await _fetchAlgoliaSearchResults(
-        query: query,
-        page: aimingPage,
-        filters: "tournament_uid:'$tournamentId'"
-      );
-      if(responseHits != null){
-        _userNum = responseHits.nbHits!;
-        _usersList.addAll(responseHits.hits.map((e) => UsersAlgoliaRecord(displayName: e['display_name'])).toList());
-        _listCurrentPage = aimingPage;
-        _listHasReachedMax = _usersList.length == _userNum;
-      } else {
-        _usersList.clear();
-        _listHasReachedMax = true;
-      }
-      _listLoading = false;
-      notifyListeners();
-    } catch (e) {
-      _listLoading = false;
-      _usersList.clear();
-      _listHasReachedMax = true;
-      print('Error fetching next page: $e');
-      notifyListeners();
-    }
-  }
-  Future<void> updateQuery(String textToSearch) async {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), () async {
-      fetchInitialResults(query: textToSearch);
-    });
-  }
+  @override
   Future<void> deletePeople(String userId) async {
-    WaitinglistRecord.deletePeople(userId);
+    WaitinglistRecord.deletePeople(userId, tournamentId);
+    notifyListeners();
+  }
+  @override
+  Future<void> promotePeople(String userId) async {
+    WaitinglistRecord.promotePeople(userId, tournamentId);
     notifyListeners();
   }
 

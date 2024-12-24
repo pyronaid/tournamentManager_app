@@ -327,12 +327,12 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Expanded(
-                          child: StreamBuilder<List<CompanyInformationRecord>>(
+                          child: StreamBuilder<List<CompanyInformationRecord?>>(
                             stream: queryCompanyInformationRecord(
                               singleRecord: true,
                             ),
                             builder: (context, snapshot) {
-                            // Customize what your widget looks like when it's loading.
+                              // Customize what your widget looks like when it's loading.
                               if (!snapshot.hasData) {
                                 return Center(
                                   child: SizedBox(
@@ -344,7 +344,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                   ),
                                 );
                               }
-                              List<CompanyInformationRecord> richTextCompanyInformationRecordList = snapshot.data!;
+                              List<CompanyInformationRecord?> richTextCompanyInformationRecordList = snapshot.data!;
 
                               // Return an empty Container when the item does not exist.
                               if (snapshot.data!.isEmpty) {

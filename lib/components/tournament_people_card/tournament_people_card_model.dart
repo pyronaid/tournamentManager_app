@@ -30,10 +30,10 @@ class TournamentPeopleCardModel extends CustomFlowModel<TournamentPeopleCardWidg
   }
 
   /////////////////////////////SETTER
-  void showDeleteNewsDialog(String userId) async {
+  void showDeletePeopleDialog(String userId) async {
     AlertResponse resp = await dialogService.showDialog(
       title: 'ATTENZIONE: Cancellazione dell\'utente in corso...',
-      description: "Sei sicuro di voler eliminare questa utente dalla lista? ",
+      description: "Sei sicuro di voler eliminare questo utente dalla lista? ",
       buttonTitleCancelled: "Annulla",
       buttonTitleConfirmed: "Continua",
     );
@@ -45,13 +45,33 @@ class TournamentPeopleCardModel extends CustomFlowModel<TournamentPeopleCardWidg
         case ListType.preregistered:
           await (peopleModel as TournamentPreregisteredPeopleModel).deletePeople(userId);
           break;
-        case ListType.preregistered:
+        case ListType.registered:
           await (peopleModel as TournamentRegisteredPeopleModel).deletePeople(userId);
           break;
         default:
       }
     }
   }
+  void showPromotePeopleDialog(String userId) async {
+    AlertResponse resp = await dialogService.showDialog(
+      title: 'ATTENZIONE: Cancellazione dell\'utente in corso...',
+      description: "L'tente verrà promosso a registrato!",
+      buttonTitleCancelled: "Annulla",
+      buttonTitleConfirmed: "Continua",
+    );
+    if(resp.confirmed){
+      switch(listType){
+        case ListType.waiting:
+          await (peopleModel as TournamentWaitingPeopleModel).promotePeople(userId);
+          break;
+        case ListType.preregistered:
+          await (peopleModel as TournamentPreregisteredPeopleModel).promotePeople(userId);
+          break;
+        default:
+      }
+    }
+  }
+
 
   @override
   void dispose() {}

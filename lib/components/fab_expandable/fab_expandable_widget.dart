@@ -118,6 +118,7 @@ class _FabExpandableWidgetState extends State<FabExpandableWidget> with SingleTi
           curve: const Interval(0.25, 1.0, curve: Curves.easeInOut),
           duration: const Duration(milliseconds: 250),
           child: FloatingActionButton(
+            heroTag: 'expandable_people',
             backgroundColor: theme.primary,
             onPressed: _model.toggle,
             child: Icon(

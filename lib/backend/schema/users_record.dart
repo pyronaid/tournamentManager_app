@@ -60,16 +60,27 @@ class UsersRecord extends FirestoreRecord {
   static CollectionReference get collection =>
       FirebaseFirestore.instance.collection('users');
 
-  static Stream<UsersRecord> getDocument(DocumentReference ref) =>
+  static Stream<UsersRecord?> getDocument(DocumentReference ref) =>
       ref.snapshots().map((s) => UsersRecord.fromSnapshot(s));
 
-  static Future<UsersRecord> getDocumentOnce(DocumentReference ref) =>
+  static Future<UsersRecord?> getDocumentOnce(DocumentReference ref) =>
       ref.get().then((s) => UsersRecord.fromSnapshot(s));
 
-  static UsersRecord fromSnapshot(DocumentSnapshot snapshot) => UsersRecord._(
+  static UsersRecord? fromSnapshot(DocumentSnapshot snapshot) =>
+    snapshot.exists ? UsersRecord._(
         snapshot.reference,
         mapFromFirestore(snapshot.data() as Map<String, dynamic>),
-      );
+    ) : null;
+
+  static UsersRecord fromSnapshotStrict(DocumentSnapshot snapshot) {
+    if (!snapshot.exists) {
+      throw Exception("Document does not exist!");
+    }
+    return UsersRecord._(
+      snapshot.reference,
+      mapFromFirestore(snapshot.data() as Map<String, dynamic>),
+    );
+  }
 
   static UsersRecord getDocumentFromData(
     Map<String, dynamic> data,

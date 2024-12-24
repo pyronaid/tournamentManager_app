@@ -36,6 +36,8 @@ export const userUpdatedTrigger = onDocumentUpdated(
     }
 
     const db = admin.firestore();
+    const batch = db.batch();
+
     try {
       // UPDATE THE TABLE WAITING
       const snapshot1 = await db
@@ -46,14 +48,11 @@ export const userUpdatedTrigger = onDocumentUpdated(
         console.log(`No waitingUsers found for userId: ${userId}`);
       } else {
         // Update each matching document with the new user details
-        const updates = snapshot1.docs.map((doc) =>
-          doc.ref.update({
+        snapshot1.docs.forEach((doc) => {
+          batch.update(doc.ref, {
             display_name: updatedDocument.display_name,
-          })
-        );
-        // Execute all updates concurrently
-        await Promise.all(updates);
-        console.log(`Success synced waitingUsers for userId: ${userId}`);
+          });
+        });
       }
 
       // UPDATE THE TABLE PREREGISTERED
@@ -65,14 +64,11 @@ export const userUpdatedTrigger = onDocumentUpdated(
         console.log(`No preregisteredUsers found for userId: ${userId}`);
       } else {
         // Update each matching document with the new user details
-        const updates = snapshot2.docs.map((doc) =>
-          doc.ref.update({
+        snapshot2.docs.forEach((doc) => {
+          batch.update(doc.ref, {
             display_name: updatedDocument.display_name,
-          })
-        );
-        // Execute all updates concurrently
-        await Promise.all(updates);
-        console.log(`Success synced preregisteredUsers for userId: ${userId}`);
+          });
+        });
       }
 
       // UPDATE THE TABLE REGISTERED
@@ -84,15 +80,15 @@ export const userUpdatedTrigger = onDocumentUpdated(
         console.log(`No registeredUsers found for userId: ${userId}`);
       } else {
         // Update each matching document with the new user details
-        const updates = snapshot3.docs.map((doc) =>
-          doc.ref.update({
+        snapshot3.docs.forEach((doc) => {
+          batch.update(doc.ref, {
             display_name: updatedDocument.display_name,
-          })
-        );
-        // Execute all updates concurrently
-        await Promise.all(updates);
-        console.log(`Success synced registeredUsers for userId: ${userId}`);
+          });
+        });
       }
+
+      await batch.commit();
+      console.log(`Success synced usersList for userId: ${userId}`);
 
       return null;
     } catch (error) {
@@ -121,24 +117,10 @@ export const updateCounterWaitingIncr = onDocumentCreated(
     console.log(data);
     const db = admin.firestore();
     try {
-      await db.runTransaction(async (transaction) => {
-        const docRef = db.collection("tournaments").doc(data.tournament_uid);
-        const snapshot1 = await transaction.get(docRef);
-        if (!snapshot1.exists) {
-          console.log(
-            `No tournament found for tournamentUid: ${data.tournament_uid}`
-          );
-        } else {
-          const currentCount = snapshot1.data()?.waiting_list_counter ?? 0;
-          transaction.update(docRef, {
-            waiting_list_counter: currentCount + 1,
-          });
-
-          console.log(
-            `Success incr waiting for tournament: ${data.tournament_uid}`
-          );
-        }
-      });
+      const docRef = db.collection("tournaments").doc(data.tournament_uid);
+      await docRef.set({
+        waiting_list_counter: admin.firestore.FieldValue.increment(1),
+      }, {merge: true});
       return null;
     } catch (error) {
       console.error(
@@ -149,6 +131,7 @@ export const updateCounterWaitingIncr = onDocumentCreated(
     }
   }
 );
+
 // //////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////
@@ -168,26 +151,10 @@ export const updateCounterPreregisteredIncr = onDocumentCreated(
     console.log(data);
     const db = admin.firestore();
     try {
-      await db.runTransaction(async (transaction) => {
-        const docRef = db.collection("tournaments").doc(data.tournament_uid);
-        const snapshot1 = await transaction.get(docRef);
-        if (!snapshot1.exists) {
-          console.log(
-            `No tournament found for tournamentUid: ${data.tournament_uid}`
-          );
-        } else {
-          await db.runTransaction(async (transaction) => {
-            const currentCount =
-              snapshot1.data()?.pre_registered_list_counter ?? 0;
-            transaction.update(docRef, {
-              pre_registered_list_counter: currentCount + 1,
-            });
-          });
-          console.log(
-            `Success inc preregistered for tournament: ${data.tournament_uid}`
-          );
-        }
-      });
+      const docRef = db.collection("tournaments").doc(data.tournament_uid);
+      await docRef.set({
+        pre_registered_list_counter: admin.firestore.FieldValue.increment(1),
+      }, {merge: true});
       return null;
     } catch (error) {
       console.error(
@@ -198,6 +165,7 @@ export const updateCounterPreregisteredIncr = onDocumentCreated(
     }
   }
 );
+
 // //////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////
@@ -217,24 +185,10 @@ export const updateCounterRegisteredIncr = onDocumentCreated(
     console.log(data);
     const db = admin.firestore();
     try {
-      await db.runTransaction(async (transaction) => {
-        const docRef = db.collection("tournaments").doc(data.tournament_uid);
-        const snapshot1 = await transaction.get(docRef);
-        if (!snapshot1.exists) {
-          console.log(
-            `No tournament found for tournamentUid: ${data.tournament_uid}`
-          );
-        } else {
-          const currentCount = snapshot1.data()?.registered_list_counter ?? 0;
-          transaction.update(docRef, {
-            registered_list_counter: currentCount + 1,
-          });
-
-          console.log(
-            `Success incr registered for tournament: ${data.tournament_uid}`
-          );
-        }
-      });
+      const docRef = db.collection("tournaments").doc(data.tournament_uid);
+      await docRef.set({
+        registered_list_counter: admin.firestore.FieldValue.increment(1),
+      }, {merge: true});
       return null;
     } catch (error) {
       console.error(
@@ -245,6 +199,7 @@ export const updateCounterRegisteredIncr = onDocumentCreated(
     }
   }
 );
+
 // //////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////
@@ -264,24 +219,10 @@ export const updateCounterWaitingDecr = onDocumentDeleted(
     console.log(data);
     const db = admin.firestore();
     try {
-      await db.runTransaction(async (transaction) => {
-        const docRef = db.collection("tournaments").doc(data.tournament_uid);
-        const snapshot1 = await transaction.get(docRef);
-        if (!snapshot1.exists) {
-          console.log(
-            `No tournament found for tournamentUid: ${data.tournament_uid}`
-          );
-        } else {
-          const currentCount = snapshot1.data()?.waiting_list_counter ?? 0;
-          transaction.update(docRef, {
-            waiting_list_counter: currentCount - 1,
-          });
-
-          console.log(
-            `Success decr waiting for tournament: ${data.tournament_uid}`
-          );
-        }
-      });
+      const docRef = db.collection("tournaments").doc(data.tournament_uid);
+      await docRef.set({
+        waiting_list_counter: admin.firestore.FieldValue.increment(-1),
+      }, {merge: true});
       return null;
     } catch (error) {
       console.error(
@@ -292,6 +233,7 @@ export const updateCounterWaitingDecr = onDocumentDeleted(
     }
   }
 );
+
 // //////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////
@@ -311,34 +253,54 @@ export const updateCounterPreregisteredDecr = onDocumentDeleted(
     console.log(data);
     const db = admin.firestore();
     try {
-      await db.runTransaction(async (transaction) => {
-        const docRef = db.collection("tournaments").doc(data.tournament_uid);
-        const snapshot1 = await transaction.get(docRef);
-        if (!snapshot1.exists) {
-          console.log(
-            `No tournament found for tournamentUid: ${data.tournament_uid}`
-          );
-        } else {
-          const currentCount =
-            snapshot1.data()?.pre_registered_list_counter ?? 0;
-          transaction.update(docRef, {
-            pre_registered_list_counter: currentCount - 1,
-          });
-          console.log(
-            `Success decr preregistered for tournament: ${data.tournament_uid}`
+      db.runTransaction(async (transaction) => {
+        const tournamentCollectionRef = db.collection("tournaments");
+        const tournamentRef = tournamentCollectionRef.doc(data.tournament_uid);
+        const tournamentSnap = await transaction.get(tournamentRef);
+        const tournamentData = tournamentSnap.data()!;
+
+        if (!tournamentSnap.exists) {
+          console.log(`No tournament found for tournamentUid: ${data.tournament_uid}`);
+          throw new HttpsError("not-found", `Tournament not found:  ${data.tournament_uid}`);
+        }
+
+        const {
+          capacity = 0,
+          registered_list_counter = 0,
+          pre_registered_list_counter = 0,
+          waiting_list_counter = 0,
+          waiting_list_en = false,
+        } = tournamentData;
+        const shouldMoveFromWaitingList =
+          waiting_list_en &&
+          waiting_list_counter > 0 &&
+          capacity > 0 &&
+          (registered_list_counter + pre_registered_list_counter - 1) < capacity;
+        if (shouldMoveFromWaitingList) {
+          await handleWaitingListPromotion(
+            db,
+            transaction,
+            data.tournament_uid,
+            1
           );
         }
       });
+
+      const docRef = db.collection("tournaments").doc(data.tournament_uid);
+      await docRef.set({
+        pre_registered_list_counter: admin.firestore.FieldValue.increment(-1),
+      }, {merge: true});
       return null;
     } catch (error) {
       console.error(
-        `Error decr preregistered for tournamentId: ${data.tournament_uid}`,
+        `Error incr preregistered for tournamentId: ${data.tournament_uid}`,
         error
       );
-      throw new HttpsError("internal", "Error decr preregistered counter");
+      throw new HttpsError("internal", "Error incr preregistered counter");
     }
   }
 );
+
 // //////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////
@@ -358,23 +320,10 @@ export const updateCounterRegisteredDecr = onDocumentDeleted(
     console.log(data);
     const db = admin.firestore();
     try {
-      await db.runTransaction(async (transaction) => {
-        const docRef = db.collection("tournaments").doc(data.tournament_uid);
-        const snapshot1 = await transaction.get(docRef);
-        if (!snapshot1.exists) {
-          console.log(
-            `No tournament found for tournamentUid: ${data.tournament_uid}`
-          );
-        } else {
-          const currentCount = snapshot1.data()?.registered_list_counter ?? 0;
-          transaction.update(docRef, {
-            registered_list_counter: currentCount - 1,
-          });
-          console.log(
-            `Success decr registered for tournament: ${data.tournament_uid}`
-          );
-        }
-      });
+      const docRef = db.collection("tournaments").doc(data.tournament_uid);
+      await docRef.set({
+        registered_list_counter: admin.firestore.FieldValue.increment(-1),
+      }, {merge: true});
       return null;
     } catch (error) {
       console.error(
@@ -393,6 +342,13 @@ export const tournamentUpdatedTrigger = onDocumentUpdated(
   "tournaments/{tournamentId}",
   async (event) => {
     // debugger;
+    const snapshot = event.data;
+    if (!snapshot) {
+      console.log("No data associated with the event");
+      return;
+    }
+
+    // Validate input
     const oldDocument = event.data?.before.data();
     const updatedDocument = event.data?.after.data();
     const tournamentId = event.params?.tournamentId;
@@ -402,79 +358,166 @@ export const tournamentUpdatedTrigger = onDocumentUpdated(
     console.log(updatedDocument);
     console.log(tournamentId);
 
-    if (!updatedDocument) {
+    if (!updatedDocument || !tournamentId) {
       console.error("No updated document found.");
-      return null;
-    }
-
-    const preregistrationChanged =
-      oldDocument?.pre_registration_en !== updatedDocument.pre_registration_en;
-    const waitingListChanged =
-      oldDocument?.waiting_list_en !== updatedDocument.waiting_list_en;
-
-    if (!preregistrationChanged && !waitingListChanged) {
-      console.info("No relevant changes detected.");
-      return null;
+      throw new HttpsError("invalid-argument", "Invalid tournament update");
     }
 
     const db = admin.firestore();
+    try {
+      const preregistrationChanged =
+        oldDocument?.pre_registration_en !== updatedDocument.pre_registration_en;
+      const waitingListChanged =
+        oldDocument?.waiting_list_en !== updatedDocument.waiting_list_en;
+      const sizeChanged =
+        (oldDocument?.capacity ?? 0) < updatedDocument.capacity;
 
-    if (preregistrationChanged && !updatedDocument.pre_registration_en) {
-      console.info("No need to cascade any update for pre_registration_en.");
-    } else {
-      try {
-        const snapshot1 = await db
-          .collection("preregistered_list_info")
-          .where("tournament_uid", "==", tournamentId)
-          .get();
-        if (snapshot1.empty) {
-          console.log(
-            `No preregistered_list_info found for tournament_uid: ${tournamentId}`
-          );
-        } else {
-          const deletes = snapshot1.docs.map((doc) => doc.ref.delete());
-          await Promise.all(deletes);
-          console.log(
-            `Success cleaned preregistered_list_info for tournament_uid: ${tournamentId}`
-          );
-        }
-      } catch (error) {
-        console.error(
-          `Error deleting preregistered for tournamentId: ${tournamentId}`,
-          error
-        );
-        throw new HttpsError("internal", "Error syncing user details");
+      // Early return if no relevant changes
+      if (!preregistrationChanged && !waitingListChanged && !sizeChanged) {
+        console.info("No relevant changes detected.");
+        return null;
       }
-    }
-
-    if (waitingListChanged && !updatedDocument.waiting_list_en) {
-      console.info("No need to cascade any update for waiting_list_en.");
-    } else {
-      try {
-        const snapshot1 = await db
-          .collection("waiting_list_info")
-          .where("tournament_uid", "==", tournamentId)
-          .get();
-        if (snapshot1.empty) {
-          console.log(
-            `No waiting_list_info found for tournament_uid: ${tournamentId}`
-          );
-        } else {
-          const deletes = snapshot1.docs.map((doc) => doc.ref.delete());
-          await Promise.all(deletes);
-          console.log(
-            `Success cleaned waiting_list_info for tournament_uid: ${tournamentId}`
-          );
+      db.runTransaction(async (transaction) => {
+        if (sizeChanged) {
+          console.info("Size changed execution");
+          const {
+            capacity = 0,
+            registered_list_counter = 0,
+            pre_registered_list_counter = 0,
+            waiting_list_counter = 0,
+            waiting_list_en = false,
+          } = updatedDocument;
+          console.info(`waiting_list_en:${waiting_list_en}`);
+          console.info(`waiting_list_counter:${waiting_list_counter}`);
+          console.info(`capacity:${capacity}`);
+          console.info(`registered_list_counter:${registered_list_counter}`);
+          console.info(`pre_registered_list_counter:${pre_registered_list_counter}`);
+          const shouldMoveFromWaitingList =
+            waiting_list_en &&
+            waiting_list_counter > 0 &&
+            capacity > 0 &&
+            (registered_list_counter + pre_registered_list_counter - 1) < capacity;
+          if (shouldMoveFromWaitingList) {
+            await handleWaitingListPromotion(
+              db,
+              transaction,
+              tournamentId,
+              updatedDocument.capacity - (oldDocument?.capacity ?? 0)
+            );
+          }
         }
-      } catch (error) {
-        console.error(
-          `Error deleting waiting for tournamentId: ${tournamentId}`,
-          error
-        );
-        throw new HttpsError("internal", "Error syncing user details");
-      }
+        if (waitingListChanged) {
+          // Waiting List Management
+          console.info("WaitingList enabled execution");
+          await handleWaitingListUpdate(db, transaction, tournamentId);
+        }
+        if (preregistrationChanged) {
+          // Waiting List Management
+          console.info("Preregistered enabled execution");
+          await handlePreregisteredListUpdate(db, transaction, tournamentId);
+        }
+      });
+    } catch (error) {
+      console.error(
+        `Error incr preregistered for tournamentId: ${tournamentId}`,
+        error
+      );
+      throw new HttpsError("internal", "Error incr preregistered counter");
     }
-
     return null;
   }
 );
+
+// //////////////////////////////////////////////////////
+// FUNCTION DECLARATION
+// //////////////////////////////////////////////////////
+/**
+ * Promotes participants from the waiting list to the pre-registered list in a Firestore trans.
+ *
+ * @param {FirebaseFirestore.Firestore} db - The Firestore database instance.
+ * @param {FirebaseFirestore.Transaction} transaction - The Firestore transaction object.
+ * @param {string} tournamentId - The unique identifier of the tournament.
+ * @param {number} size - The number of participants to promote from the waiting list.
+ * @return {Promise<void>} A promise that resolves when the promotion operation is complete.
+ */
+async function handleWaitingListPromotion(
+  db: FirebaseFirestore.Firestore,
+  transaction: FirebaseFirestore.Transaction,
+  tournamentId: string,
+  size: number,
+) {
+  // Find the first waiting list participant
+  const waitingListQuery = db
+    .collection("waiting_list_info")
+    .where("tournament_uid", "==", tournamentId)
+    .orderBy("timestamp", "asc")
+    .limit(size);
+
+  const waitingListSnapshot = await transaction.get(waitingListQuery);
+
+  waitingListSnapshot.docs.forEach((doc) => {
+    const waitingListInfoData = doc.data();
+    const preregisteredListInfoCollectionRef = db.collection("preregistered_list_info");
+    const preregisteredListInfoRef = preregisteredListInfoCollectionRef.doc();
+
+    const dataToInsertIntoPreregistered = {
+      tournament_uid: waitingListInfoData.tournament_uid,
+      user_uid: waitingListInfoData.user_uid,
+      display_name: waitingListInfoData.display_name,
+      timestamp: waitingListInfoData.timestamp,
+    };
+
+    transaction.set(preregisteredListInfoRef, dataToInsertIntoPreregistered, {merge: true});
+    transaction.delete(doc.ref);
+  });
+}
+
+/**
+ * Removes all participants from the waiting list in a Firestore transaction.
+ *
+ * @param {FirebaseFirestore.Firestore} db - The Firestore database instance.
+ * @param {FirebaseFirestore.Transaction} transaction - The Firestore transaction object.
+ * @param {string} tournamentId - The identifier of tournament whose waiting list needs be cleared.
+  * @return {Promise<void>} A promise resolves when the waiting list removal operation is complete.
+ */
+async function handleWaitingListUpdate(
+  db: FirebaseFirestore.Firestore,
+  transaction: FirebaseFirestore.Transaction,
+  tournamentId: string,
+) {
+  // Find the first waiting list participant
+  const waitingListQuery = db
+    .collection("waiting_list_info")
+    .where("tournament_uid", "==", tournamentId);
+
+  const waitingListSnapshot = await transaction.get(waitingListQuery);
+
+  waitingListSnapshot.docs.forEach((doc) => {
+    transaction.delete(doc.ref);
+  });
+}
+
+/**
+ * Removes all participants from the waiting list in a Firestore transaction.
+ *
+ * @param {FirebaseFirestore.Firestore} db - The Firestore database instance.
+ * @param {FirebaseFirestore.Transaction} transaction - The Firestore transaction object.
+ * @param {string} tournamentId - The identifier of tournament whose waiting list needs be cleared.
+ * @return {Promise<void>} A promise resolves when the waiting list removal operation is complete.
+ */
+async function handlePreregisteredListUpdate(
+  db: FirebaseFirestore.Firestore,
+  transaction: FirebaseFirestore.Transaction,
+  tournamentId: string,
+) {
+  // Find the first waiting list participant
+  const preregisteredListQuery = db
+    .collection("preregistered_list_info")
+    .where("tournament_uid", "==", tournamentId);
+
+  const preregisteredListSnapshot = await transaction.get(preregisteredListQuery);
+
+  preregisteredListSnapshot.docs.forEach((doc) => {
+    transaction.delete(doc.ref);
+  });
+}

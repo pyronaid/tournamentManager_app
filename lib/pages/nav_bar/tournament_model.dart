@@ -30,35 +30,20 @@ class TournamentModel extends ChangeNotifier {
 
 
   /////////////////////////////GETTER
-  String? get tournamentOwner{
-    return tournamentsRefObj?.creatorUid;
-  }
-  String? get tournamentId{
-    return tournamentsRef;
-  }
-  String get tournamentName{
-    return tournamentsRefObj != null ? tournamentsRefObj!.name : "UNKNOWN NAME";
-  }
-  StateTournament get tournamentState{
-    return tournamentsRefObj != null ? tournamentsRefObj!.state! : StateTournament.unknown;
-  }
+  String? get tournamentOwner => tournamentsRefObj?.creatorUid;
+  String? get tournamentId => tournamentsRef;
+  String get tournamentName => tournamentsRefObj != null ? tournamentsRefObj!.name : "UNKNOWN NAME";
+  StateTournament get tournamentState => tournamentsRefObj != null ? tournamentsRefObj!.state! : StateTournament.unknown;
   String get tournamentCapacity{
     int capacity = tournamentsRefObj != null ? tournamentsRefObj!.capacity : 0;
     String capacityStr = capacity == 0 ? "Illimitata" : capacity.toString();
     return capacityStr;
   }
-  DateTime? get tournamentDate{
-    return tournamentsRefObj?.date;
-  }
-  Game get tournamentGame{
-    return tournamentsRefObj != null ? tournamentsRefObj!.game! : Game.unknown;
-  }
-  bool get tournamentPreRegistrationEn{
-    return tournamentsRefObj != null ? tournamentsRefObj!.preRegistrationEn : false;
-  }
-  bool get tournamentWaitingListEn{
-    return tournamentsRefObj != null ? tournamentsRefObj!.waitingListEn : false;
-  }
+  int get tournamentCapacityInt => tournamentsRefObj != null ? tournamentsRefObj!.capacity : 0;
+  DateTime? get tournamentDate => tournamentsRefObj?.date;
+  Game get tournamentGame => tournamentsRefObj != null ? tournamentsRefObj!.game! : Game.unknown;
+  bool get tournamentPreRegistrationEn => tournamentsRefObj != null ? tournamentsRefObj!.preRegistrationEn : false;
+  bool get tournamentWaitingListEn => tournamentsRefObj != null ? tournamentsRefObj!.waitingListEn : false;
   bool get tournamentWaitingListPossible{
     bool flag = false;
     if(tournamentsRefObj != null){
@@ -73,21 +58,11 @@ class TournamentModel extends ChangeNotifier {
     }
     return flag;
   }
-  int get tournamentPreRegisteredSize{
-    return tournamentsRefObj != null ? tournamentsRefObj!.preRegisteredListCounter : 0;
-  }
-  int get tournamentWaitingListSize{
-    return tournamentsRefObj != null ? tournamentsRefObj!.waitingListCounter : 0;
-  }
-  int get tournamentRegisteredSize{
-    return tournamentsRefObj != null ? tournamentsRefObj!.registeredListCounter : 0;
-  }
-  String? get tournamentImageUrl{
-    return tournamentsRefObj?.image;
-  }
-  List<NewsRecord> get tournamentNews{
-    return newsListRefObj != null ? newsListRefObj! : [];
-  }
+  int get tournamentPreRegisteredSize => tournamentsRefObj != null ? tournamentsRefObj!.preRegisteredListCounter : 0;
+  int get tournamentWaitingListSize => tournamentsRefObj != null ? tournamentsRefObj!.waitingListCounter : 0;
+  int get tournamentRegisteredSize => tournamentsRefObj != null ? tournamentsRefObj!.registeredListCounter : 0;
+  String? get tournamentImageUrl => tournamentsRefObj?.image;
+  List<NewsRecord> get tournamentNews => newsListRefObj != null ? newsListRefObj! : [];
   String? newsId(String newsId){
     var newsRefObj;
     return newsRefObj?.uid;

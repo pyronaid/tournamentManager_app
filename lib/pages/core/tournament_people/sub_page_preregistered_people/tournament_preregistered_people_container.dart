@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/sub_page_preregistered_people/tournament_preregistered_people_model.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/sub_page_preregistered_people/tournament_preregistered_people_widget.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
@@ -33,7 +34,7 @@ class _TournamentPreregisteredPeopleContainerState extends State<TournamentPrere
       create: (context) => TournamentPreregisteredPeopleModel(
         // Retrieve tournament provider from widget tree
           tournamentModel: context.read<TournamentModel>()
-      )..fetchInitialResults(),
+      )..fetchInitialResults(listType: ListType.preregistered),
       update: (context, tournamentModel, previousPeopleListModel) {
         // Optional update method
         if (previousPeopleListModel == null || previousPeopleListModel.tournamentModel != tournamentModel) {

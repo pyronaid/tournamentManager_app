@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateCounterRegisteredDecr = exports.updateCounterRegisteredIncr = exports.updateCounterPreregisteredDecr = exports.updateCounterPreregisteredIncr = exports.updateCounterWaitingDecr = exports.updateCounterWaitingIncr = exports.userUpdatedTrigger = exports.getAlgoliaApiKeyFromSecret = exports.getApiKeyFromSecret = exports.helloWorld = void 0;
+exports.tournamentUpdatedTrigger = exports.updateCounterRegisteredDecr = exports.updateCounterRegisteredIncr = exports.updateCounterPreregisteredDecr = exports.updateCounterPreregisteredIncr = exports.updateCounterWaitingDecr = exports.updateCounterWaitingIncr = exports.userUpdatedTrigger = exports.getAlgoliaApiKeyFromSecret = exports.getApiKeyFromSecret = exports.helloWorld = void 0;
 const v2_1 = require("firebase-functions/v2");
 (0, v2_1.setGlobalOptions)({
     region: "us-central1",
@@ -24,4 +24,5 @@ Object.defineProperty(exports, "updateCounterPreregisteredIncr", { enumerable: t
 Object.defineProperty(exports, "updateCounterPreregisteredDecr", { enumerable: true, get: function () { return syncUserDetails_1.updateCounterPreregisteredDecr; } });
 Object.defineProperty(exports, "updateCounterRegisteredIncr", { enumerable: true, get: function () { return syncUserDetails_1.updateCounterRegisteredIncr; } });
 Object.defineProperty(exports, "updateCounterRegisteredDecr", { enumerable: true, get: function () { return syncUserDetails_1.updateCounterRegisteredDecr; } });
+Object.defineProperty(exports, "tournamentUpdatedTrigger", { enumerable: true, get: function () { return syncUserDetails_1.tournamentUpdatedTrigger; } });
 //# sourceMappingURL=index.js.map

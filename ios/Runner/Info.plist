@@ -46,7 +46,7 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<true/>
+	<string>Quest'app necessita l'accesso alla galleria per alcune funzioni</string>
 	<key>NSCameraUsageDescription</key>
     <string>Quest'app necessita l'accesso alla fotocamera per alcune funzioni</string>
     <key>NSMicrophoneUsageDescription</key>

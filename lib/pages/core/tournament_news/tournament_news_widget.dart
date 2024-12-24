@@ -56,18 +56,10 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
             return Scaffold(
               key: _scaffoldKey,
               backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-              floatingActionButton: FloatingActionButton.extended(
-                elevation: 4.0,
-                icon: Icon(
-                  Icons.add,
-                  color: CustomFlowTheme.of(context).info,
-                ),
-                label: Text(
-                  'Crea una nuova notizia',
-                  style: CustomFlowTheme.of(context).titleSmall,
-                ),
+              floatingActionButton: FloatingActionButton(
+                heroTag: 'news_add',
                 backgroundColor: CustomFlowTheme.of(context).primary,
-                onPressed: () {
+                onPressed: (){
                   context.pushNamedAuth(
                     'CreateEditNews', context.mounted,
                     pathParameters: {
@@ -79,8 +71,11 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
                     },
                   );
                 },
+                child: Icon(
+                  Icons.add,
+                  color: CustomFlowTheme.of(context).info,
+                ),
               ),
-              floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
               body: SafeArea(
                 top: true,
                 child: SingleChildScrollView(

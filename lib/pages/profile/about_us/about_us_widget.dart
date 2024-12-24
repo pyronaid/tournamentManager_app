@@ -55,7 +55,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                   alignment: const AlignmentDirectional(0, 0),
                   child: Padding(
                     padding: const EdgeInsets.all(24),
-                    child: StreamBuilder<List<CompanyInformationRecord>>(
+                    child: StreamBuilder<List<CompanyInformationRecord?>>(
                       stream: queryCompanyInformationRecord(
                         singleRecord: true,
                       ),
@@ -74,7 +74,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                             ),
                           );
                         }
-                        List<CompanyInformationRecord> columnCompanyInformationRecordList = snapshot.data!;
+                        List<CompanyInformationRecord?> columnCompanyInformationRecordList = snapshot.data!;
                         // Return an empty Container when the item does not exist.
                         if (snapshot.data!.isEmpty) {
                           return Container();

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/sub_page_waiting_people/tournament_waiting_people_model.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/sub_page_waiting_people/tournament_waiting_people_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_widget.dart';
@@ -34,7 +35,7 @@ class _TournamentWaitingPeopleContainerState extends State<TournamentWaitingPeop
       create: (context) => TournamentWaitingPeopleModel(
         // Retrieve tournament provider from widget tree
           tournamentModel: context.read<TournamentModel>()
-      )..fetchInitialResults(),
+      )..fetchInitialResults(listType: ListType.waiting),
       update: (context, tournamentModel, previousPeopleListModel) {
         // Optional update method
         if (previousPeopleListModel == null || previousPeopleListModel.tournamentModel != tournamentModel) {

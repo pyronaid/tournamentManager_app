@@ -362,8 +362,14 @@ enum ListType {
   registered("registered_list_info");
 
   final String listName;
-
   const ListType(this.listName);
+}
+
+ListType getListTypeByName(String name) {
+  return ListType.values.firstWhere(
+        (state) => state.name == name,
+    orElse: () => ListType.waiting,
+  );
 }
 
 enum StateTournament {

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
+import 'package:tournamentmanager/backend/schema/registeredlist_record.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 
@@ -60,14 +61,48 @@ class PreregisteredlistRecord extends FirestoreRecord {
   static Future<PreregisteredlistRecord> getDocumentOnce(DocumentReference ref) =>
       ref.get().then((s) => PreregisteredlistRecord.fromSnapshot(s));
 
-  static Future<void> deletePeople(String idU) async {
+  static Future<List<PreregisteredlistRecord>> getDocumentsOnce(Query query) {
+    return query.get().then((s) => s.docs.map((doc) {
+      return PreregisteredlistRecord.fromSnapshot(doc);
+    }).toList());
+  }
+
+  static Future<void> deletePeople(String idU, String idT) async {
     try {
-      QuerySnapshot querySnapshot = await collection.where('user_uid', isEqualTo: idU).get();
+      QuerySnapshot querySnapshot = await collection
+          .where('user_uid', isEqualTo: idU)
+          .where('tournament_uid', isEqualTo: idT)
+          .get();
       WriteBatch batch = FirebaseFirestore.instance.batch();
       for (DocumentSnapshot doc in querySnapshot.docs) {
         batch.delete(doc.reference);
       }
       await batch.commit();
+    } catch (e) {
+      print("Failed to delete news: $e");
+    }
+  }
+  static Future<void> promotePeople(String idU, String idT) async {
+    try {
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        QuerySnapshot preregisteredListSnapshot = await collection
+            .where('user_uid', isEqualTo: idU)
+            .where('tournament_uid', isEqualTo: idT)
+            .get();
+        for (DocumentSnapshot doc in preregisteredListSnapshot.docs) {
+          Map<String, dynamic> dataToInsertIntoRegistered = {
+            "tournament_uid" : doc['tournament_uid'],
+            "user_uid" : doc['user_uid'],
+            "display_name" : doc['display_name'],
+            "timestamp" : doc['timestamp'],
+          };
+          transaction.set(RegisteredlistRecord.collection.doc(), dataToInsertIntoRegistered, SetOptions(merge: true));
+          transaction.delete(doc.reference);
+        }
+      }).then(
+            (value) => print("DocumentSnapshot successfully promoted!"),
+        onError: (e) => print("Error promoting document $e"),
+      );
     } catch (e) {
       print("Failed to delete news: $e");
     }
