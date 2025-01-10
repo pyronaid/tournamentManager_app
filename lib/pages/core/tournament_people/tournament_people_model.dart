@@ -155,8 +155,9 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
     });
   }
   Future<void> deletePeople(String userId);
-  Future<void> promotePeople(String userId);
-
+  Future<void> promotePeopleToRegistered(String userId);
+  Future<void> promotePeople(String userId, ListType from);
+  Future<void> addPeople(String userId, String displayName);
 
   @override
   void dispose() {

@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
+import 'package:tournamentmanager/backend/schema/preregisteredlist_record.dart';
+import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
+import 'package:tournamentmanager/backend/schema/waitinglist_record.dart';
 
 class RegisteredlistRecord extends FirestoreRecord {
   RegisteredlistRecord._(
@@ -81,6 +84,44 @@ class RegisteredlistRecord extends FirestoreRecord {
       print("Failed to delete news: $e");
     }
   }
+  static Future<void> promotePeople(String idU, String idT, ListType from) async {
+    CollectionReference fromCollection;
+    switch(from){
+      case ListType.waiting:
+        fromCollection = WaitinglistRecord.collection;
+        break;
+      case ListType.registered:
+        fromCollection = RegisteredlistRecord.collection;
+        break;
+      case ListType.preregistered:
+        fromCollection = PreregisteredlistRecord.collection;
+        break;
+    }
+
+    try {
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        QuerySnapshot fromListSnapshot = await fromCollection
+            .where('user_uid', isEqualTo: idU)
+            .where('tournament_uid', isEqualTo: idT)
+            .get();
+        for (DocumentSnapshot doc in fromListSnapshot.docs) {
+          Map<String, dynamic> dataToInsertIntoHere = {
+            "tournament_uid" : doc['tournament_uid'],
+            "user_uid" : doc['user_uid'],
+            "display_name" : doc['display_name'],
+            "timestamp" : doc['timestamp'],
+          };
+          transaction.set(collection.doc(), dataToInsertIntoHere, SetOptions(merge: true));
+          transaction.delete(doc.reference);
+        }
+      }).then(
+            (value) => print("DocumentSnapshot successfully promoted!"),
+        onError: (e) => print("Error promoting document $e"),
+      );
+    } catch (e) {
+      print("Failed to delete news: $e");
+    }
+  }
 
   static Future<void> updateField(String id, String fieldName, dynamic newValue) async {
     try {
@@ -124,7 +165,7 @@ class RegisteredlistRecord extends FirestoreRecord {
 
 }
 
-Map<String, dynamic> createTournamentsRecordData({
+Map<String, dynamic> createRegisteredListRecordData({
   String? uid,
   required String tournament_uid,
   required String user_uid,

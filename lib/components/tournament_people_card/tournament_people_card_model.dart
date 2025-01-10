@@ -54,7 +54,7 @@ class TournamentPeopleCardModel extends CustomFlowModel<TournamentPeopleCardWidg
   }
   void showPromotePeopleDialog(String userId) async {
     AlertResponse resp = await dialogService.showDialog(
-      title: 'ATTENZIONE: Cancellazione dell\'utente in corso...',
+      title: 'ATTENZIONE: Promozione dell\'utente in corso...',
       description: "L'tente verrà promosso a registrato!",
       buttonTitleCancelled: "Annulla",
       buttonTitleConfirmed: "Continua",
@@ -62,10 +62,10 @@ class TournamentPeopleCardModel extends CustomFlowModel<TournamentPeopleCardWidg
     if(resp.confirmed){
       switch(listType){
         case ListType.waiting:
-          await (peopleModel as TournamentWaitingPeopleModel).promotePeople(userId);
+          await (peopleModel as TournamentWaitingPeopleModel).promotePeopleToRegistered(userId);
           break;
         case ListType.preregistered:
-          await (peopleModel as TournamentPreregisteredPeopleModel).promotePeople(userId);
+          await (peopleModel as TournamentPreregisteredPeopleModel).promotePeopleToRegistered(userId);
           break;
         default:
       }

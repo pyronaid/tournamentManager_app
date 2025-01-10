@@ -57,8 +57,19 @@ class TournamentWaitingPeopleModel extends TournamentPeopleModel {
     notifyListeners();
   }
   @override
-  Future<void> promotePeople(String userId) async {
-    WaitinglistRecord.promotePeople(userId, tournamentId);
+  Future<void> promotePeopleToRegistered(String userId) async {
+    WaitinglistRecord.promotePeopleToRegistered(userId, tournamentId);
+    notifyListeners();
+  }
+  @override
+  Future<void> promotePeople(String userId, ListType from) async {
+    WaitinglistRecord.promotePeople(userId, tournamentId, from);
+    notifyListeners();
+  }
+  @override
+  Future<void> addPeople(String userId, String displayName) async {
+    Map<String, dynamic> ownPeople = createWaitingListRecordData(tournament_uid: tournamentId, user_uid: userId, display_name: displayName);
+    await WaitinglistRecord.collection.add(ownPeople);
     notifyListeners();
   }
 

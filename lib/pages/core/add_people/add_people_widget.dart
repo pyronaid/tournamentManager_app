@@ -11,6 +11,8 @@ import 'package:tournamentmanager/backend/schema/users_record.dart';
 import 'package:tournamentmanager/components/custom_appbar_widget.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 import 'package:tournamentmanager/pages/core/add_people/add_people_model.dart';
+import 'package:tuple/tuple.dart';
+import '../../../backend/schema/tournaments_record.dart';
 import '../tournament_people/tournament_people_model.dart';
 import 'barcode_scanner_simple.dart';
 import 'barcode_scanner_window.dart';
@@ -161,6 +163,7 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                                               providerPeople.capacity,
                                               providerPeople.preregisteredCounter,
                                               providerPeople.registeredCounter,
+                                              true
                                             );
                                             // Handle the scanned barcode value.
                                           }
@@ -250,7 +253,7 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                                         ],
                                       ),
                                     ),
-                                    if(providerAddPeople.messageRegistered != null)...[
+                                    for (MessagePeople message in providerAddPeople.messageObjList)...[
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Row(
@@ -261,13 +264,13 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                                             Center(
                                               child: Container(
                                                 decoration: BoxDecoration(
-                                                  color: providerAddPeople.messageRegistered!.messageLevel.color, // Green background
+                                                  color: message.messageLevel.color, // Green background
                                                   shape: BoxShape.circle, // Makes the container circular
                                                 ),
                                                 width: 30, // Width of the circle
                                                 height: 30, // Height of the circle
                                                 child: Icon(
-                                                  providerAddPeople.messageRegistered!.messageLevel.icon,
+                                                  message.messageLevel.icon,
                                                   color: Colors.white, // Icon color
                                                   size: 20, // Icon size
                                                 ),
@@ -280,127 +283,7 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    providerAddPeople.messageRegistered!.message,
-                                                    style: CustomFlowTheme.of(context).titleSmall,
-                                                  ),
-                                                ],
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                    if(providerAddPeople.messagePreregistered != null)...[
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            Center(
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: providerAddPeople.messagePreregistered!.messageLevel.color, // Green background
-                                                  shape: BoxShape.circle, // Makes the container circular
-                                                ),
-                                                width: 30, // Width of the circle
-                                                height: 30, // Height of the circle
-                                                child: Icon(
-                                                  providerAddPeople.messagePreregistered!.messageLevel.icon,
-                                                  color: Colors.white, // Icon color
-                                                  size: 20, // Icon size
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 20,),
-                                            Expanded(
-                                              child: Column(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    providerAddPeople.messagePreregistered!.message,
-                                                    style: CustomFlowTheme.of(context).titleSmall,
-                                                  ),
-                                                ],
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                    if(providerAddPeople.messageWaiting != null)...[
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            Center(
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: providerAddPeople.messageWaiting!.messageLevel.color, // Green background
-                                                  shape: BoxShape.circle, // Makes the container circular
-                                                ),
-                                                width: 30, // Width of the circle
-                                                height: 30, // Height of the circle
-                                                child: Icon(
-                                                  providerAddPeople.messageWaiting!.messageLevel.icon,
-                                                  color: Colors.white, // Icon color
-                                                  size: 20, // Icon size
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 20,),
-                                            Expanded(
-                                              child: Column(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    providerAddPeople.messageWaiting!.message,
-                                                    style: CustomFlowTheme.of(context).titleSmall,
-                                                  ),
-                                                ],
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                    if(providerAddPeople.messageCapacity != null)...[
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            Center(
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: providerAddPeople.messageCapacity!.messageLevel.color, // Green background
-                                                  shape: BoxShape.circle, // Makes the container circular
-                                                ),
-                                                width: 30, // Width of the circle
-                                                height: 30, // Height of the circle
-                                                child: Icon(
-                                                  providerAddPeople.messageCapacity!.messageLevel.icon,
-                                                  color: Colors.white, // Icon color
-                                                  size: 20, // Icon size
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 20,),
-                                            Expanded(
-                                              child: Column(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    providerAddPeople.messageCapacity!.message,
+                                                    message.message,
                                                     style: CustomFlowTheme.of(context).titleSmall,
                                                   ),
                                                 ],
@@ -421,10 +304,9 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                       //VALIDATION BUTTON
                       /////////////////
                       Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(
-                            0, 24, 0, 0),
+                        padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                         child: AFButtonWidget(
-                          onPressed: () async {
+                          onPressed: (providerAddPeople.response.item1 == ResponseAction.issue) ? null : () async {
                             FocusScope.of(context).unfocus();
                             logFirebaseEvent('ONBOARDING_ADD_USER_ADD_USER');
                             logFirebaseEvent('Button_validate_form');
@@ -433,7 +315,7 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                               return;
                             }
 
-                            bool result = await providerAddPeople.addPlayerWithCheck(
+                            Tuple2<ResponseAction?, ListType?> result = await providerAddPeople.addPlayerWithCheck(
                               providerPeople.getPlayerInfoR(providerAddPeople.fieldControllerIdUser.text),
                               providerPeople.getPlayerInfoP(providerAddPeople.fieldControllerIdUser.text),
                               providerPeople.getPlayerInfoW(providerAddPeople.fieldControllerIdUser.text),
@@ -443,14 +325,27 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                               providerPeople.capacity,
                               providerPeople.preregisteredCounter,
                               providerPeople.registeredCounter,
+                              false
                             );
-                            if (result) {
+                            if (result.item1 != null && providerAddPeople.usersRecord != null) {
+                              switch(result.item1){
+                                case ResponseAction.add:
+                                  await providerPeople.addPeople(providerAddPeople.usersRecord!.uid, providerAddPeople.usersRecord!.displayName);
+                                  break;
+                                case ResponseAction.forcedPromote:
+                                case ResponseAction.stdPromote:
+                                await providerPeople.promotePeople(providerAddPeople.fieldControllerIdUser.text, result.item2!);
+                                  break;
+                                case ResponseAction.issue:
+                                default:
+                                  break;
+                              }
                               Navigator.of(context).pop();
                             }
                             logFirebaseEvent('Button_haptic_feedback');
                             HapticFeedback.lightImpact();
                           },
-                          text: 'Aggiungi',
+                          text: (providerAddPeople.response.item1 != ResponseAction.issue) ? 'Aggiungi' : 'Impossibile procedere',
                           options: AFButtonOptions(
                             width: double.infinity,
                             height: 50,

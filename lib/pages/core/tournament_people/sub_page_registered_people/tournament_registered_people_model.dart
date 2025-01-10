@@ -57,8 +57,18 @@ class TournamentRegisteredPeopleModel extends TournamentPeopleModel {
     notifyListeners();
   }
   @override
-  Future<void> promotePeople(String userId) {
+  Future<void> promotePeopleToRegistered(String userId) {
     throw UnimplementedError();
+  }
+  @override
+  Future<void> promotePeople(String userId, ListType from) {
+    throw UnimplementedError();
+  }
+  @override
+  Future<void> addPeople(String userId, String displayName) async {
+    Map<String, dynamic> ownPeople = createRegisteredListRecordData(tournament_uid: tournamentId, user_uid: userId, display_name: displayName);
+    await RegisteredlistRecord.collection.add(ownPeople);
+    notifyListeners();
   }
 
 
