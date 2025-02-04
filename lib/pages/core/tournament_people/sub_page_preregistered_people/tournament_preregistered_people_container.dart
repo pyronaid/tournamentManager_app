@@ -34,13 +34,13 @@ class _TournamentPreregisteredPeopleContainerState extends State<TournamentPrere
       create: (context) => TournamentPreregisteredPeopleModel(
         // Retrieve tournament provider from widget tree
           tournamentModel: context.read<TournamentModel>()
-      )..fetchInitialResults(listType: ListType.preregistered),
+      )..fetchInitialResults(listType: ListType.preregistered, loadingCall: true),
       update: (context, tournamentModel, previousPeopleListModel) {
         // Optional update method
-        if (previousPeopleListModel == null || previousPeopleListModel.tournamentModel != tournamentModel) {
+        if (previousPeopleListModel == null || (!previousPeopleListModel.isLoading && !tournamentModel.isLoading && previousPeopleListModel.referralCounter != tournamentModel.tournamentPreRegisteredSize)) {
           return TournamentPreregisteredPeopleModel(
               tournamentModel: tournamentModel
-          );
+          )..fetchInitialResults(listType: ListType.preregistered, loadingCall: true);
         }
         return previousPeopleListModel;
       },

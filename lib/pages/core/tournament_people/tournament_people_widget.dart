@@ -57,88 +57,43 @@ class _TournamentPeopleWidgetState extends State<TournamentPeopleWidget> {
           children: [
             if(providerTournament.tournamentWaitingListEn) ...[
               //WAITING LIST
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: CustomFlowTheme.of(context).primary, // Background color
-                      borderRadius: BorderRadius.circular(12), // Rounded edges
-                    ),
-                    child: Text(
-                      " Waiting list ",
-                      style: CustomFlowTheme.of(context).titleLarge.override(color: CustomFlowTheme.of(context).info),
-                    ),
-                  ),
-                  const SizedBox(width: 10,),
-                  ActionButton(
-                    onPressed: () {
-                      if(_currentPageName != "WaitingP") {
-                        setState(() {
-                          _currentPageName = "WaitingP";
-                        });
-                      }
-                    },
-                    icon: const Icon(Icons.sensor_occupied),
-                  ),
-                ],
+              ActionButton(
+                onPressed: () {
+                  if(_currentPageName != "WaitingP") {
+                    setState(() {
+                      _currentPageName = "WaitingP";
+                    });
+                  }
+                },
+                icon: Icons.sensor_occupied,
+                title: " Waiting list ",
               ),
             ],
             if(providerTournament.tournamentPreRegistrationEn) ...[
               //PRE ISCRITTI
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: CustomFlowTheme.of(context).primary, // Background color
-                      borderRadius: BorderRadius.circular(12), // Rounded edges
-                    ),
-                    child: Text(
-                      " Pre iscritti list ",
-                      style: CustomFlowTheme.of(context).titleLarge.override(color: CustomFlowTheme.of(context).info),
-                    ),
-                  ),
-                  const SizedBox(width: 10,),
-                  ActionButton(
-                    onPressed: () {
-                      if(_currentPageName != "PreregisteredP") {
-                        setState(() {
-                          _currentPageName = "PreregisteredP";
-                        });
-                      }
-                    },
-                    icon: const Icon(Icons.airline_seat_recline_normal),
-                  ),
-                ],
+              ActionButton(
+                onPressed: () {
+                  if(_currentPageName != "PreregisteredP") {
+                    setState(() {
+                      _currentPageName = "PreregisteredP";
+                    });
+                  }
+                },
+                icon: Icons.airline_seat_recline_normal,
+                title: " Pre iscritti list ",
               ),
             ],
             //ISCRITTI
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: CustomFlowTheme.of(context).primary, // Background color
-                    borderRadius: BorderRadius.circular(12), // Rounded edges
-                  ),
-                  child: Text(
-                    " Iscritti list ",
-                    style: CustomFlowTheme.of(context).titleLarge.override(color: CustomFlowTheme.of(context).info),
-                  ),
-                ),
-                const SizedBox(width: 10,),
-                ActionButton(
-                  onPressed: () {
-                    if(_currentPageName != "RegisteredP") {
-                      setState(() {
-                        _currentPageName = "RegisteredP";
-                      });
-                    }
-                  },
-                  icon: const Icon(Icons.remember_me),
-                ),
-              ],
+            ActionButton(
+              onPressed: () {
+                if(_currentPageName != "RegisteredP") {
+                  setState(() {
+                    _currentPageName = "RegisteredP";
+                  });
+                }
+              },
+              icon: Icons.remember_me,
+              title: " Iscritti list ",
             ),
           ],
         ),

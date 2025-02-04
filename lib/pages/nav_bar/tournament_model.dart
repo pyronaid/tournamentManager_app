@@ -59,14 +59,10 @@ class TournamentModel extends ChangeNotifier {
     return flag;
   }
   int get tournamentPreRegisteredSize => tournamentsRefObj != null ? tournamentsRefObj!.preRegisteredListCounter : 0;
-  int get tournamentWaitingListSize => tournamentsRefObj != null ? tournamentsRefObj!.waitingListCounter : 0;
+  int get tournamentWaitingSize => tournamentsRefObj != null ? tournamentsRefObj!.waitingListCounter : 0;
   int get tournamentRegisteredSize => tournamentsRefObj != null ? tournamentsRefObj!.registeredListCounter : 0;
   String? get tournamentImageUrl => tournamentsRefObj?.image;
   List<NewsRecord> get tournamentNews => newsListRefObj != null ? newsListRefObj! : [];
-  String? newsId(String newsId){
-    var newsRefObj;
-    return newsRefObj?.uid;
-  }
 
 
   /////////////////////////////SETTER

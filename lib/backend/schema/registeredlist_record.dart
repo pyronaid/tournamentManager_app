@@ -5,6 +5,7 @@ import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 import 'package:tournamentmanager/backend/schema/waitinglist_record.dart';
+import 'package:tuple/tuple.dart';
 
 class RegisteredlistRecord extends FirestoreRecord {
   RegisteredlistRecord._(
@@ -69,7 +70,8 @@ class RegisteredlistRecord extends FirestoreRecord {
     }).toList());
   }
 
-  static Future<void> deletePeople(String idU, String idT) async {
+  static Future<List<String>> deletePeople(String idU, String idT) async {
+    List<String> removedIds = [];
     try {
       QuerySnapshot querySnapshot = await collection
           .where('user_uid', isEqualTo: idU)
@@ -78,13 +80,15 @@ class RegisteredlistRecord extends FirestoreRecord {
       WriteBatch batch = FirebaseFirestore.instance.batch();
       for (DocumentSnapshot doc in querySnapshot.docs) {
         batch.delete(doc.reference);
+        removedIds.add(doc.id);
       }
       await batch.commit();
     } catch (e) {
       print("Failed to delete news: $e");
     }
+    return removedIds;
   }
-  static Future<void> promotePeople(String idU, String idT, ListType from) async {
+  static Future<Tuple2<List<String>,List<String>>> promotePeople(String idU, String idT, ListType from) async {
     CollectionReference fromCollection;
     switch(from){
       case ListType.waiting:
@@ -98,6 +102,8 @@ class RegisteredlistRecord extends FirestoreRecord {
         break;
     }
 
+    List<String> idsCreated = [];
+    List<String> idsDeleted = [];
     try {
       await FirebaseFirestore.instance.runTransaction((transaction) async {
         QuerySnapshot fromListSnapshot = await fromCollection
@@ -105,14 +111,17 @@ class RegisteredlistRecord extends FirestoreRecord {
             .where('tournament_uid', isEqualTo: idT)
             .get();
         for (DocumentSnapshot doc in fromListSnapshot.docs) {
+          DocumentReference newRecord = collection.doc();
           Map<String, dynamic> dataToInsertIntoHere = {
             "tournament_uid" : doc['tournament_uid'],
             "user_uid" : doc['user_uid'],
             "display_name" : doc['display_name'],
             "timestamp" : doc['timestamp'],
           };
-          transaction.set(collection.doc(), dataToInsertIntoHere, SetOptions(merge: true));
+          transaction.set(newRecord, dataToInsertIntoHere, SetOptions(merge: true));
           transaction.delete(doc.reference);
+          idsCreated.add(newRecord.id);
+          idsDeleted.add(doc.id);
         }
       }).then(
             (value) => print("DocumentSnapshot successfully promoted!"),
@@ -121,6 +130,7 @@ class RegisteredlistRecord extends FirestoreRecord {
     } catch (e) {
       print("Failed to delete news: $e");
     }
+    return Tuple2(idsCreated, idsDeleted);
   }
 
   static Future<void> updateField(String id, String fieldName, dynamic newValue) async {

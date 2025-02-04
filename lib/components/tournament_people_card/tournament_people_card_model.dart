@@ -11,6 +11,7 @@ import 'package:tournamentmanager/pages/core/tournament_people/sub_page_waiting_
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
 import '../../app_flow/services/supportClass/alert_classes.dart';
+import '../../backend/schema/users_algolia_record.dart';
 
 
 class TournamentPeopleCardModel extends CustomFlowModel<TournamentPeopleCardWidget> {
@@ -30,7 +31,7 @@ class TournamentPeopleCardModel extends CustomFlowModel<TournamentPeopleCardWidg
   }
 
   /////////////////////////////SETTER
-  void showDeletePeopleDialog(String userId) async {
+  void showDeletePeopleDialog(UsersAlgoliaRecord player) async {
     AlertResponse resp = await dialogService.showDialog(
       title: 'ATTENZIONE: Cancellazione dell\'utente in corso...',
       description: "Sei sicuro di voler eliminare questo utente dalla lista? ",
@@ -40,19 +41,19 @@ class TournamentPeopleCardModel extends CustomFlowModel<TournamentPeopleCardWidg
     if(resp.confirmed){
       switch(listType){
         case ListType.waiting:
-          await (peopleModel as TournamentWaitingPeopleModel).deletePeople(userId);
+          await (peopleModel as TournamentWaitingPeopleModel).deletePeople(player.userId);
           break;
         case ListType.preregistered:
-          await (peopleModel as TournamentPreregisteredPeopleModel).deletePeople(userId);
+          await (peopleModel as TournamentPreregisteredPeopleModel).deletePeople(player.userId);
           break;
         case ListType.registered:
-          await (peopleModel as TournamentRegisteredPeopleModel).deletePeople(userId);
+          await (peopleModel as TournamentRegisteredPeopleModel).deletePeople(player.userId);
           break;
         default:
       }
     }
   }
-  void showPromotePeopleDialog(String userId) async {
+  void showPromotePeopleDialog(UsersAlgoliaRecord player) async {
     AlertResponse resp = await dialogService.showDialog(
       title: 'ATTENZIONE: Promozione dell\'utente in corso...',
       description: "L'tente verrà promosso a registrato!",
@@ -62,10 +63,10 @@ class TournamentPeopleCardModel extends CustomFlowModel<TournamentPeopleCardWidg
     if(resp.confirmed){
       switch(listType){
         case ListType.waiting:
-          await (peopleModel as TournamentWaitingPeopleModel).promotePeopleToRegistered(userId);
+          await (peopleModel as TournamentWaitingPeopleModel).promotePeopleToRegistered(player.userId, player.displayName);
           break;
         case ListType.preregistered:
-          await (peopleModel as TournamentPreregisteredPeopleModel).promotePeopleToRegistered(userId);
+          await (peopleModel as TournamentPreregisteredPeopleModel).promotePeopleToRegistered(player.userId, player.displayName);
           break;
         default:
       }

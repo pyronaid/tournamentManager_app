@@ -15,3 +15,19 @@ export const getAlgoliaApiKeyFromSecret = onCall(
       throw new HttpsError("internal", "Failed to retrieve sec");
     }
   });
+
+export const getAlgoliaApiWKeyFromSecret = onCall(
+  {
+    secrets: ["SECRET_AWAK"],
+  },
+  async (request: any) => {
+    try {
+      if (!process.env.SECRET_AWAK) {
+        throw new HttpsError("internal", "Secret not found");
+      }
+      return {apiKey: process.env.SECRET_AWAK};
+    } catch (error) {
+      console.error("Failed to access secret:", error);
+      throw new HttpsError("internal", "Failed to retrieve sec");
+    }
+  });

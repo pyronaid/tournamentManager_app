@@ -252,7 +252,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                                 TextSpan(
                                                     children: [
                                                       TextSpan(
-                                                        text: providerTournament.tournamentWaitingListSize.toString(),
+                                                        text: providerTournament.tournamentWaitingSize.toString(),
                                                         style: CustomFlowTheme.of(context).headlineSmall,
                                                       ),
                                                       TextSpan(

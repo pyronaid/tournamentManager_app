@@ -61,7 +61,7 @@ npm run lint:fix
 ####################################
 firebase deploy --only functions:myFunction --set-secrets MY_SECRET=my-secret-name
 firebase deploy --only functions:getApiKeyFromSecret
-
+firebase deploy --only functions:userUpdatedTrigger --force
 
 
 ####################################

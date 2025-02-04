@@ -67,7 +67,7 @@ class _TournamentPeopleCardWidgetState extends State<TournamentPeopleCardWidget>
             if (widget.promote) ...[
               SlidableAction(
                 onPressed: (context){
-                  print("ciao");
+                  _model.showPromotePeopleDialog(widget.userRef!);
                 },
                 backgroundColor: CustomFlowTheme.of(context).accent1,
                 foregroundColor: CustomFlowTheme.of(context).info,
@@ -77,7 +77,7 @@ class _TournamentPeopleCardWidgetState extends State<TournamentPeopleCardWidget>
             ],
             SlidableAction(
               onPressed: (context){
-                print("ciao");
+                _model.showDeletePeopleDialog(widget.userRef!);
               },
               backgroundColor: CustomFlowTheme.of(context).error,
               foregroundColor: CustomFlowTheme.of(context).info,

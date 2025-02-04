@@ -180,23 +180,49 @@ class ActionButton extends StatelessWidget {
     super.key,
     this.onPressed,
     required this.icon,
+    this.title,
   });
 
-  final VoidCallback? onPressed;
-  final Widget icon;
+  final GestureTapCallback? onPressed;
+  final IconData icon;
+  final String? title;
 
   @override
   Widget build(BuildContext context) {
     final theme = CustomFlowTheme.of(context);
-    return Material(
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      color: theme.primary,
-      elevation: 4,
-      child: IconButton(
-        onPressed: onPressed,
-        icon: icon,
-        color: theme.info,
+    return InkWell(
+      onTap: onPressed,
+      child: Row(
+        children: [
+          if(title != null) ...[
+            Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: theme.primary, // Background color
+                borderRadius: BorderRadius.circular(12), // Rounded edges
+              ),
+              child: Text(
+                title!,
+                style: theme.titleMedium.override(color: theme.info),
+              ),
+            ),
+            const SizedBox(width: 10,),
+          ],
+          Material(
+            shape: const CircleBorder(),
+            clipBehavior: Clip.antiAlias,
+            color: theme.primary,
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(7),
+              child: Icon(
+                icon,
+                color: theme.info,
+                size: 32,
+              )
+            ),
+          )
+        ],
       ),
     );
   }

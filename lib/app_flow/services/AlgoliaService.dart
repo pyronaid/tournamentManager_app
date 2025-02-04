@@ -5,6 +5,7 @@ import '../../backend/schema/tournaments_record.dart';
 
 class AlgoliaService {
   final HttpsCallable callableAlgoliaApiKey = FirebaseFunctions.instance.httpsCallable('getAlgoliaApiKeyFromSecret');
+  final HttpsCallable callableAlgoliaApiWKey = FirebaseFunctions.instance.httpsCallable('getAlgoliaApiWKeyFromSecret');
   static const String indexPeople = "users_index";
   static const String indexRegisteredPeople = "registered_list_info_index";
   static const String indexPreregisteredPeople = "preregistered_list_info_index";
@@ -12,6 +13,7 @@ class AlgoliaService {
   static const List<String> indexResearchableAttributes = ['display_name'];
   late final String _algoliaApiKey;
   late final SearchClient searchClient;
+  late final SearchClient writeClient;
 
   AlgoliaService(){
     print("[SERVICE CONSTRUCTOR] AlgoliaService");
@@ -25,6 +27,11 @@ class AlgoliaService {
         appId: '5A6XSKACXW',
         apiKey: _algoliaApiKey,
       );
+      final resultW = await callableAlgoliaApiWKey();
+      writeClient = SearchClient(
+        appId: '5A6XSKACXW',
+        apiKey: resultW.data['apiKey'],
+      );
     } catch (e) {
       print('Error retrieving secret: $e');
       throw Exception('Failed to get Algolia API key');
@@ -32,7 +39,6 @@ class AlgoliaService {
   }
 
   //////////////////////////GETTER
-  String get algoliaApiKey => _algoliaApiKey;
   Future<SearchResponse?> searchPeople({
     required String query,
     required ListType listType,
@@ -70,4 +76,55 @@ class AlgoliaService {
     return null;
   }
 
+  Future<UpdatedAtWithObjectIdResponse?> saveOrUpdatePersonToIndex({
+    required String objectID,
+    required Map<String, dynamic> data,
+    required ListType listType
+  }) async {
+    try {
+      String indexName = indexRegisteredPeople;
+
+      switch (listType) {
+        case ListType.registered:
+          indexName = indexRegisteredPeople;
+          break;
+        case ListType.preregistered:
+          indexName = indexPreregisteredPeople;
+          break;
+        case ListType.waiting:
+          indexName = indexWaitingPeople;
+          break;
+      }
+      UpdatedAtWithObjectIdResponse resp = await writeClient.addOrUpdateObject(indexName: indexName, objectID: objectID, body: data);
+      return resp;
+    } catch (e) {
+      print('Algolia Save Error: $e');
+      return null;
+    }
+  }
+  Future<DeletedAtResponse?> deletePersonToIndex({
+    required String objectID,
+    required ListType listType
+  }) async {
+    try {
+      String indexName = indexRegisteredPeople;
+
+      switch (listType) {
+        case ListType.registered:
+          indexName = indexRegisteredPeople;
+          break;
+        case ListType.preregistered:
+          indexName = indexPreregisteredPeople;
+          break;
+        case ListType.waiting:
+          indexName = indexWaitingPeople;
+          break;
+      }
+      DeletedAtResponse resp = await writeClient.deleteObject(indexName: indexName, objectID: objectID);
+      return resp;
+    } catch (e) {
+      print('Algolia Save Error: $e');
+      return null;
+    }
+  }
 }

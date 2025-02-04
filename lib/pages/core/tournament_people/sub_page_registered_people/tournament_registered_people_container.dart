@@ -3,8 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/sub_page_registered_people/tournament_registered_people_model.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/sub_page_registered_people/tournament_registered_people_widget.dart';
-import 'package:tournamentmanager/pages/core/tournament_people/sub_page_waiting_people/tournament_waiting_people_model.dart';
-import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_widget.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
 class TournamentRegisteredPeopleContainer extends StatefulWidget {
@@ -36,13 +34,13 @@ class _TournamentRegisteredPeopleContainerState extends State<TournamentRegister
       create: (context) => TournamentRegisteredPeopleModel(
         // Retrieve tournament provider from widget tree
           tournamentModel: context.read<TournamentModel>()
-      )..fetchInitialResults(listType: ListType.registered),
+      )..fetchInitialResults(listType: ListType.registered, loadingCall: true),
       update: (context, tournamentModel, previousPeopleListModel) {
         // Optional update method
-        if (previousPeopleListModel == null || previousPeopleListModel.tournamentModel != tournamentModel) {
+        if (previousPeopleListModel == null || (!previousPeopleListModel.isLoading && !tournamentModel.isLoading && previousPeopleListModel.referralCounter != tournamentModel.tournamentRegisteredSize)) {
           return TournamentRegisteredPeopleModel(
               tournamentModel: tournamentModel
-          );
+          )..fetchInitialResults(listType: ListType.registered, loadingCall: true);
         }
         return previousPeopleListModel;
       },

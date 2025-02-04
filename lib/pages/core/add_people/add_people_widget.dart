@@ -334,7 +334,7 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                                   break;
                                 case ResponseAction.forcedPromote:
                                 case ResponseAction.stdPromote:
-                                await providerPeople.promotePeople(providerAddPeople.fieldControllerIdUser.text, result.item2!);
+                                await providerPeople.promotePeople(providerAddPeople.fieldControllerIdUser.text, providerAddPeople.usersRecord!.displayName, result.item2!);
                                   break;
                                 case ResponseAction.issue:
                                 default:
