@@ -26,7 +26,6 @@ class CreateEditNewsWidget extends StatefulWidget {
 class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
 
   late CreateEditNewsModel createEditNewsModel;
-  late NewsModel newsModel;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
@@ -40,7 +39,6 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
 
     createEditNewsModel = context.read<CreateEditNewsModel>();
     createEditNewsModel.initContextVars(context);
-    newsModel = context.read<NewsModel>();
   }
 
 
@@ -69,13 +67,13 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
                 child: Consumer<NewsModel>(
                     builder: (context, providerNews, _){
                       print("[BUILD IN CORSO] create_edit_news_widget.dart");
-                      if(newsModel.isLoading){
+                      if(providerNews.isLoading){
                         return const Center(child: CircularProgressIndicator());
                       }
-                      if(newsModel.newsImageUrl != null){
+                      if(providerNews.newsImageUrl != null){
                         createEditNewsModel.setUseNetworkImage(true);
                       }
-                      createEditNewsModel.setNewsShowTimestampEnVar(newsModel.newsShowTimestampEn);
+                      createEditNewsModel.setNewsShowTimestampEnVar(providerNews.newsShowTimestampEn);
 
 
                       return Column(
@@ -412,7 +410,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
                                   return;
                                 }
 
-                                bool result = await newsModel.saveEditNews(
+                                bool result = await providerNews.saveEditNews(
                                     createEditNewsModel.saveWayEn,
                                     createEditNewsModel.fieldControllerTitle.text,
                                     createEditNewsModel.fieldControllerSubTitle.text,

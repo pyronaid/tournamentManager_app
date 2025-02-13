@@ -5,6 +5,8 @@ import 'package:tournamentmanager/pages/core/create_edit_news/create_edit_news_m
 import 'package:tournamentmanager/pages/core/create_edit_news/create_edit_news_widget.dart';
 import 'package:tournamentmanager/pages/nav_bar/news_model.dart';
 
+import '../../nav_bar/tournament_model.dart';
+
 class CreateEditNewsContainer extends StatefulWidget {
   const CreateEditNewsContainer({
     super.key,
@@ -37,10 +39,27 @@ class _CreateEditNewsContainerState extends State<CreateEditNewsContainer> {
 
   @override
   Widget build(BuildContext context) {
+
+    final existingTournamentModel = context.read<TournamentModel?>();
+
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<NewsModel>(
-          create: (context) => NewsModel(tournamentsRef: widget.tournamentsRef, newsRef: widget.newsRef),
+        ChangeNotifierProxyProvider<TournamentModel, NewsModel>(
+          create: (context) => NewsModel(
+            // Retrieve tournament provider from widget tree
+              tournamentModel: context.read<TournamentModel>(),
+              newsRef: widget.newsRef
+          )..fetchObjectUsingId(),
+          update: (context, tournamentModel, previousNewsModel) {
+            // Optional update method
+            if (previousNewsModel == null) {
+              return NewsModel(
+                  tournamentModel: tournamentModel,
+                  newsRef: widget.newsRef
+              )..fetchObjectUsingId();
+            }
+            return previousNewsModel;
+          },
         ),
         ChangeNotifierProvider<CreateEditNewsModel>(
           create: (context) => CreateEditNewsModel(saveWay: widget.createEditFlag),
@@ -50,5 +69,6 @@ class _CreateEditNewsContainerState extends State<CreateEditNewsContainer> {
         return const CreateEditNewsWidget();
       },
     );
+
   }
 }

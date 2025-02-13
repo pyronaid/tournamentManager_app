@@ -33,6 +33,7 @@ import 'package:tournamentmanager/pages/profile/edit_profile/edit_profile_contai
 import 'package:tournamentmanager/pages/profile/support_center/support_center_widget.dart';
 
 import '../../pages/core/add_people/barcode_scanner_zoom.dart';
+import '../../pages/nav_bar/tournament_model.dart';
 export 'package:go_router/go_router.dart';
 
 const kTransitionInfoKey = '__transition_info__';
@@ -232,10 +233,17 @@ GoRouter createRouter(AppStateNotifier appStateNotifier, GlobalKey<NavigatorStat
               name: 'CreateEditNews',
               path: 'create-edit-news/:newsId',
               requireAuth: true,
-              builder: (context, params) => CreateEditNewsContainer(
-                tournamentsRef: params.getParam('tournamentId', ParamType.String,),
-                newsRef: params.getParam('newsId', ParamType.String,),
-                createEditFlag: params.getParam('createEditFlag', ParamType.bool,),
+              builder: (context, params) => MultiProvider(
+                providers: [
+                  ChangeNotifierProvider.value(
+                    value: (params.state.extra as Map<String, dynamic>)["provider"] as TournamentModel,
+                  ),
+                ],
+                child: CreateEditNewsContainer(
+                  tournamentsRef: params.getParam('tournamentId', ParamType.String,),
+                  newsRef: params.getParam('newsId', ParamType.String,),
+                  createEditFlag: params.getParam('createEditFlag', ParamType.bool,),
+                ),
               ),
             ),
             CustomRoute(

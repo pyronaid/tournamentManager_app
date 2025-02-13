@@ -8,6 +8,10 @@ import 'package:tournamentmanager/app_flow/services/ImagePickerService.dart';
 import 'package:tournamentmanager/backend/schema/news_record.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/backend/schema/util/firestorage_util.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../app_flow/services/LoaderService.dart';
+import '../../app_flow/services/SnackBarService.dart';
 
 class TournamentModel extends ChangeNotifier {
 
@@ -15,21 +19,24 @@ class TournamentModel extends ChangeNotifier {
   StreamSubscription<List<NewsRecord>>? _newsSubscription;
 
   late ImagePickerService imagePickerService;
+  late SnackBarService snackBarService;
+  late LoaderService loaderService;
 
   final String? tournamentsRef;
   late TournamentsRecord? tournamentsRefObj;
   late List<NewsRecord>? newsListRefObj;
-  bool isLoading = true;
-  bool isTournamentLoaded = false;
-  bool isNewsLoaded = false;
+  bool _isLoading = true;
 
   TournamentModel({required this.tournamentsRef}){
     print("[CREATE] TournamentModel");
     imagePickerService = GetIt.instance<ImagePickerService>();
+    snackBarService = GetIt.instance<SnackBarService>();
+    loaderService = GetIt.instance<LoaderService>();
   }
 
 
   /////////////////////////////GETTER
+  bool get isLoading => _isLoading;
   String? get tournamentOwner => tournamentsRefObj?.creatorUid;
   String? get tournamentId => tournamentsRef;
   String get tournamentName => tournamentsRefObj != null ? tournamentsRefObj!.name : "UNKNOWN NAME";
@@ -68,8 +75,11 @@ class TournamentModel extends ChangeNotifier {
   /////////////////////////////SETTER
   Future<void> setTournamentName(String newTournamentName) async {
     if(newTournamentName != tournamentName) {
+      String executionId = const Uuid().v4();
+      loaderService.showLoader(id: executionId);
       await tournamentsRefObj?.setName(newTournamentName);
       notifyListeners();
+      loaderService.hideLoader(id: executionId);
     }
   }
   Future<void> setTournamentCapacity(String newTournamentCapacity) async {
@@ -79,35 +89,50 @@ class TournamentModel extends ChangeNotifier {
       newTournamentCapacityInt = int.parse(newTournamentCapacity);
     }
     if(newTournamentCapacity != tournamentCapacity) {
+      String executionId = const Uuid().v4();
+      loaderService.showLoader(id: executionId);
       if(newTournamentCapacityInt == 0 && tournamentWaitingListEn){
         await tournamentsRefObj?.switchWaitingListEn();
       }
       await tournamentsRefObj?.setCapacity(newTournamentCapacityInt);
       notifyListeners();
+      loaderService.hideLoader(id: executionId);
     }
   }
   Future<void> setTournamentData(DateTime newTournamentData) async {
     if(newTournamentData != tournamentDate){
+      String executionId = const Uuid().v4();
+      loaderService.showLoader(id: executionId);
       await tournamentsRefObj?.setDate(newTournamentData);
       notifyListeners();
+      loaderService.hideLoader(id: executionId);
     }
   }
   Future<void> setTournamentState(String newTournamentState) async {
     if(newTournamentState != tournamentState.name){
+      String executionId = const Uuid().v4();
+      loaderService.showLoader(id: executionId);
       await tournamentsRefObj?.setState(newTournamentState);
       notifyListeners();
+      loaderService.hideLoader(id: executionId);
     }
   }
   Future<void> switchTournamentPreIscrizioniEn() async {
+    String executionId = const Uuid().v4();
+    loaderService.showLoader(id: executionId);
     await tournamentsRefObj?.switchPreRegistrationEn();
     if(!tournamentWaitingListPossible && tournamentWaitingListEn){
       switchTournamentWaitingListEn();
     }
     notifyListeners();
+    loaderService.hideLoader(id: executionId);
   }
   Future<void> switchTournamentWaitingListEn() async {
+    String executionId = const Uuid().v4();
+    loaderService.showLoader(id: executionId);
     await tournamentsRefObj?.switchWaitingListEn();
     notifyListeners();
+    loaderService.hideLoader(id: executionId);
   }
   Future<void> setTournamentImage() async{
     bool? isCamera = true; //TO FIX WITH DIALOG FUNCTION
@@ -117,6 +142,8 @@ class TournamentModel extends ChangeNotifier {
     );
 
     if(imageFile != null) {
+      String executionId = const Uuid().v4();
+      loaderService.showLoader(id: executionId);
       String? url = await FirestorageUtilData.uploadImageToStorage(
           "users/$tournamentOwner/tournament/$tournamentId/tournamentImage",
           imageFile
@@ -125,11 +152,15 @@ class TournamentModel extends ChangeNotifier {
         await tournamentsRefObj?.setImage(url);
         notifyListeners();
       }
+      loaderService.hideLoader(id: executionId);
     }
   }
   Future<void> deleteNews(String newsId) async {
-    NewsRecord.deleteNews(tournamentsRef!, newsId);
+    String executionId = const Uuid().v4();
+    loaderService.showLoader(id: executionId);
+    await NewsRecord.deleteNews(tournamentsRef!, newsId);
     notifyListeners();
+    loaderService.hideLoader(id: executionId);
   }
 
   @override
@@ -146,22 +177,12 @@ class TournamentModel extends ChangeNotifier {
       print("[LOAD FROM FIREBASE IN CORSO] tournament_model.dart");
       _tournamentSubscription = TournamentsRecord.getDocument(TournamentsRecord.collection.doc(tournamentsRef!)).listen((snapshot) {
         tournamentsRefObj = snapshot;
-        isTournamentLoaded = true;
-        _setLoadingFalseIfBothLoaded();
+        _isLoading = false;
+        notifyListeners();
       });
-      _newsSubscription = NewsRecord.getAllDocuments(tournamentsRef!).listen((snapshot) {
-        newsListRefObj = snapshot;
-        isNewsLoaded = true;
-        _setLoadingFalseIfBothLoaded();
-      });
-    }
-  }
-
-  void _setLoadingFalseIfBothLoaded() {
-    if (isTournamentLoaded && isNewsLoaded && isLoading) {
-      isLoading = false;
-    }
-    if (isTournamentLoaded && isNewsLoaded) {
+    } else {
+      tournamentsRefObj = null;
+      _isLoading = false;
       notifyListeners();
     }
   }

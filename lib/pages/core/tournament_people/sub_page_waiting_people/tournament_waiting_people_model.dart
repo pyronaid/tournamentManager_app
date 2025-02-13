@@ -75,6 +75,7 @@ class TournamentWaitingPeopleModel extends TournamentPeopleModel {
     for(var id in returnedIds.item1) {
       await addAlgoliaObject(listType: ListType.registered, objectID: id, data: {
         'display_name' : displayName,
+        'user_uid': userId,
         'tournament_uid' : tournamentId
       });
     }
@@ -96,6 +97,7 @@ class TournamentWaitingPeopleModel extends TournamentPeopleModel {
     DocumentReference added = await WaitinglistRecord.collection.add(ownPeople);
     await addAlgoliaObject(listType: ListType.waiting, objectID: added.id, data: {
       'display_name' : displayName,
+      'user_uid': userId,
       'tournament_uid' : tournamentId
     });
     loaderService.hideLoader(id: executionId);

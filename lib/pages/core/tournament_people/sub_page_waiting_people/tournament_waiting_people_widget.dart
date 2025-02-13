@@ -166,20 +166,28 @@ class _TournamentWaitingPeopleWidgetState extends State<TournamentWaitingPeopleW
                     //////////////////////////////////
                     ///////////  INFINITE LIST DETAIL
                     //////////////////////////////////
-                    Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(24, 10, 24, 10),
-                      child: Column(
-                        children: List.generate(providerWaitingPeople.usersList.length, (index) {
-                          final user = providerWaitingPeople.usersList[index];
-                          return TournamentPeopleCardWidget(
-                            key: Key('Keykia_user.uid.toadd_position_${index}_of_${providerWaitingPeople.usersList.length}'),
-                            userRef: user,
-                            indexo: index,
-                            listType: ListType.waiting,
-                            peopleModel: providerWaitingPeople,
-                            promote: true,
-                          );
+                    SizedBox(
+                      height: 60.h,
+                      child: RefreshIndicator(
+                        onRefresh: () async {
+                          await providerWaitingPeople.fetchInitialResults(listType: ListType.waiting);
                         },
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(24, 10, 24, 10),
+                          child: ListView.builder(
+                            itemCount: providerWaitingPeople.usersList.length,
+                            itemBuilder: (context, index) {
+                              final user = providerWaitingPeople.usersList[index];
+                              return TournamentPeopleCardWidget(
+                                key: Key('Keykia_user.uid.toadd_position_${index}_of_${providerWaitingPeople.usersList.length}'),
+                                userRef: user,
+                                indexo: index,
+                                listType: ListType.waiting,
+                                peopleModel: providerWaitingPeople,
+                                promote: true,
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),

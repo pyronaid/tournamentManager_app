@@ -173,12 +173,12 @@ class AddPeopleModel extends ChangeNotifier {
             if(registeredListRecord.isEmpty && checkPreregisteredFlag && preregisteredListRecord.isEmpty){
               if(!checkWaitingFlag || waitingListRecord.isEmpty){
                 messageObjList.add(MessagePeople(messageLevel: MessageLevel.add, message: "L'utente verrà aggiunto nella lista dei preregistrati",));
-                if(checkWaitingFlag && waitingListRecord.isEmpty){
-                  messageObjList.add(MessagePeople(messageLevel: MessageLevel.warning, message: "L'utente non è presente nella lista di livello immediatamente inferiore",));
-                }
+                if(checkWaitingFlag && waitingListRecord.isEmpty){ messageObjList.add(MessagePeople(messageLevel: MessageLevel.warning, message: "L'utente non è presente nella lista di livello immediatamente inferiore",)); }
+                if(capacity < (preregisteredCounter + registeredCounter + 1)){ messageObjList.add(MessagePeople(messageLevel: MessageLevel.warning, message: "Questa registrazione eccede la capacity impostata",)); }
                 response = const Tuple2(ResponseAction.add, null);
               } else if(checkWaitingFlag || waitingListRecord.isNotEmpty){
                 messageObjList.add(MessagePeople(messageLevel: MessageLevel.promotion, message: "L'utente verrà promosso qui dalla lista della waiting list",));
+                if(capacity < (preregisteredCounter + registeredCounter + 1)){ messageObjList.add(MessagePeople(messageLevel: MessageLevel.warning, message: "Questa registrazione eccede la capacity impostata",)); }
                 response = const Tuple2(ResponseAction.stdPromote, ListType.waiting);
               } else {
                 messageObjList.add(MessagePeople(messageLevel: MessageLevel.error, message: "Impossibile proseguire con l'operazione",));
@@ -206,13 +206,16 @@ class AddPeopleModel extends ChangeNotifier {
               } else if(checkPreregisteredFlag && preregisteredListRecord.isEmpty && (!checkWaitingFlag || waitingListRecord.isEmpty)){
                 messageObjList.add(MessagePeople(messageLevel: MessageLevel.add, message: "L'utente verrà aggiunto ai registrati",));
                 messageObjList.add(MessagePeople(messageLevel: MessageLevel.warning, message: "L'utente non è presente nella lista di livello immediatamente inferiore",));
+                if(capacity < (preregisteredCounter + registeredCounter + 1)){ messageObjList.add(MessagePeople(messageLevel: MessageLevel.warning, message: "Questa registrazione eccede la capacity impostata",)); }
                 response = const Tuple2(ResponseAction.add, null);
               } else if(checkPreregisteredFlag && preregisteredListRecord.isNotEmpty && (!checkWaitingFlag || waitingListRecord.isEmpty)){
                 messageObjList.add(MessagePeople(messageLevel: MessageLevel.promotion, message: "L'utente verrà promosso qui dalla lista dei preregistrati",));
+                if(capacity < (preregisteredCounter + registeredCounter + 1)){ messageObjList.add(MessagePeople(messageLevel: MessageLevel.warning, message: "Questa registrazione eccede la capacity impostata",)); }
                 response = const Tuple2(ResponseAction.stdPromote, ListType.preregistered);
               } else if(checkPreregisteredFlag && preregisteredListRecord.isEmpty && checkWaitingFlag && waitingListRecord.isNotEmpty){
                 messageObjList.add(MessagePeople(messageLevel: MessageLevel.info, message: "L'utente verrà promosso qui dalla waiting-list",));
                 messageObjList.add(MessagePeople(messageLevel: MessageLevel.warning, message: "L'utente non è presente nella lista di livello immediatamente inferiore",));
+                if(capacity < (preregisteredCounter + registeredCounter + 1)){ messageObjList.add(MessagePeople(messageLevel: MessageLevel.warning, message: "Questa registrazione eccede la capacity impostata",)); }
                 response = const Tuple2(ResponseAction.forcedPromote, ListType.waiting);
               } else {
                 messageObjList.add(MessagePeople(messageLevel: MessageLevel.error, message: "Impossibile proseguire con l'operazione",));

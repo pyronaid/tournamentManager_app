@@ -6,6 +6,7 @@ import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/components/no_tournament_news_card/no_tournament_news_card_widget.dart';
 import 'package:tournamentmanager/components/tournament_news_card/tournament_news_card_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_news/tournament_news_model.dart';
+import 'package:tournamentmanager/pages/nav_bar/news_list_model.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
 
@@ -20,7 +21,6 @@ class TournamentNewsWidget extends StatefulWidget {
 class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
 
   late TournamentNewsModel tournamentNewsModel;
-  late TournamentModel tournamentModel;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -32,7 +32,6 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
 
     tournamentNewsModel = context.read<TournamentNewsModel>();
-    tournamentModel = context.read<TournamentModel>();
   }
 
   @override
@@ -46,10 +45,10 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
       onTap: () => tournamentNewsModel.unfocusNode.canRequestFocus
           ? FocusScope.of(context).requestFocus(tournamentNewsModel.unfocusNode)
           : FocusScope.of(context).unfocus(),
-      child: Consumer<TournamentModel>(
-          builder: (context, providerTournament, _) {
+      child: Consumer<NewsListModel>(
+          builder: (context, providerNewsList, _) {
             print("[BUILD IN CORSO] tournament_news_widget.dart");
-            if (tournamentModel.isLoading) {
+            if (providerNewsList.isLoading) {
               return const Center(child: CircularProgressIndicator());
             }
 
@@ -66,7 +65,7 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
                       'newsId': 'NEW',
                     }.withoutNulls,
                     extra: {
-                      'tournamentId': providerTournament.tournamentId,
+                      'tournamentId': providerNewsList.tournamentsRef,
                       'createEditFlag': true,
                     },
                   );
@@ -81,32 +80,35 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
                 child: SingleChildScrollView(
                   child: SizedBox(
                     width: 100.w,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        if(tournamentModel.tournamentNews.isEmpty)
-                          const NoTournamentNewsCardWidget(
-                            active: true,
-                            phrase: "Nessuna notizia pubblicata",
-                          )
-                        else
-                          Column(
-                            children: List.generate(providerTournament.newsListRefObj!.length, (index) {
-                                final news = providerTournament.newsListRefObj![index];
-                                return TournamentNewsCardWidget(
-                                  key: Key('Keykia_${news.uid}_position_${index}_of_${providerTournament.newsListRefObj!.length}'),
-                                  newsRef: news,
-                                  indexo: index,
-                                  tournamentModel: providerTournament,
-                                );
-                              },
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if(providerNewsList.newsListRefObj.isEmpty)
+                            const NoTournamentNewsCardWidget(
+                              active: true,
+                              phrase: "Nessuna notizia pubblicata",
+                            )
+                          else
+                            Column(
+                              children: List.generate(providerNewsList.newsListRefObj.length, (index) {
+                                  final news = providerNewsList.newsListRefObj[index];
+                                  return TournamentNewsCardWidget(
+                                    key: Key('Keykia_${news.uid}_position_${index}_of_${providerNewsList.newsListRefObj.length}'),
+                                    newsRef: news,
+                                    indexo: index,
+                                    deleteFun: (newsId) => providerNewsList.deleteNews(newsId),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
 
-                        const SizedBox(height: 100),
-                      ],
+                          const SizedBox(height: 100),
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -14,9 +14,6 @@ import 'package:tournamentmanager/pages/core/add_people/add_people_model.dart';
 import 'package:tuple/tuple.dart';
 import '../../../backend/schema/tournaments_record.dart';
 import '../tournament_people/tournament_people_model.dart';
-import 'barcode_scanner_simple.dart';
-import 'barcode_scanner_window.dart';
-import 'barcode_scanner_zoom.dart';
 
 
 

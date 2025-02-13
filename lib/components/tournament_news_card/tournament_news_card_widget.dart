@@ -15,13 +15,13 @@ class TournamentNewsCardWidget extends StatefulWidget {
     super.key,
     required this.newsRef,
     required this.indexo,
-    required this.tournamentModel,
+    required this.deleteFun,
   });
 
 
   final NewsRecord? newsRef;
   final int indexo;
-  final TournamentModel tournamentModel;
+  final Future<void> Function(String newsId) deleteFun;
 
   @override
   State<TournamentNewsCardWidget> createState() => _TournamentNewsCardWidgetState();
@@ -39,7 +39,7 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => TournamentNewsCardModel(widget.tournamentModel));
+    _model = createModel(context, () => TournamentNewsCardModel(widget.deleteFun, widget.newsRef!.uid));
 
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }

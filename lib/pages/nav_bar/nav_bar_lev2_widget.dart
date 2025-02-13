@@ -41,7 +41,7 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
         builder: (context, child) {
           final tabs = {
             'DashboardT': {
-              'widget' : TournamentDetailContainer(tournamentsRef: _tournamentsRef),
+              'widget' : const TournamentDetailContainer(),
             },
             'RoundsT': {
               'widget' : const PlaceholderWidget(),
@@ -50,7 +50,7 @@ class _NavBarLev2PageState extends State<NavBarLev2Page> {
               'widget' : const TournamentPeopleWidget(),
             },
             'NewsT': {
-              'widget' : TournamentNewsContainer(tournamentsRef: _tournamentsRef),
+              'widget' : const TournamentNewsContainer(),
             },
           };
           final tabKeys = tabs.keys.toList();

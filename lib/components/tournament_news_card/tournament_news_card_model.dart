@@ -11,9 +11,10 @@ import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 class TournamentNewsCardModel extends CustomFlowModel<TournamentNewsCardWidget> {
   ///  Local state fields for this component.
   late DialogService dialogService;
-  late TournamentModel tournamentModel;
+  late final Future<void> Function(String newsId) deleteFun;
+  late final String newsUid;
 
-  TournamentNewsCardModel(this.tournamentModel);
+  TournamentNewsCardModel(this.deleteFun, this.newsUid,);
 
   @override
   void initState(BuildContext context) {
@@ -29,7 +30,7 @@ class TournamentNewsCardModel extends CustomFlowModel<TournamentNewsCardWidget> 
       buttonTitleConfirmed: "Continua",
     );
     if(resp.confirmed){
-      await tournamentModel.deleteNews(newsId);
+      await deleteFun(newsUid);
     }
   }
 

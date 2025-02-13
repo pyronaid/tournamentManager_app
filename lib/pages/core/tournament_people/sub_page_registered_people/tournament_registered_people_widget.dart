@@ -166,20 +166,28 @@ class _TournamentRegisteredPeopleWidgetState extends State<TournamentRegisteredP
                     //////////////////////////////////
                     ///////////  INFINITE LIST DETAIL
                     //////////////////////////////////
-                    Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(24, 10, 24, 10),
-                      child: Column(
-                        children: List.generate(providerRegisteredPeople.usersList.length, (index) {
-                          final user = providerRegisteredPeople.usersList[index];
-                          return TournamentPeopleCardWidget(
-                            key: Key('Keykia_user.uid.toadd_position_${index}_of_${providerRegisteredPeople.usersList.length}'),
-                            userRef: user,
-                            indexo: index,
-                            listType: ListType.registered,
-                            peopleModel: providerRegisteredPeople,
-                            promote: false,
-                          );
+                    SizedBox(
+                      height: 60.h,
+                      child: RefreshIndicator(
+                        onRefresh: () async {
+                          await providerRegisteredPeople.fetchInitialResults(listType: ListType.registered);
                         },
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(24, 10, 24, 10),
+                          child: ListView.builder(
+                            itemCount: providerRegisteredPeople.usersList.length,
+                            itemBuilder: (context, index) {
+                              final user = providerRegisteredPeople.usersList[index];
+                              return TournamentPeopleCardWidget(
+                                key: Key('Keykia_user.uid.toadd_position_${index}_of_${providerRegisteredPeople.usersList.length}'),
+                                userRef: user,
+                                indexo: index,
+                                listType: ListType.registered,
+                                peopleModel: providerRegisteredPeople,
+                                promote: true,
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),

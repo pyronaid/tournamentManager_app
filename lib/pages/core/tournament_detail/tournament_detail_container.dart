@@ -6,12 +6,7 @@ import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail
 
 
 class TournamentDetailContainer extends StatefulWidget {
-  const TournamentDetailContainer({
-    super.key,
-    this.tournamentsRef,
-  });
-
-  final String? tournamentsRef;
+  const TournamentDetailContainer({ super.key, });
 
   @override
   State<TournamentDetailContainer> createState() => _TournamentDetailContainerState();
@@ -35,7 +30,7 @@ class _TournamentDetailContainerState extends State<TournamentDetailContainer> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-        create: (context) => TournamentDetailModel(tournamentsRef: widget.tournamentsRef),
+        create: (context) => TournamentDetailModel(),
         builder: (context, child) {
           return const TournamentDetailWidget();
         }

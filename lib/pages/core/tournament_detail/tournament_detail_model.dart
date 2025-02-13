@@ -9,7 +9,6 @@ import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 class TournamentDetailModel extends ChangeNotifier {
 
   final _unfocusNode = FocusNode();
-  final String? tournamentsRef;
   late DialogService dialogService;
 
   //////////////////////////////NAME DIALOG
@@ -47,7 +46,7 @@ class TournamentDetailModel extends ChangeNotifier {
 
 
   /////////////////////////////CONSTRUCTOR
-  TournamentDetailModel({required this.tournamentsRef}){
+  TournamentDetailModel(){
     _fieldControllerName = TextEditingController();
     tournamentNameTextControllerValidator = _tournamentNameTextControllerValidator;
     _tournamentNameFocusNode = FocusNode();

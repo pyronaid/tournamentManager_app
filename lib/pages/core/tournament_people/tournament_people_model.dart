@@ -40,9 +40,7 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
   int get registeredCounter => tournamentModel.tournamentRegisteredSize;
   TextEditingController get peopleNameTextController;
   FocusNode get peopleNameFocusNode;
-
   ScrollController get scrollController;
-
   String get tournamentId => tournamentModel.tournamentId!;
   List<UsersAlgoliaRecord> get usersList => _usersList;
   int get userNum => _userNum;
@@ -63,6 +61,11 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
           .where('user_uid', isEqualTo: idU)
           .where('tournament_uid', isEqualTo: tournamentId)
   );
+  Stream<bool> waitForTournamentLoading() {
+    return Stream.periodic(const Duration(milliseconds: 100), (_) => tournamentModel.isLoading)
+        .takeWhile((_) => tournamentModel.isLoading)
+        .asBroadcastStream();
+  }
 
 
   /////////////////////////////SETTER
@@ -137,6 +140,8 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
     return;
   }
   Future<void> fetchInitialResults({required ListType listType, String query = "", bool loadingCall = false}) async {
+    await waitForTournamentLoading().isEmpty;
+
     if(_listLoading) return;
     _listLoading = true;
     notifyListeners();
