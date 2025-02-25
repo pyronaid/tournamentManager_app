@@ -1,0 +1,112 @@
+import 'package:flutter/cupertino.dart';
+import 'package:tournamentmanager/pages/core/own_tournaments/own_tournaments_widget.dart';
+import 'package:tournamentmanager/pages/core/tournament_finder/tournament_finder_container.dart';
+import 'package:tournamentmanager/pages/profile/profile/profile_widget.dart';
+
+import '../../../pages/core/create_own/create_own_container.dart';
+import '../../../pages/core/my_tournaments/my_tournaments_widget.dart';
+import '../../../pages/nav_bar/scaffold_levelone_nested_navigation.dart';
+import '../../../pages/profile/about_us/about_us_widget.dart';
+import '../../../pages/profile/edit_preferences/edit_preferences_widget.dart';
+import '../../../pages/profile/edit_profile/edit_profile_container.dart';
+import '../../../pages/profile/support_center/support_center_widget.dart';
+import '../../app_flow_util.dart';
+import '../navigation_keys.dart';
+import '../route_config.dart';
+import '../serialization_util.dart';
+
+class FirstLevelRoutes {
+  static Widget shellBuilder(BuildContext context, GoRouterState state, StatefulNavigationShell navigationShell) {
+    return ScaffoldWithLevelOneNestedNavigation(navigationShell: navigationShell);
+  }
+
+  static List<StatefulShellBranch> getBranches(AppStateNotifier appStateNotifier) => [
+    StatefulShellBranch(
+      navigatorKey: NavigatorKeys.dashboardKey,
+      routes: [
+        CustomRoute(
+          name: 'Dashboard',
+          path: 'dashboard',
+          redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+          builder: (context, params) => const MyTournamentsWidget(),
+        ),
+      ].map((r) => r.toRoute(appStateNotifier)).toList(),
+    ),
+    StatefulShellBranch(
+      navigatorKey: NavigatorKeys.ownTournamentsKey,
+      routes: [
+        CustomRoute(
+          name: 'OwnTournaments',
+          path: 'own-tournaments',
+          redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+          builder: (context, params) => const OwnTournamentsWidget(),
+        ),
+      ].map((r) => r.toRoute(appStateNotifier)).toList(),
+    ),
+    StatefulShellBranch(
+      navigatorKey: NavigatorKeys.tournamentFinderKey,
+      routes: [
+        CustomRoute(
+          name: 'TournamentFinder',
+          path: 'tournament-finder',
+          redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+          builder: (context, params) => const TournamentFinderContainer(),
+        ),
+      ].map((r) => r.toRoute(appStateNotifier)).toList(),
+    ),
+    StatefulShellBranch(
+      navigatorKey: NavigatorKeys.profileKey,
+      routes: [
+        CustomRoute(
+          name: 'Profile',
+          path: 'profile',
+          parentNavigatorKey: NavigatorKeys.profileKey,
+          redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+          builder: (context, params) => const ProfileWidget(),
+          routes: [
+            CustomRoute(
+              name: 'EditProfile',
+              path: 'edit-profile',
+              parentNavigatorKey: NavigatorKeys.profileKey,
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              builder: (context, params) => const EditProfileContainer(),
+            ),
+            CustomRoute(
+              name: 'AboutUs',
+              path: 'about-us',
+              parentNavigatorKey: NavigatorKeys.profileKey,
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              builder: (context, params) => const AboutUsWidget(),
+            ),
+            CustomRoute(
+              name: 'SupportCenter',
+              path: 'support-center',
+              parentNavigatorKey: NavigatorKeys.profileKey,
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              builder: (context, params) => const SupportCenterWidget(),
+            ),
+            CustomRoute(
+              name: 'CreateOwn',
+              path: 'create-own',
+              parentNavigatorKey: NavigatorKeys.profileKey,
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              builder: (context, params) => const CreateOwnContainer(),
+            ),
+            CustomRoute(
+              name: 'EditPreferences',
+              path: 'edit-preferences',
+              parentNavigatorKey: NavigatorKeys.profileKey,
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              builder: (context, params) => EditPreferencesWidget(
+                page: params.getParam(
+                  'page',
+                  ParamType.int,
+                ),
+              ),
+            ),
+          ].map((r) => r.toRoute(appStateNotifier)).toList(),
+        ),
+      ].map((r) => r.toRoute(appStateNotifier)).toList(),
+    ),
+  ];
+}

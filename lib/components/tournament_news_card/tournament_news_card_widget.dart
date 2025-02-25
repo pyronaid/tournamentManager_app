@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:provider/provider.dart';
 import 'package:tournamentmanager/app_flow/app_flow_animations.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
@@ -68,10 +69,11 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
                   'CreateEditNews', context.mounted,
                   pathParameters: {
                     'newsId': widget.newsRef!.uid,
+                    'tournamentId': widget.newsRef!.tournamentUid,
                   }.withoutNulls,
                   extra: {
-                    'tournamentId': widget.newsRef!.tournamentUid,
                     'createEditFlag': false,
+                    'provider': context.read<TournamentModel>()
                   },
                 );
               },

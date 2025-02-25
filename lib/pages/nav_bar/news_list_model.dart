@@ -22,6 +22,7 @@ class NewsListModel extends ChangeNotifier {
   /////////////////////////////GETTER
   bool get isLoading => _isLoading || tournamentModel.isLoading;
   String? get tournamentsRef => tournamentModel.tournamentId;
+  TournamentModel get model => tournamentModel;
 
 
   Stream<bool> waitForTournamentLoading() {

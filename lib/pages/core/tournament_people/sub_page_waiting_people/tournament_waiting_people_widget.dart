@@ -104,9 +104,11 @@ class _TournamentWaitingPeopleWidgetState extends State<TournamentWaitingPeopleW
                                 logFirebaseEvent('Button_load_pic');
                                 context.pushNamedAuth(
                                   'AddPeople', context.mounted,
-                                  extra: {
+                                  pathParameters: {
                                     'tournamentId': providerWaitingPeople.tournamentId,
-                                    'listType' : ListType.waiting.name,
+                                  }.withoutNulls,
+                                  extra: {
+                                    'listType' : ListType.registered.name,
                                     'provider' : providerWaitingPeople
                                   },
                                 );

@@ -8,11 +8,9 @@ import 'add_people_widget.dart';
 class AddPeopleContainer extends StatefulWidget {
   const AddPeopleContainer({
     super.key,
-    required this.tournamentsRef,
     required this.listType,
   });
 
-  final String? tournamentsRef;
   final String listType;
 
   @override
@@ -35,8 +33,9 @@ class _AddPeopleContainerState extends State<AddPeopleContainer> {
 
   @override
   Widget build(BuildContext context) {
+
     return ChangeNotifierProvider(
-      create: (context) => AddPeopleModel(listType: getListTypeByName(widget.listType), tournamentsRef: widget.tournamentsRef),
+      create: (context) => AddPeopleModel(listType: getListTypeByName(widget.listType)),
       builder: (context, child) {
         return const AddPeopleWidget();
       }

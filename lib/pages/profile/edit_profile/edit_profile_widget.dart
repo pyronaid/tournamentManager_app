@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
-import 'package:tournamentmanager/app_flow/nav/nav.dart';
+import 'package:tournamentmanager/app_flow/nav/nav_basics.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
 import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';

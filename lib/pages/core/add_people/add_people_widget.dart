@@ -12,6 +12,7 @@ import 'package:tournamentmanager/components/custom_appbar_widget.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 import 'package:tournamentmanager/pages/core/add_people/add_people_model.dart';
 import 'package:tuple/tuple.dart';
+import '../../../app_flow/nav/navigation_keys.dart';
 import '../../../backend/schema/tournaments_record.dart';
 import '../tournament_people/tournament_people_model.dart';
 
@@ -145,6 +146,9 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                                         onPressed: () async {
                                           final result = await context.pushNamedAuth(
                                             'ScannerCode', context.mounted,
+                                            pathParameters: {
+                                              'tournamentId': providerPeople.tournamentId,
+                                            }.withoutNulls,
                                           );
 
                                           if (result != null) {

@@ -63,10 +63,11 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
                     'CreateEditNews', context.mounted,
                     pathParameters: {
                       'newsId': 'NEW',
+                      'tournamentId': providerNewsList.tournamentsRef,
                     }.withoutNulls,
                     extra: {
-                      'tournamentId': providerNewsList.tournamentsRef,
                       'createEditFlag': true,
+                      'provider': providerNewsList.model,
                     },
                   );
                 },

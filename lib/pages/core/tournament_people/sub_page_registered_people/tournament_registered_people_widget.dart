@@ -104,8 +104,10 @@ class _TournamentRegisteredPeopleWidgetState extends State<TournamentRegisteredP
                                 logFirebaseEvent('Button_load_pic');
                                 context.pushNamedAuth(
                                   'AddPeople', context.mounted,
-                                  extra: {
+                                  pathParameters: {
                                     'tournamentId': providerRegisteredPeople.tournamentId,
+                                  }.withoutNulls,
+                                  extra: {
                                     'listType' : ListType.registered.name,
                                     'provider' : providerRegisteredPeople
                                   },

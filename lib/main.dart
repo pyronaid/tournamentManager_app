@@ -6,12 +6,16 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/internationalization.dart';
-import 'package:tournamentmanager/app_flow/nav/nav.dart';
+import 'package:tournamentmanager/app_flow/nav/nav_basics.dart';
 import 'package:tournamentmanager/app_flow/services/locator.dart';
 import 'package:tournamentmanager/app_state.dart';
 import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
 import 'package:tournamentmanager/auth/firebase_auth/firebase_user_provider.dart';
 import 'package:tournamentmanager/backend/firebase/firebase_config.dart';
+
+import 'app_flow/nav/navigation_keys.dart';
+import 'app_flow/nav/route_config.dart';
+import 'app_flow/services/ServiceManager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,7 +67,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
 
     _appStateNotifier = AppStateNotifier.instance;
-    _router = createRouter(_appStateNotifier, GlobalKey<NavigatorState>());
+    _router = RouteConfig.createRouter(_appStateNotifier);
     userStream = firebaseUserStream()..listen(
             (user) => _appStateNotifier.update(user)
     );
@@ -94,28 +98,31 @@ class _MyAppState extends State<MyApp> {
 
     return ResponsiveSizer(
       builder: (context, orientation, deviceType){
-        return MaterialApp.router(
-          title: 'TournamentManager',
-          localizationsDelegates: const [
-            CustomLocalizationsDelegate(),
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          locale: _locale,
-          supportedLocales: const [
-            Locale('en'),
-          ],
-          theme: ThemeData(
-            brightness: Brightness.light,
-            useMaterial3: false,
+        return ServiceManager(
+          navigatorKey: NavigatorKeys.rootNavigator,
+          child: MaterialApp.router(
+            title: 'TournamentManager',
+            localizationsDelegates: const [
+              CustomLocalizationsDelegate(),
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            locale: _locale,
+            supportedLocales: const [
+              Locale('en'),
+            ],
+            theme: ThemeData(
+              brightness: Brightness.light,
+              useMaterial3: false,
+            ),
+            darkTheme: ThemeData(
+              brightness: Brightness.dark,
+              useMaterial3: false,
+            ),
+            themeMode: _themeMode,
+            routerConfig: _router,
           ),
-          darkTheme: ThemeData(
-            brightness: Brightness.dark,
-            useMaterial3: false,
-          ),
-          themeMode: _themeMode,
-          routerConfig: _router,
         );
       }
     );

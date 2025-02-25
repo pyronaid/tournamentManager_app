@@ -426,8 +426,6 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                         logFirebaseEvent('LogoutTile_auth');
                                         GoRouter.of(context).prepareAuthEvent();
                                         await authManager.signOut();
-                                        GoRouter.of(context).clearRedirectLocation();
-
                                         context.goNamedAuth('Splash', context.mounted);
                                       },
                                       child: Row(

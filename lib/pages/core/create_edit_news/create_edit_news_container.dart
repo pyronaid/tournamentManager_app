@@ -10,12 +10,10 @@ import '../../nav_bar/tournament_model.dart';
 class CreateEditNewsContainer extends StatefulWidget {
   const CreateEditNewsContainer({
     super.key,
-    required this.tournamentsRef,
     required this.newsRef,
     required this.createEditFlag,
   });
 
-  final String? tournamentsRef;
   final String? newsRef;
   final bool createEditFlag;
 
@@ -40,22 +38,20 @@ class _CreateEditNewsContainerState extends State<CreateEditNewsContainer> {
   @override
   Widget build(BuildContext context) {
 
-    final existingTournamentModel = context.read<TournamentModel?>();
-
     return MultiProvider(
       providers: [
         ChangeNotifierProxyProvider<TournamentModel, NewsModel>(
           create: (context) => NewsModel(
             // Retrieve tournament provider from widget tree
-              tournamentModel: context.read<TournamentModel>(),
-              newsRef: widget.newsRef
+            tournamentModel: context.read<TournamentModel>(),
+            newsRef: widget.newsRef
           )..fetchObjectUsingId(),
           update: (context, tournamentModel, previousNewsModel) {
             // Optional update method
             if (previousNewsModel == null) {
               return NewsModel(
-                  tournamentModel: tournamentModel,
-                  newsRef: widget.newsRef
+                tournamentModel: tournamentModel,
+                newsRef: widget.newsRef
               )..fetchObjectUsingId();
             }
             return previousNewsModel;

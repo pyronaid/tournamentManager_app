@@ -1,5 +1,4 @@
 import 'dart:core';
-import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
@@ -16,7 +15,6 @@ class AddPeopleModel extends ChangeNotifier {
 
   final _unfocusNode = FocusNode();
   late CustomAppbarModel customAppbarModel;
-  late String? tournamentsRef;
 
   final ListType listType;
   late List<RegisteredlistRecord> registeredListRecord;
@@ -44,7 +42,7 @@ class AddPeopleModel extends ChangeNotifier {
   late bool firstChecked;
 
   /////////////////////////////CONSTRUCTOR
-  AddPeopleModel({required this.listType, required this.tournamentsRef}){
+  AddPeopleModel({required this.listType}){
     _fieldControllerIdUser = TextEditingController();
     idUserTextControllerValidator = _idUserTextControllerValidator;
     _idUserFocusNode = FocusNode();
