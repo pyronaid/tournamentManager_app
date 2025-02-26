@@ -22,11 +22,8 @@ class ScaffoldWithLevelTwoNestedNavigation extends StatelessWidget {
       onPopInvokedWithResult: (didPop, _){
         if (didPop) return; // If already popped, do nothing
         final router = GoRouter.of(context);
-        for (final match in  GoRouter.of(context).routerDelegate.currentConfiguration.matches) {
-          print('hellooooooooooooooooooooooooo_   ' + match.matchedLocation); // Prints each page in the stack
-        }
         // If at a nested tournament page, redirect directly to homepage
-        if (RegExp(r'.*/tournament-(dets|people|news)$').hasMatch(GoRouter.of(context).getCurrentLocation())) {
+        if (RegExp(r'.*/tournament-(dets|rounds|people|news)$').hasMatch(GoRouter.of(context).getCurrentLocation())) {
           router.go('/dashboard');
         } else {
           Navigator.pop(context);
@@ -77,19 +74,18 @@ class ScaffoldWithLevelTwoNestedNavigation extends StatelessWidget {
               label: 'Dashboard',
               tooltip: '',
             ),
-            if(false)
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.table_rows_outlined,
-                  size: 24.0,
-                ),
-                activeIcon: Icon(
-                  Icons.table_rows_rounded,
-                  size: 24.0,
-                ),
-                label: 'Rounds',
-                tooltip: '',
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.table_rows_outlined,
+                size: 24.0,
               ),
+              activeIcon: Icon(
+                Icons.table_rows_rounded,
+                size: 24.0,
+              ),
+              label: 'Rounds',
+              tooltip: '',
+            ),
             BottomNavigationBarItem(
               icon: Icon(
                 Icons.people_outline,

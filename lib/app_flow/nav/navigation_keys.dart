@@ -20,4 +20,5 @@ class NavigatorKeys {
   static final GlobalKey<NavigatorState> tournamentDetailsKey = GlobalKey<NavigatorState>();
   static final GlobalKey<NavigatorState> tournamentNewsKey = GlobalKey<NavigatorState>();
   static final GlobalKey<NavigatorState> tournamentPeopleKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> tournamentRoundKey = GlobalKey<NavigatorState>();
 }

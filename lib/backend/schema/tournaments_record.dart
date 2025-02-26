@@ -140,6 +140,21 @@ class TournamentsRecord extends FirestoreRecord {
   }
   bool hasState() => true;
 
+  //'winner' field
+  String? _winnerUserId;
+  String get winnerUserId => _winnerUserId ?? 'Unknown Id';
+  Future<void> setWinnerUserId(String winnerUserId) async {
+    _winnerUserId = winnerUserId;
+    await updateField(uid, "winner_user_id", winnerUserId);
+  }
+  String? _winnerUserName;
+  String get winnerUserName => _winnerUserName ?? 'Unknown Name';
+  Future<void> setWinnerUserName(String winnerUserName) async {
+    _winnerUserName = winnerUserName;
+    await updateField(uid, "winner_user_name", winnerUserName);
+  }
+  bool hasWinner() => _winnerUserId != null;
+
   void _initializeFields() {
     _uid = reference.id;
     _game = getGameEnum(snapshotData['game']);

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:tournamentmanager/pages/core/tournament_rounds/tournament_rounds_container.dart';
 
 import '../../../pages/core/add_people/add_people_container.dart';
 import '../../../pages/core/add_people/barcode_scanner_zoom.dart';
@@ -8,6 +9,7 @@ import '../../../pages/core/tournament_detail/tournament_detail_container.dart';
 import '../../../pages/core/tournament_news/tournament_news_container.dart';
 import '../../../pages/core/tournament_people/tournament_people_model.dart';
 import '../../../pages/core/tournament_people/tournament_people_widget.dart';
+import '../../../pages/core/tournament_rounds/tournament_rounds_widget.dart';
 import '../../../pages/nav_bar/scaffold_leveltwo_nested_navigation.dart';
 import '../../../pages/nav_bar/tournament_model.dart';
 import '../../app_flow_util.dart';
@@ -34,6 +36,17 @@ class TournamentRoutes {
           path: 'tournament-dets',
           redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
           builder: (context, params) => const TournamentDetailContainer(),
+        ),
+      ].map((r) => r.toRoute(appStateNotifier)).toList(),
+    ),
+    StatefulShellBranch(
+      navigatorKey: NavigatorKeys.tournamentRoundKey,
+      routes: [
+        CustomRoute(
+          name: 'TournamentRounds',
+          path: 'tournament-rounds',
+          redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+         builder: (context, params) => const TournamentRoundsContainer(),
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     ),

@@ -12,11 +12,11 @@ import 'package:uuid/uuid.dart';
 
 import '../../app_flow/services/LoaderService.dart';
 import '../../app_flow/services/SnackBarService.dart';
+import '../../backend/schema/rounds_record.dart';
 
 class TournamentModel extends ChangeNotifier {
 
   StreamSubscription<TournamentsRecord>? _tournamentSubscription;
-  StreamSubscription<List<NewsRecord>>? _newsSubscription;
 
   late ImagePickerService imagePickerService;
   late SnackBarService snackBarService;
@@ -24,7 +24,6 @@ class TournamentModel extends ChangeNotifier {
 
   final String? tournamentsRef;
   late TournamentsRecord? tournamentsRefObj;
-  late List<NewsRecord>? newsListRefObj;
   bool _isLoading = true;
 
   TournamentModel({required this.tournamentsRef}){
@@ -69,7 +68,7 @@ class TournamentModel extends ChangeNotifier {
   int get tournamentWaitingSize => tournamentsRefObj != null ? tournamentsRefObj!.waitingListCounter : 0;
   int get tournamentRegisteredSize => tournamentsRefObj != null ? tournamentsRefObj!.registeredListCounter : 0;
   String? get tournamentImageUrl => tournamentsRefObj?.image;
-  List<NewsRecord> get tournamentNews => newsListRefObj != null ? newsListRefObj! : [];
+  bool get hasWinner => tournamentsRefObj != null ? tournamentsRefObj!.hasWinner() : false;
 
 
   /////////////////////////////SETTER
@@ -162,12 +161,18 @@ class TournamentModel extends ChangeNotifier {
     notifyListeners();
     loaderService.hideLoader(id: executionId);
   }
+  Future<void> deleteRound(String roundId) async {
+    String executionId = const Uuid().v4();
+    loaderService.showLoader(id: executionId);
+    await RoundsRecord.deleteRounds(tournamentsRef!, roundId);
+    notifyListeners();
+    loaderService.hideLoader(id: executionId);
+  }
 
   @override
   void dispose() {
     print("[DISPOSE] TournamentModel");
     _tournamentSubscription?.cancel(); // Cancel the tournament subscription
-    _newsSubscription?.cancel(); // Cancel the news subscription
     super.dispose();
   }
 

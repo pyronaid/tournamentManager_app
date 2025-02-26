@@ -4,7 +4,7 @@ service cloud.firestore {
 
     match /users/{document} {
       allow create: if request.auth.uid == document;
-      allow read: if request.auth.uid == document;
+      allow read: if request.auth != null;
       allow write: if request.auth.uid == document;
       allow delete: if request.auth.uid == document;
     }
@@ -37,13 +37,47 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    match /tournaments/{document} {
+    match /tournaments/{tournamentId} {
+      match /news/{newsId} {
+      	allow create: if request.auth != null;
+        allow read: if request.auth != null;
+        allow write: if request.auth != null;
+        allow delete: if request.auth != null;
+      }
+
+      match /rounds/{newsId} {
+        allow create: if request.auth != null;
+        allow read: if request.auth != null;
+        allow write: if request.auth != null;
+        allow delete: if request.auth != null;
+      }
+
       allow create: if false;
       allow read: if request.auth != null;
       allow write: if request.auth != null;
       allow delete: if false;
     }
 
+    match /registered_list_info/{document} {
+      allow create: if false;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+
+    match /preregistered_list_info/{document} {
+      allow create: if false;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+
+    match /waiting_list_info/{document} {
+      allow create: if false;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
 
   }
 }
