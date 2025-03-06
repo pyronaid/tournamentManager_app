@@ -84,7 +84,15 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
             ),
             SlidableAction(
               onPressed: (context){
-                _model.showDeleteNewsDialog(widget.newsRef!.uid);
+                context.goNamed(
+                  'DialogDeleteNews',
+                  pathParameters: {
+                    'tournamentId': widget.newsRef!.tournamentUid,
+                  }.withoutNulls,
+                  extra: {
+                    'req' : _model.showDeleteNewsAlertRequest(widget.newsRef!.uid),
+                  }
+                );
               },
               backgroundColor: CustomFlowTheme.of(context).error,
               foregroundColor: CustomFlowTheme.of(context).info,

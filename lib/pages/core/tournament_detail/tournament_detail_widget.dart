@@ -1,11 +1,14 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_accordion/simple_accordion.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/app_flow/dialog_page.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_model.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
@@ -121,7 +124,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                               backgroundImage: tournamentModel.tournamentImageUrl == null ? const AssetImage('assets/images/icons/default_tournament.png') : NetworkImage(providerTournament.tournamentImageUrl!),
                                             ),
                                           ),
-                                          if(tournamentModel.tournamentInteractPossible)
+                                          if(tournamentModel.isTournamentEditable)
                                             Positioned(
                                               bottom: 5,
                                               right: 0,
@@ -162,12 +165,20 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                                       textAlign: TextAlign.center,
                                                     ),
                                                   ),
-                                                  if(tournamentModel.tournamentInteractPossible)
+                                                  if(tournamentModel.isTournamentEditable)
                                                     Padding(
                                                       padding: const EdgeInsetsDirectional.fromSTEB(5, 0, 0, 20),
                                                       child: InkWell(
                                                         onTap: () {
-                                                          tournamentDetailModel.showChangeTournamentNameDialog(tournamentModel);
+                                                          context.goNamed(
+                                                            'DialogChangeTournamentName',
+                                                            pathParameters: {
+                                                              'tournamentId': providerTournament.tournamentId,
+                                                            }.withoutNulls,
+                                                            extra: {
+                                                              'req' : tournamentDetailModel.showChangeTournamentNameFormRequest(tournamentModel),
+                                                            }
+                                                          );
                                                         },
                                                         borderRadius: BorderRadius.circular(61), // Optional: To match the CircleAvatar shape
                                                         child: CircleAvatar(
@@ -317,7 +328,15 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                             iconSize: 30,
                             onChanged: (String? newValue){
                               if (newValue != null) {
-                                tournamentDetailModel.showChangeTournamentStateDialog(newValue, tournamentModel);
+                                context.goNamed(
+                                  'DialogState',
+                                  pathParameters: {
+                                    'tournamentId': providerTournament.tournamentId,
+                                  }.withoutNulls,
+                                  extra: {
+                                    'req' : tournamentDetailModel.showChangeTournamentStateAlertRequest(newValue,tournamentModel),
+                                  }
+                                );
                               }
                             },
                             underline: const SizedBox(), // Remove the default underline
@@ -374,7 +393,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(tournamentModel.tournamentInteractPossible) {
+                            if(tournamentModel.isTournamentEditable) {
                               _showChangeTournamentDatePicker(context, tournamentModel);
                             }
                           },
@@ -382,7 +401,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                             width: 33.w,
                             height: 30.sp,
                             decoration: BoxDecoration(
-                              color: tournamentModel.tournamentInteractPossible ? CustomFlowTheme.of(context).info : Colors.grey,
+                              color: tournamentModel.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
                               border: Border.all(
                                 color: CustomFlowTheme.of(context).alternate,
                                 width: 1,
@@ -408,7 +427,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                       Text(
                                         DateFormat('dd/MM/yy').format(providerTournament.tournamentDate!),
                                         style: CustomFlowTheme.of(context).labelLarge.override(
-                                          color: tournamentModel.tournamentInteractPossible ? Colors.grey : Colors.black,
+                                          color: tournamentModel.isTournamentEditable ? Colors.grey : Colors.black,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
@@ -429,15 +448,23 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(tournamentModel.tournamentInteractPossible) {
-                              tournamentDetailModel.showChangeTournamentCapacityDialog(tournamentModel);
+                            if(tournamentModel.isTournamentEditable) {
+                              context.goNamed(
+                                'DialogChangeCapacity',
+                                pathParameters: {
+                                  'tournamentId': providerTournament.tournamentId,
+                                }.withoutNulls,
+                                extra: {
+                                  'req' : tournamentDetailModel.showChangeTournamentCapacityAlertFormRequest(tournamentModel),
+                                }
+                              );
                             }
                           },
                           child: Container(
                             width: 33.w,
                             height: 30.sp,
                             decoration: BoxDecoration(
-                              color: tournamentModel.tournamentInteractPossible ? CustomFlowTheme.of(context).info : Colors.grey,
+                              color: tournamentModel.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
                               border: Border.all(
                                 color: CustomFlowTheme.of(context).alternate,
                                 width: 1,
@@ -463,7 +490,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                       Text(
                                         providerTournament.tournamentCapacity,
                                         style: CustomFlowTheme.of(context).labelLarge.override(
-                                          color: tournamentModel.tournamentInteractPossible ? Colors.grey : Colors.black,
+                                          color: tournamentModel.isTournamentEditable ? Colors.grey : Colors.black,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
@@ -492,8 +519,16 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(tournamentModel.tournamentInteractPossible) {
-                              tournamentDetailModel.showSwitchPreIscrizioniDialog(tournamentModel);
+                            if(tournamentModel.isTournamentEditable) {
+                              context.goNamed(
+                                'DialogPreIscrizioni',
+                                pathParameters: {
+                                  'tournamentId': providerTournament.tournamentId,
+                                }.withoutNulls,
+                                extra: {
+                                  'req' : tournamentDetailModel.showSwitchPreIscrizioniAlertRequest(tournamentModel),
+                                }
+                              );
                             }
                           },
                           child: Container(
@@ -504,7 +539,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  tournamentModel.tournamentInteractPossible ? CustomFlowTheme.of(context).info : Colors.grey,
+                                  tournamentModel.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
                                   tournamentModel.tournamentPreRegistrationEn ? CustomFlowTheme.of(context).success : CustomFlowTheme.of(context).warning,
                                 ],
                               ),
@@ -552,8 +587,16 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(tournamentModel.tournamentWaitingListPossible) {
-                              tournamentDetailModel.showSwitchWaitingListDialog(tournamentModel);
+                            if(tournamentModel.isTournamentEditable) {
+                              context.goNamed(
+                                  'DialogWaitingList',
+                                  pathParameters: {
+                                    'tournamentId': providerTournament.tournamentId,
+                                  }.withoutNulls,
+                                  extra: {
+                                    'req' : tournamentDetailModel.showSwitchWaitingListAlertRequest(tournamentModel),
+                                  }
+                              );
                             }
                           },
                           child: Container(

@@ -187,6 +187,7 @@ class _TournamentWaitingPeopleWidgetState extends State<TournamentWaitingPeopleW
                                 listType: ListType.waiting,
                                 peopleModel: providerWaitingPeople,
                                 promote: true,
+                                tournamentRef: providerWaitingPeople.tournamentId,
                               );
                             },
                           ),

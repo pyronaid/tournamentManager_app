@@ -186,7 +186,8 @@ class _TournamentRegisteredPeopleWidgetState extends State<TournamentRegisteredP
                                 indexo: index,
                                 listType: ListType.registered,
                                 peopleModel: providerRegisteredPeople,
-                                promote: true,
+                                promote: false,
+                                tournamentRef: providerRegisteredPeople.tournamentId,
                               );
                             },
                           ),

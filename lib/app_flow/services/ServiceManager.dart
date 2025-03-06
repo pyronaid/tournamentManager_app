@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
-import 'package:tournamentmanager/app_flow/services/DialogService.dart';
 import 'package:tournamentmanager/app_flow/services/LoaderService.dart';
 import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
-import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/loader_classes.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/loader_route.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_classes.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_content.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_overlay.dart';
-import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/components/generic_loading/generic_loading_widget.dart';
 import 'package:uuid/uuid.dart';
 
@@ -31,8 +26,6 @@ class ServiceManager extends StatefulWidget {
 }
 
 class _ServiceManagerState extends State<ServiceManager> {
-  //////////////////////////DIALOG SERVICE
-  final DialogService _dialogService = GetIt.instance<DialogService>();
   //////////////////////////SNACKBAR SERVICE
   final SnackBarService _snackBarService = GetIt.instance<SnackBarService>();
   final List<SnackbarOverlay> _overlays = [];
@@ -43,9 +36,6 @@ class _ServiceManagerState extends State<ServiceManager> {
   @override
   void initState() {
     super.initState();
-    //////////////////////////DIALOG SERVICE
-    _dialogService.registerDialogListener(_showDialog);
-    _dialogService.registerDialogFormListener(_showDialogForm);
     //////////////////////////SNACKBAR SERVICE
     _snackBarService.registerSnackBarListener(_showSnackBar);
     //////////////////////////LOADER SERVICE
@@ -62,104 +52,7 @@ class _ServiceManagerState extends State<ServiceManager> {
   void dispose() {
     super.dispose();
   }
-  //////////////////////////DIALOG SERVICE
-  void _showDialog(AlertRequest request) {
-    showDialog(
-      context: context,
-      builder: (_) {
-        return PopScope(
-          onPopInvoked: (bool didPop) {
-            if(!_dialogService.dialogIsCompleted()) {
-              _dialogService.dialogComplete(AlertResponse(confirmed: false));
-            }
-          },
-          child: AlertDialog(
-            title: Text(request.title),
-            content: Text(
-              request.description,
-              style: CustomFlowTheme.of(context).labelMedium,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  _dialogService.dialogComplete(AlertResponse(confirmed: false));
-                  Navigator.of(context).pop();
-                },
-                child: Text(request.buttonTitleCancelled),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  _dialogService.dialogComplete(AlertResponse(confirmed: true));
-                  Navigator.of(context).pop();
-                },
-                child: Text(request.buttonTitleConfirmed),
-              ),
-            ],
-          ),
-        );
-      }
-    );
-  }
-  void _showDialogForm(AlertFormRequest request) {
-    GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          title: Column(
-            children: [
-              Text(request.title),
-              const SizedBox(height: 20,),
-              Text(
-                request.description,
-                style: CustomFlowTheme.of(context).labelMedium,
-              ),
-            ]
-          ),
-          content: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: 50.h,
-            ),
-            child: SingleChildScrollView(
-              child: Form(
-                key: formKey,
-                autovalidateMode: AutovalidateMode.disabled,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for(int i=0; i < request.formInfo.length; i++)...[
-                      request.formInfo[i],
-                    ]
-                  ],
-                ),
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                _dialogService.dialogComplete(AlertResponse(confirmed: false));
-                Navigator.of(context).pop(); // Dismiss the dialog
-              },
-              child: Text(request.buttonTitleCancelled),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                logFirebaseEvent('Button_validate_form');
-                if (formKey.currentState == null ||
-                    !formKey.currentState!.validate()) {
-                  return;
-                }
-                _dialogService.dialogComplete(AlertResponse(confirmed: true, formValues: request.formInfo.map((inf) => inf.result()).toList()));
-                Navigator.of(context).pop(); // Dismiss the dialog
-              },
-              child: Text(request.buttonTitleConfirmed),
-            ),
-          ],
-        );
-      }
-    );
-  }
+
   //////////////////////////SNACKBAR SERVICE
   void _showSnackBar(SnackBarRequest request) async {
     if (request.message.isEmpty) { return; }

@@ -9,7 +9,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
-import 'package:tournamentmanager/app_flow/services/DialogService.dart';
 import 'package:tournamentmanager/app_flow/services/PlacesApiManagerService.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
@@ -23,7 +22,6 @@ class TournamentFinderModel extends ChangeNotifier {
   late List<TournamentsRecord> tournamentsListRefObjToDetail;
 
   final _unfocusNode = FocusNode();
-  late DialogService dialogService;
   bool isLoading = true;
   bool isLoadingFetch = false;
   Timer? _debounce;
@@ -100,7 +98,6 @@ class TournamentFinderModel extends ChangeNotifier {
   /////////////////////////////CONSTRUCTOR
   TournamentFinderModel(){
     print("[CREATE] TournamentFinderModel");
-    dialogService = GetIt.instance<DialogService>();
     _fieldControllerName = TextEditingController();
     tournamentNameTextControllerValidator = _tournamentNameTextControllerValidator;
     _tournamentNameFocusNode = FocusNode();
@@ -273,31 +270,30 @@ class TournamentFinderModel extends ChangeNotifier {
     });
     // show loading end
   }
-  void showChangeTournamentCapacityDialog() async {
-    AlertResponse resp = await dialogService.showDialogForm(
+  AlertFormRequest showChangeTournamentFinderSettingsAlertRequest() {
+    AlertFormRequest req = AlertFormRequest(
       title: 'Filtra la ricerca del Torneo',
       description: "Modifica i parametri per affinare la ricerca del tuo torneo.",
       buttonTitleCancelled: "Annulla",
       buttonTitleConfirmed: "Filtra",
       formInfo: [
-        TextFormElement(
-          controller: tournamentNameTextController,
-          focusNode: tournamentNameFocusNode,
+        () => TextFormElement(
+          controllerInitValue: "",
           iconPrefix: Icons.style,
           validatorFunction: tournamentNameTextControllerValidator,
           validatorParameter: null,
           label: "Nome Torneo",
+          key: GlobalKey<TextFormElementState>(),
         ),
-        TextAheadAddressFormElement(
-          controller: tournamentCenterPlaceTextController,
-          focusNode: tournamentCenterPlaceFocusNode,
+        () => TextAheadAddressFormElement(
+          controllerInitValue: "",
           iconPrefix: Icons.place,
           validatorFunction: _tournamentCenterPlaceTextControllerValidator,
           label: "Area di ricerca",
           callHintFunc: callAddressHint,
           key: GlobalKey<TextAheadAddressFormElementState>(),
         ),
-        SliderFormElement(
+        () => SliderFormElement(
           label: "Raggio (in km) di ricerca",
           sliderValue: _radiusInKm,
           min: minRadius,
@@ -306,7 +302,7 @@ class TournamentFinderModel extends ChangeNotifier {
           valueLabel: (value) => value.toStringAsFixed(0),
           key: GlobalKey<SliderFormElementState>(),
         ),
-        DropdownFormElement<Game>(
+        () => DropdownFormElement<Game>(
           label: "Giochi di interesse",
           value: null,
           items: Game.values.where((game) => game.desc.isNotEmpty).toList(),
@@ -314,22 +310,24 @@ class TournamentFinderModel extends ChangeNotifier {
           nameExtractor: (Game item) => item.desc,
           key: GlobalKey<DropdownFormElementState>(),
         ),
-        CalendarPickerFormElement(
+        () => CalendarPickerFormElement(
           from: _dateStart,
           to: _dateEnd,
           label: "Date di ricerca",
           key: GlobalKey<CalendarPickerFormElementState>(),
         ),
       ],
+      functionConfirmed: (List<dynamic>? formValues) async {
+        String? nameToFilter = (formValues![0] as String);
+        String? placeIdToFilter = (formValues[1] as String?);
+        double? sliderToFilter = (formValues[2] as double);
+        List<Game>? gamesToFilter = (formValues[3]! as List<Game>);
+        List<DateTime>? dataRangeToFilter = (formValues[4]!.whereType<DateTime>().toList() as List<DateTime>);
+        await refreshSearchByFilter(nameToFilter, placeIdToFilter, sliderToFilter, gamesToFilter, dataRangeToFilter);
+
+      },
     );
-    if(resp.confirmed){
-      String? nameToFilter = (resp.formValues![0] as String);
-      String? placeIdToFilter = (resp.formValues![1] as String?);
-      double? sliderToFilter = (resp.formValues![2] as double);
-      List<Game>? gamesToFilter = (resp.formValues![3]! as List<Game>);
-      List<DateTime>? dataRangeToFilter = (resp.formValues![4]!.whereType<DateTime>().toList() as List<DateTime>);
-      await refreshSearchByFilter(nameToFilter, placeIdToFilter, sliderToFilter, gamesToFilter, dataRangeToFilter);
-    }
+    return req;
   }
   void onMarkerTap(String markerId){
     _selectedMarkerId = markerId;

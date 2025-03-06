@@ -14,24 +14,27 @@ class AlertRequest {
   final String description;
   final String buttonTitleConfirmed;
   final String buttonTitleCancelled;
+  final Future<void> Function(List<dynamic>?)? functionConfirmed;
 
   AlertRequest({
     required this.title,
     required this.description,
     required this.buttonTitleConfirmed,
     required this.buttonTitleCancelled,
+    this.functionConfirmed,
   });
 }
 
 class AlertFormRequest extends AlertRequest{
-  final List<FormInformation> formInfo;
+  final List<FormInformation Function()> formInfo;
 
   AlertFormRequest({
     required this.formInfo,
     required super.title,
     required super.description,
     required super.buttonTitleConfirmed,
-    required super.buttonTitleCancelled
+    required super.buttonTitleCancelled,
+    super.functionConfirmed
   });
 }
 
@@ -47,8 +50,7 @@ abstract class FormInformation extends StatefulWidget {
 }
 
 class TextFormElement extends FormInformation {
-  final TextEditingController controller;
-  final FocusNode focusNode;
+  final String controllerInitValue;
   final bool autofocus;
   final TextInputType keyboardType;
   final List<TextInputFormatter>? inputFormatters;
@@ -60,9 +62,8 @@ class TextFormElement extends FormInformation {
   final bool readOnly;
 
   const TextFormElement({
-    super.key,
-    required this.controller,
-    required this.focusNode,
+    required GlobalKey<TextFormElementState> key,
+    required this.controllerInitValue,
     this.autofocus = false,
     this.keyboardType = TextInputType.text,
     this.inputFormatters,
@@ -73,18 +74,28 @@ class TextFormElement extends FormInformation {
     required this.validatorParameter,
     required super.label,
     this.readOnly = false,
-  });
+  }) : super(key: key);
 
   @override
-  State<TextFormElement> createState() => _TextFormElementState();
+  State<TextFormElement> createState() => TextFormElementState();
 
   @override
   dynamic result() {
-    return controller.text;
+    final currentState = (key as GlobalKey<TextFormElementState>).currentState;
+    return currentState?.controller.text ?? controllerInitValue;
   }
 }
 
-class _TextFormElementState extends State<TextFormElement> {
+class TextFormElementState extends State<TextFormElement> {
+  late final TextEditingController controller;
+  late final FocusNode focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: widget.controllerInitValue);
+    focusNode = FocusNode();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,8 +110,8 @@ class _TextFormElementState extends State<TextFormElement> {
           ),
         ),
         TextFormField(
-          controller: widget.controller,
-          focusNode: widget.focusNode,
+          controller: controller,
+          focusNode: focusNode,
           autofocus: widget.autofocus,
           keyboardType: widget.keyboardType,
           inputFormatters: widget.inputFormatters,
@@ -143,6 +154,13 @@ class _TextFormElementState extends State<TextFormElement> {
         ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    focusNode.dispose();
+    super.dispose();
   }
 }
 
@@ -437,8 +455,7 @@ class CalendarPickerFormElementState extends State<CalendarPickerFormElement> {
 }
 
 class TextAheadAddressFormElement extends FormInformation {
-  final TextEditingController controller;
-  final FocusNode focusNode;
+  final String controllerInitValue;
   final bool autofocus;
   final TextInputType keyboardType;
   final List<TextInputFormatter>? inputFormatters;
@@ -449,8 +466,7 @@ class TextAheadAddressFormElement extends FormInformation {
 
   const TextAheadAddressFormElement({
     required GlobalKey<TextAheadAddressFormElementState> key,
-    required this.controller,
-    required this.focusNode,
+    required this.controllerInitValue,
     this.autofocus = false,
     this.keyboardType = TextInputType.text,
     this.inputFormatters,
@@ -474,6 +490,15 @@ class TextAheadAddressFormElement extends FormInformation {
 class TextAheadAddressFormElementState extends State<TextAheadAddressFormElement> {
   String? placeId;
   String? lastSelected;
+  late final TextEditingController controller;
+  late final FocusNode focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: widget.controllerInitValue);
+    focusNode = FocusNode();
+  }
 
 
   @override
@@ -489,8 +514,8 @@ class TextAheadAddressFormElementState extends State<TextAheadAddressFormElement
           ),
         ),
         TypeAheadField<dynamic>(
-          controller: widget.controller,
-          focusNode: widget.focusNode,
+          controller: controller,
+          focusNode: focusNode,
           suggestionsCallback: (String search) {
             return widget.callHintFunc();
           },
@@ -532,12 +557,19 @@ class TextAheadAddressFormElementState extends State<TextAheadAddressFormElement
             placeId = place["place_id"];
             lastSelected = place["description"];
             setState(() {
-              widget.controller.text = place["description"];
+              controller.text = place["description"];
             });
           },
         ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    focusNode.dispose();
+    super.dispose();
   }
 }
 

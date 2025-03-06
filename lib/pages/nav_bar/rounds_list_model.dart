@@ -24,6 +24,7 @@ class RoundListModel extends ChangeNotifier {
   String? get tournamentsRef => tournamentModel.tournamentId;
   bool get hasAnyTopCutRound => roundListRefObj.any((element) => element.kind == RoundKind.top);
   bool get hasWinner => tournamentModel.hasWinner;
+  bool get isTournamentOngoing => tournamentModel.isTournamentOngoing;
 
 
   Stream<bool> waitForTournamentLoading() {

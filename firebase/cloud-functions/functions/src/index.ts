@@ -1,4 +1,5 @@
 import {setGlobalOptions} from "firebase-functions/v2";
+import * as admin from "firebase-admin";
 
 setGlobalOptions({
   region: "us-central1", // Default region for all functions
@@ -15,6 +16,7 @@ export {
   getAlgoliaApiKeyFromSecret,
   getAlgoliaApiWKeyFromSecret,
 } from "./algoliaApiKeys";
+admin.initializeApp();
 export {
   userUpdatedTrigger,
   updateCounterWaitingIncr,
@@ -25,3 +27,6 @@ export {
   updateCounterRegisteredDecr,
   tournamentUpdatedTrigger,
 } from "./syncUserDetails";
+export {
+  createTopCutRound,
+} from "./roundsManagements";

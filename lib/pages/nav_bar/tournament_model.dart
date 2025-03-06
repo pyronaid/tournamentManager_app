@@ -55,20 +55,15 @@ class TournamentModel extends ChangeNotifier {
     if(tournamentsRefObj != null){
       flag = tournamentsRefObj!.preRegistrationEn && tournamentsRefObj!.capacity > 0;
     }
-    return flag && tournamentInteractPossible;
-  }
-  bool get tournamentInteractPossible{
-    bool flag = false;
-    if(tournamentsRefObj != null && tournamentsRefObj!.state!.indexState < 3){
-      flag = true;
-    }
-    return flag;
+    return flag && isTournamentEditable;
   }
   int get tournamentPreRegisteredSize => tournamentsRefObj != null ? tournamentsRefObj!.preRegisteredListCounter : 0;
   int get tournamentWaitingSize => tournamentsRefObj != null ? tournamentsRefObj!.waitingListCounter : 0;
   int get tournamentRegisteredSize => tournamentsRefObj != null ? tournamentsRefObj!.registeredListCounter : 0;
   String? get tournamentImageUrl => tournamentsRefObj?.image;
   bool get hasWinner => tournamentsRefObj != null ? tournamentsRefObj!.hasWinner() : false;
+  bool get isTournamentOngoing => tournamentsRefObj != null ? tournamentsRefObj!.state == StateTournament.ongoing : false;
+  bool get isTournamentEditable => tournamentsRefObj != null ? (tournamentsRefObj!.state == StateTournament.ready || tournamentsRefObj!.state == StateTournament.open) : false;
 
 
   /////////////////////////////SETTER

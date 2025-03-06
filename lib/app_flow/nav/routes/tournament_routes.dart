@@ -9,10 +9,10 @@ import '../../../pages/core/tournament_detail/tournament_detail_container.dart';
 import '../../../pages/core/tournament_news/tournament_news_container.dart';
 import '../../../pages/core/tournament_people/tournament_people_model.dart';
 import '../../../pages/core/tournament_people/tournament_people_widget.dart';
-import '../../../pages/core/tournament_rounds/tournament_rounds_widget.dart';
 import '../../../pages/nav_bar/scaffold_leveltwo_nested_navigation.dart';
 import '../../../pages/nav_bar/tournament_model.dart';
 import '../../app_flow_util.dart';
+import '../../dialog_page.dart';
 import '../navigation_keys.dart';
 import '../route_config.dart';
 import '../serialization_util.dart';
@@ -36,6 +36,38 @@ class TournamentRoutes {
           path: 'tournament-dets',
           redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
           builder: (context, params) => const TournamentDetailContainer(),
+          routes: [
+            GoRoute(
+              name: 'DialogState',
+              path: 'dialog-state',
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+            ),
+            GoRoute(
+              name: 'DialogWaitingList',
+              path: 'dialog-waiting-list',
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+            ),
+            GoRoute(
+              name: 'DialogPreIscrizioni',
+              path: 'dialog-pre-registration',
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+            ),
+            GoRoute(
+              name: 'DialogChangeCapacity',
+              path: 'dialog-change-capacity',
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+            ),
+            GoRoute(
+              name: 'DialogChangeTournamentName',
+              path: 'dialog-change-tournament-name',
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+            ),
+          ]
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     ),
@@ -83,8 +115,20 @@ class TournamentRoutes {
                   builder: (context, params) => const BarcodeScannerWithZoom(),
                 ).toRoute(appStateNotifier),
               ]
+            ).toRoute(appStateNotifier),
+            GoRoute(
+              name: 'DialogDeletePerson',
+              path: 'dialog-delete-person',
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
-          ].map((r) => r.toRoute(appStateNotifier)).toList(),
+            GoRoute(
+              name: 'DialogPromotePerson',
+              path: 'dialog-promote-person',
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+            ),
+          ],
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     ),
@@ -113,8 +157,14 @@ class TournamentRoutes {
                   createEditFlag: params.getParam('createEditFlag', ParamType.bool,),
                 ),
               ),
+            ).toRoute(appStateNotifier),
+            GoRoute(
+              name: 'DialogDeleteNews',
+              path: 'dialog-delete-news',
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
-          ].map((r) => r.toRoute(appStateNotifier)).toList(),
+          ]
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     ),

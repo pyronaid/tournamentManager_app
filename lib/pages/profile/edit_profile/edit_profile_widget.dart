@@ -210,7 +210,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                         FocusScope.of(context).unfocus();
                         logFirebaseEvent('EDIT_PROFILE_DELETE_ACCOUNT_BTN_ON_TAP');
                         logFirebaseEvent('Button_auth');
-                        AlertResponse resp = await editProfileModel.showConfirmDeletionAccountDialog();
+                        /*AlertResponse resp = await editProfileModel.showConfirmDeletionAccountDialog();
                         if(resp.confirmed){
                           await authManager.deleteUser(context);
                           logFirebaseEvent('Button_navigate_to');
@@ -224,7 +224,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                               ),
                             },
                           );
-                        }
+                        }*/
                       },
                       text: 'Cancella Account',
                       options: AFButtonOptions(

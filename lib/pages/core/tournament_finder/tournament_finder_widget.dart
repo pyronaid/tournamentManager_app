@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -65,9 +66,9 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                   elevation: 4.0,
                   backgroundColor: CustomFlowTheme.of(context).primary,
                   onPressed: () async {
-                    LatLng initPos = tournamentFinderModel.initialLocation;
-                    tournamentFinderModel.mapController.move(initPos, 13);
-                    tournamentFinderModel.mapController.rotate(0);
+                    LatLng initPos = providerTournamentFinder.initialLocation;
+                    providerTournamentFinder.mapController.move(initPos, 13);
+                    providerTournamentFinder.mapController.rotate(0);
                   },
                   child: Icon(
                     Icons.my_location,
@@ -80,7 +81,12 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                   elevation: 4.0,
                   backgroundColor: CustomFlowTheme.of(context).primary,
                   onPressed: () async {
-                    tournamentFinderModel.showChangeTournamentCapacityDialog();
+                    context.goNamed(
+                      'DialogChangeTournamentFinderSettings',
+                      extra: {
+                        'req' : providerTournamentFinder.showChangeTournamentFinderSettingsAlertRequest(),
+                      }
+                    );
                   },
                   child: Icon(
                     Icons.filter_alt,
@@ -93,10 +99,10 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
             body: SafeArea(
               top: true,
               child: SlidingUpPanel(
-                controller: tournamentFinderModel.panelController,
+                controller: providerTournamentFinder.panelController,
                 panel: providerTournamentFinder.tournamentsListRefObjToDetail.isNotEmpty
                   ? ListView.builder(
-                      controller: tournamentFinderModel.scrollController,
+                      controller: providerTournamentFinder.scrollController,
                       itemCount: providerTournamentFinder.tournamentsListRefObjToDetail.length,
                       itemBuilder: (context, index) {
                         final trnmt = providerTournamentFinder.tournamentsListRefObjToDetail[index];
@@ -125,16 +131,16 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                             ///###################FLUTTER MAP WIDGET
                             ///##################################
                             FlutterMap(
-                              mapController: tournamentFinderModel.mapController,
+                              mapController: providerTournamentFinder.mapController,
                               options: MapOptions(
-                                initialCenter: tournamentFinderModel.initialLocation,
+                                initialCenter: providerTournamentFinder.initialLocation,
                                 initialZoom: 13,
                                 initialRotation: 0,
                                 interactionOptions: const InteractionOptions(flags: InteractiveFlag.all & ~InteractiveFlag.rotate),
                                 onPositionChanged: (position, hasGesture) {
-                                  tournamentFinderModel.refreshSearchByTap(position);
+                                  providerTournamentFinder.refreshSearchByTap(position);
                                 },
-                                onMapReady: () => tournamentFinderModel.populateListToDet(),
+                                onMapReady: () => providerTournamentFinder.populateListToDet(),
                               ),
                               children: [
                                 ///##################################
@@ -151,7 +157,7 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                                   markers: [
                                     //MARKER POSIZIONE INIZIALE
                                     Marker(
-                                      point: tournamentFinderModel.initialLocation,
+                                      point: providerTournamentFinder.initialLocation,
                                       width: 80,
                                       height: 80,
                                       child: Icon(
@@ -170,7 +176,7 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                                     padding: const EdgeInsets.all(50),
                                     maxZoom: 15,
                                     markers: [
-                                      for(var to in tournamentFinderModel.tournamentsListRefObj)...[
+                                      for(var to in providerTournamentFinder.tournamentsListRefObj)...[
                                         CustomMarker(
                                           point: LatLng(to.latitude, to.longitude),
                                           width: 60,
@@ -178,7 +184,7 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                                           game: to.game!,
                                           child: to.game!.iconResource != null ?
                                             InkWell(
-                                              onTap: () => tournamentFinderModel.onMarkerTap(to.uid),
+                                              onTap: () => providerTournamentFinder.onMarkerTap(to.uid),
                                               child: Image.asset(
                                                 to.game!.iconResource!,
                                                 width: 40,
@@ -191,7 +197,7 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                                                 color: CustomFlowTheme.of(context).markerTournament,
                                                 size: 40,
                                               ),
-                                              onPressed: () => tournamentFinderModel.onMarkerTap(to.uid),
+                                              onPressed: () => providerTournamentFinder.onMarkerTap(to.uid),
                                             ),
                                         ),
                                       ],

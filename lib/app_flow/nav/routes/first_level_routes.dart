@@ -11,6 +11,7 @@ import '../../../pages/profile/edit_preferences/edit_preferences_widget.dart';
 import '../../../pages/profile/edit_profile/edit_profile_container.dart';
 import '../../../pages/profile/support_center/support_center_widget.dart';
 import '../../app_flow_util.dart';
+import '../../dialog_page.dart';
 import '../navigation_keys.dart';
 import '../route_config.dart';
 import '../serialization_util.dart';
@@ -51,6 +52,14 @@ class FirstLevelRoutes {
           path: 'tournament-finder',
           redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
           builder: (context, params) => const TournamentFinderContainer(),
+          routes: [
+            GoRoute(
+              name: 'DialogChangeTournamentFinderSettings',
+              path: 'dialog-change-tournament-finder-settings',
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+            ),
+          ],
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     ),

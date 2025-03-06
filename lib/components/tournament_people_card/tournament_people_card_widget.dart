@@ -16,6 +16,7 @@ class TournamentPeopleCardWidget extends StatefulWidget {
     required this.listType,
     required this.peopleModel,
     required this.promote,
+    required this.tournamentRef,
   });
 
 
@@ -24,6 +25,7 @@ class TournamentPeopleCardWidget extends StatefulWidget {
   final ListType listType;
   final ChangeNotifier peopleModel;
   final bool promote;
+  final String tournamentRef;
 
   @override
   State<TournamentPeopleCardWidget> createState() => _TournamentPeopleCardWidgetState();
@@ -67,7 +69,15 @@ class _TournamentPeopleCardWidgetState extends State<TournamentPeopleCardWidget>
             if (widget.promote) ...[
               SlidableAction(
                 onPressed: (context){
-                  _model.showPromotePeopleDialog(widget.userRef!);
+                  context.goNamed(
+                      'DialogPromotePerson',
+                      pathParameters: {
+                        'tournamentId': widget.tournamentRef,
+                      }.withoutNulls,
+                      extra: {
+                        'req' : _model.showPromotePeopleAlertRequest(widget.userRef!),
+                      }
+                  );
                 },
                 backgroundColor: CustomFlowTheme.of(context).accent1,
                 foregroundColor: CustomFlowTheme.of(context).info,
@@ -77,7 +87,15 @@ class _TournamentPeopleCardWidgetState extends State<TournamentPeopleCardWidget>
             ],
             SlidableAction(
               onPressed: (context){
-                _model.showDeletePeopleDialog(widget.userRef!);
+                context.goNamed(
+                    'DialogDeletePerson',
+                    pathParameters: {
+                      'tournamentId': widget.tournamentRef,
+                    }.withoutNulls,
+                    extra: {
+                      'req' : _model.showDeletePeopleAlertRequest(widget.userRef!),
+                    }
+                );
               },
               backgroundColor: CustomFlowTheme.of(context).error,
               foregroundColor: CustomFlowTheme.of(context).info,

@@ -55,7 +55,7 @@ class _TournamentRoundsWidgetState extends State<TournamentRoundsWidget> {
             return Scaffold(
               key: _scaffoldKey,
               backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-              floatingActionButton: FabExpandableWidget(
+              floatingActionButton: providerRoundList.isTournamentOngoing ? FabExpandableWidget(
                 distance: 60,
                 children: [
                   if(!providerRoundList.hasAnyTopCutRound && !providerRoundList.hasWinner) ...[
@@ -79,7 +79,7 @@ class _TournamentRoundsWidgetState extends State<TournamentRoundsWidget> {
                     ),
                   ],
                 ],
-              ),
+              ) : null,
               body: SafeArea(
                 top: true,
                 child: SingleChildScrollView(

@@ -187,6 +187,7 @@ class _TournamentPreregisteredPeopleWidgetState extends State<TournamentPreregis
                                 listType: ListType.preregistered,
                                 peopleModel: providerPreregisteredPeople,
                                 promote: true,
+                                tournamentRef: providerPreregisteredPeople.tournamentId,
                               );
                             },
                           ),

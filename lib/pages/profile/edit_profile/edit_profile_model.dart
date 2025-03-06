@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
-import 'package:tournamentmanager/app_flow/services/DialogService.dart';
 import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_style.dart';
@@ -13,7 +12,6 @@ class EditProfileModel extends ChangeNotifier {
 
   final _unfocusNode = FocusNode();
   late CustomAppbarModel customAppbarModel;
-  late DialogService dialogService;
   late SnackBarService snackBarService;
 
   //////////////////////////////FULL NAME
@@ -50,7 +48,6 @@ class EditProfileModel extends ChangeNotifier {
     _emailAddressTextController = TextEditingController(text: currentUserEmail);
     emailAddressTextControllerValidator = _emailAddressTextControllerValidator;
     _emailAddressFocusNode = FocusNode();
-    dialogService = GetIt.instance<DialogService>();
     snackBarService = GetIt.instance<SnackBarService>();
   }
 
@@ -79,14 +76,6 @@ class EditProfileModel extends ChangeNotifier {
       displayName: fullNameTextController.text,
     ));
     notifyListeners();
-  }
-  Future<AlertResponse> showConfirmDeletionAccountDialog() async {
-    return await dialogService.showDialog(
-      title: 'ATTENZIONE: Cancellazione dell\'account in corso...',
-      description: "Sei sicuro di cancellare il tuo account e tutti i suoi dati?",
-      buttonTitleCancelled: "Annulla",
-      buttonTitleConfirmed: "Cancella Account",
-    );
   }
   void showResetPasswordIssueSnackBar() {
     snackBarService.showSnackBar(

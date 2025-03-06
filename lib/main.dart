@@ -98,31 +98,34 @@ class _MyAppState extends State<MyApp> {
 
     return ResponsiveSizer(
       builder: (context, orientation, deviceType){
-        return ServiceManager(
-          navigatorKey: NavigatorKeys.rootNavigator,
-          child: MaterialApp.router(
-            title: 'TournamentManager',
-            localizationsDelegates: const [
-              CustomLocalizationsDelegate(),
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            locale: _locale,
-            supportedLocales: const [
-              Locale('en'),
-            ],
-            theme: ThemeData(
-              brightness: Brightness.light,
-              useMaterial3: false,
-            ),
-            darkTheme: ThemeData(
-              brightness: Brightness.dark,
-              useMaterial3: false,
-            ),
-            themeMode: _themeMode,
-            routerConfig: _router,
+        return MaterialApp.router(
+          title: 'TournamentManager',
+          localizationsDelegates: const [
+            CustomLocalizationsDelegate(),
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          locale: _locale,
+          supportedLocales: const [
+            Locale('en'),
+          ],
+          theme: ThemeData(
+            brightness: Brightness.light,
+            useMaterial3: false,
           ),
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            useMaterial3: false,
+          ),
+          themeMode: _themeMode,
+          routerConfig: _router,
+          builder: (context, child) {
+            return ServiceManager(
+              navigatorKey: NavigatorKeys.rootNavigator,
+              child: child!,
+            );
+          },
         );
       }
     );
