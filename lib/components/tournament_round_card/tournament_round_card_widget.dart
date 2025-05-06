@@ -5,7 +5,6 @@ import 'package:tournamentmanager/components/tournament_round_card/tournament_ro
 
 import '../../app_flow/app_flow_model.dart';
 import '../../backend/schema/rounds_record.dart';
-import '../tournament_news_card/tournament_news_card_model.dart';
 
 class TournamentRoundCardWidget extends StatefulWidget {
 

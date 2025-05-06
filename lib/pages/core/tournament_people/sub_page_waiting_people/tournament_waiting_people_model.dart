@@ -21,7 +21,6 @@ class TournamentWaitingPeopleModel extends TournamentPeopleModel {
 
   TournamentWaitingPeopleModel({required TournamentModel tournamentModel}){
     print("[CREATE] TournamentWaitingPeopleModel");
-    super.referralCounter = tournamentModel.tournamentWaitingSize;
     super.tournamentModel = tournamentModel;
     _waitingPeopleNameTextController = TextEditingController();
     _waitingPeopleNameFocusNode = FocusNode();

@@ -6,7 +6,6 @@ import 'package:tournamentmanager/backend/schema/company_information_record.dart
 import 'package:tournamentmanager/backend/schema/feedback_record.dart';
 import 'package:tournamentmanager/backend/schema/onboarding_options_record.dart';
 import 'package:tournamentmanager/backend/schema/support_center_record.dart';
-import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/backend/schema/users_record.dart';
 import 'schema/util/firestore_util.dart';
 export 'dart:async' show StreamSubscription;
@@ -153,33 +152,6 @@ Future<List<SupportCenterRecord>> querySupportCenterRecordOnce({ Query Function(
       singleRecord: singleRecord,
     );
 
-/// /////////////////////////////////////////////////////////////////
-/// Functions to query TournamentsRecords (as a Stream and as a Future).
-/// /////////////////////////////////////////////////////////////////
-Future<int> queryTournamentsRecordCount({ Query Function(Query)? queryBuilder, int limit = -1, }) =>
-    queryCollectionCount(
-      TournamentsRecord.collection,
-      queryBuilder: queryBuilder,
-      limit: limit,
-    );
-
-Stream<List<TournamentsRecord>> queryTournamentsRecord({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
-    queryCollection(
-      TournamentsRecord.collection,
-      TournamentsRecord.fromSnapshot,
-      queryBuilder: queryBuilder,
-      limit: limit,
-      singleRecord: singleRecord,
-    );
-
-Future<List<TournamentsRecord>> queryTournamentsRecordOnce({ Query Function(Query)? queryBuilder, int limit = -1, bool singleRecord = false, }) =>
-    queryCollectionOnce(
-      TournamentsRecord.collection,
-      TournamentsRecord.fromSnapshot,
-      queryBuilder: queryBuilder,
-      limit: limit,
-      singleRecord: singleRecord,
-    );
 
 
 

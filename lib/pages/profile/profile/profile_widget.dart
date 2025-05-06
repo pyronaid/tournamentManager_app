@@ -6,6 +6,7 @@ import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/custom_functions.dart' as functions;
 import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
+import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_auth_util.dart';
 import 'package:tournamentmanager/backend/backend.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/backend/schema/company_information_record.dart';
@@ -425,7 +426,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                         logFirebaseEvent('PROFILE_PAGE_LogoutTile_ON_TAP');
                                         logFirebaseEvent('LogoutTile_auth');
                                         GoRouter.of(context).prepareAuthEvent();
-                                        await authManager.signOut();
+                                        await pocketAuthManager.signOut();
                                         context.goNamedAuth('Splash', context.mounted);
                                       },
                                       child: Row(

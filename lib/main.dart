@@ -10,12 +10,12 @@ import 'package:tournamentmanager/app_flow/nav/nav_basics.dart';
 import 'package:tournamentmanager/app_flow/services/locator.dart';
 import 'package:tournamentmanager/app_state.dart';
 import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
-import 'package:tournamentmanager/auth/firebase_auth/firebase_user_provider.dart';
 import 'package:tournamentmanager/backend/firebase/firebase_config.dart';
 
 import 'app_flow/nav/navigation_keys.dart';
 import 'app_flow/nav/route_config.dart';
 import 'app_flow/services/ServiceManager.dart';
+import 'auth/pocketbase_auth/pocketbase_auth_util.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,9 +68,11 @@ class _MyAppState extends State<MyApp> {
 
     _appStateNotifier = AppStateNotifier.instance;
     _router = RouteConfig.createRouter(_appStateNotifier);
-    userStream = firebaseUserStream()..listen(
-            (user) => _appStateNotifier.update(user)
-    );
+    pocketAuthManager.signInWithToken().then((success){
+      userStream = pocketbaseUserProvider.pocketbaseUserStream()..listen(
+         (user) => _appStateNotifier.update(user)
+      );
+    });
     jwtTokenStream.listen((_) {});
     Future.delayed(
       const Duration(milliseconds: 4000), () => _appStateNotifier.stopShowingSplashImage(),

@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
-import 'package:tournamentmanager/pages/core/own_tournaments/own_tournaments_widget.dart';
+import 'package:tournamentmanager/pages/core/my_tournaments/my_tournaments_container.dart';
+import 'package:tournamentmanager/pages/core/own_tournaments/own_tournaments_container.dart';
 import 'package:tournamentmanager/pages/core/tournament_finder/tournament_finder_container.dart';
 import 'package:tournamentmanager/pages/profile/profile/profile_widget.dart';
 
 import '../../../pages/core/create_own/create_own_container.dart';
-import '../../../pages/core/my_tournaments/my_tournaments_widget.dart';
 import '../../../pages/nav_bar/scaffold_levelone_nested_navigation.dart';
 import '../../../pages/profile/about_us/about_us_widget.dart';
 import '../../../pages/profile/edit_preferences/edit_preferences_widget.dart';
@@ -29,7 +29,7 @@ class FirstLevelRoutes {
           name: 'Dashboard',
           path: 'dashboard',
           redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-          builder: (context, params) => const MyTournamentsWidget(),
+          builder: (context, params) => const MyTournamentsContainer(),
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     ),
@@ -40,7 +40,7 @@ class FirstLevelRoutes {
           name: 'OwnTournaments',
           path: 'own-tournaments',
           redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-          builder: (context, params) => const OwnTournamentsWidget(),
+          builder: (context, params) => const OwnTournamentsContainer(),
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     ),
@@ -79,6 +79,14 @@ class FirstLevelRoutes {
               parentNavigatorKey: NavigatorKeys.profileKey,
               redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
               builder: (context, params) => const EditProfileContainer(),
+              routes: [
+                GoRoute(
+                  name: 'DialogDeleteAccount',
+                  path: 'dialog-delete-account',
+                  redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+                  pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+                ),
+              ],
             ),
             CustomRoute(
               name: 'AboutUs',

@@ -5,11 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
-import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/components/custom_appbar_widget.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 import 'package:tournamentmanager/pages/onboarding/forgot_password/forgot_password_model.dart';
+
+import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 
 class ForgotPasswordWidget extends StatefulWidget {
   const ForgotPasswordWidget({super.key});
@@ -164,10 +165,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                               if (_model.emailAddressTextController!.text.isEmpty) {
                                 _model.showResetPasswordIssueSnackBar();
                               } else {
-                                await authManager.resetPassword(
-                                  email: _model.emailAddressTextController!.text,
-                                  context: context,
-                                );
+                                await pocketAuthManager.resetPassword(_model.emailAddressTextController!.text);
                                 logFirebaseEvent('Button_navigate_back');
                                 context.pop();
                               }

@@ -45,24 +45,22 @@ class _NoTournamentCardWidgetState extends State<NoTournamentCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return  Container(
-      width: 90.w,
-      decoration: BoxDecoration(
-        color: widget.active ? CustomFlowTheme.of(context).secondaryBackground : CustomFlowTheme.of(context).secondary,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: CustomFlowTheme.of(context).alternate,
-          width: 1,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(24, 16, 24, 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
+    return  Column(
+      children: [
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+          child: Container(
+            width: 90.w,
+            decoration: BoxDecoration(
+              color: widget.active ? CustomFlowTheme.of(context).secondary : CustomFlowTheme.of(context).primaryBackground,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: CustomFlowTheme.of(context).alternate,
+                width: 1,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(24, 16, 24, 32),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -75,16 +73,16 @@ class _NoTournamentCardWidgetState extends State<NoTournamentCardWidget> {
                   Flexible(
                     child: Text(
                       widget.phrase,
-                      style: widget.active ? CustomFlowTheme.of(context).labelLarge : CustomFlowTheme.of(context).bodySmall,
+                      style: widget.active ? CustomFlowTheme.of(context).bodySmall : CustomFlowTheme.of(context).labelLarge,
                       textAlign: TextAlign.center,
                     ),
                   ),
                 ]
               ),
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

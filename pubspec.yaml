@@ -60,6 +60,7 @@ dependencies:
   flutter_map: ^7.0.2
   flutter_map_marker_cluster: ^1.4.0
   flutter_keyboard_visibility: ^6.0.0
+  flutter_secure_storage: ^9.2.4
   flutter_slidable: ^3.1.1
   flutter_typeahead: ^5.2.0
   font_awesome_flutter: ^10.7.0
@@ -89,6 +90,7 @@ dependencies:
   #path_provider_foundation: ^2.3.2   #ADDED_NOT_DEMANDED
   #path_provider_platform_interface: ^2.1.0   #ADDED_NOT_DEMANDED
   plugin_platform_interface: 2.1.8    #ADDED_NOT_DEMANDED
+  pocketbase: ^0.22.0
   provider: ^6.1.2
   qr_flutter: ^4.1.0
   responsive_sizer: ^3.3.1

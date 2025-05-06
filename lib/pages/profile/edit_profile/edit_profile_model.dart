@@ -8,6 +8,8 @@ import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
 import 'package:tournamentmanager/backend/schema/users_record.dart';
 import 'package:tournamentmanager/components/custom_appbar_model.dart';
 
+import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
+
 class EditProfileModel extends ChangeNotifier {
 
   final _unfocusNode = FocusNode();
@@ -84,6 +86,18 @@ class EditProfileModel extends ChangeNotifier {
       style: SnackbarStyle.error
     );
   }
+  AlertRequest showConfirmDeletionAccountAlertRequest(BuildContext context){
+    AlertRequest req = AlertRequest(
+      title: 'ATTENZIONE: Cancellazione dell\'account in corso...',
+      description: "Sei sicuro di cancellare il tuo account e tutti i suoi dati?",
+      buttonTitleCancelled: "Annulla",
+      buttonTitleConfirmed: "Cancella Account",
+      functionConfirmed: (List<dynamic>? formValues) => pocketAuthManager.deleteUser(),
+      redirectConfirmed: "Splash",
+    );
+    return req;
+  }
+
 
 
 

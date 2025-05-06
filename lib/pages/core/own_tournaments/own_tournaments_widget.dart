@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
-import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
-import 'package:tournamentmanager/backend/backend.dart';
-import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/components/generic_loading/generic_loading_widget.dart';
 import 'package:tournamentmanager/components/no_tournament_card/no_tournament_card_widget.dart';
@@ -21,199 +19,177 @@ class OwnTournamentsWidget extends StatefulWidget {
 
 
 class _OwnTournamentsWidgetState extends State<OwnTournamentsWidget> {
-  late OwnTournamentsModel _model;
+
+  late OwnTournamentsModel ownTournamentsModel;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => OwnTournamentsModel());
 
-    logFirebaseEvent('screen_view', parameters: {'screen_name': 'Own_Tournaments'});
-
+    //logFirebaseEvent('screen_view', parameters: {'screen_name': 'Own_Tournaments'});
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-  }
 
+    ownTournamentsModel = context.read<OwnTournamentsModel>();
+  }
 
   @override
   void dispose() {
-    _model.dispose();
-
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _model.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_model.unfocusNode)
-          : FocusScope.of(context).unfocus(),
+        onTap: () => ownTournamentsModel.unfocusNode.canRequestFocus
+        ? FocusScope.of(context).requestFocus(ownTournamentsModel.unfocusNode)
+        : FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: _scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
-          child:  SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ////////////////
-                //ACTIVE SECTION
-                /////////////////
-                Container(
-                  width: 100.w,
-                  decoration: BoxDecoration(
-                    color: CustomFlowTheme.of(context).secondary,
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(20.0),
-                      bottomRight: Radius.circular(20.0),
+          child: Consumer<OwnTournamentsModel>(
+            builder: (context, providerOwnTournaments, _){
+              if(providerOwnTournaments.isLoading){
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return RefreshIndicator(
+                onRefresh: () async {
+                  await providerOwnTournaments.onRefresh();
+                },
+                child: CustomScrollView(
+                  slivers: [
+                    // use sliver padding if needed https://api.flutter.dev/flutter/widgets/SliverPadding-class.html
+
+                    ////////////////
+                    //ACTIVE SECTION HEADER
+                    /////////////////
+                    SliverAppBar(
+                      pinned: true,
+                      snap: false,
+                      floating: false,
+                      expandedHeight: 100.0,
+                      collapsedHeight: 70.0,
+                      backgroundColor: CustomFlowTheme.of(context).secondary,
+                      flexibleSpace: FlexibleSpaceBar(
+                        title: Text(
+                          'ATTIVI/FUTURI',
+                          style: CustomFlowTheme.of(context).headlineLarge,
+                          textAlign: TextAlign.center,
+                        ),
+                        expandedTitleScale: 1,
+                        titlePadding: const EdgeInsetsDirectional.fromSTEB(0, 15, 0, 30),
+                        centerTitle: true,
+                      ),
+                      actions: <Widget>[
+                        IconButton(
+                          icon: providerOwnTournaments.showActiveTournaments ? const Icon(Icons.remove_circle) : const Icon(Icons.add_circle),
+                          tooltip: providerOwnTournaments.showActiveTournaments ? 'Hide' : 'Show',
+                          onPressed: () { providerOwnTournaments.switchShowActiveTournaments(); },
+                        ),
+                      ]
                     ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(24, 48, 24, 54),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
-                            child: Text(
-                              'ATTIVI/FUTURI',
-                              style: CustomFlowTheme.of(context).headlineLarge,
-                              textAlign: TextAlign.center,
-                            ),
+
+                    ////////////////
+                    //ACTIVE SECTION INF LIST
+                    /////////////////
+                    if(providerOwnTournaments.showActiveTournaments) ...[
+                      PagedSliverList<String?, TournamentsRecord>(
+                        pagingController: providerOwnTournaments.pagingControllerActive,
+                        builderDelegate: PagedChildBuilderDelegate<TournamentsRecord>(
+                          itemBuilder: (context, item, index) => TournamentCardWidget(
+                            key: Key('Keykia_${item.uid}_position_${index}_of_active'),
+                            last: index == (providerOwnTournaments.pagingControllerActive.itemList!.length - 1),
+                            tournamentRef: item,
+                            active: true,
+                          ),
+                          firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
+                          noItemsFoundIndicatorBuilder: (_) => const NoTournamentCardWidget(
+                            active: false,
+                            phrase: "Non risultano tornei attivi o futuri. Creane uno per gestirlo da qui!",
+                          ),
+                          newPageProgressIndicatorBuilder: (_) => const Center(child: CircularProgressIndicator()),
+                        ),
+                      ),
+                    ],
+
+                    ////////////////
+                    //ACTIVE SECTION END ROUND BOTTOM BOX
+                    /////////////////
+                    SliverToBoxAdapter(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: CustomFlowTheme.of(context).secondary,
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(20.0),
+                            bottomRight: Radius.circular(20.0),
                           ),
                         ),
-                        AuthUserStreamWidget(
-                          builder: (context) => StreamBuilder<List<TournamentsRecord>>(
-                            stream: queryTournamentsRecord(
-                              queryBuilder: (tournamentsRecord) => tournamentsRecord
-                                .where('creator_uid', isEqualTo: currentUser?.uid)
-                                .where('state', isNotEqualTo: StateTournament.close.name),
-                            ),
-                            builder: (BuildContext context, AsyncSnapshot<List<TournamentsRecord>> snapshot) {
-                              /////////////////////////////////////////
-                              ////////////// LOADING OPPORTUNITY
-                              /////////////////////////////////////////
-                              if (!snapshot.hasData) {
-                                return const GenericLoadingWidget();
-                              }
-                              /////////////////////////////////////////
-                              ////////////// EMPTY CASE
-                              /////////////////////////////////////////
-                              List<TournamentsRecord> tournamentsRecordList = snapshot.data!;
-                              if (tournamentsRecordList.isEmpty) {
-                                return const NoTournamentCardWidget(
-                                  active: true,
-                                  phrase: "Non risultano tornei attivi o futuri. Creane uno per gestirlo da qui!",
-                                );
-                              }
-                              /////////////////////////////////////////
-                              ////////////// STANDARD CASE
-                              /////////////////////////////////////////
-                              return Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: List.generate(
-                                      tournamentsRecordList.length,
-                                          (index) {
-                                        final tournament = tournamentsRecordList[index];
-                                        return TournamentCardWidget(
-                                          key: Key('Keykia_${tournament.uid}_position_${index}_of_${tournamentsRecordList.length}'),
-                                          last: index == (tournamentsRecordList.length - 1),
-                                          tournamentRef: tournament,
-                                          active: false,
-                                        );
-                                      }
-                                  )
-                              );
-                            },
-                          ),
+                        child: SizedBox(
+                          height: 40,
+                          width: 100.w,
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+
+                    ////////////////
+                    //CLOSED SECTION HEADER
+                    /////////////////
+                    SliverAppBar(
+                      pinned: true,
+                      snap: false,
+                      floating: false,
+                      expandedHeight: 100.0,
+                      collapsedHeight: 70.0,
+                      backgroundColor: CustomFlowTheme.of(context).primaryBackground,
+                      flexibleSpace: FlexibleSpaceBar(
+                        title: Text(
+                          'TERMINATI',
+                          style: CustomFlowTheme.of(context).headlineLarge,
+                          textAlign: TextAlign.center,
+                        ),
+                        expandedTitleScale: 1,
+                        titlePadding: const EdgeInsetsDirectional.fromSTEB(0, 15, 0, 30),
+                        centerTitle: true,
+                      ),
+                      actions: <Widget>[
+                        IconButton(
+                          icon: providerOwnTournaments.showClosedTournaments ? const Icon(Icons.remove_circle) : const Icon(Icons.add_circle),
+                          tooltip: providerOwnTournaments.showClosedTournaments ? 'Hide' : 'Show',
+                          onPressed: () { providerOwnTournaments.switchShowClosedTournaments(); },
+                        ),
+                      ]
+                    ),
+
+                    ////////////////
+                    //CLOSED SECTION INF LIST
+                    /////////////////
+                    if(providerOwnTournaments.showClosedTournaments) ...[
+                      PagedSliverList<String?, TournamentsRecord>(
+                        pagingController: providerOwnTournaments.pagingControllerClosed,
+                        builderDelegate: PagedChildBuilderDelegate<TournamentsRecord>(
+                          itemBuilder: (context, item, index) => TournamentCardWidget(
+                            key: Key('Keykia_${item.uid}_position_${index}_of_closed'),
+                            last: index == (providerOwnTournaments.pagingControllerClosed.itemList!.length - 1),
+                            tournamentRef: item,
+                            active: false,
+                          ),
+                          firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
+                          noItemsFoundIndicatorBuilder: (_) => const NoTournamentCardWidget(
+                            active: true,
+                            phrase: "Non risultano tornei attivi o futuri. Creane uno per gestirlo da qui!",
+                          ),
+                          newPageProgressIndicatorBuilder: (_) => const Center(child: CircularProgressIndicator()),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-                ////////////////
-                //PAST SECTION
-                /////////////////
-                SizedBox(
-                  width: 100.w,
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(24, 54, 24, 54),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
-                            child: Text(
-                              'TERMINATI',
-                              style: CustomFlowTheme.of(context).headlineLarge,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                        AuthUserStreamWidget(
-                          builder: (context) => StreamBuilder<List<TournamentsRecord>>(
-                            stream: queryTournamentsRecord(
-                              queryBuilder: (tournamentsRecord) => tournamentsRecord
-                                  .where('creator_uid', isEqualTo: currentUser?.uid)
-                                  .where('state', isEqualTo: StateTournament.close.name),
-                            ),
-                            builder: (BuildContext context, AsyncSnapshot<List<TournamentsRecord>> snapshot) {
-                              /////////////////////////////////////////
-                              ////////////// LOADING OPPORTUNITY
-                              /////////////////////////////////////////
-                              if (!snapshot.hasData) {
-                                return const GenericLoadingWidget();
-                              }
-                              /////////////////////////////////////////
-                              ////////////// EMPTY CASE
-                              /////////////////////////////////////////
-                              List<TournamentsRecord> tournamentsRecordList = snapshot.data!;
-                              if (tournamentsRecordList.isEmpty) {
-                                return const NoTournamentCardWidget(
-                                  active: false,
-                                  phrase: "Non risultano tornei terminati. Creane uno e gestiscilo da qui!",
-                                );
-                              }
-                              /////////////////////////////////////////
-                              ////////////// STANDARD CASE
-                              /////////////////////////////////////////
-                              return Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: List.generate(
-                                  tournamentsRecordList.length,
-                                  (index) {
-                                    final tournament = tournamentsRecordList[index];
-                                    return TournamentCardWidget(
-                                      key: Key('Keykia_${tournament.uid}_position_${index}_of_${tournamentsRecordList.length}'),
-                                      last: index == (tournamentsRecordList.length - 1),
-                                      tournamentRef: tournament,
-                                      active: false,
-                                    );
-                                  }
-                                )
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              );
+            }
           ),
         ),
       ),

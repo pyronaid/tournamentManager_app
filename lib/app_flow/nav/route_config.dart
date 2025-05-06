@@ -5,7 +5,6 @@ import 'package:tournamentmanager/app_flow/nav/routes/tournament_routes.dart';
 import 'package:tournamentmanager/pages/onboarding/loading/loading_widget.dart';
 import 'package:tournamentmanager/pages/placeholder2_widget.dart';
 
-import '../../pages/core/add_people/barcode_scanner_zoom.dart';
 import '../../pages/onboarding/splash/splash_widget.dart';
 import 'nav_basics.dart';
 import 'navigation_keys.dart';

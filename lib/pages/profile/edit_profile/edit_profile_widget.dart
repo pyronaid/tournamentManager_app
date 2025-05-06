@@ -1,18 +1,18 @@
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
 import 'package:tournamentmanager/app_flow/nav/nav_basics.dart';
-import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
 import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/components/custom_appbar_widget.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 import 'package:tournamentmanager/components/title_with_subtitle/title_with_subtitle_widget.dart';
 import 'package:tournamentmanager/pages/profile/edit_profile/edit_profile_model.dart';
+
+import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 
 
 class EditProfileWidget extends StatefulWidget {
@@ -173,9 +173,8 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                         if (editProfileModel.emailAddressTextController.text.isEmpty) {
                           editProfileModel.showResetPasswordIssueSnackBar();
                         } else {
-                          await authManager.resetPassword(
-                            email: editProfileModel.emailAddressTextController.text,
-                            context: context,
+                          await pocketAuthManager.resetPassword(
+                            editProfileModel.emailAddressTextController.text
                           );
                         }
                       },
@@ -210,21 +209,12 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                         FocusScope.of(context).unfocus();
                         logFirebaseEvent('EDIT_PROFILE_DELETE_ACCOUNT_BTN_ON_TAP');
                         logFirebaseEvent('Button_auth');
-                        /*AlertResponse resp = await editProfileModel.showConfirmDeletionAccountDialog();
-                        if(resp.confirmed){
-                          await authManager.deleteUser(context);
-                          logFirebaseEvent('Button_navigate_to');
-                          context.goNamed(
-                            'Splash',
-                            extra: <String, dynamic>{
-                              kTransitionInfoKey: const TransitionInfo(
-                                hasTransition: true,
-                                transitionType: PageTransitionType.fade,
-                                duration: Duration(milliseconds: 0),
-                              ),
-                            },
-                          );
-                        }*/
+                        context.goNamed(
+                            'DialogDeleteAccount',
+                            extra: {
+                              'req' : editProfileModel.showConfirmDeletionAccountAlertRequest(context),
+                            }
+                        );
                       },
                       text: 'Cancella Account',
                       options: AFButtonOptions(

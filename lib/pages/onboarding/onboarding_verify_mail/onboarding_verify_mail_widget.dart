@@ -8,6 +8,7 @@ import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
 import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
+import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_auth_util.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/components/custom_appbar_widget.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
@@ -186,7 +187,7 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
 
                         //LOGIC
                         try{
-                          await authManager.sendEmailVerification();
+                          await pocketAuthManager.sendEmailVerification(currentUserEmail);
                         } catch (e){
 
                         }

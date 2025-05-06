@@ -21,7 +21,6 @@ class TournamentRegisteredPeopleModel extends TournamentPeopleModel {
 
   TournamentRegisteredPeopleModel({required TournamentModel tournamentModel}){
     print("[CREATE] TournamentRegisteredPeopleModel");
-    super.referralCounter = tournamentModel.tournamentRegisteredSize;
     super.tournamentModel = tournamentModel;
     _registeredPeopleNameTextController = TextEditingController();
     _registeredPeopleNameFocusNode = FocusNode();

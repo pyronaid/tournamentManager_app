@@ -19,7 +19,7 @@ String get currentUserEmail =>
 String get currentUserUid => currentUser?.uid ?? '';
 
 String get currentUserDisplayName =>
-    currentUserDocument?.displayName ?? currentUser?.displayName ?? '';
+    currentUserDocument?.displayName ?? currentUser?.name ?? '';
 
 String get currentUserPhoto =>
     currentUserDocument?.photoUrl ?? currentUser?.photoUrl ?? '';

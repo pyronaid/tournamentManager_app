@@ -12,8 +12,8 @@ class FirebaseUser extends BaseAuthUser {
   AuthUserInfo get authUserInfo => AuthUserInfo(
         uid: user?.uid,
         email: user?.email,
-        displayName: user?.displayName,
-        photoUrl: user?.photoURL,
+        name: user?.displayName,
+        avatar: user?.photoURL,
         phoneNumber: user?.phoneNumber,
       );
 
@@ -21,11 +21,11 @@ class FirebaseUser extends BaseAuthUser {
   Future? delete() => user?.delete();
 
   @override
-  Future? updateEmail(String email) async {
+  Future? updateEmail(String newEmail, String password) async {
     try {
-      await user?.verifyBeforeUpdateEmail(email);
+      await user?.verifyBeforeUpdateEmail(newEmail);
     } catch (_) {
-      await user?.verifyBeforeUpdateEmail(email);
+      await user?.verifyBeforeUpdateEmail(newEmail);
     }
   }
 

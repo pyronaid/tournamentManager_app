@@ -2,15 +2,15 @@ class AuthUserInfo {
   const AuthUserInfo({
     this.uid,
     this.email,
-    this.displayName,
-    this.photoUrl,
+    this.name,
+    this.avatar,
     this.phoneNumber,
   });
 
   final String? uid;
   final String? email;
-  final String? displayName;
-  final String? photoUrl;
+  final String? name;
+  final String? avatar;
   final String? phoneNumber;
 }
 
@@ -21,14 +21,14 @@ abstract class BaseAuthUser {
   AuthUserInfo get authUserInfo;
 
   Future? delete();
-  Future? updateEmail(String email);
+  Future? updateEmail(String newEmail, String password);
   Future? sendEmailVerification();
-  Future refreshUser() async {}
+  Future refreshUser();
 
   String? get uid => authUserInfo.uid;
   String? get email => authUserInfo.email;
-  String? get displayName => authUserInfo.displayName;
-  String? get photoUrl => authUserInfo.photoUrl;
+  String? get name => authUserInfo.name;
+  String? get photoUrl => authUserInfo.avatar;
   String? get phoneNumber => authUserInfo.phoneNumber;
 }
 

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:get_it/get_it.dart';
@@ -12,7 +11,6 @@ import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/services/PlacesApiManagerService.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
-import 'package:tournamentmanager/backend/schema/tournaments_with_creator_record.dart';
 import 'package:uuid/uuid.dart';
 
 class TournamentFinderModel extends ChangeNotifier {
@@ -202,7 +200,7 @@ class TournamentFinderModel extends ChangeNotifier {
         _lastLocation = position.center;
         await _tournamentsSubscription?.cancel();
         var query = getQuery(tournamentNameFilter: null);
-        _tournamentsSubscription = TournamentsWithCreatorRecord.getDocuments(query).listen((tournamentsWithCreatorsList) {
+        _tournamentsSubscription = TournamentsRecord.getDocuments(query).listen((tournamentsWithCreatorsList) {
           tournamentsListRefObj = tournamentsWithCreatorsList.map((twc) {
             TournamentsRecord t = twc.tournament;
             t.setCreatorUid(twc.creatorName);
@@ -393,7 +391,7 @@ class TournamentFinderModel extends ChangeNotifier {
     return _placeList;
   }
 
-  Query<Object?> getQuery({String? tournamentNameFilter, bool useFirst = false}) {
+  String getQuery({String? tournamentNameFilter, bool useFirst = false}) {
     print("[LOAD FROM FIREBASE IN CORSO] tournament_finder_model.dart");
     double currentLat;
     double currentLong;
@@ -404,17 +402,15 @@ class TournamentFinderModel extends ChangeNotifier {
       currentLat = mapController.camera.center.latitude;
       currentLong = mapController.camera.center.longitude;
     }
-    Query<Object?> query = TournamentsRecord.collection
-        .where('state', isEqualTo: StateTournament.ready.name)
-        .where('date', isLessThanOrEqualTo: _dateEnd) //date
-        .where('date', isGreaterThanOrEqualTo: _dateStart) //date
-        .where('game', whereIn: _games.map((g) => g.name).toList()) //games
-        .where('latitude', isGreaterThanOrEqualTo: currentLat - (_radiusInKm / 111.32)) //south
-        .where('latitude', isLessThanOrEqualTo: currentLat + (_radiusInKm / 111.32)) //north
-        .where('longitude', isGreaterThanOrEqualTo: currentLong - (_radiusInKm / (111.32 * cos(currentLat * pi / 180)))) //west
-        .where('longitude', isLessThanOrEqualTo: currentLong + (_radiusInKm / (111.32 * cos(currentLat * pi / 180)))); //east
+    String query = 'state = ${StateTournament.ready.name} &&'
+        'date <= "$_dateEnd" &&date >= "$_dateStart" &&'
+        'game IN [${_games.map((g) => g.name).toList()}] &&'
+        'latitude  >= "${currentLat - (_radiusInKm / 111.32)}" &&'
+        'latitude  <= "${currentLat + (_radiusInKm / 111.32)}" &&'
+        'longitude  >= "${currentLong - (_radiusInKm / (111.32 * cos(currentLat * pi / 180)))}" &&'
+        'longitude  <= "${currentLong + (_radiusInKm / (111.32 * cos(currentLat * pi / 180)))}"';
     if(tournamentNameFilter != null){
-      //query.where('name', contains: tournamentNameFilter);
+      query = '$query && name  ~ "$tournamentNameFilter"';
     }
     return query;
   }

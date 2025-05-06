@@ -36,8 +36,8 @@ class _TournamentRegisteredPeopleContainerState extends State<TournamentRegister
           tournamentModel: context.read<TournamentModel>()
       )..fetchInitialResults(listType: ListType.registered, loadingCall: true),
       update: (context, tournamentModel, previousPeopleListModel) {
-        // Optional update method
-        if (previousPeopleListModel == null || (!previousPeopleListModel.isLoading && !tournamentModel.isLoading && previousPeopleListModel.referralCounter != tournamentModel.tournamentRegisteredSize)) {
+        // Optional update method TODO POCKETBASE REFACTORING
+        if (previousPeopleListModel == null || (!previousPeopleListModel.isLoading && !tournamentModel.isLoading && previousPeopleListModel.referralCounter != 0)) {
           return TournamentRegisteredPeopleModel(
               tournamentModel: tournamentModel
           )..fetchInitialResults(listType: ListType.registered, loadingCall: true);

@@ -5,7 +5,6 @@ import 'package:tournamentmanager/pages/core/tournament_people/sub_page_register
 import 'package:tournamentmanager/pages/core/tournament_people/sub_page_waiting_people/tournament_waiting_people_container.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
-import '../../../app_flow/app_flow_theme.dart';
 import '../../../components/fab_expandable/fab_expandable_widget.dart';
 
 class TournamentPeopleWidget extends StatefulWidget {

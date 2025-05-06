@@ -12,6 +12,8 @@ import 'package:tournamentmanager/components/custom_appbar_model.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
+
 
 class CreateOwnModel extends ChangeNotifier {
   ///  State fields for stateful widgets in this page.
@@ -213,15 +215,15 @@ class CreateOwnModel extends ChangeNotifier {
         address: tournamentAddressTextController.text,
         latitude: placeDetail!['lat'],
         longitude: placeDetail['lng'],
-        pre_registration_en: preRegistrationEnabledVar,
-        waiting_list_en : waitingListEnabledVar,
+        preRegistrationEn: preRegistrationEnabledVar,
+        waitingListEn : waitingListEnabledVar,
         date: DateFormat('dd/MM/yyyy').parse(tournamentDateTextController.text),
         capacity: int.tryParse(tournamentCapacityTextController.text),
-        creator_uid: currentUser!.uid,
+        creatorUid: currentUser!.uid,
       );
 
 
-      await TournamentsRecord.collection.add(ownTournament);
+      await TournamentsRecord.createRecordFromMap(pb ,ownTournament);
       loaderService.hideLoader(id: executionId);
       snackBarService.showSnackBar(
         message: 'Torneo creato con successo',

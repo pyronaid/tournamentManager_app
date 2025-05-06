@@ -58,114 +58,120 @@ class _TournamentCardWidgetState extends State<TournamentCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        InkWell(
-          splashColor: Colors.transparent,
-          focusColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          onTap: () async {
-            logFirebaseEvent('TOURN_CARD_COMP_Column_7nse8gf3_ON_TAP');
-            logFirebaseEvent('Column_haptic_feedback');
-            HapticFeedback.lightImpact();
-            logFirebaseEvent('Column_navigate_to');
+    return Container(
+      width: 90.w,
+      color: widget.active ? CustomFlowTheme.of(context).secondary : CustomFlowTheme.of(context).primaryBackground,
+      padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+      child: Column(
+        children: [
+          InkWell(
+            splashColor: Colors.transparent,
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: () async {
+              logFirebaseEvent('TOURN_CARD_COMP_Column_7nse8gf3_ON_TAP');
+              logFirebaseEvent('Column_haptic_feedback');
+              HapticFeedback.lightImpact();
+              logFirebaseEvent('Column_navigate_to');
 
-            //////////////////////////////
-            //////////// REDIRECT ON TAP
-            //////////////////////////////
-            context.pushNamedAuth(
-              'TournamentDetails', context.mounted,
-              pathParameters: {
-                'tournamentId': widget.tournamentRef?.uid
-              }.withoutNulls,
-              extra: {
-                'tournamentRef': widget.tournamentRef?.uid
-              },
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                ////////////////
-                //DATE
-                /////////////////
-                SizedBox(
-                  width: 15.w,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                      DateFormat('dd').format(widget.tournamentRef!.date!),
-                        style: CustomFlowTheme.of(context).titleLarge,
-                      ),
-                      Text(
-                        DateFormat('MM').format(widget.tournamentRef!.date!),
-                        style: CustomFlowTheme.of(context).bodyMedium,
-                      ),
-                      Text(
-                        DateFormat('yyyy').format(widget.tournamentRef!.date!),
-                        style: CustomFlowTheme.of(context).bodyMedium,
-                      ),
-                    ],
-                  ),
-                ),
-                ////////////////
-                //NAME & ADDRESS
-                /////////////////
-                SizedBox(
-                  width: 60.w,
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(10, 0, 10, 0),
+              //////////////////////////////
+              //////////// REDIRECT ON TAP
+              //////////////////////////////
+              context.pushNamedAuth(
+                'TournamentDetails', context.mounted,
+                pathParameters: {
+                  'tournamentId': widget.tournamentRef?.uid
+                }.withoutNulls,
+                extra: {
+                  'tournamentRef': widget.tournamentRef?.uid
+                },
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ////////////////
+                  //DATE
+                  /////////////////
+                  SizedBox(
+                    width: 15.w,
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          widget.tournamentRef!.name,
+                        DateFormat('dd').format(widget.tournamentRef!.date!),
+                          style: CustomFlowTheme.of(context).titleLarge,
+                        ),
+                        Text(
+                          DateFormat('MM').format(widget.tournamentRef!.date!),
                           style: CustomFlowTheme.of(context).bodyMedium,
                         ),
-                        const SizedBox(height: 10.0),
                         Text(
-                          widget.tournamentRef!.address,
-                          style: CustomFlowTheme.of(context).labelMedium,
+                          DateFormat('yyyy').format(widget.tournamentRef!.date!),
+                          style: CustomFlowTheme.of(context).bodyMedium,
                         ),
                       ],
                     ),
                   ),
-                ),
-                ////////////////
-                //STATE
-                /////////////////
-                SizedBox(
-                  width: 12.w,
-                  child: Text(
-                    widget.tournamentRef!.state!.name,
-                    style: CustomFlowTheme.of(context).bodyMicro,
-                    textAlign: TextAlign.center,
+                  ////////////////
+                  //NAME & ADDRESS
+                  /////////////////
+                  SizedBox(
+                    width: 60.w,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(10, 0, 10, 0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.tournamentRef!.name,
+                            style: CustomFlowTheme.of(context).bodyMedium,
+                          ),
+                          const SizedBox(height: 10.0),
+                          Text(
+                            widget.tournamentRef!.address,
+                            style: CustomFlowTheme.of(context).labelMedium,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  ////////////////
+                  //STATE
+                  /////////////////
+                  SizedBox(
+                    width: 12.w,
+                    child: Text(
+                      widget.tournamentRef!.state!.name,
+                      style: CustomFlowTheme.of(context).bodyMicro,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        //////////////////////////////////////
-        //////////// optional divider
-        //////////////////////////////////////
-        if(!widget.last)
-          Divider(
-            thickness: 1,
-            color: !widget.active ? CustomFlowTheme.of(context).primaryText : CustomFlowTheme.of(context).primary,
-            height: 80, // Space around the divider
-          ),
-      ],
+          //////////////////////////////////////
+          //////////// optional divider
+          //////////////////////////////////////
+          if(!widget.last)...[
+            Divider(
+              thickness: 1,
+              color: !widget.active ? CustomFlowTheme.of(context).primaryText : CustomFlowTheme.of(context).primary,
+              height: 80, // Space around the divider
+            ),
+          ]
+        ],
+      ),
     );
   }
 }

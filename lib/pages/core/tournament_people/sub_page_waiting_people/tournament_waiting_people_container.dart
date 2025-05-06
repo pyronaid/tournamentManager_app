@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/sub_page_waiting_people/tournament_waiting_people_model.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/sub_page_waiting_people/tournament_waiting_people_widget.dart';
-import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_widget.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
 class TournamentWaitingPeopleContainer extends StatefulWidget {
@@ -37,8 +36,8 @@ class _TournamentWaitingPeopleContainerState extends State<TournamentWaitingPeop
           tournamentModel: context.read<TournamentModel>()
       )..fetchInitialResults(listType: ListType.waiting, loadingCall: true),
       update: (context, tournamentModel, previousPeopleListModel) {
-        // Optional update method
-        if (previousPeopleListModel == null || (!previousPeopleListModel.isLoading && !tournamentModel.isLoading && previousPeopleListModel.referralCounter != tournamentModel.tournamentWaitingSize)) {
+        // Optional update method   TODO POCKETBASE REFACTORING
+        if (previousPeopleListModel == null || (!previousPeopleListModel.isLoading && !tournamentModel.isLoading && previousPeopleListModel.referralCounter != 0)) {
           return TournamentWaitingPeopleModel(
               tournamentModel: tournamentModel
           )..fetchInitialResults(listType: ListType.waiting, loadingCall: true);

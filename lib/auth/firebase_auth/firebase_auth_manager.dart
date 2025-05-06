@@ -93,7 +93,7 @@ class FirebaseAuthManager extends AuthManager
         print('Error: update email attempted with no logged in user!');
         return;
       }
-      await currentUser?.updateEmail(email);
+      await currentUser?.updateEmail(email, "");
       await updateUserDocument(email: email);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {

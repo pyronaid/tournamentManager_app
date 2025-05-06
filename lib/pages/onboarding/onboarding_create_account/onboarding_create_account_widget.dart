@@ -4,11 +4,10 @@ import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
 import 'package:tournamentmanager/app_flow/nav/serialization_util.dart';
-import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
+import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_auth_util.dart';
 import 'package:tournamentmanager/backend/backend.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/backend/schema/company_information_record.dart';
-import 'package:tournamentmanager/backend/schema/users_record.dart';
 import 'package:tournamentmanager/components/custom_appbar_widget.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 
@@ -107,6 +106,9 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       children: [
+                        ////////////////
+                        //NOME COMPLETO
+                        /////////////////
                         Padding(
                           padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
                           child: Column(
@@ -149,6 +151,9 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                             ],
                           ),
                         ),
+                        ////////////////
+                        //MAIL
+                        /////////////////
                         Padding(
                           padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
                           child: Column(
@@ -191,6 +196,9 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                             ],
                           ),
                         ),
+                        ////////////////
+                        //PASSWORD
+                        /////////////////
                         Padding(
                           padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
                           child: Column(
@@ -268,26 +276,10 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                         GoRouter.of(context).prepareAuthEvent();
 
                         //REGISTRATION
-                        final user = await authManager.createAccountWithEmail(
-                          context,
-                          _model.emailAddressTextController.text,
-                          _model.passwordTextController.text,
-                        );
-                        if (user == null) {
+                        bool createAccountFlag = await pocketAuthManager.createAccountWithEmail(_model.emailAddressTextController.text, _model.passwordTextController.text);
+                        if (!createAccountFlag) {
                           return;
                         }
-                        //REGISTRATION
-                        await UsersRecord.collection.doc(user.uid).update({
-                          ...createUsersRecordData(
-                            displayName: _model.fullNameTextController.text,
-                            createdTime: DateTime.now(),
-                          ),
-                          /*
-                          ...mapToFirestore(
-                            {
-                            },
-                          ),*/
-                        });
 
                         logFirebaseEvent('Button_navigate_to');
                         context.goNamedAuth('Onboarding_VerifyMail',

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
@@ -12,7 +10,6 @@ import 'package:tournamentmanager/components/custom_appbar_widget.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 import 'package:tournamentmanager/pages/core/add_people/add_people_model.dart';
 import 'package:tuple/tuple.dart';
-import '../../../app_flow/nav/navigation_keys.dart';
 import '../../../backend/schema/tournaments_record.dart';
 import '../tournament_people/tournament_people_model.dart';
 
@@ -154,6 +151,7 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                                           if (result != null) {
                                             print('Scanned Barcode: $result');
                                             providerAddPeople.setFieldControllerIdUser(result);
+                                            //TODO REFACTOR POCKD
                                             await providerAddPeople.addPlayerWithCheck(
                                               providerPeople.getPlayerInfoR(providerAddPeople.fieldControllerIdUser.text),
                                               providerPeople.getPlayerInfoP(providerAddPeople.fieldControllerIdUser.text),
@@ -162,8 +160,8 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                                               providerPeople.waitingEnabled,
                                               providerPeople.preregisteredEnabled,
                                               providerPeople.capacity,
-                                              providerPeople.preregisteredCounter,
-                                              providerPeople.registeredCounter,
+                                              0,
+                                              0,
                                               true
                                             );
                                             // Handle the scanned barcode value.

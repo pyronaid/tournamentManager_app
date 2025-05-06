@@ -1,5 +1,4 @@
 import '../../../pages/onboarding/forgot_password/forgot_password_widget.dart';
-import '../../../pages/onboarding/onboarding/onboarding_widget.dart';
 import '../../../pages/onboarding/onboarding_create_account/onboarding_create_account_widget.dart';
 import '../../../pages/onboarding/onboarding_slideshow/onboarding_slideshow_widget.dart';
 import '../../../pages/onboarding/onboarding_verify_mail/onboarding_verify_mail_widget.dart';
@@ -49,12 +48,6 @@ class AuthRoutes {
           builder: (context, params) => const OnboardingVerifyMailSuccessWidget(),
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList()
-    ),
-    CustomRoute(
-      name: 'Onboarding',
-      path: 'preferences-onboarding',
-      parentNavigatorKey: NavigatorKeys.rootNavigator,
-      builder: (context, params) => const OnboardingWidget(),
     ),
   ].map((r) => r.toRoute(appStateNotifier)).toList();
 }

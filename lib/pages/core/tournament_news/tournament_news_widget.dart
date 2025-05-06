@@ -7,7 +7,6 @@ import 'package:tournamentmanager/components/no_tournament_news_card/no_tourname
 import 'package:tournamentmanager/components/tournament_news_card/tournament_news_card_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_news/tournament_news_model.dart';
 import 'package:tournamentmanager/pages/nav_bar/news_list_model.dart';
-import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
 
 class TournamentNewsWidget extends StatefulWidget {

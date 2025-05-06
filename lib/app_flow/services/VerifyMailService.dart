@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
+import '../../auth/firebase_auth/auth_util.dart';
+import '../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 
 
 class VerifyMailService {
@@ -13,7 +14,7 @@ class VerifyMailService {
 
   void sendEmailVerification() async {
     try{
-      await authManager.sendEmailVerification();
+      await pocketAuthManager.sendEmailVerification(currentUserEmail);
     } catch (e){
 
     }

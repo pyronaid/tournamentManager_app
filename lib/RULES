@@ -187,3 +187,11 @@ createAccountWithEmail																										[lib/auth/firebase_auth/firebase
 ##############################################################################
 
 LOGICA REDIRECT BASED ON LOGGED / NOT LOGGED TO ENHANCE WITH LOGIC EMAIL VERIFIED
+
+
+##############################################################################
+DocumentReference --- Puntatore a uno specifico documento
+DocumentSnapshot --- Il documento in se e per se
+Query --- Puntatore a più documenti che rispettano la query
+QueryDocumentSnapshot --- il documento della query in se e per se
+CollectionReference --- Puntatore a una specifica collection o subcollection

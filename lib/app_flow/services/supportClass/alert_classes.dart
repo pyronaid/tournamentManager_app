@@ -14,6 +14,7 @@ class AlertRequest {
   final String description;
   final String buttonTitleConfirmed;
   final String buttonTitleCancelled;
+  final String? redirectConfirmed;
   final Future<void> Function(List<dynamic>?)? functionConfirmed;
 
   AlertRequest({
@@ -21,6 +22,7 @@ class AlertRequest {
     required this.description,
     required this.buttonTitleConfirmed,
     required this.buttonTitleCancelled,
+    this.redirectConfirmed,
     this.functionConfirmed,
   });
 }
