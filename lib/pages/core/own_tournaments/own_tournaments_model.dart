@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
+import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_auth_util.dart';
 
 import '../../../backend/schema/tournaments_record.dart';
 
@@ -11,10 +11,7 @@ class OwnTournamentsModel extends ChangeNotifier {
 
   final _unfocusNode = FocusNode();
 
-  StreamSubscription<QuerySnapshot>? _ownTournamentsSubscription;
-  Map<String, dynamic> _previousDocumentData = {};
-
-  bool _isLoading = true;
+  bool _isLoading = false;
   late PagingController<String?, TournamentsRecord> _pagingControllerActive;
   late PagingController<String?, TournamentsRecord> _pagingControllerClosed;
   bool showActiveTournaments = true;
@@ -48,8 +45,16 @@ class OwnTournamentsModel extends ChangeNotifier {
   }
   Future<void> _fetchPage(String? pageKey, bool active) async {
     PagingController<String?, TournamentsRecord> pagingController = active ? _pagingControllerActive : _pagingControllerClosed;
+    String filter = active ? 'state != "close"' : 'state = "close"';
     try {
-      final List<TournamentsRecord> newItems = await TournamentsRecord.getDocumentsOnceFirstChunkByOwner(currentUserUid, active, _pageSize, pageKey);
+      final List<TournamentsRecord> newItems = await TournamentsRecord.getDocumentsOnce(
+        pb,
+        false,
+        'id_owner = "$currentUserUid" && $filter',
+        sorting: 'date',
+        page: int.tryParse(pageKey ?? '') ?? 0,
+        perPage: _pageSize
+      );
       final isLastPage = newItems.length < _pageSize;
 
       if (isLastPage) {
@@ -72,42 +77,8 @@ class OwnTournamentsModel extends ChangeNotifier {
   void dispose() {
     _pagingControllerActive.dispose();
     _pagingControllerClosed.dispose();
-    _ownTournamentsSubscription?.cancel();
     unfocusNode.dispose();
     super.dispose();
-  }
-
-
-  Future<void> fetchObjectUsingId() async {
-    print("[LOAD FROM FIREBASE IN CORSO] own_tournaments_model.dart");
-    _ownTournamentsSubscription = TournamentsRecord.getDocumentsByOwner(currentUserUid).listen((querySnapshot) async {
-      bool shouldRefresh = false;
-      for (var doc in querySnapshot.docs) {
-        final newState = doc['state'];
-        final newName = doc['name'];
-
-        final prevState = _previousDocumentData[doc.id]?['state'];
-        final prevName = _previousDocumentData[doc.id]?['name'];
-
-        // Compare the current state and name with the previous ones
-        if (_isLoading == false && ((prevState == null && prevName == null) || (newState != prevState || newName != prevName))) {
-          shouldRefresh = true;
-        }
-
-        // Save the current state and name to track the changes
-        _previousDocumentData[doc.id] = {'state': newState, 'name': newName};
-
-        if (shouldRefresh) {
-          _pagingControllerActive.refresh();
-          _pagingControllerClosed.refresh();
-        }
-      }
-
-      if(_isLoading) {
-        _isLoading = false;
-        notifyListeners();
-      }
-    });
   }
 
 }

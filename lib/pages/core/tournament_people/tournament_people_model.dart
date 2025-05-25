@@ -35,6 +35,8 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
   bool get preregisteredEnabled => tournamentModel.tournamentPreRegistrationEn;
   bool get waitingEnabled => tournamentModel.tournamentWaitingListEn;
   int get capacity => tournamentModel.tournamentCapacityInt;
+  int get registeredCounter => tournamentModel.tournamentRegisteredSize;
+  int get preregisteredCounter => tournamentModel.tournamentPreRegisteredSize;
   TextEditingController get peopleNameTextController;
   FocusNode get peopleNameFocusNode;
   ScrollController get scrollController;

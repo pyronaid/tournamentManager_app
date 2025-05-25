@@ -463,7 +463,7 @@ class TextAheadAddressFormElement extends FormInformation {
   final List<TextInputFormatter>? inputFormatters;
   final IconData? iconPrefix;
   final IconData? iconSuffix;
-  final Future<List> Function() callHintFunc;
+  final Future<List> Function(String?) callHintFunc;
   final String? Function(BuildContext, String?, String?, String?)? validatorFunction;
 
   const TextAheadAddressFormElement({
@@ -519,7 +519,7 @@ class TextAheadAddressFormElementState extends State<TextAheadAddressFormElement
           controller: controller,
           focusNode: focusNode,
           suggestionsCallback: (String search) {
-            return widget.callHintFunc();
+            return widget.callHintFunc(search);
           },
           builder: (context, controller, focusNode) {
             return TextFormField(

@@ -123,9 +123,15 @@ class _MyAppState extends State<MyApp> {
           themeMode: _themeMode,
           routerConfig: _router,
           builder: (context, child) {
-            return ServiceManager(
-              navigatorKey: NavigatorKeys.rootNavigator,
-              child: child!,
+            return Overlay(
+              initialEntries: [
+                OverlayEntry(
+                  builder: (context) => ServiceManager(
+                    navigatorKey: NavigatorKeys.rootNavigator,
+                    child: child!,
+                  ),
+                ),
+              ],
             );
           },
         );

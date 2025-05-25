@@ -13,9 +13,11 @@ import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.d
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
+
 class TournamentFinderModel extends ChangeNotifier {
 
-  StreamSubscription<List<TournamentsWithCreatorRecord>>? _tournamentsSubscription;
+  StreamSubscription<List<TournamentsRecord>>? _tournamentsSubscription;
   late List<TournamentsRecord> tournamentsListRefObj;
   late List<TournamentsRecord> tournamentsListRefObjToDetail;
 
@@ -51,7 +53,6 @@ class TournamentFinderModel extends ChangeNotifier {
     return null;
   }
   //////////////////////////////CENTER PLACE DIALOG
-  late TextEditingController _fieldControllerCenterPlace;
   late FocusNode? _tournamentCenterPlaceFocusNode;
   String? _tournamentCenterPlaceTextControllerValidator(BuildContext context, String? val, String? placeId, String? lastSelected) {
     if(lastSelected != null && lastSelected != val){
@@ -99,7 +100,6 @@ class TournamentFinderModel extends ChangeNotifier {
     _fieldControllerName = TextEditingController();
     tournamentNameTextControllerValidator = _tournamentNameTextControllerValidator;
     _tournamentNameFocusNode = FocusNode();
-    _fieldControllerCenterPlace = TextEditingController();
     _tournamentCenterPlaceFocusNode = FocusNode();
     _fieldControllerDateRange = TextEditingController();
     tournamentDateRangeTextControllerValidator = _tournamentDateRangeTextControllerValidator;
@@ -143,9 +143,6 @@ class TournamentFinderModel extends ChangeNotifier {
   }
   FocusNode get tournamentDateRangeFocusNode{
     return _tournamentDateRangeFocusNode!;
-  }
-  TextEditingController get tournamentCenterPlaceTextController{
-    return _fieldControllerCenterPlace;
   }
   FocusNode get tournamentCenterPlaceFocusNode{
     return _tournamentCenterPlaceFocusNode!;
@@ -199,13 +196,9 @@ class TournamentFinderModel extends ChangeNotifier {
         print('REFRESH START BY TAP');
         _lastLocation = position.center;
         await _tournamentsSubscription?.cancel();
-        var query = getQuery(tournamentNameFilter: null);
-        _tournamentsSubscription = TournamentsRecord.getDocuments(query).listen((tournamentsWithCreatorsList) {
-          tournamentsListRefObj = tournamentsWithCreatorsList.map((twc) {
-            TournamentsRecord t = twc.tournament;
-            t.setCreatorUid(twc.creatorName);
-            return t;
-          }).toList();
+        String query = getQuery(tournamentNameFilter: null);
+        _tournamentsSubscription = TournamentsRecord.getDocuments(pb, false, query).listen((tournamentsWithCreatorsList) {
+          tournamentsListRefObj = tournamentsWithCreatorsList;
           tournamentsListRefObjToDetail = updateObjsToDetail();
           notifyListeners();
           print('REFRESH END BY TAP');
@@ -256,12 +249,8 @@ class TournamentFinderModel extends ChangeNotifier {
     }
     await _tournamentsSubscription?.cancel();
     var query = getQuery(tournamentNameFilter: nameToFilter);
-    _tournamentsSubscription = TournamentsWithCreatorRecord.getDocuments(query).listen((tournamentsWithCreatorsList) {
-      tournamentsListRefObj = tournamentsWithCreatorsList.map((twc) {
-        TournamentsRecord t = twc.tournament;
-        t.setCreatorUid(twc.creatorName);
-        return t;
-      }).toList();
+    _tournamentsSubscription = TournamentsRecord.getDocuments(pb, false, query).listen((tournamentsWithCreatorsList) {
+      tournamentsListRefObj = tournamentsWithCreatorsList;
       tournamentsListRefObjToDetail = updateObjsToDetail();
       print('REFRESH END BY FILTER');
       notifyListeners();
@@ -288,7 +277,7 @@ class TournamentFinderModel extends ChangeNotifier {
           iconPrefix: Icons.place,
           validatorFunction: _tournamentCenterPlaceTextControllerValidator,
           label: "Area di ricerca",
-          callHintFunc: callAddressHint,
+          callHintFunc: (String? text) => callAddressHint(text),
           key: GlobalKey<TextAheadAddressFormElementState>(),
         ),
         () => SliderFormElement(
@@ -357,7 +346,6 @@ class TournamentFinderModel extends ChangeNotifier {
     _tournamentsSubscription?.cancel();
     unfocusNode.dispose();
     _fieldControllerName.dispose();
-    _fieldControllerCenterPlace.dispose();
     _fieldControllerDateRange.dispose();
     _tournamentNameFocusNode?.dispose();
     _tournamentCenterPlaceFocusNode?.dispose();
@@ -370,23 +358,19 @@ class TournamentFinderModel extends ChangeNotifier {
   Future<void> fetchObjects() async {
     await setLocation();
     var query = getQuery(tournamentNameFilter: null, useFirst: true);
-    _tournamentsSubscription = TournamentsWithCreatorRecord.getDocuments(query).listen((tournamentsWithCreatorsList) {
-      tournamentsListRefObj = tournamentsWithCreatorsList.map((twc) {
-        TournamentsRecord t = twc.tournament;
-        t.setCreatorUid(twc.creatorName);
-        return t;
-      }).toList();
+    _tournamentsSubscription = TournamentsRecord.getDocuments(pb, false, query).listen((tournamentsWithCreatorsList) {
+      tournamentsListRefObj = tournamentsWithCreatorsList;
       //tournamentsListRefObjToDetail = updateObjsToDetail();
       isLoading = false;
       notifyListeners();
     });
   }
 
-  Future<List> callAddressHint() async {
-    if(_fieldControllerCenterPlace.text.isNotEmpty) {
+  Future<List> callAddressHint(String? text) async {
+    if(text != null && text.isNotEmpty) {
       print("[PLACES-API] CALL");
       PlacesApiManagerService placesApiManagerServiceCompleted = await placesApiManagerService;
-      _placeList = await placesApiManagerServiceCompleted.getSuggestion(_fieldControllerCenterPlace.text, _sessionToken);
+      _placeList = await placesApiManagerServiceCompleted.getSuggestion(text, _sessionToken);
     }
     return _placeList;
   }
@@ -402,15 +386,15 @@ class TournamentFinderModel extends ChangeNotifier {
       currentLat = mapController.camera.center.latitude;
       currentLong = mapController.camera.center.longitude;
     }
-    String query = 'state = ${StateTournament.ready.name} &&'
-        'date <= "$_dateEnd" &&date >= "$_dateStart" &&'
-        'game IN [${_games.map((g) => g.name).toList()}] &&'
-        'latitude  >= "${currentLat - (_radiusInKm / 111.32)}" &&'
-        'latitude  <= "${currentLat + (_radiusInKm / 111.32)}" &&'
-        'longitude  >= "${currentLong - (_radiusInKm / (111.32 * cos(currentLat * pi / 180)))}" &&'
+    String query = 'state = "${StateTournament.ready.name}" && '
+        'date <= "$_dateEnd" && date >= "$_dateStart" && '
+        '(${_games.map((g) => g.name).map((el) => "game = '$el'").toList().join(" || ")}) && '
+        'latitude  >= "${currentLat - (_radiusInKm / 111.32)}" && '
+        'latitude  <= "${currentLat + (_radiusInKm / 111.32)}" && '
+        'longitude  >= "${currentLong - (_radiusInKm / (111.32 * cos(currentLat * pi / 180)))}" && '
         'longitude  <= "${currentLong + (_radiusInKm / (111.32 * cos(currentLat * pi / 180)))}"';
     if(tournamentNameFilter != null){
-      query = '$query && name  ~ "$tournamentNameFilter"';
+      query = '$query && name ~ "$tournamentNameFilter"';
     }
     return query;
   }

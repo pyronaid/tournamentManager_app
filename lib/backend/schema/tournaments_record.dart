@@ -9,6 +9,7 @@ import 'package:tournamentmanager/backend/schema/util/pocketbase_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 
 class TournamentsRecord extends PocketstoreRecord {
+  static const String collectionNameStats = "tournament_with_stats";
   static const String collectionName = "tournaments";
 
   TournamentsRecord._(
@@ -127,20 +128,33 @@ class TournamentsRecord extends PocketstoreRecord {
   }
   bool hasWinner() => _winnerUserId != null;
 
+  int? _preRegisteredCount;
+  int get preRegisteredCount => _preRegisteredCount ?? 0;
+
+  int? _registeredCount;
+  int get registeredCount => _registeredCount ?? 0;
+
+  int? _waitingCount;
+  int get waitingCount => _waitingCount ?? 0;
+
+
   void _initializeFields() {
     _uid = snapshotData['id'];
     _game = getGameEnum(snapshotData['game']);
     _name = snapshotData['name'];
-    _image = snapshotData['image'];
-    _date = snapshotData['date'] as DateTime?;
+    _image = snapshotData['image']?.isEmpty ? null : snapshotData['image'];
+    _date = snapshotData['date'] != null ? DateTime.parse(snapshotData['date']) : null;
     _address = snapshotData['address'];
     _lat = snapshotData['latitude'];
     _long = snapshotData['longitude'];
     _capacity = snapshotData['capacity'];
     _creatorUid = snapshotData['creator_uid'];
-    _preRegistrationEn = snapshotData['pre_registration_en'] as bool;
-    _waitingListEn = snapshotData['waiting_list_en'] as bool;
+    _preRegistrationEn = snapshotData['pre_registration_en'] != null ? snapshotData['pre_registration_en'] == 1 : false;
+    _waitingListEn = snapshotData['waiting_list_en'] != null ? snapshotData['waiting_list_en'] == 1 : false;
     _state = getStateEnum(snapshotData['state']);
+    _preRegisteredCount = snapshotData['pre_registered_count'];
+    _registeredCount = snapshotData['registered_count'];
+    _waitingCount = snapshotData['waiting_count'];
   }
 
   static TournamentsRecord fromSnapshot(RecordModel snapshot) => TournamentsRecord._(
@@ -148,16 +162,16 @@ class TournamentsRecord extends PocketstoreRecord {
     snapshot.toJson(),
   );
 
-  static Stream<TournamentsRecord> getDocument(PocketBase pb, String id) {
+  static Stream<TournamentsRecord> getDocument(PocketBase pb, bool stats, String id) {
     final controller = StreamController<TournamentsRecord>();
 
-    pb.collection(collectionName).getOne(id, expand: 'id_owner').then((record) {
+    pb.collection(stats ? collectionNameStats : collectionName).getOne(id, expand: 'id_owner').then((record) {
       if (!controller.isClosed) controller.add(TournamentsRecord.fromSnapshot(record));
     }).catchError((error){
       if (!controller.isClosed) controller.addError(error);
     });
 
-    pb.collection(collectionName).subscribe(id, expand: 'id_owner', (e) {
+    pb.collection(stats ? collectionNameStats : collectionName).subscribe(id, expand: 'id_owner', (e) {
       if (e.record != null) {
         if (!controller.isClosed) controller.add(TournamentsRecord.fromSnapshot(e.record!));
       }
@@ -165,16 +179,16 @@ class TournamentsRecord extends PocketstoreRecord {
 
     // Clean up on stream cancellation
     controller.onCancel = () {
-      pb.collection(collectionName).unsubscribe();
+      pb.collection(stats ? collectionNameStats : collectionName).unsubscribe();
     };
 
     return controller.stream;
   }
-  static Stream<List<TournamentsRecord>> getDocuments(PocketBase pb, String filter, {String? sorting, int page = 1, int perPage = 30}) {
+  static Stream<List<TournamentsRecord>> getDocuments(PocketBase pb, bool stats, String filter, {String? expand, String? sorting, int page = 1, int perPage = 30}) {
     final controller = StreamController<List<TournamentsRecord>>();
     final List<TournamentsRecord> documents = [];
 
-    pb.collection(collectionName).getList(filter: filter, sort: sorting, page: page, perPage: perPage, expand: 'id_owner').then((recordList) {
+    pb.collection(stats ? collectionNameStats : collectionName).getList(filter: filter, sort: sorting, page: page, perPage: perPage, expand: expand !=null ? '$expand,id_owner':'id_owner').then((recordList) {
       if (!controller.isClosed) {
         List<TournamentsRecord> tournamentList = recordList.items.map((record) => TournamentsRecord.fromSnapshot(record)).toList();
         documents.addAll(tournamentList);
@@ -184,7 +198,7 @@ class TournamentsRecord extends PocketstoreRecord {
       if (!controller.isClosed) controller.addError(error);
     });
 
-    pb.collection(collectionName).subscribe('*', filter: filter, query: {'page' : page, 'perPage' : perPage}, expand: 'id_owner', (e) {
+    pb.collection(stats ? collectionNameStats : collectionName).subscribe('*', filter: filter, query: {'page' : page, 'perPage' : perPage}, expand: expand !=null ? '$expand,id_owner':'id_owner', (e) {
       if (!controller.isClosed && e.record != null) {
         TournamentsRecord record = TournamentsRecord.fromSnapshot(e.record!);
 
@@ -207,13 +221,18 @@ class TournamentsRecord extends PocketstoreRecord {
 
     // Clean up on stream cancellation
     controller.onCancel = () {
-      pb.collection(collectionName).unsubscribe();
+      pb.collection(collectionNameStats).unsubscribe();
     };
 
     return controller.stream;
   }
-  static Future<TournamentsRecord> getDocumentOnce(PocketBase pb, String id) =>
-      pb.collection(collectionName).getOne(id).then((s) => TournamentsRecord.fromSnapshot(s));
+  static Future<TournamentsRecord> getDocumentOnce(PocketBase pb, bool stats, String id) =>
+      pb.collection(stats ? collectionNameStats : collectionName).getOne(id).then((s) => TournamentsRecord.fromSnapshot(s));
+  static Future<List<TournamentsRecord>> getDocumentsOnce(PocketBase pb, bool stats, String filter, {String? expand, String? sorting, int page=1, int perPage = 30}) =>
+      pb.collection(stats ? collectionNameStats : collectionName).getList(filter: filter, sort: sorting, page: page, perPage: perPage, expand: expand !=null ? '$expand,id_owner':'id_owner').then(
+          (s) => s.items.map(
+              (record) => TournamentsRecord.fromSnapshot(record)).toList()
+      );
 
   static Future<void> updateField(PocketBase pb, String id, String fieldName, dynamic newValue) async {
     try {
@@ -238,9 +257,8 @@ class TournamentsRecord extends PocketstoreRecord {
       ) =>
       TournamentsRecord._(reference, mapFromFirestore(data));
 
-  static Future<TournamentsRecord> createRecordFromMap(PocketBase pb, Map<String, dynamic> body) async => pb.collection(collectionName).create(body: body).then((record){
-    return TournamentsRecord.fromSnapshot(record);
-  });
+  static Future<TournamentsRecord> createRecordFromMap(PocketBase pb, bool stats, Map<String, dynamic> body) async =>
+    pb.collection(collectionName).create(body: body).then((record) => TournamentsRecord.fromSnapshot(record));
 
   @override
   String toString() => 'TournamentsRecord(reference: ${reference.id}-${reference.collectionId}-${reference.collectionName}, data: $snapshotData)';
@@ -268,7 +286,6 @@ class TournamentsRecord extends PocketstoreRecord {
 
 
 Map<String, dynamic> createTournamentsRecordData({
-  String? uid,
   required Game game,
   required String name,
   required DateTime date,
@@ -283,18 +300,17 @@ Map<String, dynamic> createTournamentsRecordData({
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
-      'uid': uid,
       'game': game.name,
       'name': name,
-      'date': date,
+      'date': date.toIso8601String(),
       'address': address,
       'latitude': latitude,
       'longitude': longitude,
-      'pre_registration_en': preRegistrationEn,
-      'waiting_list_en': waitingListEn,
+      'pre_registration_en': preRegistrationEn ? 1 : 0,
+      'waiting_list_en': waitingListEn ? 1 : 0,
       'state': state != null ? state.name : StateTournament.open.name,
       'capacity': capacity ?? 0,
-      'creator_uid': creatorUid,
+      'id_owner': creatorUid,
     }.withoutNulls,
   );
 

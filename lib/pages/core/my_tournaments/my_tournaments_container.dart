@@ -31,7 +31,7 @@ class _MyTournamentsContainerState extends State<MyTournamentsContainer> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-        create: (context) => MyTournamentsModel()..fetchObjectUsingId(),
+        create: (context) => MyTournamentsModel(),
         builder: (context, child) {
           return const MyTournamentsWidget();
         }

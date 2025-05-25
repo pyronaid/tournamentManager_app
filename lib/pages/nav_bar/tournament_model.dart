@@ -62,6 +62,9 @@ class TournamentModel extends ChangeNotifier {
   bool get hasWinner => tournamentsRefObj != null ? tournamentsRefObj!.hasWinner() : false;
   bool get isTournamentOngoing => tournamentsRefObj != null ? tournamentsRefObj!.state == StateTournament.ongoing : false;
   bool get isTournamentEditable => tournamentsRefObj != null ? (tournamentsRefObj!.state == StateTournament.ready || tournamentsRefObj!.state == StateTournament.open) : false;
+  int get tournamentPreRegisteredSize => tournamentsRefObj != null ? tournamentsRefObj!.preRegisteredCount : 0;
+  int get tournamentWaitingSize => tournamentsRefObj != null ? tournamentsRefObj!.waitingCount : 0;
+  int get tournamentRegisteredSize => tournamentsRefObj != null ? tournamentsRefObj!.registeredCount : 0;
 
 
   /////////////////////////////SETTER
@@ -173,10 +176,15 @@ class TournamentModel extends ChangeNotifier {
   void fetchObjectUsingId() {
     if(tournamentsRef != null) {
       print("[LOAD FROM FIREBASE IN CORSO] tournament_model.dart");
-      _tournamentSubscription = TournamentsRecord.getDocument(pb, tournamentsRef!).listen((snapshot) {
-        tournamentsRefObj = snapshot;
-        _isLoading = false;
-        notifyListeners();
+      _tournamentSubscription = TournamentsRecord.getDocument(pb, false, tournamentsRef!).listen((snapshot) async {
+        try {
+          tournamentsRefObj =
+          await TournamentsRecord.getDocumentOnce(pb, true, tournamentsRef!);
+          _isLoading = false;
+          notifyListeners();
+        } catch (e){
+          print("ciao");
+        }
       });
     } else {
       tournamentsRefObj = null;
