@@ -61,8 +61,9 @@ class ScaffoldWithLevelOneNestedNavigation extends StatelessWidget {
         ),
       },
     };
-    final bool showBottomAndUpperNav = !RegExp(r'^/profile/[a-zA-Z]+').hasMatch(GoRouter.of(context).getCurrentLocation());
-    
+    final bool showBottomAndUpperNav = !RegExp(r'^/profile/(?!dialog-)[a-zA-Z]+').hasMatch(GoRouter.of(context).getCurrentLocation());
+    final bool isDialogRoute = RegExp(r'/dialog-[a-zA-Z]+').hasMatch(GoRouter.of(context).getCurrentLocation());
+
     return PopScope(
       canPop: false, // Prevent automatic popping
       onPopInvokedWithResult: (didPop, _){
@@ -75,85 +76,91 @@ class ScaffoldWithLevelOneNestedNavigation extends StatelessWidget {
           automaticallyImplyLeading: false,
           toolbarHeight: 35.sp,
           elevation: 0,
-          backgroundColor: CustomFlowTheme.of(context).secondary,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              tabs[navigationShell.currentIndex]!['icon']!,
-              const SizedBox(width: 10),
-              tabs[navigationShell.currentIndex]!['name']!,
-            ],
+          backgroundColor: isDialogRoute ? CustomFlowTheme.of(context).secondary.withOpacity(0.5) : CustomFlowTheme.of(context).secondary,
+          title: IgnorePointer(
+            ignoring: isDialogRoute,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                tabs[navigationShell.currentIndex]!['icon']!,
+                const SizedBox(width: 10),
+                tabs[navigationShell.currentIndex]!['name']!,
+              ],
+            ),
           ),
           centerTitle: true,
           systemOverlayStyle: SystemUiOverlayStyle(
             // Status bar color
-            statusBarColor: CustomFlowTheme.of(context).secondary,
+            statusBarColor: isDialogRoute ? CustomFlowTheme.of(context).secondary.withOpacity(0.5) : CustomFlowTheme.of(context).secondary,
             // Status bar brightness (optional)
             statusBarIconBrightness: CustomFlowTheme.bright(context), // For Android (dark icons)
             statusBarBrightness: CustomFlowTheme.bright(context), // For iOS (dark icons)
           ),
         ) : null,
         body: navigationShell,
-        bottomNavigationBar: showBottomAndUpperNav ? BottomNavigationBar(
-          currentIndex: navigationShell.currentIndex,
-          onTap: (i) => navigationShell.goBranch(i),
-          backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-          selectedItemColor: CustomFlowTheme.of(context).primary,
-          unselectedItemColor: CustomFlowTheme.of(context).secondaryText,
-          showSelectedLabels: true,
-          showUnselectedLabels: true,
-          type: BottomNavigationBarType.fixed,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.emoji_events_outlined,
-                size: 24.0,
-              ),
-              activeIcon: Icon(
-                Icons.emoji_events_rounded,
-                size: 24.0,
-              ),
-              label: 'I tuoi tornei',
-              tooltip: '',
-            ),
-            if(true)
+        bottomNavigationBar: showBottomAndUpperNav ? IgnorePointer(
+          ignoring: isDialogRoute,
+          child: BottomNavigationBar(
+            currentIndex: navigationShell.currentIndex,
+            onTap: (i) => navigationShell.goBranch(i),
+            backgroundColor: isDialogRoute ? CustomFlowTheme.of(context).primaryBackground.withOpacity(0.5) : CustomFlowTheme.of(context).primaryBackground,
+            selectedItemColor: isDialogRoute ? CustomFlowTheme.of(context).primary.withOpacity(0.5) : CustomFlowTheme.of(context).primary,
+            unselectedItemColor: isDialogRoute ? CustomFlowTheme.of(context).secondaryText.withOpacity(0.5) : CustomFlowTheme.of(context).secondaryText,
+            showSelectedLabels: true,
+            showUnselectedLabels: true,
+            type: BottomNavigationBarType.fixed,
+            items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(
                 icon: Icon(
-                  Icons.inventory_outlined,
+                  Icons.emoji_events_outlined,
                   size: 24.0,
                 ),
                 activeIcon: Icon(
-                  Icons.inventory_rounded,
+                  Icons.emoji_events_rounded,
                   size: 24.0,
                 ),
-                label: 'Organizz',
+                label: 'I tuoi tornei',
                 tooltip: '',
               ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.search_rounded,
-                size: 24.0,
+              if(true)
+                BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.inventory_outlined,
+                    size: 24.0,
+                  ),
+                  activeIcon: Icon(
+                    Icons.inventory_rounded,
+                    size: 24.0,
+                  ),
+                  label: 'Organizz',
+                  tooltip: '',
+                ),
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.search_rounded,
+                  size: 24.0,
+                ),
+                activeIcon: Icon(
+                  Icons.zoom_in_rounded,
+                  size: 24.0,
+                ),
+                label: 'Finder',
+                tooltip: '',
               ),
-              activeIcon: Icon(
-                Icons.zoom_in_rounded,
-                size: 24.0,
-              ),
-              label: 'Finder',
-              tooltip: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.person_outline_rounded,
-                size: 24.0,
-              ),
-              activeIcon: Icon(
-                Icons.person_rounded,
-                size: 24.0,
-              ),
-              label: 'Profile',
-              tooltip: '',
-            )
-          ],
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.person_outline_rounded,
+                  size: 24.0,
+                ),
+                activeIcon: Icon(
+                  Icons.person_rounded,
+                  size: 24.0,
+                ),
+                label: 'Profile',
+                tooltip: '',
+              )
+            ],
+          ),
         ) : null,
       ),
     );

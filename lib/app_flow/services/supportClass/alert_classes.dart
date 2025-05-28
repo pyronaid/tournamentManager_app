@@ -457,7 +457,7 @@ class CalendarPickerFormElementState extends State<CalendarPickerFormElement> {
 }
 
 class TextAheadAddressFormElement extends FormInformation {
-  final String controllerInitValue;
+  final Map<String,String> controllerInitValue;
   final bool autofocus;
   final TextInputType keyboardType;
   final List<TextInputFormatter>? inputFormatters;
@@ -485,7 +485,10 @@ class TextAheadAddressFormElement extends FormInformation {
   @override
   dynamic result() {
     final currentState = (key as GlobalKey<TextAheadAddressFormElementState>).currentState;
-    return currentState?.placeId;
+    return {
+      'placeId' : currentState?.placeId,
+      'lastSelected' : currentState?.lastSelected,
+    };
   }
 }
 
@@ -498,7 +501,13 @@ class TextAheadAddressFormElementState extends State<TextAheadAddressFormElement
   @override
   void initState() {
     super.initState();
-    controller = TextEditingController(text: widget.controllerInitValue);
+    if(widget.controllerInitValue['placeId'] != null && widget.controllerInitValue['lastSelected'] != null){
+      placeId = widget.controllerInitValue['placeId'];
+      lastSelected = widget.controllerInitValue['lastSelected'];
+      controller = TextEditingController(text: widget.controllerInitValue['lastSelected']);
+    } else {
+      controller = TextEditingController(text: '');
+    }
     focusNode = FocusNode();
   }
 

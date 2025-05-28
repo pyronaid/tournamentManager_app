@@ -112,6 +112,7 @@ class _MyTournamentsWidgetState extends State<MyTournamentsWidget> {
                             ),
                             newPageProgressIndicatorBuilder: (_) => const Center(child: CircularProgressIndicator()),
                           ),
+                          shrinkWrapFirstPageIndicators: true,
                         ),
                       ],
 
@@ -183,6 +184,7 @@ class _MyTournamentsWidgetState extends State<MyTournamentsWidget> {
                             ),
                             newPageProgressIndicatorBuilder: (_) => const Center(child: CircularProgressIndicator()),
                           ),
+                          shrinkWrapFirstPageIndicators: true,
                         ),
                       ],
                     ],

@@ -17,7 +17,7 @@ class DialogPage<T> extends Page<T> {
   const DialogPage({
     required this.builder,
     this.anchorPoint,
-    this.barrierColor = Colors.black54,
+    this.barrierColor,
     this.barrierDismissible = true,
     this.barrierLabel,
     this.useSafeArea = true,
@@ -29,16 +29,20 @@ class DialogPage<T> extends Page<T> {
   });
 
   @override
-  Route<T> createRoute(BuildContext context) => DialogRoute<T>(
+  Route<T> createRoute(BuildContext context) {
+    final theme = Theme.of(context);
+    return DialogRoute<T>(
       context: context,
       settings: this,
       builder: builder,
       anchorPoint: anchorPoint,
-      barrierColor: barrierColor?.withOpacity(0.5),
+      barrierColor: barrierColor ?? theme.colorScheme.scrim.withOpacity(0.5),
       barrierDismissible: barrierDismissible,
       barrierLabel: barrierLabel,
       useSafeArea: useSafeArea,
-      themes: themes);
+      themes: themes,
+    );
+  }
 }
 
 class DialogWidget extends StatelessWidget {
@@ -49,6 +53,9 @@ class DialogWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final extra = GoRouterState.of(context).extra;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     // If accessed with browser's forwarded button (no 'extra' data will exist), navigate back programmatically
     if (extra == null) {
       // Use addPostFrameCallback to avoid build-time navigation
@@ -57,95 +64,138 @@ class DialogWidget extends StatelessWidget {
       });
       // Return an empty container while redirecting
       return Container();
-    } else {
-      return Scaffold(
-        backgroundColor: Colors.transparent,
-        resizeToAvoidBottomInset: false,
-        body: Container(
-          color: Colors.black.withAlpha(100),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: GestureDetector(
-                  onTap: () {},
-                  behavior: HitTestBehavior.opaque,
-                  child: Container(color: Colors.transparent),
-                ),
-              ),
-              Center(
-                child: Container(
-                  margin: const EdgeInsets.all(32),
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        request.title,
-                        style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        request.description,
-                        style: const TextStyle(fontSize: 18, color: Colors.black),
-                      ),
-                      const SizedBox(height: 32),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              Router.neglect(context, () => context.pop());
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey,
-                            ),
-                            child: Text(request.buttonTitleCancelled),
-                          ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              if(request.functionConfirmed != null){ await request.functionConfirmed!(null); }
-                              if(request.redirectConfirmed != null){
-                                logFirebaseEvent('Button_navigate_to');
-                                context.goNamed(
-                                  request.redirectConfirmed!,
-                                  extra: <String, dynamic>{
-                                    kTransitionInfoKey: const TransitionInfo(
-                                      hasTransition: true,
-                                      transitionType: PageTransitionType.fade,
-                                      duration: Duration(milliseconds: 0),
-                                    ),
-                                  },
-                                );
-                              } else {
-                                Router.neglect(context, () => context.pop());
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                            ),
-                            child: Text(request.buttonTitleConfirmed),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
     }
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      resizeToAvoidBottomInset: false,
+      body: Container(
+        color: colorScheme.scrim.withOpacity(0.5),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () {},
+                behavior: HitTestBehavior.opaque,
+                child: Container(color: Colors.transparent),
+              ),
+            ),
+            Center(
+              child: Container(
+                margin: const EdgeInsets.all(32),
+                child: Material(
+                  type: MaterialType.card,
+                  elevation: 24,
+                  color: colorScheme.surface,
+                  surfaceTintColor: colorScheme.surfaceTint,
+                  borderRadius: BorderRadius.circular(16),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          request.title,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          request.description,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onSurface,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 32),
+                        _buildActionButtons(context, theme, colorScheme),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
+  Widget _buildActionButtons(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ElevatedButton(
+              onPressed: () {
+                Router.neglect(context, () => context.pop());
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorScheme.surfaceContainerHighest,
+                foregroundColor: colorScheme.onSurface,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                request.buttonTitleCancelled,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: ElevatedButton(
+              onPressed: () async {
+                if (request.functionConfirmed != null) {
+                  await request.functionConfirmed!(null);
+                }
+                if (request.redirectConfirmed != null) {
+                  logFirebaseEvent('Button_navigate_to');
+                  context.goNamed(
+                    request.redirectConfirmed!,
+                    extra: <String, dynamic>{
+                      kTransitionInfoKey: const TransitionInfo(
+                        hasTransition: true,
+                        transitionType: PageTransitionType.fade,
+                        duration: Duration(milliseconds: 0),
+                      ),
+                    },
+                  );
+                } else {
+                  Router.neglect(context, () => context.pop());
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorScheme.error,
+                foregroundColor: colorScheme.onError,
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                request.buttonTitleConfirmed,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class DialogFormWidget extends StatefulWidget {
@@ -154,13 +204,12 @@ class DialogFormWidget extends StatefulWidget {
   const DialogFormWidget({super.key, required this.request});
 
   @override
-  State<DialogFormWidget> createState() => _DialogFormState();
+  State<DialogFormWidget> createState() => _DialogFormWidgetState();
 }
 
-class _DialogFormState extends State<DialogFormWidget> {
-
+class _DialogFormWidgetState extends State<DialogFormWidget> {
   late List<FormInformation> _formInformations;
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -172,6 +221,9 @@ class _DialogFormState extends State<DialogFormWidget> {
   @override
   Widget build(BuildContext context) {
     final extra = GoRouterState.of(context).extra;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     // If accessed with browser's forwarded button (no 'extra' data will exist), navigate back programmatically
     if (extra == null) {
       // Use addPostFrameCallback to avoid build-time navigation
@@ -180,116 +232,162 @@ class _DialogFormState extends State<DialogFormWidget> {
       });
       // Return an empty container while redirecting
       return Container();
-    } else {
-      return Scaffold(
-        backgroundColor: Colors.transparent,
-        resizeToAvoidBottomInset: false,
-        body: Container(
-          color: Colors.black.withAlpha(100),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: GestureDetector(
-                  onTap: () => FocusScope.of(context).unfocus(),
-                  behavior: HitTestBehavior.opaque,
-                  child: Container(color: Colors.transparent),
-                ),
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      resizeToAvoidBottomInset: false,
+      body: Container(
+        color: colorScheme.scrim.withOpacity(0.5),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () => FocusScope.of(context).unfocus(),
+                behavior: HitTestBehavior.opaque,
+                child: Container(color: Colors.transparent),
               ),
-              Center(
-                child: SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Container(
+            ),
+            Center(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Material(
+                    type: MaterialType.card,
+                    elevation: 24,
+                    color: colorScheme.surface,
+                    surfaceTintColor: colorScheme.surfaceTint,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Padding(
                       padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             widget.request.title,
-                            style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
                             ),
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 24),
                           Text(
                             widget.request.description,
-                            style: const TextStyle(fontSize: 18, color: Colors.black),
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: colorScheme.onSurface,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 32),
-                          ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxHeight: 45.h,
-                            ),
-                            child: SingleChildScrollView(
-                              child: Form(
-                                key: formKey,
-                                autovalidateMode: AutovalidateMode.disabled,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: _formInformations,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  Router.neglect(context, () => context.pop());
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.grey,
-                                ),
-                                child: Text(widget.request.buttonTitleCancelled),
-                              ),
-                              ElevatedButton(
-                                onPressed: () async {
-                                  if (formKey.currentState?.validate() ?? false) {
-                                    List<dynamic> formValues = _formInformations.map((inf) => inf.result()).toList();
-                                    if(widget.request.functionConfirmed != null){ await widget.request.functionConfirmed!(formValues); }
-                                    if(widget.request.redirectConfirmed != null){
-                                      logFirebaseEvent('Button_navigate_to');
-                                      context.goNamed(
-                                        widget.request.redirectConfirmed!,
-                                        extra: <String, dynamic>{
-                                          kTransitionInfoKey: const TransitionInfo(
-                                            hasTransition: true,
-                                            transitionType: PageTransitionType.fade,
-                                            duration: Duration(milliseconds: 0),
-                                          ),
-                                        },
-                                      );
-                                    } else {
-                                      Router.neglect(context, () => context.pop());
-                                    }
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                ),
-                                child: Text(widget.request.buttonTitleConfirmed),
-                              ),
-                            ],
-                          ),
+                          _buildFormSection(context, theme, colorScheme),
+                          const SizedBox(height: 32),
+                          _buildActionButtons(context, theme, colorScheme),
                         ],
                       ),
                     ),
                   ),
                 ),
               ),
-            ]
-          ),
+            ),
+          ],
         ),
-      );
-    }
+      ),
+    );
   }
 
+  Widget _buildFormSection(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: 45.h,
+      ),
+      child: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          autovalidateMode: AutovalidateMode.disabled,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _formInformations,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ElevatedButton(
+              onPressed: () {
+                Router.neglect(context, () => context.pop());
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorScheme.surfaceContainerHighest,
+                foregroundColor: colorScheme.onSurface,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                widget.request.buttonTitleCancelled,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: ElevatedButton(
+              onPressed: () async {
+                if (_formKey.currentState?.validate() ?? false) {
+                  List<dynamic> formValues = _formInformations.map((inf) => inf.result()).toList();
+                  if (widget.request.functionConfirmed != null) {
+                    await widget.request.functionConfirmed!(formValues);
+                  }
+                  if (widget.request.redirectConfirmed != null) {
+                    logFirebaseEvent('Button_navigate_to');
+                    context.goNamed(
+                      widget.request.redirectConfirmed!,
+                      extra: <String, dynamic>{
+                        kTransitionInfoKey: const TransitionInfo(
+                          hasTransition: true,
+                          transitionType: PageTransitionType.fade,
+                          duration: Duration(milliseconds: 0),
+                        ),
+                      },
+                    );
+                  } else {
+                    Router.neglect(context, () => context.pop());
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorScheme.error,
+                foregroundColor: colorScheme.onError,
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                widget.request.buttonTitleConfirmed,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

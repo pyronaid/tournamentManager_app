@@ -45,44 +45,43 @@ class _NoTournamentCardWidgetState extends State<NoTournamentCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return  Column(
-      children: [
-        Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
-          child: Container(
-            width: 90.w,
-            decoration: BoxDecoration(
-              color: widget.active ? CustomFlowTheme.of(context).secondary : CustomFlowTheme.of(context).primaryBackground,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: CustomFlowTheme.of(context).alternate,
-                width: 1,
-              ),
+    return  Container(
+      color: widget.active ? CustomFlowTheme.of(context).primaryBackground : CustomFlowTheme.of(context).secondary,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+        child: Container(
+          width: 90.w,
+          decoration: BoxDecoration(
+            color: widget.active ? CustomFlowTheme.of(context).secondary : CustomFlowTheme.of(context).primaryBackground,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: CustomFlowTheme.of(context).alternate,
+              width: 1,
             ),
-            child: Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(24, 16, 24, 32),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/images/icons/empty-box.png',
-                    height: 30.sp,
-                    fit: BoxFit.cover,
+          ),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(24, 16, 24, 32),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/images/icons/empty-box.png',
+                  height: 30.sp,
+                  fit: BoxFit.cover,
+                ),
+                Flexible(
+                  child: Text(
+                    widget.phrase,
+                    style: widget.active ? CustomFlowTheme.of(context).bodySmall : CustomFlowTheme.of(context).labelLarge,
+                    textAlign: TextAlign.center,
                   ),
-                  Flexible(
-                    child: Text(
-                      widget.phrase,
-                      style: widget.active ? CustomFlowTheme.of(context).bodySmall : CustomFlowTheme.of(context).labelLarge,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ]
-              ),
+                ),
+              ]
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 }

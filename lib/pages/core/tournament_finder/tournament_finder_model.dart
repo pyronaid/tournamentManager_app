@@ -46,14 +46,11 @@ class TournamentFinderModel extends ChangeNotifier {
 
 
   //////////////////////////////NAME DIALOG
-  late TextEditingController _fieldControllerName;
   late String? Function(BuildContext, String?, String?)? tournamentNameTextControllerValidator;
-  late FocusNode? _tournamentNameFocusNode;
   String? _tournamentNameTextControllerValidator(BuildContext context, String? val, String? oldVal) {
     return null;
   }
   //////////////////////////////CENTER PLACE DIALOG
-  late FocusNode? _tournamentCenterPlaceFocusNode;
   String? _tournamentCenterPlaceTextControllerValidator(BuildContext context, String? val, String? placeId, String? lastSelected) {
     if(lastSelected != null && lastSelected != val){
       return "Non hai inserito un indirizzo valido";
@@ -65,9 +62,7 @@ class TournamentFinderModel extends ChangeNotifier {
     return null;
   }
   //////////////////////////////DATERANGE DIALOG
-  late TextEditingController _fieldControllerDateRange;
   late String? Function(BuildContext, String?, String?)? tournamentDateRangeTextControllerValidator;
-  late FocusNode? _tournamentDateRangeFocusNode;
   String? _tournamentDateRangeTextControllerValidator(BuildContext context, String? val, String? oldVal) {
     if(val != null && val.isNotEmpty){
       if (!RegExp(kTextValidatorDateRangeRegex).hasMatch(val)) {
@@ -82,6 +77,10 @@ class TournamentFinderModel extends ChangeNotifier {
     }
     return null;
   }
+  //////////////////////////////NAME DIALOG
+  late String _name;
+  //////////////////////////////PLACE DIALOG
+  late Map<String,String> _place;
   //////////////////////////////SLIDER KM DIALOG
   late double _radiusInKm;
   //////////////////////////////DROPDOWN GAMES DIALOG
@@ -97,18 +96,15 @@ class TournamentFinderModel extends ChangeNotifier {
   /////////////////////////////CONSTRUCTOR
   TournamentFinderModel(){
     print("[CREATE] TournamentFinderModel");
-    _fieldControllerName = TextEditingController();
     tournamentNameTextControllerValidator = _tournamentNameTextControllerValidator;
-    _tournamentNameFocusNode = FocusNode();
-    _tournamentCenterPlaceFocusNode = FocusNode();
-    _fieldControllerDateRange = TextEditingController();
     tournamentDateRangeTextControllerValidator = _tournamentDateRangeTextControllerValidator;
-    _tournamentDateRangeFocusNode = FocusNode();
 
     placesApiManagerService = GetIt.instance.getAsync<PlacesApiManagerService>();
     _sessionToken = uuid.v4();
 
-    _radiusInKm = 50;
+    _radiusInKm = 10;
+    _name='';
+    _place= {};
     _dateStart = DateTime.now();
     _dateEnd = _dateStart.add(const Duration(days: 7));
     _games = Game.values;
@@ -131,21 +127,6 @@ class TournamentFinderModel extends ChangeNotifier {
   }
   LatLng get initialLocation{
     return _firstLocation;
-  }
-  TextEditingController get tournamentNameTextController{
-    return _fieldControllerName;
-  }
-  FocusNode get tournamentNameFocusNode{
-    return _tournamentNameFocusNode!;
-  }
-  TextEditingController get tournamentDateRangeTextController{
-    return _fieldControllerDateRange;
-  }
-  FocusNode get tournamentDateRangeFocusNode{
-    return _tournamentDateRangeFocusNode!;
-  }
-  FocusNode get tournamentCenterPlaceFocusNode{
-    return _tournamentCenterPlaceFocusNode!;
   }
   String? get selectedMarkerId{
     return _selectedMarkerId;
@@ -196,7 +177,7 @@ class TournamentFinderModel extends ChangeNotifier {
         print('REFRESH START BY TAP');
         _lastLocation = position.center;
         await _tournamentsSubscription?.cancel();
-        String query = getQuery(tournamentNameFilter: null);
+        String query = getQuery();
         _tournamentsSubscription = TournamentsRecord.getDocuments(pb, false, query).listen((tournamentsWithCreatorsList) {
           tournamentsListRefObj = tournamentsWithCreatorsList;
           tournamentsListRefObjToDetail = updateObjsToDetail();
@@ -209,9 +190,9 @@ class TournamentFinderModel extends ChangeNotifier {
       }
     });
   }
-  Future<void> refreshSearchByFilter(String? nameToFilter, String? placeIdToFilter, double? sliderToFilter, List<Game>? gamesToFilter, List<DateTime>? dataRangeToFilter) async {
-    if((nameToFilter == null || nameToFilter.isEmpty) &&
-        (placeIdToFilter == null || placeIdToFilter.isEmpty) &&
+  Future<void> refreshSearchByFilter(String? nameToFilter, Map<String, String?>? placeIdToFilter, double? sliderToFilter, List<Game>? gamesToFilter, List<DateTime>? dataRangeToFilter) async {
+    if((nameToFilter == null || nameToFilter.isEmpty || nameToFilter == _name) &&
+        (placeIdToFilter == null || placeIdToFilter["placeId"]!.isEmpty || placeIdToFilter["lastSelected"]!.isEmpty || placeIdToFilter["lastSelected"] == _place["lastSelected"]) &&
         (sliderToFilter == null || sliderToFilter == _radiusInKm) &&
         (gamesToFilter == null || gamesToFilter == _games) &&
         (dataRangeToFilter == null || (dataRangeToFilter[0] == _dateStart && dataRangeToFilter[1] == _dateEnd))){
@@ -230,10 +211,17 @@ class TournamentFinderModel extends ChangeNotifier {
     if(sliderToFilter != null){
       _radiusInKm = sliderToFilter;
     }
-    if(placeIdToFilter != null){
+    if(nameToFilter != null){
+      _name = nameToFilter;
+    }
+    if(placeIdToFilter != null && placeIdToFilter["placeId"] != null){
       try {
+        if(placeIdToFilter["lastSelected"] != null){
+          _place["placeId"] = placeIdToFilter["placeId"]!;
+          _place["lastSelected"] = placeIdToFilter["lastSelected"]!;
+        }
         PlacesApiManagerService placesApiManagerServiceCompleted = await placesApiManagerService;
-        Map<String,dynamic>? placeDetail = await placesApiManagerServiceCompleted.getPlaceDetail(placeIdToFilter);
+        Map<String,dynamic>? placeDetail = await placesApiManagerServiceCompleted.getPlaceDetail(placeIdToFilter["placeId"]!);
         if(placeDetail != null) {
           LatLng selectedPos = LatLng(placeDetail['lat'], placeDetail['lng'],);
           double zoomLevel = computeZoomByRadius(_radiusInKm, placeDetail['lat'], placeDetail['lng']);
@@ -248,7 +236,7 @@ class TournamentFinderModel extends ChangeNotifier {
       mapController.rotate(0);
     }
     await _tournamentsSubscription?.cancel();
-    var query = getQuery(tournamentNameFilter: nameToFilter);
+    var query = getQuery();
     _tournamentsSubscription = TournamentsRecord.getDocuments(pb, false, query).listen((tournamentsWithCreatorsList) {
       tournamentsListRefObj = tournamentsWithCreatorsList;
       tournamentsListRefObjToDetail = updateObjsToDetail();
@@ -265,7 +253,7 @@ class TournamentFinderModel extends ChangeNotifier {
       buttonTitleConfirmed: "Filtra",
       formInfo: [
         () => TextFormElement(
-          controllerInitValue: "",
+          controllerInitValue: _name,
           iconPrefix: Icons.style,
           validatorFunction: tournamentNameTextControllerValidator,
           validatorParameter: null,
@@ -273,7 +261,7 @@ class TournamentFinderModel extends ChangeNotifier {
           key: GlobalKey<TextFormElementState>(),
         ),
         () => TextAheadAddressFormElement(
-          controllerInitValue: "",
+          controllerInitValue: _place,
           iconPrefix: Icons.place,
           validatorFunction: _tournamentCenterPlaceTextControllerValidator,
           label: "Area di ricerca",
@@ -306,7 +294,7 @@ class TournamentFinderModel extends ChangeNotifier {
       ],
       functionConfirmed: (List<dynamic>? formValues) async {
         String? nameToFilter = (formValues![0] as String);
-        String? placeIdToFilter = (formValues[1] as String?);
+        Map<String, String?>? placeIdToFilter = (formValues[1] as Map<String, String?>);
         double? sliderToFilter = (formValues[2] as double);
         List<Game>? gamesToFilter = (formValues[3]! as List<Game>);
         List<DateTime>? dataRangeToFilter = (formValues[4]!.whereType<DateTime>().toList() as List<DateTime>);
@@ -345,11 +333,6 @@ class TournamentFinderModel extends ChangeNotifier {
   void dispose() {
     _tournamentsSubscription?.cancel();
     unfocusNode.dispose();
-    _fieldControllerName.dispose();
-    _fieldControllerDateRange.dispose();
-    _tournamentNameFocusNode?.dispose();
-    _tournamentCenterPlaceFocusNode?.dispose();
-    _tournamentDateRangeFocusNode?.dispose();
     _mapController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -357,7 +340,7 @@ class TournamentFinderModel extends ChangeNotifier {
 
   Future<void> fetchObjects() async {
     await setLocation();
-    var query = getQuery(tournamentNameFilter: null, useFirst: true);
+    var query = getQuery(useFirst: true);
     _tournamentsSubscription = TournamentsRecord.getDocuments(pb, false, query).listen((tournamentsWithCreatorsList) {
       tournamentsListRefObj = tournamentsWithCreatorsList;
       //tournamentsListRefObjToDetail = updateObjsToDetail();
@@ -375,7 +358,7 @@ class TournamentFinderModel extends ChangeNotifier {
     return _placeList;
   }
 
-  String getQuery({String? tournamentNameFilter, bool useFirst = false}) {
+  String getQuery({bool useFirst = false}) {
     print("[LOAD FROM FIREBASE IN CORSO] tournament_finder_model.dart");
     double currentLat;
     double currentLong;
@@ -393,8 +376,8 @@ class TournamentFinderModel extends ChangeNotifier {
         'latitude  <= "${currentLat + (_radiusInKm / 111.32)}" && '
         'longitude  >= "${currentLong - (_radiusInKm / (111.32 * cos(currentLat * pi / 180)))}" && '
         'longitude  <= "${currentLong + (_radiusInKm / (111.32 * cos(currentLat * pi / 180)))}"';
-    if(tournamentNameFilter != null){
-      query = '$query && name ~ "$tournamentNameFilter"';
+    if(_name.isNotEmpty){
+      query = '$query && name ~ "$_name"';
     }
     return query;
   }
