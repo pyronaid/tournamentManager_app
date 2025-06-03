@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import '../../auth/firebase_auth/auth_util.dart';
 import '../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 
 

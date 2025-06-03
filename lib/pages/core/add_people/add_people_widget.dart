@@ -4,12 +4,13 @@ import 'package:provider/provider.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
+import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_users_record.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
-import 'package:tournamentmanager/backend/schema/users_record.dart';
 import 'package:tournamentmanager/components/custom_appbar_widget.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 import 'package:tournamentmanager/pages/core/add_people/add_people_model.dart';
 import 'package:tuple/tuple.dart';
+import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 import '../../../backend/schema/tournaments_record.dart';
 import '../tournament_people/tournament_people_model.dart';
 
@@ -151,12 +152,11 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                                           if (result != null) {
                                             print('Scanned Barcode: $result');
                                             providerAddPeople.setFieldControllerIdUser(result);
-                                            //TODO REFACTOR POCKD
                                             await providerAddPeople.addPlayerWithCheck(
                                               providerPeople.getPlayerInfoR(providerAddPeople.fieldControllerIdUser.text),
                                               providerPeople.getPlayerInfoP(providerAddPeople.fieldControllerIdUser.text),
                                               providerPeople.getPlayerInfoW(providerAddPeople.fieldControllerIdUser.text),
-                                              UsersRecord.getDocumentOnce(UsersRecord.collection.doc(providerAddPeople.fieldControllerIdUser.text)),
+                                              PocketbaseUser.getDocumentOnce(pb, providerAddPeople.fieldControllerIdUser.text),
                                               providerPeople.waitingEnabled,
                                               providerPeople.preregisteredEnabled,
                                               providerPeople.capacity,
@@ -243,7 +243,7 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                                                 ),
                                                 providerAddPeople.check1Flag ?
                                                 Text(
-                                                  providerAddPeople.usersRecord!.displayName,
+                                                  providerAddPeople.usersRecord!.name!,
                                                   style: CustomFlowTheme.of(context).labelMedium,
                                                 ) : const SizedBox.shrink(),
                                               ],
@@ -318,7 +318,7 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                               providerPeople.getPlayerInfoR(providerAddPeople.fieldControllerIdUser.text),
                               providerPeople.getPlayerInfoP(providerAddPeople.fieldControllerIdUser.text),
                               providerPeople.getPlayerInfoW(providerAddPeople.fieldControllerIdUser.text),
-                              UsersRecord.getDocumentOnce(UsersRecord.collection.doc(providerAddPeople.fieldControllerIdUser.text)),
+                              PocketbaseUser.getDocumentOnce(pb, providerAddPeople.fieldControllerIdUser.text),
                               providerPeople.waitingEnabled,
                               providerPeople.preregisteredEnabled,
                               providerPeople.capacity,
@@ -329,11 +329,11 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                             if (result.item1 != null && providerAddPeople.usersRecord != null) {
                               switch(result.item1){
                                 case ResponseAction.add:
-                                  await providerPeople.addPeople(providerAddPeople.usersRecord!.uid, providerAddPeople.usersRecord!.displayName);
+                                  await providerPeople.addPeople(providerAddPeople.usersRecord!.uid!, providerAddPeople.usersRecord!.name!);
                                   break;
                                 case ResponseAction.forcedPromote:
                                 case ResponseAction.stdPromote:
-                                await providerPeople.promotePeople(providerAddPeople.fieldControllerIdUser.text, providerAddPeople.usersRecord!.displayName, result.item2!);
+                                await providerPeople.promotePeople(providerAddPeople.fieldControllerIdUser.text, providerAddPeople.usersRecord!.name!, result.item2!);
                                   break;
                                 case ResponseAction.issue:
                                 default:

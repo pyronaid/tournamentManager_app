@@ -1,13 +1,15 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:tournamentmanager/backend/schema/structs/devs_struct.dart';
+import 'package:pocketbase/pocketbase.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
+import 'package:tournamentmanager/backend/schema/util/pocketbase_util.dart';
 
+import 'developer_information_record.dart';
 
-import 'index.dart';
+class CompanyInformationRecord extends PocketstoreRecord {
+  static const String collectionName = "company_information";
 
-class CompanyInformationRecord extends FirestoreRecord {
   CompanyInformationRecord._(
     super.reference,
     super.data,
@@ -61,8 +63,8 @@ class CompanyInformationRecord extends FirestoreRecord {
   bool hasCompanyBio() => _companyBio != null;
 
   // "dev_info" field.
-  List<DevsStruct>? _devInfo;
-  List<DevsStruct> get devInfo => _devInfo ?? const [];
+  List<DevelopersInformationRecord>? _devInfo;
+  List<DevelopersInformationRecord> get devInfo => _devInfo ?? const [];
   bool hasDevInfo() => _devInfo != null;
 
   // "termsURL" field.
@@ -71,80 +73,74 @@ class CompanyInformationRecord extends FirestoreRecord {
   bool hasTermsURL() => _termsURL != null;
 
   void _initializeFields() {
-    _name = snapshotData['name'] as String?;
-    _logo = snapshotData['logo'] as String?;
-    _email = snapshotData['email'] as String?;
-    _phone = snapshotData['phone'] as String?;
-    _address = snapshotData['address'] as String?;
-    _appleStoreURL = snapshotData['appleStoreURL'] as String?;
-    _playStoreURL = snapshotData['playStoreURL'] as String?;
-    _coverImage = snapshotData['coverImage'] as String?;
-    _companyBio = snapshotData['company_bio'] as String?;
-    _devInfo = getStructList(
-      snapshotData['devInfo'],
-      DevsStruct.fromMap,
-    );
-    _termsURL = snapshotData['termsURL'] as String?;
+    _name = snapshotData['name'];
+    _logo = getFileUrl(snapshotData['collectionId'], snapshotData['id'], snapshotData['logo']);
+    _email = snapshotData['email'];
+    _phone = snapshotData['phone'];
+    _address = snapshotData['address'];
+    _appleStoreURL = snapshotData['appleStoreURL'];
+    _playStoreURL = snapshotData['playStoreURL'];
+    _coverImage = getFileUrl(snapshotData['collectionId'], snapshotData['id'], snapshotData['coverImage']);
+    _companyBio = snapshotData['company_bio'];
+    _devInfo = snapshotData['expand'] != null ? (snapshotData['expand']['developers_information_via_company'] as List)
+        .map((elem) => RecordModel(elem))
+        .map((el) => DevelopersInformationRecord.fromSnapshot(el))
+        .toList() : [];
+    _termsURL = snapshotData['termsURL'];
   }
 
-  static CollectionReference get collection => FirebaseFirestore.instance.collection('company_information');
+  static CompanyInformationRecord fromSnapshot(RecordModel snapshot) => CompanyInformationRecord._(
+    snapshot,
+    snapshot.toJson(),
+  );
 
-  static Stream<CompanyInformationRecord> getDocument(DocumentReference ref) => ref.snapshots().map((s) => CompanyInformationRecord.fromSnapshot(s));
+  static Stream<CompanyInformationRecord> getDocument(PocketBase pb, String id) {
+    final controller = StreamController<CompanyInformationRecord>();
 
-  static Future<CompanyInformationRecord> getDocumentOnce(DocumentReference ref) => ref.get().then((s) => CompanyInformationRecord.fromSnapshot(s));
+    pb.collection(collectionName).getOne(id).then((record) {
+      if (!controller.isClosed) controller.add(CompanyInformationRecord.fromSnapshot(record));
+    }).catchError((error){
+      if (!controller.isClosed) controller.addError(error);
+    });
 
-  static CompanyInformationRecord fromSnapshot(DocumentSnapshot snapshot) =>
-      CompanyInformationRecord._(
-        snapshot.reference,
-        mapFromFirestore(snapshot.data() as Map<String, dynamic>),
-      );
+    pb.collection(collectionName).subscribe(id, (e) {
+      if (e.record != null) {
+        if (!controller.isClosed) controller.add(CompanyInformationRecord.fromSnapshot(e.record!));
+      }
+    });
+
+    // Clean up on stream cancellation
+    controller.onCancel = () {
+      pb.collection(collectionName).unsubscribe();
+    };
+
+    return controller.stream;
+  }
+
+  static Future<CompanyInformationRecord> getDocumentOnce(PocketBase pb, String id) =>
+      pb.collection(collectionName).getOne(id).then((s) => CompanyInformationRecord.fromSnapshot(s));
+
+  static Future<CompanyInformationRecord> getFirstDocumentByFilterOnce(PocketBase pb, String filter, bool expand) =>
+      pb.collection(collectionName).getFirstListItem(filter, expand: expand ? 'developers_information_via_company' : null).then((s) => CompanyInformationRecord.fromSnapshot(s));
 
   static CompanyInformationRecord getDocumentFromData(
-    Map<String, dynamic> data,
-    DocumentReference reference,
-  ) => CompanyInformationRecord._(reference, mapFromFirestore(data));
+      Map<String, dynamic> data,
+      RecordModel reference,
+      ) =>
+      CompanyInformationRecord._(reference, mapFromFirestore(data));
 
   @override
-  String toString() => 'CompanyInformationRecord(reference: ${reference.path}, data: $snapshotData)';
+  String toString() => 'CompanyInformationRecord(reference: ${reference.id}-${reference.collectionId}-${reference.collectionName}, data: $snapshotData)';
 
   @override
-  int get hashCode => reference.path.hashCode;
+  int get hashCode => (reference.id+reference.collectionId+reference.collectionName).hashCode;
 
   @override
   bool operator ==(other) =>
       other is CompanyInformationRecord &&
-      reference.path.hashCode == other.reference.path.hashCode;
+          (reference.id+reference.collectionId+reference.collectionName).hashCode == (other.reference.id+other.reference.collectionId+other.reference.collectionName).hashCode;
 }
 
-Map<String, dynamic> createCompanyInformationRecordData({
-  String? name,
-  String? logo,
-  String? email,
-  String? phone,
-  String? address,
-  String? appleStoreURL,
-  String? playStoreURL,
-  String? coverImage,
-  String? companyBio,
-  String? termsURL,
-}) {
-  final firestoreData = mapToFirestore(
-    <String, dynamic>{
-      'name': name,
-      'logo': logo,
-      'email': email,
-      'phone': phone,
-      'address': address,
-      'appleStoreURL': appleStoreURL,
-      'playStoreURL': playStoreURL,
-      'coverImage': coverImage,
-      'company_bio': companyBio,
-      'termsURL': termsURL,
-    }.withoutNulls,
-  );
-
-  return firestoreData;
-}
 
 class CompanyInformationRecordDocumentEquality
     implements Equality<CompanyInformationRecord> {

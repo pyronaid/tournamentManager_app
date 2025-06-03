@@ -1,6 +1,12 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_users_record.dart';
+import 'package:tournamentmanager/backend/schema/util/pocketbase_util.dart';
+import 'package:tuple/tuple.dart';
+
+import '../../app_flow/services/SnackBarService.dart';
+import '../../app_flow/services/supportClass/snackbar_style.dart';
 
 class PocketbaseAuthManager {
   final PocketBase _pb;
@@ -8,7 +14,11 @@ class PocketbaseAuthManager {
   static const String _tokenKey = 'auth_token';
   static const String userColl = 'users';
 
-  PocketbaseAuthManager(this._pb);
+  late SnackBarService snackBarService;
+
+  PocketbaseAuthManager(this._pb){
+    snackBarService = GetIt.instance<SnackBarService>();
+  }
 
   //#####################################################
   //#####################################################
@@ -129,24 +139,40 @@ class PocketbaseAuthManager {
   //################# CREATE & VERIFY USER
   //#####################################################
   //#####################################################
-  Future<bool> createAccountWithEmail(String mail, String password) async {
+  Future<Tuple3<bool,String,String>> createAccountWithEmail({required String mail, required String password, String? name, String? surname, String? username}) async {
     try{
       RecordModel userData = await _pb.collection(userColl).create(body: {
-        'email' : mail,
+        'email': mail,
         'password': password,
         'passwordConfirm': password,
         'emailVisibility': true,
+        'name': (name?.isEmpty ?? true) ? null : name,
+        'surname': (surname?.isEmpty ?? true) ? null : surname,
+        'username': (username?.isEmpty ?? true) ? null : username,
       });
 
       PocketbaseUser user = PocketbaseUser.getDocumentFromData(userData.toJson(), userData);
 
       // After creating, you might want to automatically sign in
       bool sendMailFlag = await sendEmailVerification(user.email!);
-      if(!sendMailFlag){ return false;}
-      return await signInWithEmail(user.email!, password);
+      if(!sendMailFlag){ return const Tuple3(false, '', '');}
+      bool signInFlag = await signInWithEmail(user.email!, password);
+      return Tuple3(signInFlag, '', '');
     } catch (e) {
+      Map<String, dynamic>? dataError = (e as ClientException).response['data'];
+      if(dataError != null && dataError.isNotEmpty){
+        String key = dataError.entries.first.key;
+        String errorCode = dataError.entries.first.value['code'];
+        String errorMessage = ClientErrorCodes.getMessageFromString(errorCode);
+        return Tuple3(false, key, errorMessage);
+      }
+      snackBarService.showSnackBar(
+          message: 'Qualcosa è andato storto. Riprova più tardi',
+          title: 'Errore di registrazione utente',
+          style: SnackbarStyle.error
+      );
       print('Account creation error: $e');
-      return false;
+      return const Tuple3(false, '', '');
     }
   }
   Future<bool> sendEmailVerification(String email) async {

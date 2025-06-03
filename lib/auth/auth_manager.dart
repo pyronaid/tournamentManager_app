@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'base_auth_user_provider.dart';
 
+
 abstract class AuthManager {
   Future signOut();
   Future deleteUser(BuildContext context);

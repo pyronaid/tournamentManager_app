@@ -3,6 +3,8 @@ class AuthUserInfo {
     this.uid,
     this.email,
     this.name,
+    this.surname,
+    this.username,
     this.avatar,
     this.phoneNumber,
   });
@@ -10,6 +12,8 @@ class AuthUserInfo {
   final String? uid;
   final String? email;
   final String? name;
+  final String? surname;
+  final String? username;
   final String? avatar;
   final String? phoneNumber;
 }
@@ -28,7 +32,9 @@ abstract class BaseAuthUser {
   String? get uid => authUserInfo.uid;
   String? get email => authUserInfo.email;
   String? get name => authUserInfo.name;
-  String? get photoUrl => authUserInfo.avatar;
+  String? get surname => authUserInfo.surname;
+  String? get username => authUserInfo.username;
+  String? get avatar => authUserInfo.avatar;
   String? get phoneNumber => authUserInfo.phoneNumber;
 }
 

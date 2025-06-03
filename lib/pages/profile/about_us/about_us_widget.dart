@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
-import 'package:tournamentmanager/backend/backend.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/backend/schema/company_information_record.dart';
+import 'package:tournamentmanager/backend/schema/developer_information_record.dart';
 import 'package:tournamentmanager/components/custom_appbar_widget.dart';
 
+import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 import 'about_us_model.dart';
 
 class AboutUsWidget extends StatefulWidget {
@@ -55,10 +56,8 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                   alignment: const AlignmentDirectional(0, 0),
                   child: Padding(
                     padding: const EdgeInsets.all(24),
-                    child: StreamBuilder<List<CompanyInformationRecord?>>(
-                      stream: queryCompanyInformationRecord(
-                        singleRecord: true,
-                      ),
+                    child: FutureBuilder<CompanyInformationRecord?>(
+                      future: CompanyInformationRecord.getFirstDocumentByFilterOnce(pb, '', true),
                       builder: (context, snapshot) {
                         // Customize what your widget looks like when it's loading.
                         if (!snapshot.hasData) {
@@ -74,15 +73,11 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                             ),
                           );
                         }
-                        List<CompanyInformationRecord?> columnCompanyInformationRecordList = snapshot.data!;
                         // Return an empty Container when the item does not exist.
-                        if (snapshot.data!.isEmpty) {
+                        if (snapshot.data == null) {
                           return Container();
                         }
-                        final columnCompanyInformationRecord = columnCompanyInformationRecordList.isNotEmpty
-                                ? columnCompanyInformationRecordList.first
-                                : null;
-
+                        CompanyInformationRecord? columnCompanyInformationRecord = snapshot.data!;
                         return Column(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -108,7 +103,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                             /////////////////////////////
                             ///////////////////////////// CASO COVER IMAGE PRESENTE
                             /////////////////////////////
-                            if (columnCompanyInformationRecord?.coverImage != null && columnCompanyInformationRecord?.coverImage != '')
+                            if (columnCompanyInformationRecord.coverImage != '')
                               Padding(
                                 padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 18),
                                 child: Container(
@@ -119,7 +114,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                     image: DecorationImage(
                                       fit: BoxFit.cover,
                                       image: Image.network(valueOrDefault<String>(
-                                          columnCompanyInformationRecord?.coverImage,
+                                          columnCompanyInformationRecord.coverImage,
                                           'https://firebasestorage.googleapis.com/v0/b/tournament-manager-ee897.appspot.com/o/assets%2FTM_logo.png?alt=media',
                                         ),
                                       ).image,
@@ -127,7 +122,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Visibility(
-                                    visible: columnCompanyInformationRecord?.logo != null && columnCompanyInformationRecord?.logo != '',
+                                    visible: columnCompanyInformationRecord.logo != '',
                                     child: Align(
                                       alignment: const AlignmentDirectional(-1, -1),
                                       child: Padding(
@@ -139,7 +134,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                             image: DecorationImage(
                                               fit: BoxFit.contain,
                                               image: Image.network(
-                                                columnCompanyInformationRecord!.logo,
+                                                columnCompanyInformationRecord.logo,
                                               ).image,
                                             ),
                                             borderRadius: BorderRadius.circular(8),
@@ -153,8 +148,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                             /////////////////////////////
                             ///////////////////////////// CASO COVER IMAGE ASSENTE E LOGO PRESENTE
                             /////////////////////////////
-                            if ((columnCompanyInformationRecord?.logo != null && columnCompanyInformationRecord?.logo != '') &&
-                                (columnCompanyInformationRecord?.coverImage == null || columnCompanyInformationRecord ?.coverImage == ''))
+                            if (columnCompanyInformationRecord.logo != '' && columnCompanyInformationRecord .coverImage == '')
                               Align(
                                 alignment: const AlignmentDirectional(-1, -1),
                                 child: Padding(
@@ -216,7 +210,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                           return Column(
                                             mainAxisSize: MainAxisSize.max,
                                             children: List.generate(devs.length, (devsIndex) {
-                                              final devsItem = devs[devsIndex];
+                                              final DevelopersInformationRecord devsItem = devs[devsIndex];
                                               return Padding(
                                                 padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
                                                 child: Row(
@@ -225,7 +219,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                                     /////////////////////////////
                                                     ///////////////////////////// CASO DEVELOPERS ABBIA IMMAGINE PROFILO 
                                                     /////////////////////////////
-                                                    if (devsItem.profilePicture !='')
+                                                    if (devsItem.profilePic !='')
                                                       Container(
                                                         width: 100,
                                                         height: 100,
@@ -233,7 +227,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                                           color: CustomFlowTheme.of(context).secondaryBackground,
                                                           image: DecorationImage(
                                                               fit: BoxFit.cover,
-                                                              image:Image.network(devsItem.profilePicture,).image,
+                                                              image:Image.network(devsItem.profilePic,).image,
                                                           ),
                                                           borderRadius:BorderRadius.circular(12),
                                                         ),

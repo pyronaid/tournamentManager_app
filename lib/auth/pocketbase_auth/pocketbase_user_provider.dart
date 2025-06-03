@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:pocketbase/pocketbase.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_auth_manager.dart';
@@ -10,7 +9,12 @@ import '../base_auth_user_provider.dart';
 class PocketbaseUserProvider{
   final PocketBase _pb;
 
-  PocketbaseUserProvider(this._pb);
+  PocketbaseUserProvider(this._pb){
+    // Set initial state
+    _authStateController.add(_pb.authStore.record);
+  }
+
+  final _authStateController = BehaviorSubject<RecordModel?>();
 
   Stream<BaseAuthUser> pocketbaseUserStream() {
     final StreamController<BaseAuthUser> controller = StreamController<BaseAuthUser>();
@@ -81,6 +85,5 @@ class PocketbaseUserProvider{
         : Stream.value(user));
 
   }
-
 
 }

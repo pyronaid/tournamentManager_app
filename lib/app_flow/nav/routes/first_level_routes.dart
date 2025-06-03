@@ -86,6 +86,18 @@ class FirstLevelRoutes {
                   redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
                   pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
                 ),
+                GoRoute(
+                  name: 'DialogResetPassword',
+                  path: 'dialog-reset-password',
+                  redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+                  pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+                ),
+                GoRoute(
+                  name: 'DialogChangeMail',
+                  path: 'dialog-change-mail',
+                  redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+                  pageBuilder: (context, state) => DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+                ),
               ],
             ),
             CustomRoute(

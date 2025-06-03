@@ -2,10 +2,10 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
+import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_users_record.dart';
 import 'package:tournamentmanager/backend/schema/preregisteredlist_record.dart';
 import 'package:tournamentmanager/backend/schema/registeredlist_record.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
-import 'package:tournamentmanager/backend/schema/users_record.dart';
 import 'package:tournamentmanager/backend/schema/waitinglist_record.dart';
 import 'package:tournamentmanager/components/custom_appbar_model.dart';
 import 'package:tuple/tuple.dart';
@@ -20,7 +20,7 @@ class AddPeopleModel extends ChangeNotifier {
   late List<RegisteredlistRecord> registeredListRecord;
   late List<PreregisteredlistRecord> preregisteredListRecord;
   late List<WaitinglistRecord> waitingListRecord;
-  late UsersRecord? usersRecord;
+  late PocketbaseUser? usersRecord;
 
   bool check1Flag = false;
   String check1Message = "";
@@ -121,7 +121,7 @@ class AddPeopleModel extends ChangeNotifier {
     Future<List<RegisteredlistRecord>> registeredListRecordFuture,
     Future<List<PreregisteredlistRecord>> preregisteredListRecordFuture,
     Future<List<WaitinglistRecord>> waitingListRecordFuture,
-    Future<UsersRecord?> usersRecordFuture,
+    Future<PocketbaseUser?> usersRecordFuture,
     bool checkWaitingFlag,
     bool checkPreregisteredFlag,
     int capacity,

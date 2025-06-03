@@ -66,7 +66,7 @@ Map<String, dynamic> mapFromFirestore(Map<String, dynamic> data) =>
     });
 
 Map<String, dynamic> mapToFirestore(Map<String, dynamic> data) =>
-    data.where((k, v) => k != FirestoreUtilData.name).map((key, value) {
+    data.where((k, v) => k != FirestoreUtilData.name).where((key, value) => value != null).map((key, value) {
       // Handle GeoPoint
       if (value is LatLng) {
         value = value.toGeoPoint();

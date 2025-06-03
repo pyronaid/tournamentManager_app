@@ -208,14 +208,14 @@ class DialogFormWidget extends StatefulWidget {
 }
 
 class _DialogFormWidgetState extends State<DialogFormWidget> {
-  late List<FormInformation> _formInformations;
+  late List<FormInformation> _formInformation;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
     // Generate FormInformation objects when the widget initializes
-    _formInformations = widget.request.formInfo.map((func) => func()).toList();
+    _formInformation = widget.request.formInfo.map((func) => func()).toList();
   }
 
   @override
@@ -308,7 +308,7 @@ class _DialogFormWidgetState extends State<DialogFormWidget> {
           autovalidateMode: AutovalidateMode.disabled,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: _formInformations,
+            children: _formInformation,
           ),
         ),
       ),
@@ -349,7 +349,7 @@ class _DialogFormWidgetState extends State<DialogFormWidget> {
             child: ElevatedButton(
               onPressed: () async {
                 if (_formKey.currentState?.validate() ?? false) {
-                  List<dynamic> formValues = _formInformations.map((inf) => inf.result()).toList();
+                  List<dynamic> formValues = _formInformation.map((inf) => inf.result()).toList();
                   if (widget.request.functionConfirmed != null) {
                     await widget.request.functionConfirmed!(formValues);
                   }

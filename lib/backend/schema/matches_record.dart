@@ -1,7 +1,8 @@
 import 'package:collection/collection.dart';
+import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_users_record.dart';
 import 'package:tournamentmanager/backend/schema/index.dart';
-import 'package:tournamentmanager/backend/schema/users_record.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
+import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 
 class MatchesRecord extends FirestoreRecord {
   MatchesRecord._(
@@ -32,18 +33,18 @@ class MatchesRecord extends FirestoreRecord {
   bool hasTable() => _table! > 0;
 
   // "playerA" field.
-  UsersRecord? _playerA;
-  UsersRecord? get playerA => _playerA;
+  PocketbaseUser? _playerA;
+  PocketbaseUser? get playerA => _playerA;
   bool hasPlayerA() => _playerA != null;
 
   // "playerB" field.
-  UsersRecord? _playerB;
-  UsersRecord? get playerB => _playerB;
+  PocketbaseUser? _playerB;
+  PocketbaseUser? get playerB => _playerB;
   bool hasPlayerB() => _playerB != null;
 
   // "winner" field.
-  UsersRecord? _winner;
-  UsersRecord? get winner => _winner;
+  PocketbaseUser? _winner;
+  PocketbaseUser? get winner => _winner;
   bool hasWinner() => _winner != null;
 
   // "game" field.
@@ -100,8 +101,8 @@ Map<String, dynamic> createMatchesRecordData({
   String? tournament_uid,
   String? round_uid,
   int? table,
-  UsersRecord? player_A,
-  UsersRecord? player_B,
+  PocketbaseUser? player_A,
+  PocketbaseUser? player_B,
   StateMatch? state,
 }) {
   final firestoreData = mapToFirestore(

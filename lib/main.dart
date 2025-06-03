@@ -9,12 +9,12 @@ import 'package:tournamentmanager/app_flow/internationalization.dart';
 import 'package:tournamentmanager/app_flow/nav/nav_basics.dart';
 import 'package:tournamentmanager/app_flow/services/locator.dart';
 import 'package:tournamentmanager/app_state.dart';
-import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
 import 'package:tournamentmanager/backend/firebase/firebase_config.dart';
 
 import 'app_flow/nav/navigation_keys.dart';
 import 'app_flow/nav/route_config.dart';
 import 'app_flow/services/ServiceManager.dart';
+import 'auth/base_auth_user_provider.dart';
 import 'auth/pocketbase_auth/pocketbase_auth_util.dart';
 
 void main() async {
@@ -60,7 +60,7 @@ class _MyAppState extends State<MyApp> {
   late AppStateNotifier _appStateNotifier;
   late GoRouter _router;
 
-  final authUserSub = authenticatedUserStream.listen((_) {});
+  //final authUserSub = pocketbaseUserProvider.pocketbaseUserStream().listen((_) {});
 
   @override
   void initState() {
@@ -73,7 +73,6 @@ class _MyAppState extends State<MyApp> {
          (user) => _appStateNotifier.update(user)
       );
     });
-    jwtTokenStream.listen((_) {});
     Future.delayed(
       const Duration(milliseconds: 4000), () => _appStateNotifier.stopShowingSplashImage(),
     );
@@ -81,7 +80,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void dispose() {
-    authUserSub.cancel();
+    //authUserSub.cancel();
 
     super.dispose();
   }

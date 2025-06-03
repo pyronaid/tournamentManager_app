@@ -5,9 +5,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/custom_functions.dart' as functions;
-import 'package:tournamentmanager/auth/firebase_auth/auth_util.dart';
 import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_auth_util.dart';
-import 'package:tournamentmanager/backend/backend.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/backend/schema/company_information_record.dart';
 import 'package:tournamentmanager/pages/profile/profile/profile_model.dart';
@@ -84,7 +82,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                         ),
                         AuthUserStreamWidget(
                           builder: (context) => Text(
-                            currentUserDisplayName,
+                            currentUserName,
                             style: CustomFlowTheme.of(context).displaySmall,
                           ),
                         ),
@@ -147,10 +145,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                         //////////////////////////////
                         Padding(
                           padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                          child: StreamBuilder<List<CompanyInformationRecord?>>(
-                            stream: queryCompanyInformationRecord(
-                              singleRecord: true,
-                            ),
+                          child: FutureBuilder<CompanyInformationRecord?>(
+                            future: CompanyInformationRecord.getFirstDocumentByFilterOnce(pb, '', false),
                             builder: (context, snapshot) {
                               // Customize what your widget looks like when it's loading.
                               if (!snapshot.hasData) {
@@ -166,15 +162,11 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                   ),
                                 );
                               }
-                              List<CompanyInformationRecord?> columnCompanyInformationRecordList = snapshot.data!;
                               // Return an empty Container when the item does not exist.
-                              if (snapshot.data!.isEmpty) {
+                              if (snapshot.data == null) {
                                 return Container();
                               }
-                              final columnCompanyInformationRecord = columnCompanyInformationRecordList.isNotEmpty
-                                  ? columnCompanyInformationRecordList.first
-                                  : null;
-
+                              CompanyInformationRecord? columnCompanyInformationRecord = snapshot.data!;
                               return Column(
                                 mainAxisSize: MainAxisSize.max,
                                 children: [
@@ -236,8 +228,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                   ///////////////////////////////////////
                                   /////////////////////////////////////// ABOUT US + DIVIDER
                                   ///////////////////////////////////////
-                                  if ((columnCompanyInformationRecord?.name != null && columnCompanyInformationRecord?.name != '') &&
-                                      (columnCompanyInformationRecord?.companyBio != null && columnCompanyInformationRecord?.companyBio !=''))
+                                  if (columnCompanyInformationRecord.name != '' && columnCompanyInformationRecord.companyBio !='')
                                     InkWell(
                                       splashColor: Colors.transparent,
                                       focusColor: Colors.transparent,
@@ -293,8 +284,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                   ///////////////////////////////////////
                                   /////////////////////////////////////// CONTACT US + DIVIDER
                                   ///////////////////////////////////////
-                                  if ((columnCompanyInformationRecord?.email != null && columnCompanyInformationRecord?.email != '') ||
-                                      (columnCompanyInformationRecord?.phone != null && columnCompanyInformationRecord?.phone != ''))
+                                  if (columnCompanyInformationRecord.email != '' || columnCompanyInformationRecord.phone != '')
                                     InkWell(
                                       splashColor: Colors.transparent,
                                       focusColor: Colors.transparent,
@@ -302,17 +292,17 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                       highlightColor: Colors.transparent,
                                       onTap: () async {
                                         logFirebaseEvent('PROFILE_PAGE_ContactUsTile_ON_TAP');
-                                        if (columnCompanyInformationRecord?.email != null && columnCompanyInformationRecord?.email != '') {
+                                        if (columnCompanyInformationRecord.email != '') {
                                           logFirebaseEvent('ContactUsTile_send_email');
                                           await launchUrl(Uri(
                                             scheme: 'mailto',
-                                            path: columnCompanyInformationRecord!.email,
+                                            path: columnCompanyInformationRecord.email,
                                           ));
                                         } else {
                                           logFirebaseEvent('ContactUsTile_call_number');
                                           await launchUrl(Uri(
                                             scheme: 'tel',
-                                            path: columnCompanyInformationRecord!.phone,
+                                            path: columnCompanyInformationRecord.phone,
                                           ));
                                         }
                                       },

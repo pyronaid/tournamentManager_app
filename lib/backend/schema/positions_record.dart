@@ -1,7 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:tournamentmanager/backend/schema/index.dart';
-import 'package:tournamentmanager/backend/schema/users_record.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
+import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
+
+import '../../auth/pocketbase_auth/pocketbase_users_record.dart';
 
 class PositionsRecord extends FirestoreRecord {
   PositionsRecord._(
@@ -42,8 +44,8 @@ class PositionsRecord extends FirestoreRecord {
   bool hasTie() => _numTie! > 0;
 
   // "playerA" field.
-  UsersRecord? _player;
-  UsersRecord? get player => _player;
+  PocketbaseUser? _player;
+  PocketbaseUser? get player => _player;
   bool hasPlayer() => _player != null;
 
   // "index" field.
@@ -114,7 +116,7 @@ Map<String, dynamic> createPositionsRecordData({
   int? num_win,
   int? num_lose,
   int? num_tie,
-  UsersRecord? player,
+  PocketbaseUser? player,
   double? tie_break_1,
   double? tie_break_2,
   double? tie_break_3,

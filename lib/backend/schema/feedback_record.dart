@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:tournamentmanager/backend/schema/index.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
+import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 
 class FeedbackRecord extends FirestoreRecord {
   FeedbackRecord._(

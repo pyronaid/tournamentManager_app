@@ -10,11 +10,43 @@ class OnboardingCreateAccountModel extends CustomFlowModel<OnboardingCreateAccou
   final unfocusNode = FocusNode();
   // Model for customAppbar component.
   late CustomAppbarModel customAppbarModel;
+  late Map<String, String?> _serverErrors;
   // State field(s) for fullName widget.
-  FocusNode? fullNameFocusNode;
-  TextEditingController? fullNameTextController;
-  String? Function(BuildContext, String?)? fullNameTextControllerValidator;
-  String? _fullNameTextControllerValidator(BuildContext context, String? val) {
+  FocusNode? nameFocusNode;
+  TextEditingController? nameTextController;
+  String? Function(BuildContext, String?)? nameTextControllerValidator;
+  String? _nameTextControllerValidator(BuildContext context, String? val) {
+    if (_serverErrors.containsKey('name')) {
+      return _serverErrors['name'];
+    }
+    if (val == null || val.isEmpty) {
+      return 'Il nome è un parametro obbligatorio';
+    }
+
+    return null;
+  }
+
+  FocusNode? surnameFocusNode;
+  TextEditingController? surnameTextController;
+  String? Function(BuildContext, String?)? surnameTextControllerValidator;
+  String? _surnameTextControllerValidator(BuildContext context, String? val) {
+    if (_serverErrors.containsKey('surname')) {
+      return _serverErrors['surname'];
+    }
+    if (val == null || val.isEmpty) {
+      return 'Il cognome è un parametro obbligatorio';
+    }
+
+    return null;
+  }
+
+  FocusNode? usernameFocusNode;
+  TextEditingController? usernameTextController;
+  String? Function(BuildContext, String?)? usernameTextControllerValidator;
+  String? _usernameTextControllerValidator(BuildContext context, String? val) {
+    if (_serverErrors.containsKey('username')) {
+      return _serverErrors['username'];
+    }
     if (val == null || val.isEmpty) {
       return 'Il nome è un parametro obbligatorio';
     }
@@ -27,6 +59,9 @@ class OnboardingCreateAccountModel extends CustomFlowModel<OnboardingCreateAccou
   TextEditingController? emailAddressTextController;
   String? Function(BuildContext, String?)? emailAddressTextControllerValidator;
   String? _emailAddressTextControllerValidator(BuildContext context, String? val) {
+    if (_serverErrors.containsKey('email')) {
+      return _serverErrors['email'];
+    }
     if (val == null || val.isEmpty) {
       return 'La mail è un parametro obbligatorio';
     }
@@ -43,6 +78,9 @@ class OnboardingCreateAccountModel extends CustomFlowModel<OnboardingCreateAccou
   late bool passwordVisibility;
   String? Function(BuildContext, String?)? passwordTextControllerValidator;
   String? _passwordTextControllerValidator(BuildContext context, String? val) {
+    if (_serverErrors.containsKey('password')) {
+      return _serverErrors['password'];
+    }
     if (val == null || val.isEmpty) {
       return 'La password è un parametro obbligatorio';
     }
@@ -54,10 +92,26 @@ class OnboardingCreateAccountModel extends CustomFlowModel<OnboardingCreateAccou
     return null;
   }
 
+
+  void clearServerError(String fieldName) {
+    if (_serverErrors.containsKey(fieldName)) {
+      _serverErrors.remove(fieldName);
+    }
+  }
+  void clearAllServerErrors(){
+    _serverErrors.clear();
+  }
+  void addServerError(String fieldName, String fieldMessage){
+    _serverErrors[fieldName] = fieldMessage;
+  }
+
   @override
   void initState(BuildContext context) {
+    _serverErrors = {};
     customAppbarModel = createModel(context, () => CustomAppbarModel());
-    fullNameTextControllerValidator = _fullNameTextControllerValidator;
+    nameTextControllerValidator = _nameTextControllerValidator;
+    surnameTextControllerValidator = _surnameTextControllerValidator;
+    usernameTextControllerValidator = _usernameTextControllerValidator;
     emailAddressTextControllerValidator = _emailAddressTextControllerValidator;
     passwordVisibility = false;
     passwordTextControllerValidator = _passwordTextControllerValidator;
@@ -67,8 +121,15 @@ class OnboardingCreateAccountModel extends CustomFlowModel<OnboardingCreateAccou
   void dispose() {
     unfocusNode.dispose();
     customAppbarModel.dispose();
-    fullNameFocusNode?.dispose();
-    fullNameTextController?.dispose();
+
+    nameFocusNode?.dispose();
+    nameTextController?.dispose();
+
+    surnameFocusNode?.dispose();
+    surnameTextController?.dispose();
+
+    usernameFocusNode?.dispose();
+    usernameTextController?.dispose();
 
     emailAddressFocusNode?.dispose();
     emailAddressTextController?.dispose();

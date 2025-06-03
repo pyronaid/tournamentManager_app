@@ -54,6 +54,8 @@ abstract class FormInformation extends StatefulWidget {
 class TextFormElement extends FormInformation {
   final String controllerInitValue;
   final bool autofocus;
+  final bool obscureText;
+  final bool obscureTextSwitch;
   final TextInputType keyboardType;
   final List<TextInputFormatter>? inputFormatters;
   final IconData? iconPrefix;
@@ -67,6 +69,8 @@ class TextFormElement extends FormInformation {
     required GlobalKey<TextFormElementState> key,
     required this.controllerInitValue,
     this.autofocus = false,
+    this.obscureText = false,
+    this.obscureTextSwitch = false,
     this.keyboardType = TextInputType.text,
     this.inputFormatters,
     this.iconPrefix,
@@ -91,11 +95,13 @@ class TextFormElement extends FormInformation {
 class TextFormElementState extends State<TextFormElement> {
   late final TextEditingController controller;
   late final FocusNode focusNode;
+  late bool obscureTextSwitchFlag;
 
   @override
   void initState() {
     super.initState();
     controller = TextEditingController(text: widget.controllerInitValue);
+    obscureTextSwitchFlag = widget.obscureTextSwitch;
     focusNode = FocusNode();
   }
 
@@ -119,7 +125,7 @@ class TextFormElementState extends State<TextFormElement> {
           inputFormatters: widget.inputFormatters,
           textCapitalization: TextCapitalization.words,
           textInputAction: TextInputAction.next,
-          obscureText: false,
+          obscureText: widget.obscureTextSwitch ? obscureTextSwitchFlag : widget.obscureText,
           readOnly: widget.readOnly,
           decoration: standardInputDecoration(
             context,
@@ -129,22 +135,37 @@ class TextFormElementState extends State<TextFormElement> {
               color: CustomFlowTheme.of(context).secondaryText,
               size: 18,
             ) : null,
-            suffixIcon: widget.iconSuffix != null ? widget.iconSuffixOnTapFunction != null ?
-            IconButton(
-              icon: Icon(
-                widget.iconSuffix,
-                color: CustomFlowTheme.of(context).secondaryText,
-                size: 18,
-              ),
-              onPressed: () async {
-                widget.iconSuffixOnTapFunction!(context);
-              },
-            ) :
-            Icon(
-              widget.iconSuffix,
-              color: CustomFlowTheme.of(context).secondaryText,
-              size: 18,
-            ) : null,
+            suffixIcon:
+              widget.obscureTextSwitch ?
+                InkWell(
+                  onTap: () => setState(
+                    () => obscureTextSwitchFlag = !obscureTextSwitchFlag,
+                  ),
+                  child: Icon(
+                    obscureTextSwitchFlag ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                    color: CustomFlowTheme.of(context).secondaryText,
+                    size: 18,
+                  ),
+                )
+                : (widget.iconSuffix != null ?
+                  (widget.iconSuffixOnTapFunction != null ?
+                    IconButton(
+                      icon: Icon(
+                        widget.iconSuffix,
+                        color: CustomFlowTheme.of(context).secondaryText,
+                        size: 18,
+                      ),
+                      onPressed: () async {
+                        widget.iconSuffixOnTapFunction!(context);
+                      },
+                    ) :
+                    Icon(
+                      widget.iconSuffix,
+                      color: CustomFlowTheme.of(context).secondaryText,
+                      size: 18,
+                    )
+                  )
+                : null),
           ),
           style: CustomFlowTheme.of(context).bodyLarge.override(
             fontWeight: FontWeight.w500,
