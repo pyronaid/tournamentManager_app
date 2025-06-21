@@ -8,7 +8,7 @@ class Placeholder2Widget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     for (final match in  GoRouter.of(context).routerDelegate.currentConfiguration.matches) {
-      print('hellooooooooooooooooooooooooo2_   ' + match.matchedLocation); // Prints each page in the stack
+      print('hellooooooooooooooooooooooooo2_   ${match.matchedLocation}'); // Prints each page in the stack
     }
 
     return const Scaffold(

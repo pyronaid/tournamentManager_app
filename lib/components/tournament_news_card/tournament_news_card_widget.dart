@@ -67,7 +67,7 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
                   'CreateEditNews', context.mounted,
                   pathParameters: {
                     'newsId': widget.newsRef!.uid,
-                    'tournamentId': widget.newsRef!.tournamentUid,
+                    'tournamentId': widget.newsRef!.tournamentId,
                   }.withoutNulls,
                   extra: {
                     'createEditFlag': false,
@@ -85,7 +85,7 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
                 context.goNamed(
                   'DialogDeleteNews',
                   pathParameters: {
-                    'tournamentId': widget.newsRef!.tournamentUid,
+                    'tournamentId': widget.newsRef!.tournamentId,
                   }.withoutNulls,
                   extra: {
                     'req' : _model.showDeleteNewsAlertRequest(widget.newsRef!.uid),
@@ -111,11 +111,11 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if(widget.newsRef!.showTimestampEn && widget.newsRef!.timestamp != null) ...[
+                if(widget.newsRef!.showTimestampEn) ...[
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      DateFormat('dd/MM/yyyy HH:mm:ss').format(widget.newsRef!.timestamp!),
+                      DateFormat('dd/MM/yyyy HH:mm:ss').format(widget.newsRef!.createdTime),
                       style: CustomFlowTheme.of(context).bodyMicro.override(color: CustomFlowTheme.of(context).cardDetail),
                     )
                   ),
@@ -131,10 +131,10 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
                   style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardSecond),
                 ),
 
-                if(widget.newsRef!.imageNewsUrl != null) ...[
+                if(widget.newsRef!.imageNews != null) ...[
                   const SizedBox(height: 10),
                   Image.network(
-                    widget.newsRef!.imageNewsUrl!,
+                    widget.newsRef!.imageNews!,
                     loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
                       if (loadingProgress == null) {
                         return child; // Image has fully loaded

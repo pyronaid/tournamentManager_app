@@ -16,7 +16,10 @@ class TournamentPeopleWidget extends StatefulWidget {
 
 
 class _TournamentPeopleWidgetState extends State<TournamentPeopleWidget> {
-  String _currentPageName = 'RegisteredP';
+  TournamentPeoplePageType _currentPage = TournamentPeoplePageType.registered;
+
+  // Cache for instantiated widget - only create when needed
+  final Map<TournamentPeoplePageType, Widget> _widgetCache = {};
 
   @override
   void initState() {
@@ -25,82 +28,130 @@ class _TournamentPeopleWidgetState extends State<TournamentPeopleWidget> {
 
   @override
   void dispose() {
+    _widgetCache.clear();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final tabs = {
-      'RegisteredP': {
-        'widget' : const TournamentRegisteredPeopleContainer(),
-      },
-      'PreregisteredP': {
-        'widget' : const TournamentPreregisteredPeopleContainer(),
-      },
-      'WaitingP': {
-        'widget' : const TournamentWaitingPeopleContainer(),
-      },
-    };
-    final tabKeys = tabs.keys.toList();
-    final currentIndex = tabKeys.indexOf(_currentPageName);
-
-
+    _widgetCache.clear();
     return Consumer<TournamentModel>(builder: (context, providerTournament, _) {
       if (providerTournament.isLoading) {
         return const Center(child: CircularProgressIndicator());
       }
 
+      final availablePages = _getAvailablePages(providerTournament);
+      if (!availablePages.contains(_currentPage)) {
+        _currentPage = availablePages.first;
+      }
+
       return Scaffold(
         floatingActionButton: FabExpandableWidget(
           distance: 60,
-          children: [
-            if(providerTournament.tournamentWaitingListEn) ...[
-              //WAITING LIST
-              ActionButton(
-                onPressed: () {
-                  if(_currentPageName != "WaitingP") {
-                    setState(() {
-                      _currentPageName = "WaitingP";
-                    });
-                  }
-                },
-                icon: Icons.sensor_occupied,
-                title: " Waiting list ",
-              ),
-            ],
-            if(providerTournament.tournamentPreRegistrationEn) ...[
-              //PRE ISCRITTI
-              ActionButton(
-                onPressed: () {
-                  if(_currentPageName != "PreregisteredP") {
-                    setState(() {
-                      _currentPageName = "PreregisteredP";
-                    });
-                  }
-                },
-                icon: Icons.airline_seat_recline_normal,
-                title: " Pre iscritti list ",
-              ),
-            ],
-            //ISCRITTI
-            ActionButton(
-              onPressed: () {
-                if(_currentPageName != "RegisteredP") {
-                  setState(() {
-                    _currentPageName = "RegisteredP";
-                  });
-                }
-              },
-              icon: Icons.remember_me,
-              title: " Iscritti list ",
-            ),
-          ],
+          children: _buildFabActions(providerTournament),
         ),
-        body: IndexedStack(
-          index: currentIndex,
-          children: tabKeys.map((key) => tabs[key]!['widget'] as Widget).toList(),
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) {
+            return FadeTransition(
+                opacity: animation,
+                child: child
+            );
+          },
+          child: KeyedSubtree(
+            key: ValueKey(_currentPage),
+            child: _createWidget(_currentPage),
+          ),
         ),
       );
     });
   }
+
+  List<TournamentPeoplePageType> _getAvailablePages(
+      TournamentModel tournament) {
+    final pages = <TournamentPeoplePageType>[
+      TournamentPeoplePageType.registered
+    ];
+
+    if (tournament.tournamentPreRegistrationEn) {
+      pages.add(TournamentPeoplePageType.preregistered);
+    }
+
+    if (tournament.tournamentWaitingListEn) {
+      pages.add(TournamentPeoplePageType.waiting);
+    }
+
+    return pages;
+  }
+
+  List<ActionButton> _buildFabActions(TournamentModel tournament) {
+    final actions = <ActionButton>[];
+    final availablePages = _getAvailablePages(tournament);
+
+    for (final pageType in availablePages.reversed) {
+      late IconData icon;
+      late String title;
+
+      switch (pageType) {
+        case TournamentPeoplePageType.registered:
+          icon = Icons.remember_me;
+          title = " Iscritti list ";
+          break;
+        case TournamentPeoplePageType.preregistered:
+          icon = Icons.airline_seat_recline_normal;
+          title = " Pre iscritti list ";
+          break;
+        case TournamentPeoplePageType.waiting:
+          icon = Icons.sensor_occupied;
+          title = " Waiting list ";
+          break;
+      }
+
+      actions.add(
+        ActionButton(
+          onPressed: () => _navigateToPage(pageType),
+          icon: icon,
+          title: title,
+        ),
+      );
+    }
+
+    return actions;
+  }
+  void _navigateToPage(TournamentPeoplePageType pageType){
+    if(_currentPage != pageType){
+      setState(() {
+        _currentPage = pageType;
+      });
+    }
+  }
+  Widget _createWidget(TournamentPeoplePageType pageType){
+    if(_widgetCache.containsKey(pageType)){
+      return _widgetCache[pageType]!;
+    }
+
+    Widget widget;
+    switch (pageType){
+      case TournamentPeoplePageType.registered:
+        widget = const TournamentRegisteredPeopleContainer();
+        break;
+      case TournamentPeoplePageType.preregistered:
+        widget = const TournamentPreregisteredPeopleContainer();
+        break;
+      case TournamentPeoplePageType.waiting:
+        widget = const TournamentWaitingPeopleContainer();
+        break;
+    }
+    _widgetCache[pageType] = widget;
+    return widget;
+  }
+}
+
+enum TournamentPeoplePageType{
+  registered('RegisteredP'),
+  preregistered('PreregisteredP'),
+  waiting('WaitingP');
+
+  const TournamentPeoplePageType(this.key);
+  final String key;
 }

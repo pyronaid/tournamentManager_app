@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pocketbase/pocketbase.dart';
 import 'package:tournamentmanager/app_flow/services/ImagePickerService.dart';
 import 'package:tournamentmanager/backend/schema/news_record.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
@@ -37,7 +38,7 @@ class TournamentModel extends ChangeNotifier {
 
   /////////////////////////////GETTER
   bool get isLoading => _isLoading;
-  String? get tournamentOwner => tournamentsRefObj?.creatorUid;
+  String? get tournamentOwner => tournamentsRefObj?.ownerId;
   String? get tournamentId => tournamentsRef;
   String get tournamentName => tournamentsRefObj != null ? tournamentsRefObj!.name : "UNKNOWN NAME";
   StateTournament get tournamentState => tournamentsRefObj != null ? tournamentsRefObj!.state! : StateTournament.unknown;
@@ -150,10 +151,10 @@ class TournamentModel extends ChangeNotifier {
       loaderService.hideLoader(id: executionId);
     }
   }
-  Future<void> deleteNews(String newsId) async {
+  Future<void> deleteNews(PocketBase pb, String newsId) async {
     String executionId = const Uuid().v4();
     loaderService.showLoader(id: executionId);
-    await NewsRecord.deleteNews(tournamentsRef!, newsId);
+    await NewsRecord.deleteNews(pb, newsId);
     notifyListeners();
     loaderService.hideLoader(id: executionId);
   }
@@ -175,15 +176,14 @@ class TournamentModel extends ChangeNotifier {
 
   void fetchObjectUsingId() {
     if(tournamentsRef != null) {
-      print("[LOAD FROM FIREBASE IN CORSO] tournament_model.dart");
+      print("[LOAD FROM POCKETBASE IN CORSO] tournament_model.dart");
       _tournamentSubscription = TournamentsRecord.getDocument(pb, false, tournamentsRef!).listen((snapshot) async {
         try {
-          tournamentsRefObj =
-          await TournamentsRecord.getDocumentOnce(pb, true, tournamentsRef!);
+          tournamentsRefObj = await TournamentsRecord.getDocumentOnce(pb, true, tournamentsRef!);
           _isLoading = false;
           notifyListeners();
         } catch (e){
-          print("ciao");
+          print("Errore nella subscription dello Stream Tournament");
         }
       });
     } else {

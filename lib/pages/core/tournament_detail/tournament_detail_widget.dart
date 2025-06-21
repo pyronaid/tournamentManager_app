@@ -22,7 +22,6 @@ class TournamentDetailWidget extends StatefulWidget {
 class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
 
   late TournamentDetailModel tournamentDetailModel;
-  late TournamentModel tournamentModel;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -33,7 +32,6 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
     //logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentDetail'});
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
 
-    tournamentModel = context.read<TournamentModel>();
     tournamentDetailModel = context.read<TournamentDetailModel>();
   }
 
@@ -55,10 +53,10 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
         body: SafeArea(
           top: true,
           child:  SingleChildScrollView(
-            child: Consumer<TournamentModel>(
-              builder: (context, providerTournament, _){
+            child: Consumer<TournamentDetailModel>(
+              builder: (context, providerTournamentDetail, _){
                 print("[BUILD IN CORSO] tournament_detail_widget.dart");
-                if(tournamentModel.isLoading){
+                if(providerTournamentDetail.isLoading){
                   return const Center(child: CircularProgressIndicator());
                 }
 
@@ -81,7 +79,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                             // Background Image
                             Positioned.fill(
                               child: Image.asset(
-                                providerTournament.tournamentGame.resource,
+                                providerTournamentDetail.tournamentModel.tournamentGame.resource,
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -118,17 +116,17 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                             ),
                                             child: CircleAvatar(
                                               radius: 61,
-                                              backgroundImage: tournamentModel.tournamentImageUrl == null ? const AssetImage('assets/images/icons/default_tournament.png') : NetworkImage(providerTournament.tournamentImageUrl!),
+                                              backgroundImage: providerTournamentDetail.tournamentModel.tournamentImageUrl == null ? const AssetImage('assets/images/icons/default_tournament.png') : NetworkImage(providerTournamentDetail.tournamentModel.tournamentImageUrl!),
                                             ),
                                           ),
-                                          if(tournamentModel.isTournamentEditable)
+                                          if(providerTournamentDetail.tournamentModel.isTournamentEditable)
                                             Positioned(
                                               bottom: 5,
                                               right: 0,
                                               child: InkWell(
                                                 onTap: () async {
                                                   // Add your image change logic here
-                                                  tournamentModel.setTournamentImage();
+                                                  providerTournamentDetail.tournamentModel.setTournamentImage();
                                                 },
                                                 borderRadius: BorderRadius.circular(61), // Optional: To match the CircleAvatar shape
                                                 child: CircleAvatar(
@@ -157,12 +155,12 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                                 children: [
                                                   Flexible(
                                                     child: Text(
-                                                      providerTournament.tournamentName,
+                                                      providerTournamentDetail.tournamentModel.tournamentName,
                                                       style: CustomFlowTheme.of(context).titleLarge,
                                                       textAlign: TextAlign.center,
                                                     ),
                                                   ),
-                                                  if(tournamentModel.isTournamentEditable)
+                                                  if(providerTournamentDetail.tournamentModel.isTournamentEditable)
                                                     Padding(
                                                       padding: const EdgeInsetsDirectional.fromSTEB(5, 0, 0, 20),
                                                       child: InkWell(
@@ -170,10 +168,10 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                                           context.goNamed(
                                                             'DialogChangeTournamentName',
                                                             pathParameters: {
-                                                              'tournamentId': providerTournament.tournamentId,
+                                                              'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
                                                             }.withoutNulls,
                                                             extra: {
-                                                              'req' : tournamentDetailModel.showChangeTournamentNameFormRequest(tournamentModel),
+                                                              'req' : tournamentDetailModel.showChangeTournamentNameFormRequest(),
                                                             }
                                                           );
                                                         },
@@ -207,7 +205,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                                 children: [
                                                   Flexible(
                                                     child: Text(
-                                                      providerTournament.tournamentGame.desc,
+                                                      providerTournamentDetail.tournamentModel.tournamentGame.desc,
                                                       style: CustomFlowTheme.of(context).titleSmall,
                                                       textAlign: TextAlign.center,
                                                     ),
@@ -238,13 +236,13 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.end,
                                           children: [
-                                            if(tournamentModel.tournamentPreRegistrationEn)
+                                            if(providerTournamentDetail.tournamentModel.tournamentPreRegistrationEn)
                                               Text.rich(
                                                 textAlign: TextAlign.right,
                                                 TextSpan(
                                                     children: [
                                                       TextSpan(
-                                                        text: providerTournament.tournamentPreRegisteredSize.toString(),
+                                                        text: providerTournamentDetail.tournamentModel.tournamentPreRegisteredSize.toString(),
                                                         style: CustomFlowTheme.of(context).headlineSmall,
                                                       ),
                                                       TextSpan(
@@ -254,13 +252,13 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                                     ]
                                                 ),
                                               ),
-                                            if(tournamentModel.tournamentWaitingListEn)
+                                            if(providerTournamentDetail.tournamentModel.tournamentWaitingListEn)
                                               Text.rich(
                                                 textAlign: TextAlign.right,
                                                 TextSpan(
                                                     children: [
                                                       TextSpan(
-                                                        text: providerTournament.tournamentWaitingSize.toString(),
+                                                        text: providerTournamentDetail.tournamentModel.tournamentWaitingSize.toString(),
                                                         style: CustomFlowTheme.of(context).headlineSmall,
                                                       ),
                                                       TextSpan(
@@ -275,7 +273,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                               TextSpan(
                                                   children: [
                                                     TextSpan(
-                                                      text: providerTournament.tournamentRegisteredSize.toString(),
+                                                      text: providerTournamentDetail.tournamentModel.tournamentRegisteredSize.toString(),
                                                       style: CustomFlowTheme.of(context).headlineSmall,
                                                     ),
                                                     TextSpan(
@@ -319,7 +317,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                           child: DropdownButton<String>(
                             alignment: Alignment.center,
                             padding: const EdgeInsetsDirectional.fromSTEB(0, 5, 0, 5),
-                            value: providerTournament.tournamentState.name,
+                            value: providerTournamentDetail.tournamentModel.tournamentState.name,
                             isExpanded: true,
                             icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
                             iconSize: 30,
@@ -328,10 +326,10 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                 context.goNamed(
                                   'DialogState',
                                   pathParameters: {
-                                    'tournamentId': providerTournament.tournamentId,
+                                    'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
                                   }.withoutNulls,
                                   extra: {
-                                    'req' : tournamentDetailModel.showChangeTournamentStateAlertRequest(newValue,tournamentModel),
+                                    'req' : tournamentDetailModel.showChangeTournamentStateAlertRequest(newValue),
                                   }
                                 );
                               }
@@ -339,7 +337,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                             underline: const SizedBox(), // Remove the default underline
                             items: StateTournament.values
                                 .where((StateTournament state){
-                              if(state.indexState == 0 || state.indexState > (providerTournament.tournamentState.indexState+1) || state.indexState < (providerTournament.tournamentState.indexState-1)){
+                              if(state.indexState == 0 || state.indexState > (providerTournamentDetail.tournamentModel.tournamentState.indexState+1) || state.indexState < (providerTournamentDetail.tournamentModel.tournamentState.indexState-1)){
                                 return false;
                               }
                               return true;
@@ -350,7 +348,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                 child: Text(
                                   state.desc,
                                   style: TextStyle(
-                                    color: state.indexState == tournamentModel.tournamentState.indexState ? CustomFlowTheme.of(context).primary : CustomFlowTheme.of(context).info,
+                                    color: state.indexState == providerTournamentDetail.tournamentModel.tournamentState.indexState ? CustomFlowTheme.of(context).primary : CustomFlowTheme.of(context).info,
                                   ),
                                 ),
                               );
@@ -358,7 +356,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                             selectedItemBuilder: (BuildContext context) {
                               return StateTournament.values
                                   .where((StateTournament state){
-                                if(state.indexState == 0 || state.indexState > (providerTournament.tournamentState.indexState+1) || state.indexState < (providerTournament.tournamentState.indexState-1)){
+                                if(state.indexState == 0 || state.indexState > (providerTournamentDetail.tournamentModel.tournamentState.indexState+1) || state.indexState < (providerTournamentDetail.tournamentModel.tournamentState.indexState-1)){
                                   return false;
                                 }
                                 return true;
@@ -390,15 +388,15 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(tournamentModel.isTournamentEditable) {
-                              _showChangeTournamentDatePicker(context, tournamentModel);
+                            if(providerTournamentDetail.tournamentModel.isTournamentEditable) {
+                              _showChangeTournamentDatePicker(context, providerTournamentDetail.tournamentModel);
                             }
                           },
                           child: Container(
                             width: 33.w,
                             height: 30.sp,
                             decoration: BoxDecoration(
-                              color: tournamentModel.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
+                              color: providerTournamentDetail.tournamentModel.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
                               border: Border.all(
                                 color: CustomFlowTheme.of(context).alternate,
                                 width: 1,
@@ -422,9 +420,9 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                       ),
                                       const SizedBox(height: 1),
                                       Text(
-                                        DateFormat('dd/MM/yy').format(providerTournament.tournamentDate!),
+                                        DateFormat('dd/MM/yy').format(providerTournamentDetail.tournamentModel.tournamentDate!),
                                         style: CustomFlowTheme.of(context).labelLarge.override(
-                                          color: tournamentModel.isTournamentEditable ? Colors.grey : Colors.black,
+                                          color: providerTournamentDetail.tournamentModel.isTournamentEditable ? Colors.grey : Colors.black,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
@@ -445,14 +443,14 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(tournamentModel.isTournamentEditable) {
+                            if(providerTournamentDetail.tournamentModel.isTournamentEditable) {
                               context.goNamed(
                                 'DialogChangeCapacity',
                                 pathParameters: {
-                                  'tournamentId': providerTournament.tournamentId,
+                                  'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
                                 }.withoutNulls,
                                 extra: {
-                                  'req' : tournamentDetailModel.showChangeTournamentCapacityAlertFormRequest(tournamentModel),
+                                  'req' : tournamentDetailModel.showChangeTournamentCapacityAlertFormRequest(),
                                 }
                               );
                             }
@@ -461,7 +459,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                             width: 33.w,
                             height: 30.sp,
                             decoration: BoxDecoration(
-                              color: tournamentModel.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
+                              color: providerTournamentDetail.tournamentModel.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
                               border: Border.all(
                                 color: CustomFlowTheme.of(context).alternate,
                                 width: 1,
@@ -485,9 +483,9 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                       ),
                                       const SizedBox(height: 1),
                                       Text(
-                                        providerTournament.tournamentCapacity,
+                                        providerTournamentDetail.tournamentModel.tournamentCapacity,
                                         style: CustomFlowTheme.of(context).labelLarge.override(
-                                          color: tournamentModel.isTournamentEditable ? Colors.grey : Colors.black,
+                                          color: providerTournamentDetail.tournamentModel.isTournamentEditable ? Colors.grey : Colors.black,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
@@ -516,14 +514,14 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(tournamentModel.isTournamentEditable) {
+                            if(providerTournamentDetail.tournamentModel.isTournamentEditable) {
                               context.goNamed(
                                 'DialogPreIscrizioni',
                                 pathParameters: {
-                                  'tournamentId': providerTournament.tournamentId,
+                                  'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
                                 }.withoutNulls,
                                 extra: {
-                                  'req' : tournamentDetailModel.showSwitchPreIscrizioniAlertRequest(tournamentModel),
+                                  'req' : tournamentDetailModel.showSwitchPreIscrizioniAlertRequest(),
                                 }
                               );
                             }
@@ -536,8 +534,8 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  tournamentModel.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
-                                  tournamentModel.tournamentPreRegistrationEn ? CustomFlowTheme.of(context).success : CustomFlowTheme.of(context).warning,
+                                  providerTournamentDetail.tournamentModel.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
+                                  providerTournamentDetail.tournamentModel.tournamentPreRegistrationEn ? CustomFlowTheme.of(context).success : CustomFlowTheme.of(context).warning,
                                 ],
                               ),
                               color: CustomFlowTheme.of(context).info,
@@ -568,7 +566,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                       ),
                                       const SizedBox(height: 1),
                                       Text(
-                                        providerTournament.tournamentPreRegistrationEn.toString(),
+                                        providerTournamentDetail.tournamentModel.tournamentPreRegistrationEn.toString(),
                                         style: CustomFlowTheme.of(context).labelLarge.override(color: Colors.grey.shade900),
                                         textAlign: TextAlign.center,
                                       ),
@@ -584,14 +582,14 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(tournamentModel.isTournamentEditable) {
+                            if(providerTournamentDetail.tournamentModel.isTournamentEditable) {
                               context.goNamed(
                                   'DialogWaitingList',
                                   pathParameters: {
-                                    'tournamentId': providerTournament.tournamentId,
+                                    'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
                                   }.withoutNulls,
                                   extra: {
-                                    'req' : tournamentDetailModel.showSwitchWaitingListAlertRequest(tournamentModel),
+                                    'req' : tournamentDetailModel.showSwitchWaitingListAlertRequest(),
                                   }
                               );
                             }
@@ -604,8 +602,8 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  tournamentModel.tournamentWaitingListPossible ? CustomFlowTheme.of(context).info : Colors.grey,
-                                  tournamentModel.tournamentWaitingListEn ? CustomFlowTheme.of(context).success : CustomFlowTheme.of(context).warning,
+                                  providerTournamentDetail.tournamentModel.tournamentWaitingListPossible ? CustomFlowTheme.of(context).info : Colors.grey,
+                                  providerTournamentDetail.tournamentModel.tournamentWaitingListEn ? CustomFlowTheme.of(context).success : CustomFlowTheme.of(context).warning,
                                 ],
                               ),
                               color: CustomFlowTheme.of(context).info,
@@ -636,7 +634,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                       ),
                                       const SizedBox(height: 1),
                                       Text(
-                                        providerTournament.tournamentWaitingListEn.toString(),
+                                        providerTournamentDetail.tournamentModel.tournamentWaitingListEn.toString(),
                                         style: CustomFlowTheme.of(context).labelLarge.override(color: Colors.grey.shade900),
                                         textAlign: TextAlign.center,
                                       ),

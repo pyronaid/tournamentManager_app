@@ -181,7 +181,7 @@ Map<String, dynamic> createRegisteredListRecordData({
   required String user_uid,
   required String display_name,
 }) {
-  final firestoreData = mapToFirestore(
+  final pocketstoreData = mapToFirestore(
     <String, dynamic>{
       'uid': uid,
       'tournament_uid': tournament_uid,
@@ -191,7 +191,7 @@ Map<String, dynamic> createRegisteredListRecordData({
     }.withoutNulls,
   );
 
-  return firestoreData;
+  return pocketstoreData;
 }
 
 class RegisteredlistRecordDocumentEquality implements Equality<RegisteredlistRecord> {

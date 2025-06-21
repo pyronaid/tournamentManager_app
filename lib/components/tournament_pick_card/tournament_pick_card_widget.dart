@@ -135,7 +135,7 @@ class _TournamentPickCardWidgetState extends State<TournamentPickCardWidget> {
                           height: 10, // Space around the divider
                         ),
                         Text(
-                          widget.tournamentRef!.creatorUid,
+                          widget.tournamentRef!.ownerId,
                           style: CustomFlowTheme.of(context).labelMedium.override(color: CustomFlowTheme.of(context).primaryText),
                         ),
                       ],

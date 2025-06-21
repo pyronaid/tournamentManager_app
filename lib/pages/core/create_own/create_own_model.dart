@@ -223,7 +223,7 @@ class CreateOwnModel extends ChangeNotifier {
       );
 
 
-      await TournamentsRecord.createRecordFromMap(pb, false, ownTournament);
+      await TournamentsRecord.createRecordFromMap(pb, ownTournament);
       loaderService.hideLoader(id: executionId);
       snackBarService.showSnackBar(
         message: 'Torneo creato con successo',

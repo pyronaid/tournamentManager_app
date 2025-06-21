@@ -68,7 +68,7 @@ class ScaffoldWithLevelOneNestedNavigation extends StatelessWidget {
       canPop: false, // Prevent automatic popping
       onPopInvokedWithResult: (didPop, _){
         for (final match in  GoRouter.of(context).routerDelegate.currentConfiguration.matches) {
-          print('hellooooooooooooooooooooooooo1_   ' + match.matchedLocation); // Prints each page in the stack
+          print('hellooooooooooooooooooooooooo1_   ${match.matchedLocation}'); // Prints each page in the stack
         }
       },
       child: Scaffold(

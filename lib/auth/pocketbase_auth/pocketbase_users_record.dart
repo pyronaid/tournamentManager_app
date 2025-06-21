@@ -150,7 +150,7 @@ Map<String, dynamic> createUsersRecordData({
   DateTime? createdTime,
   String? phoneNumber,
 }) {
-  final firestoreData = mapToFirestore(
+  final pocketstoreData = mapToFirestore(
     <String, dynamic>{
       'email': email,
       'name': name,
@@ -162,7 +162,7 @@ Map<String, dynamic> createUsersRecordData({
       'phone_number': phoneNumber,
     }.withoutNulls,
   );
-  return firestoreData;
+  return pocketstoreData;
 }
 
 class PocketbaseUsersRecordDocumentEquality implements Equality<PocketbaseUser> {

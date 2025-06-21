@@ -24,6 +24,24 @@ String? getFileUrl(String collectionId, String id, String? pathName) {
   return '$pbBaseUri/api/files/$collectionId/$id/$pathName';
 }
 
+String? getExpandendValue(Map<String, dynamic> expandMap, String expandKey, String valueId){
+  String? expandedValue;
+  if(expandMap.containsKey(expandKey)){
+    Map<String, dynamic> expandKeyMap = expandMap[expandKey];
+    if(expandKeyMap.containsKey(valueId)){
+      return expandKeyMap[valueId] as String;
+    }
+  }
+  return expandedValue;
+}
+
+dynamic formatForPocketBase(dynamic value){
+  if(value is bool){
+    return value ? 1 : 0;
+  } else {
+    return value;
+  }
+}
 
 enum ClientErrorCodes{
   validation_not_unique('Il valore inserito è già presente nel nostro sistema.'),

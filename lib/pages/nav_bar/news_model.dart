@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pocketbase/pocketbase.dart';
 import 'package:tournamentmanager/app_flow/services/LoaderService.dart';
 import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_style.dart';
@@ -12,6 +12,9 @@ import 'package:tournamentmanager/backend/schema/news_record.dart';
 import 'package:tournamentmanager/backend/schema/util/firestorage_util.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 import 'package:uuid/uuid.dart';
+import 'package:http/http.dart';
+
+import '../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 
 class NewsModel extends ChangeNotifier {
 
@@ -36,12 +39,12 @@ class NewsModel extends ChangeNotifier {
   /////////////////////////////GETTER
   bool get isLoading => _isLoading || tournamentModel.isLoading;
   String? get tournamentsRef => tournamentModel.tournamentId;
-  String? get tournamentOwner => newsRefObj?.creatorUid;
+  String? get tournamentOwner => newsRefObj?.ownerId;
   String get newsTitle => newsRefObj != null ? newsRefObj!.title : "";
   String get newsSubTitle => newsRefObj != null ? newsRefObj!.subTitle : "";
   String get newsDescription => newsRefObj != null ? newsRefObj!.description : "";
   bool get newsShowTimestampEn => newsRefObj != null ? newsRefObj!.showTimestampEn : false;
-  String? get newsImageUrl => newsRefObj?.imageNewsUrl;
+  String? get newsImageUrl => newsRefObj?.imageNews;
   String? get newsId => newsRef;
   Stream<bool> waitForTournamentLoading() {
     return Stream.periodic(const Duration(milliseconds: 100),(_) => tournamentModel.isLoading)
@@ -62,27 +65,27 @@ class NewsModel extends ChangeNotifier {
     bool flag = false;
     String executionId = const Uuid().v4();
     loaderService.showLoader(id: executionId);
+    List<MultipartFile> files = [];
     if(saveWayEn) {
       try {
         Map<String, dynamic> ownNews = createNewsRecordData(
-            tournament_uid: tournamentsRef,
+            tournamentId: tournamentsRef!,
             title: title,
-            sub_title: subTitle,
+            subTitle: subTitle,
             description: desc,
-            creator_uid: currentUser!.uid,
-            show_timestamp_en: showTimestamp
+            ownerId: currentUser!.uid!,
+            showTimestampEn: showTimestamp
         );
-        DocumentReference output = await NewsRecord.collection(tournamentsRef!).add(ownNews);
-        String? imgPathDef;
         if (imgPath != null) {
-          imgPathDef = await FirestorageUtilData.uploadImageToStorage(
-            "users/${currentUser!.uid}/tournament/$tournamentsRef/news/${output.id}/newsImage",
-            XFile(imgPath)
+          XFile imageFile = XFile(imgPath);
+          MultipartFile file = MultipartFile.fromBytes(
+            NewsRecord.imageFieldName, // field name in your PocketBase collection
+            await imageFile.readAsBytes(),
+            filename: 'newsImage',
           );
+          files.add(file);
         }
-        await output.update({
-          "image_news_url": imgPathDef
-        });
+        await NewsRecord.createNews(pb, ownNews, files: files);
         flag = true;
       } catch (e) {
         flag = false;
@@ -90,29 +93,28 @@ class NewsModel extends ChangeNotifier {
     } else {
       Map<String, dynamic> updatedFields = {};
       if(title.isNotEmpty && title != newsTitle){
-        updatedFields["title"] = title;
+        updatedFields[NewsRecord.titleFieldName] = title;
       }
       if(subTitle.isNotEmpty && subTitle != newsSubTitle){
-        updatedFields["sub_title"] = subTitle;
+        updatedFields[NewsRecord.subTitleFieldName] = subTitle;
       }
       if(desc.isNotEmpty && desc != newsDescription){
-        updatedFields["description"] = desc;
+        updatedFields[NewsRecord.descriptionFieldName] = desc;
       }
       if(showTimestamp != newsShowTimestampEn){
-        updatedFields["show_timestamp_en"] = showTimestamp;
+        updatedFields[NewsRecord.showTimestampFieldName] = showTimestamp;
       }
       try {
-        if (imgPath != newsImageUrl) {
-          String? imgPathDef;
-          if (imgPath != null) {
-            imgPathDef = await FirestorageUtilData.uploadImageToStorage(
-              "users/${currentUser!.uid}/tournament/$tournamentsRef/news/$newsId/newsImage",
-              XFile(imgPath)
-            );
-          }
-          updatedFields["image_news_url"] = imgPathDef;
+        if (imgPath != null && imgPath != newsImageUrl) {
+          XFile imageFile = XFile(imgPath);
+          MultipartFile file = MultipartFile.fromBytes(
+            NewsRecord.imageFieldName, // field name in your PocketBase collection
+            await imageFile.readAsBytes(),
+            filename: 'newsImage',
+          );
+          files.add(file);
         }
-        await NewsRecord.collection(tournamentsRef!).doc(newsId).update(updatedFields);
+        await NewsRecord.updateFields(pb, newsId!, updatedFields, files: files);
         flag = true;
       } catch (e) {
         flag = false;
@@ -147,13 +149,16 @@ class NewsModel extends ChangeNotifier {
 
   Future<void> fetchObjectUsingId() async {
     await waitForTournamentLoading().isEmpty;
-
-    print("[LOAD FROM FIREBASE IN CORSO] news_model.dart");
     if(tournamentsRef != null && (newsRef != null && newsRef != "NEW")) {
-      _newsSubscription = NewsRecord.getDocument(NewsRecord.collection(tournamentsRef!).doc(newsRef)).listen((snapshot) {
-        newsRefObj = snapshot;
-        _isLoading = false;
-        notifyListeners();
+      print("[LOAD FROM POCKETBASE IN CORSO] news_model.dart");
+      _newsSubscription = NewsRecord.getDocument(pb, newsRef!, expand: NewsRecord.idTournamentFieldName).listen((snapshot) async {
+        try {
+          newsRefObj = await NewsRecord.getDocumentOnce(pb, newsRef!, expand: NewsRecord.idTournamentFieldName);
+          _isLoading = false;
+          notifyListeners();
+        } catch (e){
+          print("Errore nella subscription dello Stream News");
+        }
       });
     } else {
       newsRefObj = null;

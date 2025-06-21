@@ -126,7 +126,7 @@ Map<String, dynamic> createRoundsRecordData({
   required String? creator_uid,
   bool show_timestamp_en = false,
 }) {
-  final firestoreData = mapToFirestore(
+  final pocketstoreData = mapToFirestore(
     <String, dynamic>{
       'uid': uid,
       'tournament_uid': tournament_uid,
@@ -139,7 +139,7 @@ Map<String, dynamic> createRoundsRecordData({
     }.withoutNulls,
   );
 
-  return firestoreData;
+  return pocketstoreData;
 }
 
 class RoundsRecordDocumentEquality implements Equality<RoundsRecord> {

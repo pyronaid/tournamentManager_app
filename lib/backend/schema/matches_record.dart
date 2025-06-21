@@ -105,7 +105,7 @@ Map<String, dynamic> createMatchesRecordData({
   PocketbaseUser? player_B,
   StateMatch? state,
 }) {
-  final firestoreData = mapToFirestore(
+  final pocketstoreData = mapToFirestore(
     <String, dynamic>{
       'uid': uid,
       'tournament_uid': tournament_uid,
@@ -117,7 +117,7 @@ Map<String, dynamic> createMatchesRecordData({
     }.withoutNulls,
   );
 
-  return firestoreData;
+  return pocketstoreData;
 }
 
 class MatchesRecordDocumentEquality implements Equality<MatchesRecord> {

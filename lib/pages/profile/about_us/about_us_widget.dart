@@ -161,7 +161,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                                         fit: BoxFit.contain,
                                         image: Image.network(
                                           valueOrDefault<String>(
-                                            columnCompanyInformationRecord?.logo,
+                                            columnCompanyInformationRecord.logo,
                                             'https://firebasestorage.googleapis.com/v0/b/tournament-manager-ee897.appspot.com/o/assets%2FTM_logo_letters.png?alt=media',
                                           ),
                                         ).image,
@@ -178,14 +178,14 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
                               padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 6),
                               child: Text(
                                 valueOrDefault<String>(
-                                  columnCompanyInformationRecord?.name,
+                                  columnCompanyInformationRecord.name,
                                   'Company Name',
                                 ),
                                 style: CustomFlowTheme.of(context).displaySmall,
                               ),
                             ),
                             Text(
-                              columnCompanyInformationRecord!.companyBio,
+                              columnCompanyInformationRecord.companyBio,
                               style: CustomFlowTheme.of(context).labelLarge.override(lineHeight: 1.4),
                             ),
                             /////////////////////////////

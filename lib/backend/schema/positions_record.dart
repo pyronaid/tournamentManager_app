@@ -121,7 +121,7 @@ Map<String, dynamic> createPositionsRecordData({
   double? tie_break_2,
   double? tie_break_3,
 }) {
-  final firestoreData = mapToFirestore(
+  final pocketstoreData = mapToFirestore(
     <String, dynamic>{
       'uid': uid,
       'standing_uid': standing_uid,
@@ -136,7 +136,7 @@ Map<String, dynamic> createPositionsRecordData({
     }.withoutNulls,
   );
 
-  return firestoreData;
+  return pocketstoreData;
 }
 
 class PositionsRecordDocumentEquality implements Equality<PositionsRecord> {

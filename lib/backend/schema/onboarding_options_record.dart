@@ -60,11 +60,11 @@ class OnboardingOptionsRecord extends FirestoreRecord {
 }
 
 Map<String, dynamic> createOnboardingOptionsRecordData() {
-  final firestoreData = mapToFirestore(
+  final pocketstoreData = mapToFirestore(
     <String, dynamic>{}.withoutNulls,
   );
 
-  return firestoreData;
+  return pocketstoreData;
 }
 
 class OnboardingOptionsRecordDocumentEquality implements Equality<OnboardingOptionsRecord> {

@@ -4,7 +4,6 @@ import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/pages/core/tournament_news/tournament_news_model.dart';
 import 'package:tournamentmanager/pages/core/tournament_news/tournament_news_widget.dart';
 
-import '../../nav_bar/news_list_model.dart';
 import '../../nav_bar/tournament_model.dart';
 
 class TournamentNewsContainer extends StatefulWidget {
@@ -33,22 +32,22 @@ class _TournamentNewsContainerState extends State<TournamentNewsContainer> {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          ChangeNotifierProxyProvider<TournamentModel, NewsListModel>(
-            create: (context) => NewsListModel(
+          ChangeNotifierProxyProvider<TournamentModel, TournamentNewsModel>(
+            create: (context) => TournamentNewsModel(
               // Retrieve tournament provider from widget tree
                 tournamentModel: context.read<TournamentModel>()
-            )..fetchObjectUsingId(),
-            update: (context, tournamentModel, previousNewsListModel) {
-              // Optional update method
-              if (previousNewsListModel == null) {
-                return NewsListModel(
+            ),
+            update: (context, tournamentModel, previousNewsModel) {
+              // Optional update method to edit if you only want to catch some
+              // updates to refresh and rebuild TODO add check on parameter
+              if (previousNewsModel == null || previousNewsModel.isLoading != tournamentModel.isLoading) {
+                return TournamentNewsModel(
                     tournamentModel: tournamentModel
-                )..fetchObjectUsingId();
+                );
               }
-              return previousNewsListModel;
+              return previousNewsModel;
             },
           ),
-          ChangeNotifierProvider(create: (context) => TournamentNewsModel()),
         ],
         builder: (context, child) {
           return const TournamentNewsWidget();

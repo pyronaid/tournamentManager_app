@@ -212,7 +212,7 @@ Map<String, dynamic> createWaitingListRecordData({
   required String user_uid,
   required String display_name,
 }) {
-  final firestoreData = mapToFirestore(
+  final pocketstoreData = mapToFirestore(
     <String, dynamic>{
       'uid': uid,
       'tournament_uid': tournament_uid,
@@ -222,7 +222,7 @@ Map<String, dynamic> createWaitingListRecordData({
     }.withoutNulls,
   );
 
-  return firestoreData;
+  return pocketstoreData;
 }
 
 class WaitinglistRecordDocumentEquality implements Equality<WaitinglistRecord> {

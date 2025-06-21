@@ -233,7 +233,7 @@ class EditProfileModel extends ChangeNotifier {
           obscureTextSwitch: true,
           validatorFunction: emailAddressNewTextControllerValidator,
           validatorParameter: null,
-          label: "Password per confermare l\'operazione",
+          label: "Password per confermare l'operazione",
           key: GlobalKey<TextFormElementState>(),
         ),
       ],
