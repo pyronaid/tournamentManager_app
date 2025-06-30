@@ -7,7 +7,6 @@ import 'package:tournamentmanager/pages/onboarding/onboarding_slideshow/onboardi
 class OnboardingSlideshowModel extends CustomFlowModel<OnboardingSlideshowWidget> {
   ///  State fields for stateful widgets in this page.
 
-  final unfocusNode = FocusNode();
   // Model for customAppbar component.
   late CustomAppbarModel customAppbarModel;
   // State field(s) for PageView widget.
@@ -26,7 +25,6 @@ class OnboardingSlideshowModel extends CustomFlowModel<OnboardingSlideshowWidget
 
   @override
   void dispose() {
-    unfocusNode.dispose();
     customAppbarModel.dispose();
   }
 }

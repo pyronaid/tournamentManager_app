@@ -23,6 +23,8 @@ class NewsRecord extends PocketstoreRecord {
   static const String collectionIdFieldName = 'collectionId';
   static const String collectionNameFieldName = 'collectionName';
 
+  static const String idOwnerFieldName = 'id_owner';
+
   NewsRecord._(
       super.reference,
       super.data,
@@ -96,12 +98,13 @@ class NewsRecord extends PocketstoreRecord {
     _subTitle = snapshotData[subTitleFieldName];
     _description = snapshotData[descriptionFieldName];
     _imageNews = getFileUrl(snapshotData[collectionIdFieldName], snapshotData[idFieldName], snapshotData[imageFieldName]);
-    _ownerId = getExpandendValue(snapshotData['expand'], idTournamentFieldName, 'id_owner')!;
     _showTimestampEn = snapshotData[showTimestampFieldName];
     _createdTime = tryParseDate(snapshotData[createdFieldName])!;
     _updatedTime = tryParseDate(snapshotData[updatedFieldName])!;
     _collectionId = snapshotData[collectionIdFieldName];
     _collectionName = snapshotData[collectionNameFieldName];
+
+    _ownerId = getExpandendValue(snapshotData['expand'], idTournamentFieldName, idOwnerFieldName)!;
   }
 
   static NewsRecord fromSnapshot(RecordModel snapshot) => NewsRecord._(
@@ -175,8 +178,15 @@ class NewsRecord extends PocketstoreRecord {
   }
   static Future<NewsRecord> getDocumentOnce(PocketBase pb, String id, {String? expand}) =>
       pb.collection(collectionName).getOne(id, expand: expand).then((s) => NewsRecord.fromSnapshot(s));
-  static Future<List<NewsRecord>> getDocumentsOnce(PocketBase pb, String filter, {String? expand, String? sorting, int page=1, int perPage = 30}) =>
-      pb.collection(collectionName).getList(filter: filter, sort: sorting, page: page, perPage: perPage, expand: expand).then(
+  static Future<List<NewsRecord>> getDocumentsOnce(PocketBase pb, String filter, {String? expand, String? sorting, int page=1, int perPage = 30, Map<String, dynamic> queryMap = const {}}) =>
+      pb.collection(collectionName).getList(
+          filter: filter,
+          sort: sorting,
+          page: page,
+          perPage: perPage,
+          expand: expand,
+          query: queryMap
+      ).then(
               (s) => s.items.map(
                   (record) => NewsRecord.fromSnapshot(record)).toList()
       );
@@ -244,19 +254,17 @@ Map<String, dynamic> createNewsRecordData({
   String? subTitle,
   String? description,
   String? imageNews,
-  required String ownerId,
   bool showTimestampEn = false,
 }) {
   final pocketstoreData = mapToFirestore(
     <String, dynamic>{
-      'id': uid,
-      'id_tournament': tournamentId,
-      'title': title,
-      'subTitle': subTitle,
-      'description': description,
-      'imageNews': imageNews,
-      'id_owner': ownerId,
-      'showTimestampEn' : showTimestampEn,
+      NewsRecord.idFieldName: uid,
+      NewsRecord.idTournamentFieldName: tournamentId,
+      NewsRecord.titleFieldName: title,
+      NewsRecord.subTitleFieldName: subTitle,
+      NewsRecord.descriptionFieldName: description,
+      NewsRecord.imageFieldName: imageNews,
+      NewsRecord.showTimestampFieldName : showTimestampEn,
     }.withoutNulls,
   );
 
@@ -273,8 +281,7 @@ class NewsRecordDocumentEquality implements Equality<NewsRecord> {
         e1?.title == e2?.title &&
         e1?.subTitle == e2?.subTitle &&
         e1?.description == e2?.description &&
-        e1?.imageNews == e2?.imageNews &&
-        e1?.ownerId == e2?.ownerId;
+        e1?.imageNews == e2?.imageNews;
   }
 
   @override
@@ -285,7 +292,6 @@ class NewsRecordDocumentEquality implements Equality<NewsRecord> {
     e?.subTitle,
     e?.description,
     e?.imageNews,
-    e?.ownerId
   ]);
 
   @override

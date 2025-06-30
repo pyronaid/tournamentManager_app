@@ -9,7 +9,6 @@ import 'onboarding_verify_mail_widget.dart';
 class OnboardingVerifyMailModel extends CustomFlowModel<OnboardingVerifyMailWidget> {
   ///  State fields for stateful widgets in this page.
 
-  final unfocusNode = FocusNode();
   // Model for customAppbar component.
   late CustomAppbarModel customAppbarModel;
 
@@ -28,7 +27,6 @@ class OnboardingVerifyMailModel extends CustomFlowModel<OnboardingVerifyMailWidg
 
   @override
   void dispose() {
-    unfocusNode.dispose();
     customAppbarModel.dispose();
   }
 }

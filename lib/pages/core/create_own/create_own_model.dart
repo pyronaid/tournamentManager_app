@@ -18,7 +18,6 @@ import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 class CreateOwnModel extends ChangeNotifier {
   ///  State fields for stateful widgets in this page.
 
-  final _unfocusNode = FocusNode();
   late CustomAppbarModel customAppbarModel;
   late var animationsMap = <int, AnimationInfo>{};
 
@@ -127,9 +126,6 @@ class CreateOwnModel extends ChangeNotifier {
 
 
   /////////////////////////////GETTER
-  FocusNode get unfocusNode{
-    return _unfocusNode;
-  }
   PageController get pageViewController{
     return _pageViewController;
   }
@@ -245,7 +241,6 @@ class CreateOwnModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _unfocusNode.dispose();
     customAppbarModel.dispose();
     _tournamentNameTextController.dispose();
     _tournamentAddressTextController.dispose();

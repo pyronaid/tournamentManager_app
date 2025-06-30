@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:tournamentmanager/app_flow/services/ImagePickerService.dart';
 import 'package:tournamentmanager/backend/schema/news_record.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
-import 'package:tournamentmanager/backend/schema/util/firestorage_util.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../app_flow/services/LoaderService.dart';
@@ -27,6 +27,7 @@ class TournamentModel extends ChangeNotifier {
   final String? tournamentsRef;
   late TournamentsRecord? tournamentsRefObj;
   bool _isLoading = true;
+  DateTime? _updated;
 
   TournamentModel({required this.tournamentsRef}){
     print("[CREATE] TournamentModel");
@@ -38,6 +39,7 @@ class TournamentModel extends ChangeNotifier {
 
   /////////////////////////////GETTER
   bool get isLoading => _isLoading;
+  DateTime? get updated => _updated;
   String? get tournamentOwner => tournamentsRefObj?.ownerId;
   String? get tournamentId => tournamentsRef;
   String get tournamentName => tournamentsRefObj != null ? tournamentsRefObj!.name : "UNKNOWN NAME";
@@ -133,21 +135,20 @@ class TournamentModel extends ChangeNotifier {
   Future<void> setTournamentImage() async{
     bool? isCamera = true; //TO FIX WITH DIALOG FUNCTION
     XFile? imageFile = await imagePickerService.pickCropImage(
-        cropAspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-        imageSource: ImageSource.camera
+      cropAspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      imageSource: ImageSource.camera
     );
 
     if(imageFile != null) {
       String executionId = const Uuid().v4();
       loaderService.showLoader(id: executionId);
-      String? url = await FirestorageUtilData.uploadImageToStorage(
-          "users/$tournamentOwner/tournament/$tournamentId/tournamentImage",
-          imageFile
+      MultipartFile file = MultipartFile.fromBytes(
+        TournamentsRecord.imageFieldName, // field name in your PocketBase collection
+        await imageFile.readAsBytes(),
+        filename: 'tournamentImage',
       );
-      if(url != null){
-        await tournamentsRefObj?.setImage(pb, url);
-        notifyListeners();
-      }
+      await tournamentsRefObj?.setImage(pb, files: [file]);
+      notifyListeners();
       loaderService.hideLoader(id: executionId);
     }
   }
@@ -181,6 +182,7 @@ class TournamentModel extends ChangeNotifier {
         try {
           tournamentsRefObj = await TournamentsRecord.getDocumentOnce(pb, true, tournamentsRef!);
           _isLoading = false;
+          _updated = tournamentsRefObj?.updatedTime;
           notifyListeners();
         } catch (e){
           print("Errore nella subscription dello Stream Tournament");

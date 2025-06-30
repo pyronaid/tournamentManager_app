@@ -5,15 +5,15 @@ import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_users_record.dart';
 import 'package:tournamentmanager/backend/schema/preregisteredlist_record.dart';
 import 'package:tournamentmanager/backend/schema/registeredlist_record.dart';
-import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/backend/schema/waitinglist_record.dart';
 import 'package:tournamentmanager/components/custom_appbar_model.dart';
 import 'package:tuple/tuple.dart';
 
+import '../../../backend/schema/enrollments_record.dart';
+
 
 class AddPeopleModel extends ChangeNotifier {
 
-  final _unfocusNode = FocusNode();
   late CustomAppbarModel customAppbarModel;
 
   final ListType listType;
@@ -51,7 +51,6 @@ class AddPeopleModel extends ChangeNotifier {
 
 
   /////////////////////////////GETTER
-  FocusNode get unfocusNode => _unfocusNode;
   TextEditingController get fieldControllerIdUser => _fieldControllerIdUser;
   FocusNode? get idUserFocusNode => _idUserFocusNode;
   bool get isAlreadyInThisList {
@@ -236,7 +235,6 @@ class AddPeopleModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _unfocusNode.dispose();
     customAppbarModel.dispose();
     _fieldControllerIdUser.dispose();
     _idUserFocusNode?.dispose();

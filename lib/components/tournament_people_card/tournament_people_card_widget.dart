@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
-import 'package:tournamentmanager/backend/schema/users_algolia_record.dart';
 import 'package:tournamentmanager/components/tournament_people_card/tournament_people_card_model.dart';
 
-import '../../backend/schema/tournaments_record.dart';
+import '../../backend/schema/enrollments_record.dart';
 
 class TournamentPeopleCardWidget extends StatefulWidget {
 
@@ -20,7 +19,7 @@ class TournamentPeopleCardWidget extends StatefulWidget {
   });
 
 
-  final UsersAlgoliaRecord? userRef;
+  final EnrollmentsRecord userRef;
   final int indexo;
   final ListType listType;
   final ChangeNotifier peopleModel;
@@ -116,7 +115,18 @@ class _TournamentPeopleCardWidgetState extends State<TournamentPeopleCardWidget>
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-               Text(widget.userRef!.displayName),
+                Text(
+                  widget.userRef.username,
+                  style: CustomFlowTheme.of(context).titleLarge.override(color: CustomFlowTheme.of(context).cardMain),
+                ),
+                Text(
+                  '${widget.userRef.name} ${widget.userRef.surname}',
+                  style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardSecond),
+                ),
+                Text(
+                  widget.userRef.userId,
+                  style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
+                ),
               ],
             ),
           ),

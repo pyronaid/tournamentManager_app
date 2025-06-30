@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
-import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
+import 'package:tournamentmanager/backend/schema/enrollments_record.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/sub_page_registered_people/tournament_registered_people_model.dart';
 
 import '../../../../app_flow/app_flow_theme.dart';
 import '../../../../app_flow/app_flow_widgets.dart';
 import '../../../../backend/firebase_analytics/analytics.dart';
+import '../../../../components/generic_loading/generic_loading_widget.dart';
+import '../../../../components/no_tournament_people_card/no_tournament_people_card_widget.dart';
 import '../../../../components/standard_graphics/standard_graphics_widgets.dart';
 import '../../../../components/tournament_people_card/tournament_people_card_widget.dart';
 
@@ -34,6 +37,7 @@ class _TournamentRegisteredPeopleWidgetState extends State<TournamentRegisteredP
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     super.dispose();
   }
 
@@ -46,7 +50,13 @@ class _TournamentRegisteredPeopleWidgetState extends State<TournamentRegisteredP
       child: Consumer<TournamentRegisteredPeopleModel>(builder: (context, providerRegisteredPeople, _) {
         print("[BUILD IN CORSO] tournament_registered_people_widget.dart");
         if (providerRegisteredPeople.isLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return Scaffold(
+            key: _scaffoldKey,
+            backgroundColor: CustomFlowTheme.of(context).primaryBackground,
+            body: const SafeArea(
+              top: true,
+              child: Center(child: CircularProgressIndicator()))
+          );
         }
 
         return Scaffold(
@@ -54,150 +64,160 @@ class _TournamentRegisteredPeopleWidgetState extends State<TournamentRegisteredP
           backgroundColor: CustomFlowTheme.of(context).primaryBackground,
           body: SafeArea(
             top: true,
-            child: SingleChildScrollView(
-              child: SizedBox(
-                width: 100.w,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    //////////////////////////////////
-                    ///////////  TEXT INPUT AND ADD BUTTON
-                    //////////////////////////////////
-                    Padding(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await providerRegisteredPeople.onRefresh();
+              },
+              child: CustomScrollView(
+                slivers: [
+                  // use sliver padding if needed https://api.flutter.dev/flutter/widgets/SliverPadding-class.html
+
+                  ////////////////
+                  //TEXT INPUT AND ADD BUTTON
+                  //INFINITE LIST COUNTER
+                  /////////////////
+                  SliverAppBar(
+                    pinned: true,
+                    snap: false,
+                    floating: false,
+                    expandedHeight: 200.0,
+                    collapsedHeight: 200.0,
+                    backgroundColor: CustomFlowTheme.of(context).secondary,
+                    flexibleSpace: Padding(
                       padding: const EdgeInsetsDirectional.symmetric(horizontal: 15, vertical: 15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          SizedBox(
-                            width: 65.w,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 5),
-                              child: TextField(
-                                controller: providerRegisteredPeople.peopleNameTextController,
-                                focusNode: providerRegisteredPeople.peopleNameFocusNode,
-                                autofocus: false,
-                                obscureText: false,
-                                decoration: standardInputDecoration(
-                                  context,
-                                  prefixIcon: Icon(
-                                    Icons.person,
-                                    color: CustomFlowTheme.of(context).secondaryText,
-                                    size: 18,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 65.w,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                                  child: TextField(
+                                    controller: providerRegisteredPeople.peopleNameTextController,
+                                    focusNode: providerRegisteredPeople.peopleNameFocusNode,
+                                    autofocus: false,
+                                    obscureText: false,
+                                    decoration: standardInputDecoration(
+                                      context,
+                                      prefixIcon: Icon(
+                                        Icons.person,
+                                        color: CustomFlowTheme.of(context).secondaryText,
+                                        size: 18,
+                                      ),
+                                    ),
+                                    style: CustomFlowTheme.of(context).bodyLarge.override(
+                                      fontWeight: FontWeight.w500,
+                                      lineHeight: 1,
+                                    ),
+                                    minLines: 1,
+                                    cursorColor: CustomFlowTheme.of(context).primary,
                                   ),
                                 ),
-                                style: CustomFlowTheme.of(context).bodyLarge.override(
-                                  fontWeight: FontWeight.w500,
-                                  lineHeight: 1,
-                                ),
-                                minLines: 1,
-                                cursorColor: CustomFlowTheme.of(context).primary,
                               ),
-                            ),
-                          ),
-                          Center(
-                            child: AFButtonWidget(
-                              onPressed: () async {
-                                FocusScope.of(context).unfocus();
-                                logFirebaseEvent('Button_load_pic');
-                                context.pushNamedAuth(
-                                  'AddPeople', context.mounted,
-                                  pathParameters: {
-                                    'tournamentId': providerRegisteredPeople.tournamentId,
-                                  }.withoutNulls,
-                                  extra: {
-                                    'listType' : ListType.registered.name,
-                                    'provider' : providerRegisteredPeople
+                              Center(
+                                child: AFButtonWidget(
+                                  onPressed: () async {
+                                    FocusScope.of(context).unfocus();
+                                    logFirebaseEvent('Button_load_pic');
+                                    context.pushNamedAuth(
+                                      'AddPeople', context.mounted,
+                                      pathParameters: {
+                                        'tournamentId': providerRegisteredPeople.tournamentModel.tournamentId,
+                                      }.withoutNulls,
+                                      extra: {
+                                        'listType' : ListType.registered.name,
+                                        'provider' : providerRegisteredPeople
+                                      },
+                                    );
+                                    logFirebaseEvent('Button_haptic_feedback');
+                                    HapticFeedback.lightImpact();
                                   },
-                                );
-                                logFirebaseEvent('Button_haptic_feedback');
-                                HapticFeedback.lightImpact();
-                              },
-                              text: '',
-                              icon: const Icon(Icons.add_circle,),
-                              options: AFButtonOptions(
-                                width: 50,
-                                height: 50,
-                                padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                iconColor: Colors.white,
-                                iconSize: 14,
-                                color:  CustomFlowTheme.of(context).primary,
-                                textStyle: CustomFlowTheme.of(context).labelLarge.override(
-                                  color: CustomFlowTheme.of(context).info,
-                                  fontSize: 0,
+                                  text: '',
+                                  icon: const Icon(Icons.add_circle,),
+                                  options: AFButtonOptions(
+                                    width: 50,
+                                    height: 50,
+                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                    iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                    iconColor: Colors.white,
+                                    iconSize: 14,
+                                    color:  CustomFlowTheme.of(context).primary,
+                                    textStyle: CustomFlowTheme.of(context).labelLarge.override(
+                                      color: CustomFlowTheme.of(context).info,
+                                      fontSize: 0,
+                                    ),
+                                    elevation: 0,
+                                    borderSide: const BorderSide(
+                                      color: Colors.transparent,
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
                                 ),
-                                elevation: 0,
-                                borderSide: const BorderSide(
-                                  color: Colors.transparent,
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsetsDirectional.fromSTEB(24, 10, 24, 10),
+                            child: Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: CustomFlowTheme.of(context).secondaryBackground,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: CustomFlowTheme.of(context).alternate,
                                   width: 1,
                                 ),
-                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsetsDirectional.all(10),
+                                child: Text(
+                                  'Registrati: ${providerRegisteredPeople.countElements}',
+                                  style: CustomFlowTheme.of(context).labelLarge,
+                                ),
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    //////////////////////////////////
-                    ///////////  INFINITE LIST COUNTER
-                    //////////////////////////////////
-                    Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(24, 10, 24, 10),
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: CustomFlowTheme.of(context).secondaryBackground,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: CustomFlowTheme.of(context).alternate,
-                            width: 1,
-                          ),
+                  ),
+
+
+                  ////////////////
+                  //PEOPLE SECTION INF LIST
+                  /////////////////
+                  SliverPadding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(24, 10, 24, 10),
+                    sliver: PagedSliverList<String?, EnrollmentsRecord> (
+                      pagingController: providerRegisteredPeople.pagingController,
+                      builderDelegate: PagedChildBuilderDelegate<EnrollmentsRecord>(
+                        itemBuilder: (context, item, index) => TournamentPeopleCardWidget(
+                          key: Key('Keykia_${item.uid}_position_${index}_of_people'),
+                          userRef: item,
+                          indexo: index,
+                          listType: ListType.registered,
+                          peopleModel: providerRegisteredPeople,
+                          promote: false,
+                          tournamentRef: providerRegisteredPeople.tournamentModel.tournamentId!,
                         ),
-                        child: Padding(
-                          padding: const EdgeInsetsDirectional.all(10),
-                          child: Text(
-                            'Registrati: ${providerRegisteredPeople.userNum}',
-                            style: CustomFlowTheme.of(context).labelLarge,
-                          ),
+                        firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
+                        noItemsFoundIndicatorBuilder: (_) => const NoTournamentPeopleCardWidget(
+                          active: true,
+                          phrase: "Nessun iscritto in questa lista",
                         ),
+                        newPageProgressIndicatorBuilder: (_) => const Center(child: CircularProgressIndicator()),
                       ),
+                      shrinkWrapFirstPageIndicators: true,
                     ),
-                    //////////////////////////////////
-                    ///////////  INFINITE LIST DETAIL
-                    //////////////////////////////////
-                    SizedBox(
-                      height: 60.h,
-                      child: RefreshIndicator(
-                        onRefresh: () async {
-                          await providerRegisteredPeople.fetchInitialResults(listType: ListType.registered);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(24, 10, 24, 10),
-                          child: ListView.builder(
-                            itemCount: providerRegisteredPeople.usersList.length,
-                            itemBuilder: (context, index) {
-                              final user = providerRegisteredPeople.usersList[index];
-                              return TournamentPeopleCardWidget(
-                                key: Key('Keykia_user.uid.toadd_position_${index}_of_${providerRegisteredPeople.usersList.length}'),
-                                userRef: user,
-                                indexo: index,
-                                listType: ListType.registered,
-                                peopleModel: providerRegisteredPeople,
-                                promote: false,
-                                tournamentRef: providerRegisteredPeople.tournamentId,
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
+            )
           ),
         );
       }),

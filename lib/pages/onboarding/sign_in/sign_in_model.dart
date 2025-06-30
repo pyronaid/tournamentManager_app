@@ -6,8 +6,6 @@ import 'package:tournamentmanager/pages/onboarding/sign_in/sign_in_widget.dart';
 class SignInModel extends CustomFlowModel<SignInWidget> {
   ///  State fields for stateful widgets in this page.
 
-  
-  final unfocusNode = FocusNode();
   // Model for customAppbar component.
   late CustomAppbarModel customAppbarModel;
   // State field(s) for emailAddress widget.
@@ -51,7 +49,6 @@ class SignInModel extends CustomFlowModel<SignInWidget> {
 
   @override
   void dispose() {
-    unfocusNode.dispose();
     customAppbarModel.dispose();
     emailAddressFocusNode?.dispose();
     emailAddressTextController?.dispose();

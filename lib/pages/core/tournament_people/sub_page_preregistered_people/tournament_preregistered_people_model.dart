@@ -1,48 +1,27 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:get_it/get_it.dart';
-import 'package:tournamentmanager/app_flow/services/AlgoliaService.dart';
-import 'package:tournamentmanager/backend/schema/preregisteredlist_record.dart';
-import 'package:tuple/tuple.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_model.dart';
+import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../backend/schema/tournaments_record.dart';
-import '../../../nav_bar/tournament_model.dart';
-import '../tournament_people_model.dart';
+import '../../../../backend/schema/enrollments_record.dart';
 
 class TournamentPreregisteredPeopleModel extends TournamentPeopleModel {
 
   late TextEditingController _preregisteredPeopleNameTextController;
   late FocusNode _preregisteredPeopleNameFocusNode;
 
-  late ScrollController _preregisteredScrollController;
-
-
-
 
   TournamentPreregisteredPeopleModel({required TournamentModel tournamentModel}){
     print("[CREATE] TournamentPreregisteredPeopleModel");
     super.tournamentModel = tournamentModel;
+    isLoadingFlag = tournamentModel.isLoading;
+    pagingControllerVar = PagingController(firstPageKey: null);
+    pagingControllerVar.addPageRequestListener((pageKey) => fetchPage(pageKey, listType: ListType.preregistered));
+    countElementsVar = 0;
     _preregisteredPeopleNameTextController = TextEditingController();
     _preregisteredPeopleNameFocusNode = FocusNode();
-
-    _preregisteredScrollController = ScrollController();
-
-    algoliaService = GetIt.instance.getAsync<AlgoliaService>();
-    algoliaService.whenComplete(() {
-      algoliaServiceIsLoading = false;
-      notifyListeners();
-    });
-
-    /// LISTENERS
-    _preregisteredPeopleNameTextController.addListener(() => updateQuery(listType: ListType.preregistered, textToSearch: _preregisteredPeopleNameTextController.text));
-    _preregisteredScrollController.addListener(() {
-      if(_preregisteredScrollController.hasClients &&
-          _preregisteredScrollController.offset >= (_preregisteredScrollController.position.maxScrollExtent * 0.9)){
-        fetchNextPage(query: _preregisteredPeopleNameTextController.text, listType: ListType.preregistered);
-      }
-    });
   }
 
 
@@ -51,9 +30,6 @@ class TournamentPreregisteredPeopleModel extends TournamentPeopleModel {
   TextEditingController get peopleNameTextController => _preregisteredPeopleNameTextController;
   @override
   FocusNode get peopleNameFocusNode => _preregisteredPeopleNameFocusNode;
-  @override
-  ScrollController get scrollController => _preregisteredScrollController;
-
 
 
   /////////////////////////////SETTER
@@ -61,10 +37,7 @@ class TournamentPreregisteredPeopleModel extends TournamentPeopleModel {
   Future<void> deletePeople(String userId) async {
     String executionId = const Uuid().v4();
     loaderService.showLoader(id: executionId);
-    List<String> removedIds = await PreregisteredlistRecord.deletePeople(userId, tournamentId);
-    for(var id in removedIds) {
-      await deleteAlgoliaObject(listType: ListType.preregistered, objectID: id);
-    }
+    //await RegisteredlistRecord.deletePeople(userId, tournamentId);
     loaderService.hideLoader(id: executionId);
     notifyListeners();
   }
@@ -72,35 +45,15 @@ class TournamentPreregisteredPeopleModel extends TournamentPeopleModel {
   Future<void> promotePeopleToRegistered(String userId, String displayName) async {
     String executionId = const Uuid().v4();
     loaderService.showLoader(id: executionId);
-    Tuple2<List<String>,List<String>> returnedIds = await PreregisteredlistRecord.promotePeopleToRegistered(userId, tournamentId);
-    for(var id in returnedIds.item1) {
-      await addAlgoliaObject(listType: ListType.registered, objectID: id, data: {
-        'display_name' : displayName,
-        'user_uid': userId,
-        'tournament_uid' : tournamentId
-      });
-    }
-    for(var id in returnedIds.item2) {
-      await deleteAlgoliaObject(listType: ListType.preregistered, objectID: id);
-    }
-    loaderService.showLoader(id: executionId);
+    //await RegisteredlistRecord.deletePeople(userId, tournamentId);
+    loaderService.hideLoader(id: executionId);
     notifyListeners();
   }
   @override
   Future<void> promotePeople(String userId, String displayName, ListType from) async {
     String executionId = const Uuid().v4();
     loaderService.showLoader(id: executionId);
-    Tuple2<List<String>,List<String>> returnedIds = await PreregisteredlistRecord.promotePeople(userId, tournamentId, from);
-    for(var id in returnedIds.item1) {
-      await addAlgoliaObject(listType: ListType.preregistered, objectID: id, data: {
-        'display_name' : displayName,
-        'user_uid': userId,
-        'tournament_uid' : tournamentId
-      });
-    }
-    for(var id in returnedIds.item2) {
-      await deleteAlgoliaObject(listType: from, objectID: id);
-    }
+    //await RegisteredlistRecord.promotePeople(userId, tournamentId, from);
     loaderService.hideLoader(id: executionId);
     notifyListeners();
   }
@@ -108,13 +61,7 @@ class TournamentPreregisteredPeopleModel extends TournamentPeopleModel {
   Future<void> addPeople(String userId, String displayName) async {
     String executionId = const Uuid().v4();
     loaderService.showLoader(id: executionId);
-    Map<String, dynamic> ownPeople = createPreregisteredListRecordData(tournament_uid: tournamentId, user_uid: userId, display_name: displayName);
-    DocumentReference added = await PreregisteredlistRecord.collection.add(ownPeople);
-    await addAlgoliaObject(listType: ListType.preregistered, objectID: added.id, data: {
-      'display_name' : displayName,
-      'user_uid': userId,
-      'tournament_uid' : tournamentId
-    });
+    //await RegisteredlistRecord.collection.add(ownPeople);
     loaderService.hideLoader(id: executionId);
     notifyListeners();
   }
@@ -124,8 +71,8 @@ class TournamentPreregisteredPeopleModel extends TournamentPeopleModel {
   void dispose() {
     _preregisteredPeopleNameTextController.dispose();
     _preregisteredPeopleNameFocusNode.dispose();
-    _preregisteredScrollController.dispose();
-    //searchClient.dispose();
+    pagingControllerVar.dispose();
     super.dispose();
   }
+
 }

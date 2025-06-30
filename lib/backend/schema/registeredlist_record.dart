@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:tournamentmanager/backend/schema/preregisteredlist_record.dart';
-import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 import 'package:tournamentmanager/backend/schema/waitinglist_record.dart';
 import 'package:tuple/tuple.dart';
+
+import 'enrollments_record.dart';
 
 class RegisteredlistRecord extends FirestoreRecord {
   RegisteredlistRecord._(

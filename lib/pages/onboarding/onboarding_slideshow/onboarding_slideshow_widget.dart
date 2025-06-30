@@ -25,6 +25,7 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> {
   late OnboardingSlideshowModel _model;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _unfocusNode = FocusNode();
   final animationsMap = <String, AnimationInfo>{};
 
 
@@ -53,7 +54,7 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> {
   @override
   void dispose() {
     _model.dispose();
-
+    _unfocusNode.dispose();
     super.dispose();
   }
 
@@ -61,8 +62,8 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _model.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_model.unfocusNode)
+      onTap: () => _unfocusNode.canRequestFocus
+          ? FocusScope.of(context).requestFocus(_unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: _scaffoldKey,

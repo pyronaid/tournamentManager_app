@@ -8,7 +8,6 @@ import 'package:tournamentmanager/components/custom_appbar_model.dart';
 
 class CreateEditNewsModel extends ChangeNotifier {
 
-  final _unfocusNode = FocusNode();
   final bool saveWay;
   late CustomAppbarModel customAppbarModel;
   late ImagePickerService imagePickerService;
@@ -67,9 +66,6 @@ class CreateEditNewsModel extends ChangeNotifier {
 
 
   /////////////////////////////GETTER
-  FocusNode get unfocusNode{
-    return _unfocusNode;
-  }
   bool get saveWayEn{
     return saveWay;
   }
@@ -152,7 +148,6 @@ class CreateEditNewsModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _unfocusNode.dispose();
     customAppbarModel.dispose();
     _fieldControllerTitle.dispose();
     _fieldControllerSubTitle.dispose();

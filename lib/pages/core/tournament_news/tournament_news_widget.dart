@@ -25,6 +25,7 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
   late TournamentNewsModel tournamentNewsModel;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _unfocusNode = FocusNode();
 
   @override
   void initState() {
@@ -38,14 +39,15 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => tournamentNewsModel.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(tournamentNewsModel.unfocusNode)
+      onTap: () => _unfocusNode.canRequestFocus
+          ? FocusScope.of(context).requestFocus(_unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Consumer<TournamentNewsModel>(
         builder: (context, providerTournamentNews, _) {

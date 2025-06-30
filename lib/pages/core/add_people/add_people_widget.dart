@@ -31,6 +31,7 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
+  final _unfocusNode = FocusNode();
 
   @override
   void initState() {
@@ -47,6 +48,7 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     super.dispose();
   }
 
@@ -54,8 +56,8 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => addPeopleModel.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(addPeopleModel.unfocusNode)
+      onTap: () => _unfocusNode.canRequestFocus
+          ? FocusScope.of(context).requestFocus(_unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Consumer2<TournamentPeopleModel, AddPeopleModel>(builder: (context, providerPeople, providerAddPeople, _) {
         print("[BUILD IN CORSO] add_people_widget.dart");
@@ -145,25 +147,14 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                                           final result = await context.pushNamedAuth(
                                             'ScannerCode', context.mounted,
                                             pathParameters: {
-                                              'tournamentId': providerPeople.tournamentId,
+                                              'tournamentId': providerPeople.tournamentModel.tournamentId,
                                             }.withoutNulls,
                                           );
 
                                           if (result != null) {
                                             print('Scanned Barcode: $result');
                                             providerAddPeople.setFieldControllerIdUser(result);
-                                            await providerAddPeople.addPlayerWithCheck(
-                                              providerPeople.getPlayerInfoR(providerAddPeople.fieldControllerIdUser.text),
-                                              providerPeople.getPlayerInfoP(providerAddPeople.fieldControllerIdUser.text),
-                                              providerPeople.getPlayerInfoW(providerAddPeople.fieldControllerIdUser.text),
-                                              PocketbaseUser.getDocumentOnce(pb, providerAddPeople.fieldControllerIdUser.text),
-                                              providerPeople.waitingEnabled,
-                                              providerPeople.preregisteredEnabled,
-                                              providerPeople.capacity,
-                                              0,
-                                              0,
-                                              true
-                                            );
+                                            // TODO
                                             // Handle the scanned barcode value.
                                           }
                                         },
@@ -314,33 +305,7 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                               return;
                             }
 
-                            Tuple2<ResponseAction?, ListType?> result = await providerAddPeople.addPlayerWithCheck(
-                              providerPeople.getPlayerInfoR(providerAddPeople.fieldControllerIdUser.text),
-                              providerPeople.getPlayerInfoP(providerAddPeople.fieldControllerIdUser.text),
-                              providerPeople.getPlayerInfoW(providerAddPeople.fieldControllerIdUser.text),
-                              PocketbaseUser.getDocumentOnce(pb, providerAddPeople.fieldControllerIdUser.text),
-                              providerPeople.waitingEnabled,
-                              providerPeople.preregisteredEnabled,
-                              providerPeople.capacity,
-                              providerPeople.preregisteredCounter,
-                              providerPeople.registeredCounter,
-                              false
-                            );
-                            if (result.item1 != null && providerAddPeople.usersRecord != null) {
-                              switch(result.item1){
-                                case ResponseAction.add:
-                                  await providerPeople.addPeople(providerAddPeople.usersRecord!.uid!, providerAddPeople.usersRecord!.name!);
-                                  break;
-                                case ResponseAction.forcedPromote:
-                                case ResponseAction.stdPromote:
-                                await providerPeople.promotePeople(providerAddPeople.fieldControllerIdUser.text, providerAddPeople.usersRecord!.name!, result.item2!);
-                                  break;
-                                case ResponseAction.issue:
-                                default:
-                                  break;
-                              }
-                              Navigator.of(context).pop();
-                            }
+                            //TODO
                             logFirebaseEvent('Button_haptic_feedback');
                             HapticFeedback.lightImpact();
                           },

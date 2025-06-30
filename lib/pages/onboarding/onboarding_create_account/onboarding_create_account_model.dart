@@ -7,7 +7,6 @@ import 'package:tournamentmanager/pages/onboarding/onboarding_create_account/onb
 class OnboardingCreateAccountModel extends CustomFlowModel<OnboardingCreateAccountWidget> {
   ///  State fields for stateful widgets in this page.
 
-  final unfocusNode = FocusNode();
   // Model for customAppbar component.
   late CustomAppbarModel customAppbarModel;
   late Map<String, String?> _serverErrors;
@@ -119,7 +118,6 @@ class OnboardingCreateAccountModel extends CustomFlowModel<OnboardingCreateAccou
 
   @override
   void dispose() {
-    unfocusNode.dispose();
     customAppbarModel.dispose();
 
     nameFocusNode?.dispose();

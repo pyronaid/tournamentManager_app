@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:http/http.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
@@ -9,8 +10,32 @@ import 'package:tournamentmanager/backend/schema/util/pocketbase_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 
 class TournamentsRecord extends PocketstoreRecord {
-  static const String collectionNameStats = "tournament_with_stats";
+  static const String collectionNameExt = "tournament_with_stats";
   static const String collectionName = "tournaments";
+  static const String idFieldName = 'id';
+  static const String idOwnerFieldName = 'id_owner';
+  static const String nameFieldName = 'name';
+  static const String capacityFieldName = 'capacity';
+  static const String dateFieldName = 'date';
+  static const String gameFieldName = 'game';
+  static const String stateFieldName = 'state';
+  static const String imageFieldName = 'image';
+  static const String preRegistrationFieldName = 'preRegistrationEn';
+  static const String waitingListFieldName = 'waitingListEn';
+  static const String addressFieldName = 'address';
+  static const String latitudeFieldName = 'latitude';
+  static const String longitudeFieldName = 'longitude';
+  static const String idWinnerFieldName = 'id_winner';
+  static const String createdFieldName = 'created';
+  static const String updatedFieldName = 'updated';
+  static const String collectionIdFieldName = 'collectionId';
+  static const String collectionIdSourceFieldName = 'collectionIdSource';
+  static const String collectionNameFieldName = 'collectionName';
+
+  static const String preRegisteredCountFieldName = 'preRegisteredCount';
+  static const String registeredCountFieldName = 'registeredCount';
+  static const String waitingCountFieldName = 'waitingCount';
+
 
   TournamentsRecord._(
       super.reference,
@@ -18,6 +43,8 @@ class TournamentsRecord extends PocketstoreRecord {
       ) {
     _initializeFields();
   }
+
+  late final bool extFlag;
 
   late String _uid;
   String get uid => _uid;
@@ -32,7 +59,7 @@ class TournamentsRecord extends PocketstoreRecord {
   String get name => _name ?? 'N/A';
   Future<void> setName(PocketBase pb, String newName) async {
     _name = newName;
-    await updateField(pb, uid, "name", newName);
+    await updateField(pb, uid, nameFieldName, newName);
   }
   bool hasName() => _name != null;
 
@@ -40,7 +67,7 @@ class TournamentsRecord extends PocketstoreRecord {
   DateTime? get date => _date;
   Future<void> setDate(PocketBase pb, DateTime newDate) async {
     _date = newDate;
-    await updateField(pb, uid, "date", newDate);
+    await updateField(pb, uid, dateFieldName, newDate);
   }
   bool hasDate() => _date != null;
 
@@ -57,9 +84,9 @@ class TournamentsRecord extends PocketstoreRecord {
     _lat = coordinates.latitude;
     _long = coordinates.longitude;
     await updateFields(pb, uid, {
-      "address": _address,
-      "latitude": _lat,
-      "longitude": _long
+      addressFieldName: _address,
+      latitudeFieldName: _lat,
+      longitudeFieldName: _long
     });
   }
 
@@ -67,7 +94,7 @@ class TournamentsRecord extends PocketstoreRecord {
   int get capacity => _capacity ?? 0;
   Future<void> setCapacity(PocketBase pb, int newCapacity) async {
     _capacity = newCapacity;
-    await updateField(pb, uid, "capacity", newCapacity);
+    await updateField(pb, uid, capacityFieldName, newCapacity);
   }
   bool hasCapacity() => _capacity! > 0;
 
@@ -75,21 +102,23 @@ class TournamentsRecord extends PocketstoreRecord {
   bool get preRegistrationEn => _preRegistrationEn;
   Future<void> switchPreRegistrationEn(PocketBase pb) async {
     _preRegistrationEn = !_preRegistrationEn;
-    await updateField(pb, uid, "pre_registration_en", _preRegistrationEn);
+    await updateField(pb, uid, preRegistrationFieldName, _preRegistrationEn);
   }
 
   late bool _waitingListEn = false;
   bool get waitingListEn => _waitingListEn;
   Future<void> switchWaitingListEn(PocketBase pb) async {
     _waitingListEn = !_waitingListEn;
-    await updateField(pb, uid, "waiting_list_en", _waitingListEn);
+    await updateField(pb, uid, waitingListFieldName, _waitingListEn);
   }
 
   late String? _image;
   String? get image => _image;
-  Future<void> setImage(PocketBase pb, String newImage) async {
-    _image = newImage;
-    await updateField(pb, uid, "image", newImage);
+  Future<void> setImage(PocketBase pb, {required List<MultipartFile> files}) async {
+    for(MultipartFile file in files) {
+      _image = getFileUrl(snapshotData[extFlag ? collectionIdSourceFieldName : collectionIdFieldName], snapshotData[idFieldName], file.filename);
+      await updateFiles(pb, uid, files: [file]);
+    }
   }
   bool hasImage() => _image != null;
 
@@ -97,14 +126,14 @@ class TournamentsRecord extends PocketstoreRecord {
   StateTournament get state => _state;
   Future<void> setState(PocketBase pb, String newState) async {
     _state = getStateTournamentByName(newState);
-    await updateField(pb, uid, "state", newState);
+    await updateField(pb, uid, stateFieldName, newState);
   }
 
   late String? _winnerId;
   String? get winnerUserId => _winnerId;
   Future<void> setWinnerUserId(PocketBase pb, String winnerUserId) async {
     _winnerId = winnerUserId;
-    await updateField(pb, uid, "winnerId", winnerUserId);
+    await updateField(pb, uid, idWinnerFieldName, winnerUserId);
   }
   bool hasWinner() => _winnerId != null;
 
@@ -127,29 +156,40 @@ class TournamentsRecord extends PocketstoreRecord {
   late String _collectionName;
 
   void _initializeFields() {
-    _uid = snapshotData['id'];
-    _name = snapshotData['name'];
-    _capacity = snapshotData['capacity'];
-    _date = tryParseDate(snapshotData['date'])!;
-    _game = getGameEnum(snapshotData['game']);
-    _state = getStateEnum(snapshotData['state'])!;
-    _image = getFileUrl(snapshotData['collectionId'], snapshotData['id'], snapshotData['image']);
-    _preRegistrationEn = snapshotData['preRegistrationEn'] != null ? snapshotData['preRegistrationEn'] == 1 : false;
-    _waitingListEn = snapshotData['waitingListEn'] != null ? snapshotData['waitingListEn'] == 1 : false;
-    _address = snapshotData['address'];
-    _lat = snapshotData['latitude'];
-    _long = snapshotData['longitude'];
-    _winnerId = snapshotData['id_winner'];
-    _ownerId = snapshotData['id_owner'];
 
-    if(snapshotData.containsKey('preRegisteredCount')) { _preRegisteredCount = snapshotData['preRegisteredCount']; }
-    if(snapshotData.containsKey('registeredCount')) { _registeredCount = snapshotData['registeredCount']; }
-    if(snapshotData.containsKey('waitingCount')) { _waitingCount = snapshotData['waitingCount']; }
+    if(snapshotData.containsKey(preRegisteredCountFieldName)) {
+      _preRegisteredCount = snapshotData[preRegisteredCountFieldName];
+    } else { _preRegisteredCount = 0; }
+    if(snapshotData.containsKey(waitingCountFieldName)) {
+      _waitingCount = snapshotData[waitingCountFieldName];
+    } else { _waitingCount = 0; }
+    if(snapshotData.containsKey(registeredCountFieldName)) {
+      extFlag = true;
+      _registeredCount = snapshotData[registeredCountFieldName];
+    } else {
+      extFlag = false;
+      _registeredCount = 0;
+    }
 
-    _createdTime = tryParseDate(snapshotData['created'])!;
-    _updatedTime = tryParseDate(snapshotData['updated'])!;
-    _collectionId = snapshotData['collectionId'];
-    _collectionName = snapshotData['collectionName'];
+    _uid = snapshotData[idFieldName];
+    _name = snapshotData[nameFieldName];
+    _capacity = snapshotData[capacityFieldName];
+    _date = tryParseDate(snapshotData[dateFieldName])!;
+    _game = getGameEnum(snapshotData[gameFieldName]);
+    _state = getStateEnum(snapshotData[stateFieldName])!;
+    _image = getFileUrl(snapshotData[extFlag ? collectionIdSourceFieldName : collectionIdFieldName], snapshotData[idFieldName], snapshotData[imageFieldName]);
+    _preRegistrationEn = snapshotData[preRegistrationFieldName] != null ? snapshotData[preRegistrationFieldName] == 1 : false;
+    _waitingListEn = snapshotData[waitingListFieldName] != null ? snapshotData[waitingListFieldName] == 1 : false;
+    _address = snapshotData[addressFieldName];
+    _lat = snapshotData[latitudeFieldName];
+    _long = snapshotData[longitudeFieldName];
+    _winnerId = snapshotData[idWinnerFieldName];
+    _ownerId = snapshotData[idOwnerFieldName];
+
+    _createdTime = tryParseDate(snapshotData[createdFieldName])!;
+    _updatedTime = tryParseDate(snapshotData[updatedFieldName])!;
+    _collectionId = snapshotData[collectionIdFieldName];
+    _collectionName = snapshotData[collectionNameFieldName];
   }
 
   static TournamentsRecord fromSnapshot(RecordModel snapshot) => TournamentsRecord._(
@@ -157,16 +197,16 @@ class TournamentsRecord extends PocketstoreRecord {
     snapshot.toJson(),
   );
 
-  static Stream<TournamentsRecord> getDocument(PocketBase pb, bool stats, String id) {
+  static Stream<TournamentsRecord> getDocument(PocketBase pb, bool ext, String id) {
     final controller = StreamController<TournamentsRecord>();
 
-    pb.collection(stats ? collectionNameStats : collectionName).getOne(id, expand: 'id_owner').then((record) {
+    pb.collection(ext ? collectionNameExt : collectionName).getOne(id, expand: idOwnerFieldName).then((record) {
       if (!controller.isClosed) controller.add(TournamentsRecord.fromSnapshot(record));
     }).catchError((error){
       if (!controller.isClosed) controller.addError(error);
     });
 
-    pb.collection(stats ? collectionNameStats : collectionName).subscribe(id, expand: 'id_owner', (e) {
+    pb.collection(ext ? collectionNameExt : collectionName).subscribe(id, expand: idOwnerFieldName, (e) {
       if (e.record != null) {
         if (!controller.isClosed) controller.add(TournamentsRecord.fromSnapshot(e.record!));
       }
@@ -174,16 +214,16 @@ class TournamentsRecord extends PocketstoreRecord {
 
     // Clean up on stream cancellation
     controller.onCancel = () {
-      pb.collection(stats ? collectionNameStats : collectionName).unsubscribe();
+      pb.collection(ext ? collectionNameExt : collectionName).unsubscribe();
     };
 
     return controller.stream;
   }
-  static Stream<List<TournamentsRecord>> getDocuments(PocketBase pb, bool stats, String filter, {String? expand, String? sorting, int page = 1, int perPage = 30}) {
+  static Stream<List<TournamentsRecord>> getDocuments(PocketBase pb, bool ext, String filter, {String? expand, String? sorting, int page = 1, int perPage = 30}) {
     final controller = StreamController<List<TournamentsRecord>>();
     final List<TournamentsRecord> documents = [];
 
-    pb.collection(stats ? collectionNameStats : collectionName).getList(filter: filter, sort: sorting, page: page, perPage: perPage, expand: expand !=null ? '$expand,id_owner':'id_owner').then((recordList) {
+    pb.collection(ext ? collectionNameExt : collectionName).getList(filter: filter, sort: sorting, page: page, perPage: perPage, expand: expand !=null ? '$expand,$idOwnerFieldName':idOwnerFieldName).then((recordList) {
       if (!controller.isClosed) {
         List<TournamentsRecord> tournamentList = recordList.items.map((record) => TournamentsRecord.fromSnapshot(record)).toList();
         documents.addAll(tournamentList);
@@ -193,7 +233,7 @@ class TournamentsRecord extends PocketstoreRecord {
       if (!controller.isClosed) controller.addError(error);
     });
 
-    pb.collection(stats ? collectionNameStats : collectionName).subscribe('*', filter: filter, query: {'page' : page, 'perPage' : perPage}, expand: expand !=null ? '$expand,id_owner':'id_owner', (e) {
+    pb.collection(ext ? collectionNameExt : collectionName).subscribe('*', filter: filter, query: {'page' : page, 'perPage' : perPage}, expand: expand !=null ? '$expand,$idOwnerFieldName':idOwnerFieldName, (e) {
       if (!controller.isClosed && e.record != null) {
         TournamentsRecord record = TournamentsRecord.fromSnapshot(e.record!);
 
@@ -216,31 +256,53 @@ class TournamentsRecord extends PocketstoreRecord {
 
     // Clean up on stream cancellation
     controller.onCancel = () {
-      pb.collection(collectionNameStats).unsubscribe();
+      pb.collection(collectionNameExt).unsubscribe();
     };
 
     return controller.stream;
   }
-  static Future<TournamentsRecord> getDocumentOnce(PocketBase pb, bool stats, String id) =>
-      pb.collection(stats ? collectionNameStats : collectionName).getOne(id).then((s) => TournamentsRecord.fromSnapshot(s));
-  static Future<List<TournamentsRecord>> getDocumentsOnce(PocketBase pb, bool stats, String filter, {String? expand, String? sorting, int page=1, int perPage = 30}) =>
-      pb.collection(stats ? collectionNameStats : collectionName).getList(filter: filter, sort: sorting, page: page, perPage: perPage, expand: expand !=null ? '$expand,id_owner':'id_owner').then(
+  static Future<TournamentsRecord> getDocumentOnce(PocketBase pb, bool ext, String id) =>
+      pb.collection(ext ? collectionNameExt : collectionName).getOne(id).then((s) => TournamentsRecord.fromSnapshot(s));
+  static Future<List<TournamentsRecord>> getDocumentsOnce(PocketBase pb, bool ext, String filter, {String? expand, String? sorting, int page=1, int perPage = 30, Map<String, dynamic> queryMap = const {}}) =>
+      pb.collection(ext ? collectionNameExt : collectionName).getList(
+          filter: filter,
+          sort: sorting,
+          page: page,
+          perPage: perPage,
+          expand: expand !=null ? '$expand,$idOwnerFieldName':idOwnerFieldName,
+          query: queryMap
+      ).then(
               (s) => s.items.map(
                   (record) => TournamentsRecord.fromSnapshot(record)).toList()
       );
 
-  static Future<void> updateField(PocketBase pb, String id, String fieldName, dynamic newValue) async {
+  static Future<void> updateFiles(PocketBase pb, String id, {required List<MultipartFile> files}) async {
     try {
-      await pb.collection(collectionName).update(id, body: {
-        fieldName: newValue,
-      });
+      await pb.collection(collectionName).update(id,
+        files: files,
+      );
     } catch (e) {
       print("Failed to update field: $e");
     }
   }
-  static Future<void> updateFields(PocketBase pb, String id, Map<String, dynamic> dataToUpdate) async {
+  static Future<void> updateField(PocketBase pb, String id, String fieldName, dynamic newValue, {List<MultipartFile>? files}) async {
     try {
-      await pb.collection(collectionName).update(id, body: dataToUpdate);
+      await pb.collection(collectionName).update(id,
+        body: {
+          fieldName: newValue,
+        },
+        files: files ?? [],
+      );
+    } catch (e) {
+      print("Failed to update field: $e");
+    }
+  }
+  static Future<void> updateFields(PocketBase pb, String id, Map<String, dynamic> dataToUpdate, {List<MultipartFile>? files}) async {
+    try {
+      await pb.collection(collectionName).update(id,
+        body: dataToUpdate,
+        files: files ?? [],
+      );
     } catch (e) {
       print("Failed to update fields: $e");
     }
@@ -295,17 +357,17 @@ Map<String, dynamic> createTournamentsRecordData({
 }) {
   final pocketstoreData = mapToFirestore(
     <String, dynamic>{
-      'game': game.name,
-      'name': name,
-      'date': date.toIso8601String(),
-      'address': address,
-      'latitude': latitude,
-      'longitude': longitude,
-      'preRegistrationEn': preRegistrationEn ? 1 : 0,
-      'waitingListEn': waitingListEn ? 1 : 0,
-      'state': state != null ? state.name : StateTournament.open.name,
-      'capacity': capacity ?? 0,
-      'id_owner': creatorUid,
+      TournamentsRecord.gameFieldName: game.name,
+      TournamentsRecord.nameFieldName: name,
+      TournamentsRecord.dateFieldName: date.toIso8601String(),
+      TournamentsRecord.addressFieldName: address,
+      TournamentsRecord.latitudeFieldName: latitude,
+      TournamentsRecord.longitudeFieldName: longitude,
+      TournamentsRecord.preRegistrationFieldName: preRegistrationEn ? 1 : 0,
+      TournamentsRecord.waitingListFieldName: waitingListEn ? 1 : 0,
+      TournamentsRecord.stateFieldName: state != null ? state.name : StateTournament.open.name,
+      TournamentsRecord.capacityFieldName: capacity ?? 0,
+      TournamentsRecord.idOwnerFieldName: creatorUid,
     }.withoutNulls,
   );
 
@@ -314,18 +376,18 @@ Map<String, dynamic> createTournamentsRecordData({
 Map<String, dynamic> createTournamentsRecordDataFromObj(TournamentsRecord record) {
   final pocketstoreData = mapToFirestore(
     <String, dynamic>{
-      'uid': record.uid,
-      'game': record.game.name,
-      'name': record.name,
-      'date': record.date,
-      'address': record.address,
-      'latitude': record.latitude,
-      'longitude': record.longitude,
-      'preRegistrationEn': record.preRegistrationEn,
-      'waitingListEn': record.waitingListEn,
-      'state': record.state,
-      'capacity': record.capacity,
-      'id_owner': record.ownerId,
+      TournamentsRecord.idFieldName: record.uid,
+      TournamentsRecord.gameFieldName: record.game.name,
+      TournamentsRecord.nameFieldName: record.name,
+      TournamentsRecord.dateFieldName: record.date,
+      TournamentsRecord.addressFieldName: record.address,
+      TournamentsRecord.latitudeFieldName: record.latitude,
+      TournamentsRecord.longitudeFieldName: record.longitude,
+      TournamentsRecord.preRegistrationFieldName: record.preRegistrationEn,
+      TournamentsRecord.waitingListFieldName: record.waitingListEn,
+      TournamentsRecord.stateFieldName: record.state,
+      TournamentsRecord.capacityFieldName: record.capacity,
+      TournamentsRecord.idOwnerFieldName: record.ownerId,
     }.withoutNulls,
   );
 
@@ -408,21 +470,5 @@ StateTournament getStateTournamentByName(String name) {
   return StateTournament.values.firstWhere(
         (state) => state.name == name,
     orElse: () => StateTournament.unknown,
-  );
-}
-
-enum ListType {
-  waiting("waiting_list_info"),
-  preregistered("preregistered_list_info"),
-  registered("registered_list_info");
-
-  final String listName;
-  const ListType(this.listName);
-}
-
-ListType getListTypeByName(String name) {
-  return ListType.values.firstWhere(
-        (state) => state.name == name,
-    orElse: () => ListType.waiting,
   );
 }

@@ -27,6 +27,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
+  final _unfocusNode = FocusNode();
 
   @override
   void initState() {
@@ -42,6 +43,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     super.dispose();
   }
 
@@ -50,8 +52,8 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
   Widget build(BuildContext context) {
 
     return GestureDetector(
-      onTap: () => editProfileModel.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(editProfileModel.unfocusNode)
+      onTap: () => _unfocusNode.canRequestFocus
+          ? FocusScope.of(context).requestFocus(_unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
         resizeToAvoidBottomInset: true,

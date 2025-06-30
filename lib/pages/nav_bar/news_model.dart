@@ -3,13 +3,10 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:pocketbase/pocketbase.dart';
 import 'package:tournamentmanager/app_flow/services/LoaderService.dart';
 import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_style.dart';
-import 'package:tournamentmanager/auth/base_auth_user_provider.dart';
 import 'package:tournamentmanager/backend/schema/news_record.dart';
-import 'package:tournamentmanager/backend/schema/util/firestorage_util.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart';
@@ -73,7 +70,6 @@ class NewsModel extends ChangeNotifier {
             title: title,
             subTitle: subTitle,
             description: desc,
-            ownerId: currentUser!.uid!,
             showTimestampEn: showTimestamp
         );
         if (imgPath != null) {

@@ -7,6 +7,8 @@ import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 import 'package:tuple/tuple.dart';
 
+import 'enrollments_record.dart';
+
 class WaitinglistRecord extends FirestoreRecord {
   WaitinglistRecord._(
       super.reference,

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
-import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/components/tournament_people_card/tournament_people_card_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/sub_page_preregistered_people/tournament_preregistered_people_model.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/sub_page_registered_people/tournament_registered_people_model.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/sub_page_waiting_people/tournament_waiting_people_model.dart';
 
 import '../../app_flow/services/supportClass/alert_classes.dart';
-import '../../backend/schema/users_algolia_record.dart';
+import '../../backend/schema/enrollments_record.dart';
 
 
 class TournamentPeopleCardModel extends CustomFlowModel<TournamentPeopleCardWidget> {
@@ -25,7 +24,7 @@ class TournamentPeopleCardModel extends CustomFlowModel<TournamentPeopleCardWidg
   }
 
   /////////////////////////////SETTER
-  AlertRequest showDeletePeopleAlertRequest(UsersAlgoliaRecord player){
+  AlertRequest showDeletePeopleAlertRequest(EnrollmentsRecord player){
     AlertRequest req = AlertRequest(
       title: 'ATTENZIONE: Cancellazione dell\'utente in corso...',
       description: "Sei sicuro di voler eliminare questo utente dalla lista? ",
@@ -46,7 +45,7 @@ class TournamentPeopleCardModel extends CustomFlowModel<TournamentPeopleCardWidg
     );
     return req;
   }
-  AlertRequest showPromotePeopleAlertRequest(UsersAlgoliaRecord player){
+  AlertRequest showPromotePeopleAlertRequest(EnrollmentsRecord player){
     AlertRequest req = AlertRequest(
       title: 'ATTENZIONE: Promozione dell\'utente in corso...',
       description: "L'tente verrà promosso a registrato!",
@@ -55,9 +54,9 @@ class TournamentPeopleCardModel extends CustomFlowModel<TournamentPeopleCardWidg
       functionConfirmed: (List<dynamic>? formValues) {
         switch(listType){
           case ListType.waiting:
-            return (peopleModel as TournamentWaitingPeopleModel).promotePeopleToRegistered(player.userId, player.displayName);
+            return (peopleModel as TournamentWaitingPeopleModel).promotePeopleToRegistered(player.userId, player.userId);
           case ListType.preregistered:
-            return (peopleModel as TournamentPreregisteredPeopleModel).promotePeopleToRegistered(player.userId, player.displayName);
+            return (peopleModel as TournamentPreregisteredPeopleModel).promotePeopleToRegistered(player.userId, player.userId);
           default:
             throw UnsupportedError('Unsupported list type');
         }

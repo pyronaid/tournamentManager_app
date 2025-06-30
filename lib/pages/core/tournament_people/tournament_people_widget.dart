@@ -34,7 +34,7 @@ class _TournamentPeopleWidgetState extends State<TournamentPeopleWidget> {
 
   @override
   Widget build(BuildContext context) {
-    _widgetCache.clear();
+    //  TODO study another way _widgetCache.clear();
     return Consumer<TournamentModel>(builder: (context, providerTournament, _) {
       if (providerTournament.isLoading) {
         return const Center(child: CircularProgressIndicator());

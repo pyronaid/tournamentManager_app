@@ -20,6 +20,7 @@ class _SplashWidgetState extends State<SplashWidget> {
   late SplashModel _model;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _unfocusNode = FocusNode();
 
   @override
   void initState() {
@@ -33,15 +34,15 @@ class _SplashWidgetState extends State<SplashWidget> {
   @override
   void dispose() {
     _model.dispose();
-
+    _unfocusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _model.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_model.unfocusNode)
+      onTap: () => _unfocusNode.canRequestFocus
+          ? FocusScope.of(context).requestFocus(_unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: _scaffoldKey,

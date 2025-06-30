@@ -28,6 +28,7 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
   late String? _email;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _unfocusNode = FocusNode();
   final animationsMap = <String, AnimationInfo>{};
 
   @override
@@ -48,6 +49,7 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
   @override
   void dispose() {
     _model.dispose();
+    _unfocusNode.dispose();
     super.dispose();
   }
 
@@ -55,8 +57,8 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _model.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_model.unfocusNode)
+      onTap: () => _unfocusNode.canRequestFocus
+          ? FocusScope.of(context).requestFocus(_unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: _scaffoldKey,

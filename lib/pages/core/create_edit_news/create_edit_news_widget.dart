@@ -29,6 +29,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
+  final _unfocusNode = FocusNode();
 
   @override
   void initState() {
@@ -44,6 +45,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     super.dispose();
   }
 
@@ -51,8 +53,8 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => createEditNewsModel.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(createEditNewsModel.unfocusNode)
+      onTap: () => _unfocusNode.canRequestFocus
+          ? FocusScope.of(context).requestFocus(_unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: _scaffoldKey,

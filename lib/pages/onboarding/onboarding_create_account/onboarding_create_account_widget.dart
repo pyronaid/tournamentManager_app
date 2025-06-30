@@ -26,6 +26,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
+  final _unfocusNode = FocusNode();
 
   @override
   void initState() {
@@ -54,7 +55,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
   @override
   void dispose() {
     _model.dispose();
-
+    _unfocusNode.dispose();
     super.dispose();
   }
 
@@ -62,8 +63,8 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _model.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_model.unfocusNode)
+      onTap: () => _unfocusNode.canRequestFocus
+          ? FocusScope.of(context).requestFocus(_unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
         resizeToAvoidBottomInset: true,

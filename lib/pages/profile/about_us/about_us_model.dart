@@ -6,7 +6,6 @@ import 'package:tournamentmanager/pages/profile/about_us/about_us_widget.dart';
 class AboutUsModel extends CustomFlowModel<AboutUsWidget> {
   ///  State fields for stateful widgets in this page.
 
-  final unfocusNode = FocusNode();
   // Model for customAppbar component.
   late CustomAppbarModel customAppbarModel;
 
@@ -17,7 +16,6 @@ class AboutUsModel extends CustomFlowModel<AboutUsWidget> {
 
   @override
   void dispose() {
-    unfocusNode.dispose();
     customAppbarModel.dispose();
   }
 }

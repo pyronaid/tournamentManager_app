@@ -11,7 +11,6 @@ import '../../../auth/pocketbase_auth/pocketbase_users_record.dart';
 
 class EditProfileModel extends ChangeNotifier {
 
-  final _unfocusNode = FocusNode();
   late CustomAppbarModel customAppbarModel;
   late SnackBarService snackBarService;
   late Map<String, String?> _serverErrors;
@@ -107,9 +106,6 @@ class EditProfileModel extends ChangeNotifier {
 
 
   /////////////////////////////GETTER
-  FocusNode get unfocusNode{
-    return _unfocusNode;
-  }
   TextEditingController get nameTextController{
     return _nameTextController;
   }
@@ -255,7 +251,6 @@ class EditProfileModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _unfocusNode.dispose();
     customAppbarModel.dispose();
     _nameTextController.dispose();
     _surnameTextController.dispose();

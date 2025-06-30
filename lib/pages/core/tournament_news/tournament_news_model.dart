@@ -9,7 +9,6 @@ class TournamentNewsModel extends ChangeNotifier {
 
   final TournamentModel tournamentModel;
 
-  final _unfocusNode = FocusNode();
   late PagingController<String?, NewsRecord> _pagingController;
   static const _pageSize = 30;
   late bool _isLoading;
@@ -24,7 +23,6 @@ class TournamentNewsModel extends ChangeNotifier {
 
   /////////////////////////////GETTER
   bool get isLoading => _isLoading;
-  FocusNode get unfocusNode => _unfocusNode;
   PagingController<String?, NewsRecord> get pagingControllerNews => _pagingController;
 
 
@@ -63,7 +61,6 @@ class TournamentNewsModel extends ChangeNotifier {
   @override
   void dispose() {
     _pagingController.dispose();
-    unfocusNode.dispose();
     super.dispose();
   }
 

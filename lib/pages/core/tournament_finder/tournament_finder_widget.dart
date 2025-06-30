@@ -26,6 +26,7 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
   late TournamentFinderModel tournamentFinderModel;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _unfocusNode = FocusNode();
 
   @override
   void initState() {
@@ -39,19 +40,20 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => tournamentFinderModel.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(tournamentFinderModel.unfocusNode)
+      onTap: () => _unfocusNode.canRequestFocus
+          ? FocusScope.of(context).requestFocus(_unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Consumer<TournamentFinderModel>(
         builder: (context, providerTournamentFinder, _) {
           print("[BUILD IN CORSO] tournament_finder_widget.dart");
-          if (tournamentFinderModel.isLoading) {
+          if (providerTournamentFinder.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
           return Scaffold(

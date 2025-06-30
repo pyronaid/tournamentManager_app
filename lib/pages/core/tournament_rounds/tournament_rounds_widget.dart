@@ -23,6 +23,7 @@ class _TournamentRoundsWidgetState extends State<TournamentRoundsWidget> {
   late TournamentRoundsModel tournamentRoundsModel;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _unfocusNode = FocusNode();
 
   @override
   void initState() {
@@ -36,14 +37,15 @@ class _TournamentRoundsWidgetState extends State<TournamentRoundsWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => tournamentRoundsModel.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(tournamentRoundsModel.unfocusNode)
+      onTap: () => _unfocusNode.canRequestFocus
+          ? FocusScope.of(context).requestFocus(_unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Consumer<RoundListModel>(
           builder: (context, providerRoundList, _) {

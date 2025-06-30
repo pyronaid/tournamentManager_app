@@ -8,8 +8,8 @@ class TournamentDetailModel extends ChangeNotifier {
 
   final TournamentModel tournamentModel;
 
-  final _unfocusNode = FocusNode();
   late bool _isLoading;
+  late DateTime? _lastUpdated;
 
   //////////////////////////////NAME DIALOG
   late String? Function(BuildContext, String?, String?)? tournamentNameTextControllerValidator;
@@ -47,12 +47,13 @@ class TournamentDetailModel extends ChangeNotifier {
     tournamentNameTextControllerValidator = _tournamentNameTextControllerValidator;
     tournamentCapacityTextControllerValidator = _tournamentCapacityTextControllerValidator;
     _isLoading = tournamentModel.isLoading;
+    _lastUpdated = tournamentModel.updated;
   }
 
 
   /////////////////////////////GETTER
   bool get isLoading => _isLoading;
-  FocusNode get unfocusNode => _unfocusNode;
+  DateTime? get lastUpdated => _lastUpdated;
 
 
   /////////////////////////////SETTER
@@ -142,7 +143,6 @@ class TournamentDetailModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _unfocusNode.dispose();
     super.dispose();
   }
 }

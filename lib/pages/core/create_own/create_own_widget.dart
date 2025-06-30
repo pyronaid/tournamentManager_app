@@ -27,6 +27,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
+  final _unfocusNode = FocusNode();
 
   @override
   void initState() {
@@ -42,6 +43,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     super.dispose();
   }
 
@@ -49,8 +51,8 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => createOwnModel.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(createOwnModel.unfocusNode)
+      onTap: () => _unfocusNode.canRequestFocus
+          ? FocusScope.of(context).requestFocus(_unfocusNode)
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: _scaffoldKey,

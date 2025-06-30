@@ -21,7 +21,6 @@ class TournamentFinderModel extends ChangeNotifier {
   late List<TournamentsRecord> tournamentsListRefObj;
   late List<TournamentsRecord> tournamentsListRefObjToDetail;
 
-  final _unfocusNode = FocusNode();
   bool isLoading = true;
   bool isLoadingFetch = false;
   Timer? _debounce;
@@ -119,9 +118,6 @@ class TournamentFinderModel extends ChangeNotifier {
   }
 
   /////////////////////////////GETTER
-  FocusNode get unfocusNode{
-    return _unfocusNode;
-  }
   MapController get mapController{
     return _mapController;
   }
@@ -332,7 +328,6 @@ class TournamentFinderModel extends ChangeNotifier {
   @override
   void dispose() {
     _tournamentsSubscription?.cancel();
-    unfocusNode.dispose();
     _mapController.dispose();
     _scrollController.dispose();
     super.dispose();

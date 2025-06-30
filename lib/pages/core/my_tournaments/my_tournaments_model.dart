@@ -7,8 +7,6 @@ import '../../../backend/schema/tournaments_record.dart';
 
 class MyTournamentsModel extends ChangeNotifier {
 
-  final _unfocusNode = FocusNode();
-
   bool _isLoading = false;
   late PagingController<String?, TournamentsRecord> _pagingControllerActive;
   late PagingController<String?, TournamentsRecord> _pagingControllerClosed;
@@ -26,7 +24,6 @@ class MyTournamentsModel extends ChangeNotifier {
   }
 
   /////////////////////////////GETTER
-  FocusNode get unfocusNode => _unfocusNode;
   PagingController<String?, TournamentsRecord> get pagingControllerActive => _pagingControllerActive;
   PagingController<String?, TournamentsRecord> get pagingControllerClosed => _pagingControllerClosed;
   bool get isLoading => _isLoading;
@@ -75,7 +72,6 @@ class MyTournamentsModel extends ChangeNotifier {
   void dispose() {
     _pagingControllerActive.dispose();
     _pagingControllerClosed.dispose();
-    unfocusNode.dispose();
     super.dispose();
   }
 }

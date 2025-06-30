@@ -12,6 +12,19 @@ class PocketbaseUser extends BaseAuthUser {
   Map<String, dynamic> snapshotData;
   RecordModel? recordObj;
   static const String collectionName = "users";
+  static const String idFieldName = "id";
+  static const String emailFieldName = "email";
+  static const String emailVisibilityFieldName = "emailVisibility";
+  static const String verifiedFieldName = "verified";
+  static const String nameFieldName = "name";
+  static const String surnameFieldName = "surname";
+  static const String usernameFieldName = "username";
+  static const String avatarFieldName = "avatar";
+  static const String phoneNumberFieldName = "phoneNumber";
+  static const String createdFieldName = 'created';
+  static const String updatedFieldName = 'updated';
+  static const String collectionIdFieldName = 'collectionId';
+  static const String collectionNameFieldName = 'collectionName';
 
   PocketbaseUser._(
     this.snapshotData,
@@ -65,22 +78,22 @@ class PocketbaseUser extends BaseAuthUser {
 
 
   void _initializeFields() {
-    _id = recordObj != null ? snapshotData['id'] as String : "NA";
-    _email = recordObj != null ? snapshotData['email'] as String? : null;
-    _emailVisibility = recordObj != null ? snapshotData['emailVisibility'] as bool : false;
-    _emailVerified = recordObj != null ? snapshotData['verified'] as bool : false;
+    _id = recordObj != null ? snapshotData[idFieldName] as String : "NA";
+    _email = recordObj != null ? snapshotData[emailFieldName] as String? : null;
+    _emailVisibility = recordObj != null ? snapshotData[emailVisibilityFieldName] as bool : false;
+    _emailVerified = recordObj != null ? snapshotData[verifiedFieldName] as bool : false;
 
-    _name = recordObj != null ? snapshotData['name'] as String? : null;
-    _surname = recordObj != null ? snapshotData['surname'] as String? : null;
-    _username = recordObj != null ? snapshotData['username'] as String : "NA";
-    _avatar = recordObj != null ? snapshotData['avatar'] as String? : null;
-    _phoneNumber = recordObj != null ? snapshotData['phoneNumber'] as String? : null;
+    _name = recordObj != null ? snapshotData[nameFieldName] as String? : null;
+    _surname = recordObj != null ? snapshotData[surnameFieldName] as String? : null;
+    _username = recordObj != null ? snapshotData[usernameFieldName] as String : "NA";
+    _avatar = recordObj != null ? snapshotData[avatarFieldName] as String? : null;
+    _phoneNumber = recordObj != null ? snapshotData[phoneNumberFieldName] as String? : null;
 
-    _createdTime = recordObj != null ? tryParseDate(snapshotData['created']) as DateTime : null;
-    _updatedTime = recordObj != null ? tryParseDate(snapshotData['updated']) as DateTime : null;
+    _createdTime = recordObj != null ? tryParseDate(snapshotData[createdFieldName]) as DateTime : null;
+    _updatedTime = recordObj != null ? tryParseDate(snapshotData[updatedFieldName]) as DateTime : null;
 
-    _collectionId = recordObj != null ? snapshotData['collectionId'] as String : "NA";
-    _collectionName = recordObj != null ? snapshotData['collectionName'] as String : "NA";
+    _collectionId = recordObj != null ? snapshotData[collectionIdFieldName] as String : "NA";
+    _collectionName = recordObj != null ? snapshotData[collectionNameFieldName] as String : "NA";
   }
 
   static PocketbaseUser fromSnapshot(RecordModel snapshot) => PocketbaseUser._(
@@ -107,15 +120,15 @@ class PocketbaseUser extends BaseAuthUser {
       pb.collection(collectionName).getOne(id).then((s) => PocketbaseUser.fromSnapshot(s));
   Map<String, dynamic> toPocketbaseMap() {
     return {
-      "id": _id,
-      "email": _email,
-      "emailVisibility": _emailVisibility,
-      "verified": _emailVerified,
-      "name": _name,
-      "surname": _surname,
-      "username": _username,
-      "avatar": _avatar,
-      "phoneNumber": _phoneNumber,
+      idFieldName: _id,
+      emailFieldName: _email,
+      emailVisibilityFieldName: _emailVisibility,
+      verifiedFieldName: _emailVerified,
+      nameFieldName: _name,
+      surnameFieldName: _surname,
+      usernameFieldName: _username,
+      avatarFieldName: _avatar,
+      phoneNumberFieldName: _phoneNumber,
     };
   }
 
@@ -152,14 +165,14 @@ Map<String, dynamic> createUsersRecordData({
 }) {
   final pocketstoreData = mapToFirestore(
     <String, dynamic>{
-      'email': email,
-      'name': name,
-      'surname': surname,
-      'username': username,
-      'photo_url': photoUrl,
-      'id': id,
-      'created_time': createdTime,
-      'phone_number': phoneNumber,
+      PocketbaseUser.emailFieldName: email,
+      PocketbaseUser.nameFieldName: name,
+      PocketbaseUser.surnameFieldName: surname,
+      PocketbaseUser.usernameFieldName: username,
+      PocketbaseUser.avatarFieldName: photoUrl,
+      PocketbaseUser.idFieldName: id,
+      PocketbaseUser.createdFieldName: createdTime,
+      PocketbaseUser.phoneNumberFieldName: phoneNumber,
     }.withoutNulls,
   );
   return pocketstoreData;
