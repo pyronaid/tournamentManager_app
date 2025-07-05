@@ -7,8 +7,8 @@ import '../../../pages/core/add_people/barcode_scanner_zoom.dart';
 import '../../../pages/core/create_edit_news/create_edit_news_container.dart';
 import '../../../pages/core/tournament_detail/tournament_detail_container.dart';
 import '../../../pages/core/tournament_news/tournament_news_container.dart';
+import '../../../pages/core/tournament_people/tournament_people_container.dart';
 import '../../../pages/core/tournament_people/tournament_people_model.dart';
-import '../../../pages/core/tournament_people/tournament_people_widget.dart';
 import '../../../pages/nav_bar/scaffold_leveltwo_nested_navigation.dart';
 import '../../../pages/nav_bar/tournament_model.dart';
 import '../../app_flow_util.dart';
@@ -89,7 +89,7 @@ class TournamentRoutes {
           name: 'TournamentPeople',
           path: 'tournament-people',
           redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-          builder: (context, params) => const TournamentPeopleWidget(),
+          builder: (context, params) => const TournamentPeopleContainer(),
           routes: [
             CustomRoute(
               name: 'AddPeople',
