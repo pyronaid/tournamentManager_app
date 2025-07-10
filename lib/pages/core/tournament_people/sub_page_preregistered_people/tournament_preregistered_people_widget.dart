@@ -26,7 +26,6 @@ class TournamentPreregisteredPeopleWidget extends StatefulWidget {
 class _TournamentPreregisteredPeopleWidgetState extends State<TournamentPreregisteredPeopleWidget> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _unfocusNode = FocusNode();
 
   @override
   void initState() {
@@ -37,16 +36,18 @@ class _TournamentPreregisteredPeopleWidgetState extends State<TournamentPreregis
 
   @override
   void dispose() {
-    _unfocusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_unfocusNode)
-          : FocusScope.of(context).unfocus(),
+      onTap: () {
+        final currentFocus = FocusScope.of(context);
+        if (currentFocus.hasFocus && !currentFocus.hasPrimaryFocus) {
+          currentFocus.unfocus();
+        }
+      },
       child: Consumer<TournamentPreregisteredPeopleModel>(builder: (context, providerPreregisteredPeople, _) {
         print("[BUILD IN CORSO] tournament_preregistered_people_widget.dart");
         if (providerPreregisteredPeople.isLoading) {

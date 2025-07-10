@@ -154,8 +154,8 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                                           if (result != null) {
                                             print('Scanned Barcode: $result');
                                             providerAddPeople.setFieldControllerIdUser(result);
-                                            // TODO
                                             // Handle the scanned barcode value.
+                                            providerAddPeople.addPlayer(result as String);
                                           }
                                         },
                                         icon: const Icon(
