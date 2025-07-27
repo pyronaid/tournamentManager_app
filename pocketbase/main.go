@@ -4,7 +4,7 @@ import (
     "log"
     "os"
 
-    "extended-pocketbase/internal/hooks"
+    "extended-pocketbase/internals/hooks"
     "github.com/pocketbase/pocketbase"
     "github.com/pocketbase/pocketbase/apis"
     "github.com/pocketbase/pocketbase/core"
@@ -21,9 +21,9 @@ func main() {
     //RegisterTournamentEnrollmentAPI(app)
 
 
-    SetupNewsCollectionHooks(app)
-    SetupEnrollmentsCollectionHooks(app)
-    //SetupRoundsCollectionHooks(app)
+    hooks.SetupNewsCollectionHooks(app)
+    hooks.SetupEnrollmentsCollectionHooks(app)
+    hooks.SetupRoundsCollectionHooks(app)
 
     if err := app.Start(); err != nil {
         log.Fatal(err)

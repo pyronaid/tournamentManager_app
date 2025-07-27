@@ -6,6 +6,7 @@ import (
 
     "github.com/pocketbase/pocketbase"
     "github.com/pocketbase/pocketbase/core"
+    "github.com/pocketbase/pocketbase/tools/types"
 )
 
 func SetupNewsCollectionHooks(app *pocketbase.PocketBase) {
@@ -70,6 +71,36 @@ func SetupEnrollmentsCollectionHooks(app *pocketbase.PocketBase) {
     })
 }
 
+func SetupRoundsCollectionHooks(app *pocketbase.PocketBase) {
+    //CREATION OF NEW RECORDS
+    app.OnRecordAfterCreateSuccess("rounds").BindFunc(func(e *core.RecordEvent) error {
+        value := e.Record.GetString("id_tournament")
+        if value != "" {
+            return lastUpdateTargetRecord(app, "tournaments", "lastUpdated_rounds", value)
+        }
+        return nil
+    })
+
+
+    //DELETION OF NEW RECORDS
+    app.OnRecordAfterDeleteSuccess("rounds").BindFunc(func(e *core.RecordEvent) error {
+        value := e.Record.GetString("id_tournament")
+        if value != "" {
+            return lastUpdateTargetRecord(app, "tournaments", "lastUpdated_rounds", value)
+        }
+        return nil
+    })
+
+
+    //UPDATE OF NEW RECORDS
+    app.OnRecordAfterUpdateSuccess("rounds").BindFunc(func(e *core.RecordEvent) error {
+        value := e.Record.GetString("id_tournament")
+        if value != "" {
+            return lastUpdateTargetRecord(app, "tournaments", "lastUpdated_rounds", value)
+        }
+        return nil
+    })
+}
 
 func lastUpdateTargetRecord(app *pocketbase.PocketBase, targetCollection, fieldName, recordId string) error {
 
@@ -78,7 +109,15 @@ func lastUpdateTargetRecord(app *pocketbase.PocketBase, targetCollection, fieldN
         if err != nil {
             return fmt.Errorf("failed to find record with ID %s in collection %s: %w", recordId, targetCollection, err)
         }
-        if !record.Collection().Schema.HasField(fieldName) {
+        fields := record.Collection().Fields
+        found := false
+        for _, field := range fields {
+            if field.GetName() == fieldName {
+                found = true
+                break
+            }
+        }
+        if !found {
             return fmt.Errorf("field %s does not exist in collection %s", fieldName, targetCollection)
         }
 
