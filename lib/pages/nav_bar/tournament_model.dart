@@ -28,6 +28,9 @@ class TournamentModel extends ChangeNotifier {
   late TournamentsRecord? tournamentsRefObj;
   bool _isLoading = true;
   DateTime? _updated;
+  DateTime? _updatedNews;
+  DateTime? _updatedEnrollments;
+  DateTime? _updatedRounds;
 
   TournamentModel({required this.tournamentsRef}){
     print("[CREATE] TournamentModel");
@@ -39,11 +42,14 @@ class TournamentModel extends ChangeNotifier {
 
   /////////////////////////////GETTER
   bool get isLoading => _isLoading;
+  DateTime? get updatedNews => _updatedNews;
+  DateTime? get updatedEnrollments => _updatedEnrollments;
+  DateTime? get updatedRounds => _updatedRounds;
   DateTime? get updated => _updated;
   String? get tournamentOwner => tournamentsRefObj?.ownerId;
   String? get tournamentId => tournamentsRef;
   String get tournamentName => tournamentsRefObj != null ? tournamentsRefObj!.name : "UNKNOWN NAME";
-  StateTournament get tournamentState => tournamentsRefObj != null ? tournamentsRefObj!.state! : StateTournament.unknown;
+  StateTournament get tournamentState => tournamentsRefObj != null ? tournamentsRefObj!.state : StateTournament.unknown;
   String get tournamentCapacity{
     int capacity = tournamentsRefObj != null ? tournamentsRefObj!.capacity : 0;
     String capacityStr = capacity == 0 ? "Illimitata" : capacity.toString();
@@ -51,7 +57,7 @@ class TournamentModel extends ChangeNotifier {
   }
   int get tournamentCapacityInt => tournamentsRefObj != null ? tournamentsRefObj!.capacity : 0;
   DateTime? get tournamentDate => tournamentsRefObj?.date;
-  Game get tournamentGame => tournamentsRefObj != null ? tournamentsRefObj!.game! : Game.unknown;
+  Game get tournamentGame => tournamentsRefObj != null ? tournamentsRefObj!.game : Game.unknown;
   bool get tournamentPreRegistrationEn => tournamentsRefObj != null ? tournamentsRefObj!.preRegistrationEn : false;
   bool get tournamentWaitingListEn => tournamentsRefObj != null ? tournamentsRefObj!.waitingListEn : false;
   bool get tournamentWaitingListPossible{
@@ -159,10 +165,10 @@ class TournamentModel extends ChangeNotifier {
     notifyListeners();
     loaderService.hideLoader(id: executionId);
   }
-  Future<void> deleteRound(String roundId) async {
+  Future<void> deleteRound(PocketBase pb, String roundId) async {
     String executionId = const Uuid().v4();
     loaderService.showLoader(id: executionId);
-    await RoundsRecord.deleteRounds(tournamentsRef!, roundId);
+    await RoundsRecord.deleteRound(tournamentsRef!, roundId);
     notifyListeners();
     loaderService.hideLoader(id: executionId);
   }
@@ -183,6 +189,9 @@ class TournamentModel extends ChangeNotifier {
           tournamentsRefObj = await TournamentsRecord.getDocumentOnce(pb, true, tournamentsRef!);
           _isLoading = false;
           _updated = tournamentsRefObj?.updatedTime;
+          _updatedNews = tournamentsRefObj?.lastUpdatedNews;
+          _updatedEnrollments = tournamentsRefObj?.lastUpdatedEnrollments;
+          _updatedRounds = tournamentsRefObj?.lastUpdatedRounds;
           notifyListeners();
         } catch (e){
           print("Errore nella subscription dello Stream Tournament");

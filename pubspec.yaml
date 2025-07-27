@@ -159,6 +159,7 @@ flutter:
      - assets/images/icons/detail_tournament.png
      - assets/images/icons/news.png
      - assets/images/icons/round.png
+     - assets/images/icons/player.png
      - assets/images/icons/location.png
      - assets/images/icons/altered_pointer.png
      - assets/images/icons/lorcana_pointer.png

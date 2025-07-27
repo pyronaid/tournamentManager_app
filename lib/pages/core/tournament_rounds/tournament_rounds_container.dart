@@ -4,7 +4,6 @@ import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/pages/core/tournament_rounds/tournament_rounds_model.dart';
 import 'package:tournamentmanager/pages/core/tournament_rounds/tournament_rounds_widget.dart';
 
-import '../../nav_bar/rounds_list_model.dart';
 import '../../nav_bar/tournament_model.dart';
 
 class TournamentRoundsContainer extends StatefulWidget {
@@ -33,22 +32,24 @@ class _TournamentRoundsContainerState extends State<TournamentRoundsContainer> {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          ChangeNotifierProxyProvider<TournamentModel, RoundListModel>(
-            create: (context) => RoundListModel(
+          ChangeNotifierProxyProvider<TournamentModel, TournamentRoundsModel>(
+            create: (context) => TournamentRoundsModel(
               // Retrieve tournament provider from widget tree
                 tournamentModel: context.read<TournamentModel>()
-            )..fetchObjectUsingId(),
-            update: (context, tournamentModel, previousRoundListModel) {
-              // Optional update method
-              if (previousRoundListModel == null) {
-                return RoundListModel(
+            ),
+            update: (context, tournamentModel, previousRoundsModel) {
+              // Optional update method to edit if you only want to catch some
+              if (previousRoundsModel == null ||
+                  previousRoundsModel.isLoading != tournamentModel.isLoading ||
+                  previousRoundsModel.lastUpdatedRounds != tournamentModel.updatedRounds
+              ) {
+                return TournamentRoundsModel(
                     tournamentModel: tournamentModel
-                )..fetchObjectUsingId();
+                );
               }
-              return previousRoundListModel;
+              return previousRoundsModel;
             },
           ),
-          ChangeNotifierProvider(create: (context) => TournamentRoundsModel()),
         ],
         builder: (context, child) {
           return const TournamentRoundsWidget();

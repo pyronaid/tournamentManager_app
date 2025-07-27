@@ -11,6 +11,7 @@ class TournamentGeneralPeopleModel extends ChangeNotifier {
   late bool _isLoading;
   late bool _tournamentPreRegistrationEn;
   late bool _tournamentWaitingListEn;
+  late DateTime? _lastUpdatedEnrollments;
 
   List<ListType> _availablePages = [];
   ListType _currentPage = ListType.registered;
@@ -22,6 +23,7 @@ class TournamentGeneralPeopleModel extends ChangeNotifier {
     _isLoading = tournamentModel.isLoading;
     _tournamentPreRegistrationEn = tournamentModel.tournamentPreRegistrationEn;
     _tournamentWaitingListEn = tournamentModel.tournamentWaitingListEn;
+    _lastUpdatedEnrollments = tournamentModel.updatedEnrollments;
     _pageController = PageController();
     _availablePages = _calculateAvailablePages();
   }
@@ -30,6 +32,7 @@ class TournamentGeneralPeopleModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get tournamentPreRegistrationEn => _tournamentPreRegistrationEn;
   bool get tournamentWaitingListEn => _tournamentWaitingListEn;
+  DateTime? get lastUpdatedEnrollments => _lastUpdatedEnrollments;
   PageController get pageController => _pageController;
   ListType get currentPage => _currentPage;
   int get currentIndex => _currentIndex;

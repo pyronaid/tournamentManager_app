@@ -9,7 +9,7 @@ import 'package:tournamentmanager/components/tournament_news_card/tournament_new
 import 'package:tournamentmanager/pages/core/tournament_news/tournament_news_model.dart';
 
 import '../../../components/generic_loading/generic_loading_widget.dart';
-import '../../../components/no_tournament_card/no_tournament_card_widget.dart';
+import '../../../components/no_tournament_news_card/no_tournament_news_card_widget.dart';
 
 
 class TournamentNewsWidget extends StatefulWidget {
@@ -120,7 +120,7 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
                             deleteFun: (newsId) => providerTournamentNews.deleteNews(newsId),
                           ),
                           firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-                          noItemsFoundIndicatorBuilder: (_) => const NoTournamentCardWidget(
+                          noItemsFoundIndicatorBuilder: (_) => const NoTournamentNewsCardWidget(
                             active: true,
                             phrase: "Nessuna notizia pubblicata",
                           ),

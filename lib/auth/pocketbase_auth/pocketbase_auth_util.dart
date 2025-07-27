@@ -6,7 +6,7 @@ import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_users_record.d
 
 import '../base_auth_user_provider.dart';
 
-final PocketBase pb = PocketBase('http://195.201.90.14:80');
+final PocketBase pb = PocketBase('http://195.201.90.14:8080');
 final String pbBaseUri = pb.baseURL;
 PocketbaseUser? currentUserDocument;
 

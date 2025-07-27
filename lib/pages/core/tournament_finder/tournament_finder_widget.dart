@@ -183,12 +183,12 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
                                           point: LatLng(to.latitude, to.longitude),
                                           width: 60,
                                           height: 60,
-                                          game: to.game!,
-                                          child: to.game!.iconResource != null ?
+                                          game: to.game,
+                                          child: to.game.iconResource != null ?
                                             InkWell(
                                               onTap: () => providerTournamentFinder.onMarkerTap(to.uid),
                                               child: Image.asset(
-                                                to.game!.iconResource!,
+                                                to.game.iconResource!,
                                                 width: 40,
                                                 height: 40,
                                               )

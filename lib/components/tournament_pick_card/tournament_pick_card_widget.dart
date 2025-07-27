@@ -145,11 +145,11 @@ class _TournamentPickCardWidgetState extends State<TournamentPickCardWidget> {
                 ////////////////
                 //LOGO GAME
                 /////////////////
-                if(widget.tournamentRef!.game!.iconResource != null)...[
+                if(widget.tournamentRef!.game.iconResource != null)...[
                   SizedBox(
                     width: 25.w,
                     child: Image.asset(
-                      widget.tournamentRef!.game!.iconResource!,
+                      widget.tournamentRef!.game.iconResource!,
                       width: 70,
                       height: 70,
                     ),

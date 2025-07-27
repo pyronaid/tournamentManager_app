@@ -74,7 +74,7 @@ class _TournamentPeopleCardWidgetState extends State<TournamentPeopleCardWidget>
                         'tournamentId': widget.tournamentRef,
                       }.withoutNulls,
                       extra: {
-                        'req' : _model.showPromotePeopleAlertRequest(widget.userRef!),
+                        'req' : _model.showPromotePeopleAlertRequest(widget.userRef),
                       }
                   );
                 },
@@ -92,7 +92,7 @@ class _TournamentPeopleCardWidgetState extends State<TournamentPeopleCardWidget>
                       'tournamentId': widget.tournamentRef,
                     }.withoutNulls,
                     extra: {
-                      'req' : _model.showDeletePeopleAlertRequest(widget.userRef!),
+                      'req' : _model.showDeletePeopleAlertRequest(widget.userRef),
                     }
                 );
               },

@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/pages/core/tournament_news/tournament_news_model.dart';
 import 'package:tournamentmanager/pages/core/tournament_rounds/tournament_rounds_model.dart';
 
-import '../../../components/fab_expandable/fab_expandable_widget.dart';
-import '../../../components/no_tournament_round_card/no_tournament_round_card_widget.dart';
-import '../../../components/tournament_round_card/tournament_round_card_widget.dart';
-import '../../nav_bar/rounds_list_model.dart';
+import '../../../backend/schema/rounds_record.dart';
+import '../../../components/generic_loading/generic_loading_widget.dart';
+import '../../../components/no_tournament_round_card/no_tournament_rounds_card_widget.dart';
+import '../../../components/tournament_round_card/tournament_rounds_card_widget.dart';
 
 
 class TournamentRoundsWidget extends StatefulWidget {
@@ -47,74 +50,87 @@ class _TournamentRoundsWidgetState extends State<TournamentRoundsWidget> {
       onTap: () => _unfocusNode.canRequestFocus
           ? FocusScope.of(context).requestFocus(_unfocusNode)
           : FocusScope.of(context).unfocus(),
-      child: Consumer<RoundListModel>(
-          builder: (context, providerRoundList, _) {
+      child: Consumer<TournamentRoundsModel>(
+          builder: (context, providerTournamentRounds, _) {
             print("[BUILD IN CORSO] tournament_rounds_widget.dart");
-            if (providerRoundList.isLoading) {
-              return const Center(child: CircularProgressIndicator());
+            if (providerTournamentRounds.isLoading) {
+              return Scaffold(
+                key: _scaffoldKey,
+                backgroundColor: CustomFlowTheme.of(context).primaryBackground,
+                body: const SafeArea(
+                  top: true,
+                  child: SingleChildScrollView(
+                      child: Center(child: CircularProgressIndicator())
+                  ),
+                ),
+              );
             }
 
             return Scaffold(
               key: _scaffoldKey,
               backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-              floatingActionButton: providerRoundList.isTournamentOngoing ? FabExpandableWidget(
-                distance: 60,
-                children: [
-                  if(!providerRoundList.hasAnyTopCutRound && !providerRoundList.hasWinner) ...[
-                    //SVIZZERA
-                    ActionButton(
-                      onPressed: () {
-                        print("ciiii");
-                      },
-                      icon: Icons.casino,
-                      title: " Genera round di svizzera ",
-                    ),
-                  ],
-                  if(!providerRoundList.hasWinner) ...[
-                    //TOP CUT
-                    ActionButton(
-                      onPressed: () {
-                        print("ciiii");
-                      },
-                      icon: Icons.sports,
-                      title: " Genera round top cut ",
-                    ),
-                  ],
-                ],
-              ) : null,
+              floatingActionButton: FloatingActionButton(
+                heroTag: 'rounds_add',
+                backgroundColor: CustomFlowTheme.of(context).primary,
+                onPressed: (){
+                  print("ciaoooo");
+                },
+                child: Icon(
+                  Icons.add,
+                  color: CustomFlowTheme.of(context).info,
+                ),
+              ),
               body: SafeArea(
                 top: true,
-                child: SingleChildScrollView(
-                  child: SizedBox(
-                    width: 100.w,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          if(providerRoundList.roundListRefObj.isEmpty)
-                            const NoTournamentRoundCardWidget(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    await providerTournamentRounds.onRefresh();
+                  },
+                  child: CustomScrollView(
+                    slivers: [
+                      // use sliver padding if needed https://api.flutter.dev/flutter/widgets/SliverPadding-class.html
+
+                      ////////////////
+                      //ROUNDS SECTION HEADER
+                      /////////////////
+
+
+                      ////////////////
+                      //ROUNDS SECTION INF LIST
+                      /////////////////
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                        sliver: PagedSliverList<String?, RoundsRecord>(
+                          pagingController: providerTournamentRounds.pagingControllerRounds,
+                          builderDelegate: PagedChildBuilderDelegate<RoundsRecord>(
+                            itemBuilder: (context, item, index) => TournamentRoundsCardWidget(
+                              key: Key('Keykia_${item.uid}_position_${index}_of_rounds'),
+                              //last: index == (providerMyTournaments.pagingControllerActive.itemList!.length - 1),
+                              roundRef: item,
+                              indexo: index,
+                              deleteFun: (roundsId) => providerTournamentRounds.deleteRound(roundsId),
+                            ),
+                            firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
+                            noItemsFoundIndicatorBuilder: (_) => const NoTournamentRoundsCardWidget(
                               active: true,
                               phrase: "Nessun round pubblicato",
-                            )
-                          else
-                            Column(
-                              children: List.generate(providerRoundList.roundListRefObj.length, (index) {
-                                final round = providerRoundList.roundListRefObj[index];
-                                return TournamentRoundCardWidget(
-                                  key: Key('Keykia_${round.uid}_position_${index}_of_${providerRoundList.roundListRefObj.length}'),
-                                  roundRef: round,
-                                  indexo: index,
-                                );
-                              },),
                             ),
-
-                          const SizedBox(height: 100),
-                        ],
+                            newPageProgressIndicatorBuilder: (_) => const Center(child: CircularProgressIndicator()),
+                          ),
+                          shrinkWrapFirstPageIndicators: true,
+                        ),
                       ),
-                    ),
+
+                      ////////////////
+                      //ROUNDS SECTION END
+                      /////////////////
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 100,
+                          width: 100.w,
+                        ),
+                      )
+                    ],
                   ),
                 ),
               ),

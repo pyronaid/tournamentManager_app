@@ -44,7 +44,9 @@ class _TournamentPeopleContainerState extends State<TournamentPeopleContainer> {
               // when refresh. If tournament change dedicated parameter
               if (previousGeneralPeopleModel == null || previousGeneralPeopleModel.isLoading != tournamentModel.isLoading ||
                   previousGeneralPeopleModel.tournamentPreRegistrationEn != tournamentModel.tournamentPreRegistrationEn ||
-                  previousGeneralPeopleModel.tournamentWaitingListEn != tournamentModel.tournamentWaitingListEn) {
+                  previousGeneralPeopleModel.tournamentWaitingListEn != tournamentModel.tournamentWaitingListEn ||
+                  previousGeneralPeopleModel.lastUpdatedEnrollments != tournamentModel.updatedEnrollments
+              ) {
                     return TournamentGeneralPeopleModel(
                         tournamentModel: tournamentModel
                     );

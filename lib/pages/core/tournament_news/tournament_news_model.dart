@@ -12,17 +12,20 @@ class TournamentNewsModel extends ChangeNotifier {
   late PagingController<String?, NewsRecord> _pagingController;
   static const _pageSize = 30;
   late bool _isLoading;
+  late DateTime? _lastUpdatedNews;
 
 
   /////////////////////////////CONSTRUCTOR
   TournamentNewsModel({required this.tournamentModel}){
     _isLoading = tournamentModel.isLoading;
+    _lastUpdatedNews = tournamentModel.updatedNews;
     _pagingController = PagingController(firstPageKey: null);
     _pagingController.addPageRequestListener((pageKey) => _fetchPage(pageKey));
   }
 
   /////////////////////////////GETTER
   bool get isLoading => _isLoading;
+  DateTime? get lastUpdatedNews => _lastUpdatedNews;
   PagingController<String?, NewsRecord> get pagingControllerNews => _pagingController;
 
 

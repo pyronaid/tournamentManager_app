@@ -26,6 +26,9 @@ class TournamentsRecord extends PocketstoreRecord {
   static const String latitudeFieldName = 'latitude';
   static const String longitudeFieldName = 'longitude';
   static const String idWinnerFieldName = 'id_winner';
+  static const String lastUpdatedNewsFieldName = 'lastUpdated_news';
+  static const String lastUpdatedEnrollmentsFieldName = 'lastUpdated_enrollments';
+  static const String lastUpdatedRoundsFieldName = 'lastUpdated_rounds';
   static const String createdFieldName = 'created';
   static const String updatedFieldName = 'updated';
   static const String collectionIdFieldName = 'collectionId';
@@ -146,6 +149,15 @@ class TournamentsRecord extends PocketstoreRecord {
   late int _waitingCount;
   int get waitingCount => _waitingCount;
 
+  late DateTime? _lastUpdatedNews;
+  DateTime? get lastUpdatedNews => _lastUpdatedNews;
+
+  late DateTime? _lastUpdatedEnrollments;
+  DateTime? get lastUpdatedEnrollments => _lastUpdatedEnrollments;
+
+  late DateTime? _lastUpdatedRounds;
+  DateTime? get lastUpdatedRounds => _lastUpdatedRounds;
+
   late DateTime _createdTime;
   DateTime get createdTime => _createdTime;
 
@@ -185,6 +197,10 @@ class TournamentsRecord extends PocketstoreRecord {
     _long = snapshotData[longitudeFieldName];
     _winnerId = snapshotData[idWinnerFieldName];
     _ownerId = snapshotData[idOwnerFieldName];
+
+    _lastUpdatedNews = tryParseDate(snapshotData[lastUpdatedNewsFieldName]);
+    _lastUpdatedEnrollments = tryParseDate(snapshotData[lastUpdatedEnrollmentsFieldName]);
+    _lastUpdatedRounds = tryParseDate(snapshotData[lastUpdatedRoundsFieldName]);
 
     _createdTime = tryParseDate(snapshotData[createdFieldName])!;
     _updatedTime = tryParseDate(snapshotData[updatedFieldName])!;

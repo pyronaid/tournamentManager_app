@@ -40,7 +40,6 @@ class _TournamentDetailContainerState extends State<TournamentDetailContainer> {
           ),
           update: (context, tournamentModel, previousDetailModel) {
             // Optional update method to edit if you only want to catch some
-            // updates to refresh and rebuild TODO add check on parameter
             if (previousDetailModel == null ||
                   previousDetailModel.isLoading != tournamentModel.isLoading ||
                   previousDetailModel.lastUpdated != tournamentModel.updated

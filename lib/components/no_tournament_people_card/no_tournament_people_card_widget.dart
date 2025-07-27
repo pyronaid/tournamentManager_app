@@ -69,7 +69,7 @@ class _NoTournamentPeopleCardWidgetState extends State<NoTournamentPeopleCardWid
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/images/icons/news.png',
+                    'assets/images/icons/player.png',
                     height: 30.sp,
                     fit: BoxFit.cover,
                   ),

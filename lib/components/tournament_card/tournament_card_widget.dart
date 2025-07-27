@@ -151,7 +151,7 @@ class _TournamentCardWidgetState extends State<TournamentCardWidget> {
                   SizedBox(
                     width: 12.w,
                     child: Text(
-                      widget.tournamentRef!.state!.name,
+                      widget.tournamentRef!.state.name,
                       style: CustomFlowTheme.of(context).bodyMicro,
                       textAlign: TextAlign.center,
                     ),

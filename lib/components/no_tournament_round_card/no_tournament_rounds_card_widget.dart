@@ -3,10 +3,10 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../app_flow/app_flow_model.dart';
 import '../../app_flow/app_flow_theme.dart';
-import 'no_tournament_round_card_model.dart';
+import 'no_tournament_rounds_card_model.dart';
 
-class NoTournamentRoundCardWidget extends StatefulWidget {
-  const NoTournamentRoundCardWidget({
+class NoTournamentRoundsCardWidget extends StatefulWidget {
+  const NoTournamentRoundsCardWidget({
     super.key,
     required this.active,
     required this.phrase,
@@ -16,11 +16,11 @@ class NoTournamentRoundCardWidget extends StatefulWidget {
   final String phrase;
 
   @override
-  State<NoTournamentRoundCardWidget> createState() => _NoTournamentRoundCardWidgetState();
+  State<NoTournamentRoundsCardWidget> createState() => _NoTournamentRoundsCardWidgetState();
 }
 
-class _NoTournamentRoundCardWidgetState extends State<NoTournamentRoundCardWidget> {
-  late NoTournamentRoundCardModel _model;
+class _NoTournamentRoundsCardWidgetState extends State<NoTournamentRoundsCardWidget> {
+  late NoTournamentRoundsCardModel _model;
 
   @override
   void setState(VoidCallback callback) {
@@ -31,7 +31,7 @@ class _NoTournamentRoundCardWidgetState extends State<NoTournamentRoundCardWidge
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => NoTournamentRoundCardModel());
+    _model = createModel(context, () => NoTournamentRoundsCardModel());
 
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }

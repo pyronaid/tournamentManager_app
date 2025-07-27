@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 
 import '../../app_flow/app_flow_model.dart';
-import 'no_tournament_round_card_widget.dart';
+import 'no_tournament_rounds_card_widget.dart';
 
-class NoTournamentRoundCardModel extends CustomFlowModel<NoTournamentRoundCardWidget> {
+class NoTournamentRoundsCardModel extends CustomFlowModel<NoTournamentRoundsCardWidget> {
   ///  Local state fields for this component.
 
   @override

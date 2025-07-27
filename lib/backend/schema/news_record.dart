@@ -82,11 +82,9 @@ class NewsRecord extends PocketstoreRecord {
 
   late DateTime _createdTime;
   DateTime get createdTime => _createdTime;
-  bool hasCreatedTime() => true;
 
   late DateTime _updatedTime;
   DateTime get updatedTime => _updatedTime;
-  bool hasUpdatedTime() => true;
 
   late String _collectionId;
   late String _collectionName;

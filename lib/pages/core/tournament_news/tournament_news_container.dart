@@ -39,8 +39,10 @@ class _TournamentNewsContainerState extends State<TournamentNewsContainer> {
             ),
             update: (context, tournamentModel, previousNewsModel) {
               // Optional update method to edit if you only want to catch some
-              // updates to refresh and rebuild TODO add check on parameter
-              if (previousNewsModel == null || previousNewsModel.isLoading != tournamentModel.isLoading) {
+              if (previousNewsModel == null ||
+                  previousNewsModel.isLoading != tournamentModel.isLoading ||
+                  previousNewsModel.lastUpdatedNews != tournamentModel.updatedNews
+              ) {
                 return TournamentNewsModel(
                     tournamentModel: tournamentModel
                 );
