@@ -1,0 +1,47 @@
+AGGIUNGERE ESTENZIONE PER GESTIRE CAMBIO/AGGIUNTA NEWS
+AGGIUNGERE ESTENZIONE PER GESTIRE CAMBIO/AGGIUNTA PEOPLE
+AGGIUNGERE ESTENZIONE PER GESTIRE CAMBIO/AGGIUNTA ROUND
+AGGIUNGERE ESTENZIONE PER GESTIRE CAMBIO/AGGIUNTA PAIRING
+aggiungere logica di hooks
+
+AGGIUNGERE CARICAMENTO IMMAGINE PER TOURNAMENT DETAIL
+AGGIUNGERE NOMI STATIC ANCHE IN TOURNAMENT
+AGGIUNGERE NOMI STATIC ANCHE IN USER
+AGGIUNGERE NOMI STATIC ANCHE IN ENROLLMENTS
+
+
+/home/pocketbase/pocketbase serve --http=0.0.0.0:80
+
+
+@@@@@@@@@@@@@@@@
+DEBIAN
+@@@@@@@@@@@@@@@@
+############ CREATE ALIAS
+insert into ./bashrc
+alias ll="ls -latr"
+############ START/STOP/CHANGE SERVICES
+sudo systemctl stop pocketbase (stop before)
+sudo vi /etc/systemd/system/pocketbase.service (change it)
+    ExecStart=/home/pocketbase/pocketbase serve --http=0.0.0.0:80
+    ExecStart=/home/pocketbase/extended-pocketbase serve --http=0.0.0.0:8080
+sudo systemctl daemon-reload
+sudo systemctl start pocketbase
+sudo systemctl status pocketbase
+############ CHANGE USER
+sudo su - pocketbase
+
+
+
+
+
+
+
+@@@@@@@@@@@@@@@@
+GO
+@@@@@@@@@@@@@@@@
+### initializes a new Go module in your current directory
+go mod init extended-pocketbase
+## #analyzes your Go code, identifies all dependencies, and updates your module files to reflect these dependencies correctly
+go mod tidy
+## rebuild code
+go build
