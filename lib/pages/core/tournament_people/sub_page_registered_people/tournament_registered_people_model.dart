@@ -13,7 +13,7 @@ class TournamentRegisteredPeopleModel extends TournamentPeopleModel {
   late FocusNode _registeredPeopleNameFocusNode;
 
 
-  TournamentRegisteredPeopleModel({required TournamentModel tournamentModel}){
+  TournamentRegisteredPeopleModel({required TournamentModel tournamentModel}) : super() {
     print("[CREATE] TournamentRegisteredPeopleModel");
     super.tournamentModel = tournamentModel;
     isLoadingFlag = tournamentModel.isLoading;

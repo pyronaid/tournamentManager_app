@@ -6,6 +6,8 @@ import 'package:tournamentmanager/app_flow/services/PlacesApiManagerService.dart
 import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
 import 'package:tournamentmanager/app_flow/services/VerifyMailService.dart';
 
+import 'PocketbaseApiManagerService.dart';
+
 
 final serviceLocator = GetIt.instance; // GetIt.I is also valid
 
@@ -32,6 +34,7 @@ void serviceLocatorSetUp(){
   serviceLocator.registerLazySingleton<LoaderService>(() => LoaderService());
   serviceLocator.registerLazySingleton<VerifyMailService>(() => VerifyMailService());
   serviceLocator.registerLazySingleton<ExternalAppManagerService>(() => ExternalAppManagerService());
+  serviceLocator.registerLazySingleton<PocketbaseApiManagerService>(() => PocketbaseApiManagerService());
   //serviceLocator.registerSingleton<Model>(()=> MyModel());
   //serviceLocator.registerFactory<Model>(()=>MyModel());
   //serviceLocator.registerFactoryParam<Person,String,int>((name, age) => Person(name,age));

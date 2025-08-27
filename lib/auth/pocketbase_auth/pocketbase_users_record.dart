@@ -20,6 +20,7 @@ class PocketbaseUser extends BaseAuthUser {
   static const String surnameFieldName = "surname";
   static const String usernameFieldName = "username";
   static const String avatarFieldName = "avatar";
+  static const String organizerFieldName = "organizer";
   static const String phoneNumberFieldName = "phoneNumber";
   static const String createdFieldName = 'created';
   static const String updatedFieldName = 'updated';
@@ -56,6 +57,7 @@ class PocketbaseUser extends BaseAuthUser {
   String? get phoneNumber => _phoneNumber;
   late bool _emailVisibility;
   late bool _emailVerified;
+  late bool _organizer;
   @override
   bool get emailVerified => _emailVerified;
 
@@ -87,6 +89,7 @@ class PocketbaseUser extends BaseAuthUser {
     _surname = recordObj != null ? snapshotData[surnameFieldName] as String? : null;
     _username = recordObj != null ? snapshotData[usernameFieldName] as String : "NA";
     _avatar = recordObj != null ? snapshotData[avatarFieldName] as String? : null;
+    _organizer = recordObj != null ? snapshotData[organizerFieldName] as bool : false;
     _phoneNumber = recordObj != null ? snapshotData[phoneNumberFieldName] as String? : null;
 
     _createdTime = recordObj != null ? tryParseDate(snapshotData[createdFieldName]) as DateTime : null;
@@ -128,6 +131,7 @@ class PocketbaseUser extends BaseAuthUser {
       surnameFieldName: _surname,
       usernameFieldName: _username,
       avatarFieldName: _avatar,
+      organizerFieldName: _organizer,
       phoneNumberFieldName: _phoneNumber,
     };
   }
@@ -192,6 +196,7 @@ class PocketbaseUsersRecordDocumentEquality implements Equality<PocketbaseUser> 
         e1?.phoneNumber == e2?.phoneNumber &&
         e1?._emailVisibility == e2?._emailVisibility &&
         e1?._emailVerified == e2?._emailVerified &&
+        e1?._organizer == e2?._organizer &&
         e1?._createdTime == e2?._createdTime &&
         e1?._updatedTime == e2?._updatedTime &&
         e1?._collectionId == e2?._collectionId &&
@@ -209,6 +214,7 @@ class PocketbaseUsersRecordDocumentEquality implements Equality<PocketbaseUser> 
     e?.phoneNumber,
     e?._emailVisibility,
     e?._emailVerified,
+    e?._organizer,
     e?._createdTime,
     e?._updatedTime,
     e?._collectionId,

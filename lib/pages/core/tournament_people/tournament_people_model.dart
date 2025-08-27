@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
 import 'package:tournamentmanager/backend/schema/enrollments_record.dart';
 import '../../../app_flow/services/LoaderService.dart';
 import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
@@ -11,11 +12,17 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
 
   late final TournamentModel tournamentModel;
 
-  final LoaderService loaderService = GetIt.instance<LoaderService>();
+  late LoaderService loaderService ;
+  late SnackBarService snackBarService;
   late int countElementsVar;
   late PagingController<String?, EnrollmentsRecord> pagingControllerVar;
   static const _pageSize = 30;
   late bool isLoadingFlag;
+
+  TournamentPeopleModel(){
+    loaderService = GetIt.instance<LoaderService>();
+    snackBarService = GetIt.instance<SnackBarService>();
+  }
 
 
   /////////////////////////////GETTER
@@ -31,7 +38,6 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
           pb,
           true,
           '${EnrollmentsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}" && ${EnrollmentsRecord.listKindFieldName} = "${listType.name}"',
-          expand: "${EnrollmentsRecord.idUserFieldName},${EnrollmentsRecord.idTournamentFieldName}",
           sorting: EnrollmentsRecord.createdFieldName,
           page: int.tryParse(pageKey ?? '') ?? 0,
           perPage: _pageSize
