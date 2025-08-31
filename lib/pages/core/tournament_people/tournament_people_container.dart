@@ -48,7 +48,9 @@ class _TournamentPeopleContainerState extends State<TournamentPeopleContainer> {
                   previousGeneralPeopleModel.lastUpdatedEnrollments != tournamentModel.updatedEnrollments
               ) {
                     return TournamentGeneralPeopleModel(
-                        tournamentModel: tournamentModel
+                        tournamentModel: tournamentModel,
+                        currentPage: previousGeneralPeopleModel?.currentPage,
+                        currentIndex: previousGeneralPeopleModel?.currentIndex,
                     );
               }
               return previousGeneralPeopleModel;

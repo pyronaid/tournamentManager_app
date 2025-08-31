@@ -19,13 +19,14 @@ class TournamentGeneralPeopleModel extends ChangeNotifier {
 
 
   /////////////////////////////CONSTRUCTOR
-  TournamentGeneralPeopleModel({required this.tournamentModel}){
+  TournamentGeneralPeopleModel({required this.tournamentModel, int? currentIndex, ListType? currentPage}){
     _isLoading = tournamentModel.isLoading;
     _tournamentPreRegistrationEn = tournamentModel.tournamentPreRegistrationEn;
     _tournamentWaitingListEn = tournamentModel.tournamentWaitingListEn;
     _lastUpdatedEnrollments = tournamentModel.updatedEnrollments;
-    _pageController = PageController();
     _availablePages = _calculateAvailablePages();
+    _initializePageState(currentIndex, currentPage);
+    _pageController = PageController(initialPage: _currentIndex);
   }
 
   /////////////////////////////GETTER
@@ -86,8 +87,33 @@ class TournamentGeneralPeopleModel extends ChangeNotifier {
     return actions;
   }
 
+  /////////////////////////////PRIVATE HELPER METHODS
+  void _syncCurrentPageAndIndex() {
+    if (_availablePages.isEmpty) {
+      _currentPage = ListType.registered; // fallback
+      _currentIndex = 0;
+      return;
+    }
 
-
+    // If current page is not in available pages, reset to first available
+    if (!_availablePages.contains(_currentPage)) {
+      _currentPage = _availablePages.first;
+      _currentIndex = 0;
+    } else {
+      // Ensure index matches the current page
+      final correctIndex = _availablePages.indexOf(_currentPage);
+      if (_currentIndex != correctIndex) {
+        _currentIndex = correctIndex;
+      }
+    }
+  }
+  _initializePageState(int? currentIndex, ListType? currentPage){
+    if(currentIndex != null && currentPage != null){
+      _currentIndex = currentIndex;
+      _currentPage = currentPage;
+    }
+    _syncCurrentPageAndIndex();
+  }
   /////////////////////////////SETTER
   bool _listEquals<T>(List<T> a, List<T> b){
     if(a.length != b.length) return false;
@@ -108,36 +134,43 @@ class TournamentGeneralPeopleModel extends ChangeNotifier {
       } else {
         _currentIndex = _availablePages.indexOf(_currentPage);
       }
+
+      // Ensure consistency
+      _syncCurrentPageAndIndex();
     }
     return needPageReset;
   }
   void onPageChanged(int index){
     if(index >= 0 && index < _availablePages.length){
-      _currentIndex = 0;
+      _currentIndex = index;
       _currentPage = _availablePages[index];
       notifyListeners();
     }
   }
   void navigateToPage(ListType pageType){
     final index = _availablePages.indexOf(pageType);
-    if(index != -1 && _currentPage != pageType){
+    if (index != -1 && _currentPage != pageType && _pageController.hasClients) {
       _pageController.animateToPage(
-        index,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut
+          index,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut
       );
     }
   }
   void resetToFirstPage(){
     if(_availablePages.isNotEmpty && _pageController.hasClients){
       _pageController.animateToPage(
-        0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut
       );
     }
   }
 
+  void forceSync() {
+    _syncCurrentPageAndIndex();
+    notifyListeners();
+  }
 
   @override
   void dispose() {

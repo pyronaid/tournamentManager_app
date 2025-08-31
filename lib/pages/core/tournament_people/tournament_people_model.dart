@@ -94,6 +94,7 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
           },
           headers: {'Authorization': pb.authStore.token}
       );
+      pagingControllerVar.refresh();
       snackBarService.showSnackBar(
           message: "Cancellazione completata",
           title: 'Cancellazione giocatore avvenuta con successo',
@@ -124,12 +125,13 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
           },
           headers: {'Authorization': pb.authStore.token}
       );
+      flag = true;
+      pagingControllerVar.refresh();
       snackBarService.showSnackBar(
           message: "Registrazione completata",
           title: 'Promozione giocatore avvenuta con successo',
           style: SnackbarStyle.success
       );
-      flag = true;
     } on HttpException catch (e, _){
       snackBarService.showSnackBar(
           message: e.message,
