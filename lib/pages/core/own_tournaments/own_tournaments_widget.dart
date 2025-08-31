@@ -97,7 +97,7 @@ class _OwnTournamentsWidgetState extends State<OwnTournamentsWidget> {
                     //ACTIVE SECTION INF LIST
                     /////////////////
                     if(providerOwnTournaments.showActiveTournaments) ...[
-                      PagedSliverList<String?, TournamentsRecord>(
+                      PagedSliverList<int, TournamentsRecord>(
                         pagingController: providerOwnTournaments.pagingControllerActive,
                         builderDelegate: PagedChildBuilderDelegate<TournamentsRecord>(
                           itemBuilder: (context, item, index) => TournamentCardWidget(
@@ -169,7 +169,7 @@ class _OwnTournamentsWidgetState extends State<OwnTournamentsWidget> {
                     //CLOSED SECTION INF LIST
                     /////////////////
                     if(providerOwnTournaments.showClosedTournaments) ...[
-                      PagedSliverList<String?, TournamentsRecord>(
+                      PagedSliverList<int, TournamentsRecord>(
                         pagingController: providerOwnTournaments.pagingControllerClosed,
                         builderDelegate: PagedChildBuilderDelegate<TournamentsRecord>(
                           itemBuilder: (context, item, index) => TournamentCardWidget(

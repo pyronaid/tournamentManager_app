@@ -62,6 +62,7 @@ abstract class CustomFlowTheme {
   late Color warning;
   late Color error;
   late Color info;
+  late Color disabled;
   late Color cardDetail;
   late Color cardMain;
   late Color cardSecond;
@@ -164,6 +165,7 @@ class LightModeTheme extends CustomFlowTheme {
   late Color warning = const Color(0x4CFF5963);
   late Color error = const Color(0xFFFF5963);
   late Color info = const Color(0xFFFFFFFF);
+  late Color disabled = const Color(0xFF62687E);
   late Color cardDetail = const Color(0xFF211F1F);
   late Color cardMain = const Color(0xFF001294);
   late Color cardSecond = const Color(0xFFFFFFFF);
@@ -368,6 +370,7 @@ class DarkModeTheme extends CustomFlowTheme {
   late Color warning = const Color(0x4DFF5963);
   late Color error = const Color(0xFFFF5963);
   late Color info = const Color(0xFFFFFFFF);
+  late Color disabled = const Color(0xFF62687E);
   late Color cardDetail = const Color(0xFF211F1F);
   late Color cardMain = const Color(0xFF001294);
   late Color cardSecond = const Color(0xFFFFFFFF);

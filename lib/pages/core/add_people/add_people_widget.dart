@@ -4,14 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
-import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_users_record.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/components/custom_appbar_widget.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 import 'package:tournamentmanager/pages/core/add_people/add_people_model.dart';
-import 'package:tuple/tuple.dart';
-import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
-import '../../../backend/schema/tournaments_record.dart';
 import '../tournament_people/tournament_people_model.dart';
 
 
@@ -142,28 +138,48 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                                         color: CustomFlowTheme.of(context).secondaryText,
                                         size: 18,
                                       ),
-                                      suffixIcon: IconButton(
-                                        onPressed: () async {
-                                          final result = await context.pushNamedAuth(
-                                            'ScannerCode', context.mounted,
-                                            pathParameters: {
-                                              'tournamentId': providerPeople.tournamentModel.tournamentId,
-                                            }.withoutNulls,
-                                          );
-
-                                          if (result != null) {
-                                            print('Scanned Barcode: $result');
-                                            providerAddPeople.setFieldControllerIdUser(result);
-                                            // Handle the scanned barcode value.
-                                            providerAddPeople.addPlayer(result as String);
-                                          }
-                                        },
-                                        icon: const Icon(
-                                          Icons.qr_code,
-                                          size: 20,
+                                      suffixIcons: [
+                                        IconButton(
+                                          onPressed: () async {
+                                            if(providerAddPeople.fieldControllerIdUser.text.isNotEmpty) {
+                                              // Handle the scanned barcode value.
+                                              Map<String, dynamic> respMap = await providerPeople.getUserInfoForEnrollment(providerAddPeople.fieldControllerIdUser.text, listType: providerPeople.listTypeReferral);
+                                              addPeopleModel.composeOutputForRequest(respMap, listType: providerPeople.listTypeReferral);
+                                            }
+                                          },
+                                          icon: const Icon(
+                                            Icons.refresh,
+                                            size: 20,
+                                          ),
+                                          color: CustomFlowTheme.of(context).secondaryText,
                                         ),
-                                        color: CustomFlowTheme.of(context).secondaryText,
-                                      ),
+                                        IconButton(
+                                          onPressed: () async {
+                                            final result = await context.pushNamedAuth(
+                                              'ScannerCode', context.mounted,
+                                              pathParameters: {
+                                                'tournamentId': providerPeople.tournamentModel.tournamentId,
+                                              }.withoutNulls,
+                                            );
+
+                                            if (result != null) {
+                                              print('Scanned Barcode: $result');
+                                              providerAddPeople.setFieldControllerIdUser(result);
+                                              if(providerAddPeople.fieldControllerIdUser.text.isNotEmpty) {
+                                                // Handle the scanned barcode value.
+                                                Map<String, dynamic> respMap = await providerPeople.getUserInfoForEnrollment(providerAddPeople.fieldControllerIdUser.text, listType: providerPeople.listTypeReferral);
+                                                addPeopleModel.composeOutputForRequest(respMap, listType: providerPeople.listTypeReferral);
+                                              }
+
+                                            }
+                                          },
+                                          icon: const Icon(
+                                            Icons.qr_code,
+                                            size: 20,
+                                          ),
+                                          color: CustomFlowTheme.of(context).secondaryText,
+                                        )
+                                      ],
                                     ),
                                     style: CustomFlowTheme.of(context).bodyLarge.override(
                                       fontWeight: FontWeight.w500,
@@ -183,66 +199,7 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                               padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
                               child: Column(
                                 children: [
-                                  if(providerAddPeople.firstChecked)...[
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          providerAddPeople.check1Flag ?
-                                            Center(
-                                              child: Container(
-                                                decoration: const BoxDecoration(
-                                                  color: Colors.green, // Green background
-                                                  shape: BoxShape.circle, // Makes the container circular
-                                                ),
-                                                width: 30, // Width of the circle
-                                                height: 30, // Height of the circle
-                                                child: const Icon(
-                                                  Icons.check, // Success checkmark icon
-                                                  color: Colors.white, // Icon color
-                                                  size: 20, // Icon size
-                                                ),
-                                              ),
-                                            ) :
-                                            Center(
-                                              child: Container(
-                                                decoration: const BoxDecoration(
-                                                  color: Colors.red, // Green background
-                                                  shape: BoxShape.circle, // Makes the container circular
-                                                ),
-                                                width: 30, // Width of the circle
-                                                height: 30, // Height of the circle
-                                                child: const Icon(
-                                                  Icons.close, // Success checkmark icon
-                                                  color: Colors.white, // Icon color
-                                                  size: 20, // Icon size
-                                                ),
-                                              ),
-                                            ),
-                                          const SizedBox(width: 20,),
-                                          Expanded(
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  providerAddPeople.check1Message,
-                                                  style: CustomFlowTheme.of(context).titleSmall,
-                                                ),
-                                                providerAddPeople.check1Flag ?
-                                                Text(
-                                                  providerAddPeople.usersRecord!.name!,
-                                                  style: CustomFlowTheme.of(context).labelMedium,
-                                                ) : const SizedBox.shrink(),
-                                              ],
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
+                                  if(providerAddPeople.messageObjList.isNotEmpty)...[
                                     for (MessagePeople message in providerAddPeople.messageObjList)...[
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
@@ -296,7 +253,7 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                       Padding(
                         padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                         child: AFButtonWidget(
-                          onPressed: (providerAddPeople.response.item1 == ResponseAction.issue) ? null : () async {
+                          onPressed: (!providerAddPeople.checked) ? null : () async {
                             FocusScope.of(context).unfocus();
                             logFirebaseEvent('ONBOARDING_ADD_USER_ADD_USER');
                             logFirebaseEvent('Button_validate_form');
@@ -305,17 +262,21 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                               return;
                             }
 
-                            //TODO
+                            bool flag = await providerPeople.promotePeople(providerAddPeople.fieldControllerIdUser.text, listType: providerPeople.listTypeReferral);
+                            if (flag && mounted){
+                              context.safePop();
+                            }
                             logFirebaseEvent('Button_haptic_feedback');
                             HapticFeedback.lightImpact();
                           },
-                          text: (providerAddPeople.response.item1 != ResponseAction.issue) ? 'Aggiungi' : 'Impossibile procedere',
+                          text: 'Aggiungi',
                           options: AFButtonOptions(
                             width: double.infinity,
                             height: 50,
                             padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                             iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                             color: CustomFlowTheme.of(context).primary,
+                            disabledColor: CustomFlowTheme.of(context).disabled,
                             textStyle: CustomFlowTheme.of(context).titleSmall,
                             elevation: 0,
                             borderSide: const BorderSide(

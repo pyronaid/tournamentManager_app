@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/components/tournament_people_card/tournament_people_card_widget.dart';
-import 'package:tournamentmanager/pages/core/tournament_people/sub_page_preregistered_people/tournament_preregistered_people_model.dart';
-import 'package:tournamentmanager/pages/core/tournament_people/sub_page_registered_people/tournament_registered_people_model.dart';
-import 'package:tournamentmanager/pages/core/tournament_people/sub_page_waiting_people/tournament_waiting_people_model.dart';
 
 import '../../app_flow/services/supportClass/alert_classes.dart';
 import '../../backend/schema/enrollments_record.dart';
+import '../../pages/core/tournament_people/tournament_people_model.dart';
 
 
 class TournamentPeopleCardModel extends CustomFlowModel<TournamentPeopleCardWidget> {
@@ -31,16 +29,7 @@ class TournamentPeopleCardModel extends CustomFlowModel<TournamentPeopleCardWidg
       buttonTitleCancelled: "Annulla",
       buttonTitleConfirmed: "Continua",
       functionConfirmed: (List<dynamic>? formValues) {
-        switch (listType) {
-          case ListType.waiting:
-            return (peopleModel as TournamentWaitingPeopleModel).deletePeople(player.userId);
-          case ListType.preregistered:
-            return (peopleModel as TournamentPreregisteredPeopleModel).deletePeople(player.userId);
-          case ListType.registered:
-            return (peopleModel as TournamentRegisteredPeopleModel).deletePeople(player.userId);
-          default:
-            throw UnsupportedError('Unsupported list type');
-        }
+        return (peopleModel as TournamentPeopleModel).deletePeople(player.userId, listType: listType);
       },
     );
     return req;
@@ -52,14 +41,7 @@ class TournamentPeopleCardModel extends CustomFlowModel<TournamentPeopleCardWidg
       buttonTitleCancelled: "Annulla",
       buttonTitleConfirmed: "Continua",
       functionConfirmed: (List<dynamic>? formValues) {
-        switch(listType){
-          case ListType.waiting:
-            return (peopleModel as TournamentWaitingPeopleModel).promotePeopleToRegistered(player.userId, player.userId);
-          case ListType.preregistered:
-            return (peopleModel as TournamentPreregisteredPeopleModel).promotePeopleToRegistered(player.userId, player.userId);
-          default:
-            throw UnsupportedError('Unsupported list type');
-        }
+        return (peopleModel as TournamentPeopleModel).promotePeople(player.userId, listType: ListType.registered);
       },
     );
     return req;

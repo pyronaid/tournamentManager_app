@@ -194,7 +194,7 @@ class _TournamentRegisteredPeopleWidgetState extends State<TournamentRegisteredP
                   /////////////////
                   SliverPadding(
                     padding: const EdgeInsetsDirectional.fromSTEB(24, 10, 24, 10),
-                    sliver: PagedSliverList<String?, EnrollmentsRecord> (
+                    sliver: PagedSliverList<int, EnrollmentsRecord> (
                       pagingController: providerRegisteredPeople.pagingController,
                       builderDelegate: PagedChildBuilderDelegate<EnrollmentsRecord>(
                         itemBuilder: (context, item, index) => TournamentPeopleCardWidget(

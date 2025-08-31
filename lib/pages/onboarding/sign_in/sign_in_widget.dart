@@ -186,18 +186,20 @@ class _SignInWidgetState extends State<SignInWidget> {
                                         color: CustomFlowTheme.of(context).secondaryText,
                                         size: 18,
                                       ),
-                                      suffixIcon: InkWell(
-                                        onTap: () => setState(
-                                          () => _model.passwordVisibility =
-                                              !_model.passwordVisibility,
-                                        ),
-                                        focusNode: FocusNode(skipTraversal: true),
-                                        child: Icon(
-                                          _model.passwordVisibility ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                                          color: CustomFlowTheme.of(context).secondaryText,
-                                          size: 18,
-                                        ),
-                                      ),
+                                      suffixIcons: [
+                                        InkWell(
+                                          onTap: () => setState(
+                                            () => _model.passwordVisibility =
+                                                !_model.passwordVisibility,
+                                          ),
+                                          focusNode: FocusNode(skipTraversal: true),
+                                          child: Icon(
+                                            _model.passwordVisibility ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                            color: CustomFlowTheme.of(context).secondaryText,
+                                            size: 18,
+                                          ),
+                                        )
+                                      ],
                                     ),
                                     style: CustomFlowTheme.of(context).bodyLarge.override(
                                         fontWeight: FontWeight.w500,

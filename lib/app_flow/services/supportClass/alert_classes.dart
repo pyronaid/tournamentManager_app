@@ -135,35 +135,41 @@ class TextFormElementState extends State<TextFormElement> {
               color: CustomFlowTheme.of(context).secondaryText,
               size: 18,
             ) : null,
-            suffixIcon:
+            suffixIcons:
               widget.obscureTextSwitch ?
-                InkWell(
-                  onTap: () => setState(
-                    () => obscureTextSwitchFlag = !obscureTextSwitchFlag,
+                [
+                  InkWell(
+                    onTap: () => setState(
+                      () => obscureTextSwitchFlag = !obscureTextSwitchFlag,
+                    ),
+                    child: Icon(
+                      obscureTextSwitchFlag ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      color: CustomFlowTheme.of(context).secondaryText,
+                      size: 18,
+                    ),
                   ),
-                  child: Icon(
-                    obscureTextSwitchFlag ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                    color: CustomFlowTheme.of(context).secondaryText,
-                    size: 18,
-                  ),
-                )
+                ]
                 : (widget.iconSuffix != null ?
                   (widget.iconSuffixOnTapFunction != null ?
-                    IconButton(
-                      icon: Icon(
+                    [
+                      IconButton(
+                        icon: Icon(
+                          widget.iconSuffix,
+                          color: CustomFlowTheme.of(context).secondaryText,
+                          size: 18,
+                        ),
+                        onPressed: () async {
+                          widget.iconSuffixOnTapFunction!(context);
+                        },
+                      )
+                    ]:
+                    [
+                      Icon(
                         widget.iconSuffix,
                         color: CustomFlowTheme.of(context).secondaryText,
                         size: 18,
-                      ),
-                      onPressed: () async {
-                        widget.iconSuffixOnTapFunction!(context);
-                      },
-                    ) :
-                    Icon(
-                      widget.iconSuffix,
-                      color: CustomFlowTheme.of(context).secondaryText,
-                      size: 18,
-                    )
+                      )
+                    ]
                   )
                 : null),
           ),

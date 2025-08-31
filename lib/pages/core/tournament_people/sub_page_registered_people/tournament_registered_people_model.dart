@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_model.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../../backend/schema/enrollments_record.dart';
 
@@ -17,11 +16,25 @@ class TournamentRegisteredPeopleModel extends TournamentPeopleModel {
     print("[CREATE] TournamentRegisteredPeopleModel");
     super.tournamentModel = tournamentModel;
     isLoadingFlag = tournamentModel.isLoading;
-    pagingControllerVar = PagingController(firstPageKey: null);
+    pagingControllerVar = PagingController<int,EnrollmentsRecord>(firstPageKey: 1);
     pagingControllerVar.addPageRequestListener((pageKey) => fetchPage(pageKey, listType: ListType.registered));
     countElementsVar = 0;
+    currentFilter = '';
     _registeredPeopleNameTextController = TextEditingController();
     _registeredPeopleNameFocusNode = FocusNode();
+    /////////////////////////////LISTENERS
+    _registeredPeopleNameTextController.addListener(() {
+      final currentText = _registeredPeopleNameTextController.text;
+      if(_registeredPeopleNameTextController.text.isNotEmpty && _registeredPeopleNameTextController.text.length > 1 && oldValueToCompare != currentText){
+        oldValueToCompare = currentText;
+
+        if (debounce?.isActive ?? false) debounce!.cancel();
+        debounce = Timer(const Duration(milliseconds: 800), () async {
+          currentFilter = currentText;
+          pagingControllerVar.refresh();
+        });
+      }
+    });
   }
 
 
@@ -30,38 +43,11 @@ class TournamentRegisteredPeopleModel extends TournamentPeopleModel {
   TextEditingController get peopleNameTextController => _registeredPeopleNameTextController;
   @override
   FocusNode get peopleNameFocusNode => _registeredPeopleNameFocusNode;
+  @override
+  ListType get listTypeReferral => ListType.registered;
 
 
   /////////////////////////////SETTER
-  @override
-  Future<void> deletePeople(String userId) async {
-    String executionId = const Uuid().v4();
-    loaderService.showLoader(id: executionId);
-    //await RegisteredlistRecord.deletePeople(userId, tournamentId);
-    loaderService.hideLoader(id: executionId);
-    notifyListeners();
-  }
-  @override
-  Future<void> promotePeopleToRegistered(String userId, String displayName) async {
-    throw UnimplementedError();
-  }
-  @override
-  Future<void> promotePeople(String userId, String displayName, ListType from) async {
-    String executionId = const Uuid().v4();
-    loaderService.showLoader(id: executionId);
-    //await RegisteredlistRecord.promotePeople(userId, tournamentId, from);
-    loaderService.hideLoader(id: executionId);
-    notifyListeners();
-  }
-  @override
-  Future<void> addPeople(String userId, String displayName) async {
-    String executionId = const Uuid().v4();
-    loaderService.showLoader(id: executionId);
-    //await RegisteredlistRecord.collection.add(ownPeople);
-    loaderService.hideLoader(id: executionId);
-    notifyListeners();
-  }
-
 
   @override
   void dispose() {
@@ -70,8 +56,4 @@ class TournamentRegisteredPeopleModel extends TournamentPeopleModel {
     pagingControllerVar.dispose();
     super.dispose();
   }
-
-
-
-
 }

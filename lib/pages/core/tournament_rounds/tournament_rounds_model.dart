@@ -9,7 +9,7 @@ class TournamentRoundsModel extends ChangeNotifier {
 
   final TournamentModel tournamentModel;
 
-  late PagingController<String?, RoundsRecord> _pagingController;
+  late PagingController<int, RoundsRecord> _pagingController;
   static const _pageSize = 30;
   late bool _isLoading;
   late DateTime? _lastUpdatedRounds;
@@ -18,25 +18,25 @@ class TournamentRoundsModel extends ChangeNotifier {
   TournamentRoundsModel({required this.tournamentModel}){
     _isLoading = tournamentModel.isLoading;
     _lastUpdatedRounds = tournamentModel.updatedRounds;
-    _pagingController = PagingController(firstPageKey: null);
+    _pagingController = PagingController(firstPageKey: 1);
     _pagingController.addPageRequestListener((pageKey) => _fetchPage(pageKey));
   }
 
   /////////////////////////////GETTER
   bool get isLoading => _isLoading;
   DateTime? get lastUpdatedRounds => _lastUpdatedRounds;
-  PagingController<String?, RoundsRecord> get pagingControllerRounds => _pagingController;
+  PagingController<int, RoundsRecord> get pagingControllerRounds => _pagingController;
 
   /////////////////////////////SETTER
-  Future<void> _fetchPage(String? pageKey) async {
-    PagingController<String?, RoundsRecord> pagingController = _pagingController;
+  Future<void> _fetchPage(int pageKey) async {
+    PagingController<int, RoundsRecord> pagingController = _pagingController;
     try {
       final List<RoundsRecord> newItems = await RoundsRecord.getDocumentsOnce(
           pb,
           '${RoundsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}"',
           expand: RoundsRecord.idTournamentFieldName,
           sorting: RoundsRecord.createdFieldName,
-          page: int.tryParse(pageKey ?? '') ?? 0,
+          page: pageKey,
           perPage: _pageSize
       );
       final isLastPage = newItems.length < _pageSize;
@@ -44,7 +44,7 @@ class TournamentRoundsModel extends ChangeNotifier {
       if (isLastPage) {
         pagingController.appendLastPage(newItems);
       } else {
-        final nextPageKey = newItems.last.uid; // Adjust as needed
+        final nextPageKey = pageKey+1; // Adjust as needed
         pagingController.appendPage(newItems, nextPageKey);
       }
     } catch (error) {

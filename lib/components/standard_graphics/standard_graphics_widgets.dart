@@ -4,7 +4,7 @@ import 'package:tournamentmanager/app_flow/app_flow_animations.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 
 
-InputDecoration standardInputDecoration(BuildContext context, {Widget? suffixIcon, Widget? prefixIcon}) {
+InputDecoration standardInputDecoration(BuildContext context, {List<Widget>? suffixIcons, Widget? prefixIcon}) {
   return InputDecoration(
     enabledBorder: OutlineInputBorder(
       borderSide: BorderSide(
@@ -37,7 +37,10 @@ InputDecoration standardInputDecoration(BuildContext context, {Widget? suffixIco
     filled: true,
     fillColor: CustomFlowTheme.of(context).secondaryBackground,
     errorMaxLines: 2,
-    suffixIcon: suffixIcon,
+    suffixIcon: suffixIcons != null && suffixIcons.isNotEmpty ? Row(
+      mainAxisSize: MainAxisSize.min,
+      children: suffixIcons,
+    ) : null,
     prefixIcon: prefixIcon,
   );
 }

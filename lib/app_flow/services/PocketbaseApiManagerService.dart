@@ -6,6 +6,18 @@ class PocketbaseApiManagerService {
 
   static const String baseUrl = "http://195.201.90.14:8080";
   static const String registerTournamentEnrollmentAPI  = "/api/tournamentManager/enroll";
+  static const String deleteTournamentEnrollmentAPI  = "/api/tournamentManager/delete";
+  static const String gatherUserInfoForTournamentEnrollmentAPI  = "/api/tournamentManager/getUserInfo";
+
+  static const String foundKeyUserInfoResponseMap  = "found";
+  static const String enrolledKeyUserInfoResponseMap  = "enrolled";
+  static const String eligibleKeyUserInfoResponseMap  = "eligible";
+  static const String nameKeyUserInfoResponseMap  = "name";
+  static const String surnameKeyUserInfoResponseMap  = "surname";
+  static const String usernameKeyUserInfoResponseMap  = "username";
+  static const String listKindKeyUserInfoResponseMap  = "list_type";
+  static const String notEligibilityReasonKeyUserInfoResponseMap  = "not_eligibility_reason";
+
   late final http.Client _client;
   static const Duration _timeout = Duration(seconds: 30);
   Map<String, String> get _defaultHeaders => {

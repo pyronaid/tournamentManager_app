@@ -109,7 +109,7 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
                     /////////////////
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                      sliver: PagedSliverList<String?, NewsRecord>(
+                      sliver: PagedSliverList<int, NewsRecord>(
                         pagingController: providerTournamentNews.pagingControllerNews,
                         builderDelegate: PagedChildBuilderDelegate<NewsRecord>(
                           itemBuilder: (context, item, index) => TournamentNewsCardWidget(

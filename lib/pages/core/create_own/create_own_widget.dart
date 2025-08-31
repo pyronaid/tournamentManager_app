@@ -246,12 +246,14 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
                                       obscureText: false,
                                       decoration: standardInputDecoration(
                                         context,
-                                        suffixIcon: IconButton(
-                                          icon: const Icon(Icons.calendar_month),
-                                          onPressed: () async {
-                                            _showChangeTournamentDatePicker(context, createOwnModel);
-                                          },
-                                        ),
+                                        suffixIcons: [
+                                          IconButton(
+                                            icon: const Icon(Icons.calendar_month),
+                                            onPressed: () async {
+                                              _showChangeTournamentDatePicker(context, createOwnModel);
+                                            },
+                                          )
+                                        ],
                                       ),
                                       style: CustomFlowTheme.of(context).bodyLarge.override(
                                         fontWeight: FontWeight.w500,

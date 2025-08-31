@@ -21,6 +21,8 @@ func main() {
 		return se.Next()
 	})
 	epapis.RegisterTournamentEnrollmentAPI(app)
+	epapis.DeleteTournamentEnrollmentAPI(app)
+	epapis.GetUserInfoToEnrollAPI(app)
 	epapis.RegisterHeathCheckAPI(app)
 
 	hooks.SetupNewsCollectionHooks(app)

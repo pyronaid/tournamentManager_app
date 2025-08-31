@@ -3,8 +3,6 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
-import 'package:tournamentmanager/app_flow/app_flow_util.dart';
-import 'package:tournamentmanager/pages/core/tournament_news/tournament_news_model.dart';
 import 'package:tournamentmanager/pages/core/tournament_rounds/tournament_rounds_model.dart';
 
 import '../../../backend/schema/rounds_record.dart';
@@ -100,7 +98,7 @@ class _TournamentRoundsWidgetState extends State<TournamentRoundsWidget> {
                       /////////////////
                       SliverPadding(
                         padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                        sliver: PagedSliverList<String?, RoundsRecord>(
+                        sliver: PagedSliverList<int, RoundsRecord>(
                           pagingController: providerTournamentRounds.pagingControllerRounds,
                           builderDelegate: PagedChildBuilderDelegate<RoundsRecord>(
                             itemBuilder: (context, item, index) => TournamentRoundsCardWidget(

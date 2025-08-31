@@ -6,6 +6,7 @@ import 'package:pocketbase/pocketbase.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 import 'package:tournamentmanager/backend/schema/util/pocketbase_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
+import 'package:tuple/tuple.dart';
 
 class EnrollmentsRecord extends PocketstoreRecord {
   static const String collectionNameExt = "enrollments_extended";
@@ -174,7 +175,7 @@ class EnrollmentsRecord extends PocketstoreRecord {
   }
   static Future<EnrollmentsRecord> getDocumentOnce(PocketBase pb, bool ext, String id, {String? expand}) =>
       pb.collection(ext ? collectionNameExt : collectionName).getOne(id, expand: expand).then((s) => EnrollmentsRecord.fromSnapshot(s));
-  static Future<List<EnrollmentsRecord>> getDocumentsOnce(PocketBase pb, bool ext, String filter, {String? expand, String? sorting, int page=1, int perPage = 30, Map<String, dynamic> queryMap = const {}}) =>
+  static Future<Tuple2<int,List<EnrollmentsRecord>>> getDocumentsOnce(PocketBase pb, bool ext, String filter, {String? expand, String? sorting, int page=1, int perPage = 30, Map<String, dynamic> queryMap = const {}}) =>
       pb.collection(ext ? collectionNameExt : collectionName).getList(
           filter: filter,
           sort: sorting,
@@ -183,9 +184,10 @@ class EnrollmentsRecord extends PocketstoreRecord {
           expand: expand,
           query: queryMap
       ).then(
-              (s) => s.items.map(
-                  (record) => EnrollmentsRecord.fromSnapshot(record)).toList()
-      );
+              (s) => Tuple2(
+                  s.totalItems,
+                  s.items.map((record) => EnrollmentsRecord.fromSnapshot(record)).toList())
+              );
   static Future<void> deleteEnrollments(pb, String idE) async {
     pb.collection(collectionName).delete(idE);
   }

@@ -330,6 +330,7 @@ class TournamentFinderModel extends ChangeNotifier {
     _tournamentsSubscription?.cancel();
     _mapController.dispose();
     _scrollController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
