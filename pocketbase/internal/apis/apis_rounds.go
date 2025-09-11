@@ -1,15 +1,16 @@
-//round se è topcut avrà anche size 
-//round avrà bool completed 
-//tournament avrà bool online 
+//round se è topcut avrà anche size
+//round avrà bool completed
+//tournament avrà bool online
 //pairing ha come chiave tournament, round, table
-
 
 package apis
 
 import (
+	"crypto/rand"
 	"database/sql"
 	"errors"
 	"fmt"
+	"math/big"
 	"net/http"
 	"slices"
 	"time"
@@ -26,52 +27,41 @@ type RoundsGenerationRequest struct {
 	RoundSize    *int   `json:"round_size" validate:"optional"`
 }
 
-type ErrorResponse struct {
-	Error   string `json:"error"`
-	Message string `json:"message"`
-	Code    int    `json:"code"`
-}
-
-type SuccessResponse struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-	Data    any    `json:"data,omitempty"`
-}
-
 // Validation context to track request state
-type ValidationContext struct {
+type ValidationContextRound struct {
 	App             *pocketbase.PocketBase
 	RequesterUserID string
-	Data            RoundGenerationRequest
+	Data            RoundsGenerationRequest
 	Tournament      *core.Record
-	RoundIndex           int
-	RoundSize           int
+	RoundIndex      int
+	RoundSize       int
 	StartTime       time.Time
 }
 
 type PairingUserData struct {
-	UserId             string
-	TournamentId       string 
-	Points 			   int 
-	TB1				   float 
-	TB2				   float 
-	TB3				   float 
+	UserId       string
+	TournamentId string
+	Points       int
+	TB1          float64
+	TB2          float64
+	TB3          float64
 }
 
 type PairingMatchData struct {
-	UserIdPlayerA             string
-	UserIdPlayerB             string
-	TournamentId       string 
-	RoundId       string 
-	RoundIndex       int 
-	IsBye       bool
-	TableIndex	int 
-	UserIdWinner       string
+	UserIdPlayerA string
+	UserIdPlayerB string
+	TournamentId  string
+	RoundId       string
+	RoundIndex    int
+	IsBye         bool
+	TableIndex    int
+	UserIdWinner  string
 }
 
 const (
-	roundKindTopCut    = "topcut"
-	roundKindSwiss       = "swiss"
+	roundKindTopCut = "topcut"
+	roundKindSwiss  = "swiss"
+	ByePlayerID     = "00000000000000000000000000"
 )
 
 func CreateRoundAPI(app *pocketbase.PocketBase) {
@@ -84,16 +74,24 @@ func CreateRoundAPI(app *pocketbase.PocketBase) {
 			}
 
 			// Execute update in enrollment with check on capacity if needed
-			err := executeDBRound(app, ctx.Data.TournamentID, ctx.Data.RoundKind, ctx.Data.RoundIndex, ctx.Data.RoundSize)
-			if err3 != nil {
+			err := executeDBRound(app, ctx.Data.TournamentID, ctx.Data.RoundKind, ctx.RoundIndex, ctx.RoundSize)
+			if err != nil {
 				return e.JSON(http.StatusBadRequest, ErrorResponse{
 					Error:   "ROUND_GENERATION_FAILED",
-					Message: err3.Error(),
+					Message: err.Error(),
 					Code:    http.StatusBadRequest,
 				})
 			}
 
-			return e.JSON(http.StatusOK, userDetailSucessResponse)
+			return e.JSON(http.StatusOK, SuccessResponse{
+				Success: true,
+				Message: fmt.Sprintf("Round created successfully"),
+				Data: map[string]string{
+					"roundKind":     ctx.Data.RoundKind,
+					"tournament_id": ctx.Data.TournamentID,
+					"roundSize":     fmt.Sprintf("%v", ctx.Data.RoundSize),
+				},
+			})
 
 		}).Bind(apis.RequireAuth())
 
@@ -101,15 +99,14 @@ func CreateRoundAPI(app *pocketbase.PocketBase) {
 	})
 }
 
-
 // //////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////
 // Sub functions for checks
 // //////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////
 // Common validation pipeline
-func validateRoundsGenerationRequest(e *core.RequestEvent, app *pocketbase.PocketBase) (*ValidationContext, *ErrorResponse) {
-	ctx := &ValidationContext{
+func validateRoundsGenerationRequest(e *core.RequestEvent, app *pocketbase.PocketBase) (*ValidationContextRound, *ErrorResponse) {
+	ctx := &ValidationContextRound{
 		App:       app,
 		StartTime: time.Now(),
 	}
@@ -145,7 +142,7 @@ func validateRoundsGenerationRequest(e *core.RequestEvent, app *pocketbase.Pocke
 	}
 
 	// Step 6: round concistency
-	if err := ctx.validateRoundConsistency(); err != nil {
+	if err := ctx.validateRoundConsistency(app); err != nil {
 		return nil, err
 	}
 
@@ -153,7 +150,7 @@ func validateRoundsGenerationRequest(e *core.RequestEvent, app *pocketbase.Pocke
 }
 
 // Authentication validation
-func (ctx *ValidationContext) validateAuthentication(e *core.RequestEvent) *ErrorResponse {
+func (ctx *ValidationContextRound) validateAuthentication(e *core.RequestEvent) *ErrorResponse {
 	authRecord := e.Auth
 	if authRecord == nil {
 		return &ErrorResponse{
@@ -167,7 +164,7 @@ func (ctx *ValidationContext) validateAuthentication(e *core.RequestEvent) *Erro
 }
 
 // Request body validation
-func (ctx *ValidationContext) validateRequestBody(e *core.RequestEvent) *ErrorResponse {
+func (ctx *ValidationContextRound) validateRequestBody(e *core.RequestEvent) *ErrorResponse {
 	if err := e.BindBody(&ctx.Data); err != nil {
 		return &ErrorResponse{
 			Error:   "INVALID_REQUEST",
@@ -179,9 +176,9 @@ func (ctx *ValidationContext) validateRequestBody(e *core.RequestEvent) *ErrorRe
 }
 
 // Required fields validation
-func (ctx *ValidationContext) validateRequiredFields() *ErrorResponse {
-	if ctx.Data.TournamentID == "" || ctx.Data.RoundKind == "" 
-		|| (ctx.Data.RoundKind == roundKindTopCut && ctx.Data.RoundSize == nil) {
+func (ctx *ValidationContextRound) validateRequiredFields() *ErrorResponse {
+	if ctx.Data.TournamentID == "" || ctx.Data.RoundKind == "" ||
+		(ctx.Data.RoundKind == roundKindTopCut && ctx.Data.RoundSize == nil) {
 		return &ErrorResponse{
 			Error:   "MISSING_REQUIRED_FIELDS",
 			Message: "tournament_id, round_kind are required",
@@ -192,9 +189,9 @@ func (ctx *ValidationContext) validateRequiredFields() *ErrorResponse {
 }
 
 // Round Kind validation
-func (ctx *ValidationContext) validateListType() *ErrorResponse {
-	validListTypes := []string{roundKindTopCut, roundKindSwiss}
-	if !slices.Contains(validListTypes, ctx.Data.ListType) {
+func (ctx *ValidationContextRound) validateListType() *ErrorResponse {
+	validRoundKind := []string{roundKindTopCut, roundKindSwiss}
+	if !slices.Contains(validRoundKind, ctx.Data.RoundKind) {
 		return &ErrorResponse{
 			Error:   "INVALID_LIST_TYPE",
 			Message: "round_kind must be one of: topcut, swiss",
@@ -205,8 +202,8 @@ func (ctx *ValidationContext) validateListType() *ErrorResponse {
 }
 
 // Organizer and tournament validation
-func (ctx *ValidationContext) validateOrganizerAndTournament() *ErrorResponse {
-	tournament, err := validateOrganizerUserAndTournamentState(
+func (ctx *ValidationContextRound) validateOrganizerAndTournament() *ErrorResponse {
+	tournament, err := validateOrganizerUserAndTournamentStateForRound(
 		ctx.App,
 		ctx.RequesterUserID,
 		ctx.Data.TournamentID,
@@ -222,86 +219,120 @@ func (ctx *ValidationContext) validateOrganizerAndTournament() *ErrorResponse {
 	return nil
 }
 
-func (ctx *ValidationContext) validateRoundConsistency() *ErrorResponse {
+func (ctx *ValidationContextRound) validateRoundConsistency(app *pocketbase.PocketBase) *ErrorResponse {
 	collectionR, err := app.FindCollectionByNameOrId("rounds")
 	if err != nil {
-		return fmt.Errorf("failed to find tournaments rounds: %w", err)
+		return &ErrorResponse{
+			Error:   "ROUNDS_COLLECTION_NOT_FOUND",
+			Message: fmt.Sprintf("failed to find tournaments rounds: %v", err),
+			Code:    http.StatusInternalServerError,
+		}
 	}
 
-	_, err := app.FindFirstRecordByFilter(
+	_, err = app.FindFirstRecordByFilter(
 		collectionR,
-		"id = {:id} && roundIndex = {:roundIndex}", //ORDER BY ROUNDINDEX DESC 
+		"id = {:id} && roundIndex = {:roundIndex}", //ORDER BY ROUNDINDEX DESC
 		dbx.Params{
-			"id": tournamentID,
+			"id":         ctx.Data.TournamentID,
 			"roundIndex": ctx.RoundIndex,
 		},
 	)
 
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
-			return fmt.Errorf("The table round is already populated for this index")	
+			return &ErrorResponse{
+				Error:   "ROUND_ALREADY_POPULATED",
+				Message: "The table round is already populated for this index",
+				Code:    http.StatusBadRequest,
+			}
 		}
-		return fmt.Errorf("failed to check rounds for this tournament: %w", err)
+		return &ErrorResponse{
+			Error:   "ROUNDS_CHECK_FAILED",
+			Message: fmt.Sprintf("failed to check rounds for this tournament: %v", err),
+			Code:    http.StatusInternalServerError,
+		}
 	}
-
 
 	collectionRR, err := app.FindCollectionByNameOrId("rankings")
 	if err != nil {
-		return fmt.Errorf("failed to find tournaments rankings: %w", err)
+		return &ErrorResponse{
+			Error:   "RANKINGS_COLLECTION_NOT_FOUND",
+			Message: fmt.Sprintf("failed to find tournaments rankings: %v", err),
+			Code:    http.StatusInternalServerError,
+		}
 	}
 
-	_, err := app.FindFirstRecordByFilter(
+	_, err = app.FindFirstRecordByFilter(
 		collectionRR,
-		"id = {:id} && roundIndex = {:roundIndex}", //ORDER BY ROUNDINDEX DESC 
+		"id = {:id} && roundIndex = {:roundIndex}", //ORDER BY ROUNDINDEX DESC
 		dbx.Params{
-			"id": tournamentID,
+			"id":         ctx.Data.TournamentID,
 			"roundIndex": ctx.RoundIndex,
 		},
 	)
 
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
-			return fmt.Errorf("The table ranking is already populated for this index")	
+			return &ErrorResponse{
+				Error:   "RANKING_ALREADY_POPULATED",
+				Message: "The table ranking is already populated for this index",
+				Code:    http.StatusBadRequest,
+			}
 		}
-		return fmt.Errorf("failed to check rounds for this tournament: %w", err)
+		return &ErrorResponse{
+			Error:   "RANKINGS_CHECK_FAILED",
+			Message: fmt.Sprintf("failed to check rounds for this tournament: %v", err),
+			Code:    http.StatusInternalServerError,
+		}
 	}
-
 
 	collectionP, err := app.FindCollectionByNameOrId("pairings")
 	if err != nil {
-		return fmt.Errorf("failed to find tournaments pairings: %w", err)
+		return &ErrorResponse{
+			Error:   "PAIRINGS_COLLECTION_NOT_FOUND",
+			Message: fmt.Sprintf("failed to find tournaments pairings: %v", err),
+			Code:    http.StatusInternalServerError,
+		}
 	}
 
-	_, err := app.FindFirstRecordByFilter(
+	_, err = app.FindFirstRecordByFilter(
 		collectionP,
-		"id = {:id} && roundIndex = {:roundIndex}", //ORDER BY ROUNDINDEX DESC 
+		"id = {:id} && roundIndex = {:roundIndex}", //ORDER BY ROUNDINDEX DESC
 		dbx.Params{
-			"id": tournamentID,
+			"id":         ctx.Data.TournamentID,
 			"roundIndex": ctx.RoundIndex,
 		},
 	)
 
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
-			return fmt.Errorf("The table pairings is already populated for this index")	
+			return &ErrorResponse{
+				Error:   "PAIRINGS_ALREADY_POPULATED",
+				Message: "The table pairings is already populated for this index",
+				Code:    http.StatusBadRequest,
+			}
 		}
-		return fmt.Errorf("failed to check rounds for this tournament: %w", err)
+		return &ErrorResponse{
+			Error:   "PAIRINGS_CHECK_FAILED",
+			Message: fmt.Sprintf("failed to check rounds for this tournament: %v", err),
+			Code:    http.StatusInternalServerError,
+		}
 	}
 
 	return nil
 }
 
-// Round Feasibility validation 
-// calculate the round index based 
+// Round Feasibility validation
+// calculate the round index based
 // if round is not the first check the previous is ended
-// if swiss, check that the last round for tournament is not topcut 
+// if swiss, check that the last round for tournament is not topcut
 // check that the index of the round is feasible with the number of registered players
-func (ctx *ValidationContext) validateRoundFeasibility() *ErrorResponse {
+func (ctx *ValidationContextRound) validateRoundFeasibility() *ErrorResponse {
 	index, size, err := validateRoundFeasibilityAndComputeIndex(
 		ctx.App,
 		ctx.Data.TournamentID,
 		ctx.Data.RoundKind,
-		ctx.Data.RoundSize,
+		ctx.RoundSize,
 	)
 	if err != nil {
 		return &ErrorResponse{
@@ -315,50 +346,40 @@ func (ctx *ValidationContext) validateRoundFeasibility() *ErrorResponse {
 	return nil
 }
 
-// Helper function to send error response
-func sendErrorResponse(e *core.RequestEvent, errorResp *ErrorResponse) error {
-	statusCode := http.StatusBadRequest
-	if errorResp.Code != 0 {
-		statusCode = errorResp.Code
-	}
-	return e.JSON(statusCode, errorResp)
-}
-
-
 // //////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////
 // Sub functions for pairing agorithm
 // //////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////
-func cryptoShuffle(a []string) error {
-    // Fisher–Yates with crypto/rand for reproducibility you can inject a RNG
-    for i := len(a) - 1; i > 0; i-- {
-        nBig, err := rand.Int(rand.Reader, big.NewInt(int64(i+1)))
-        if err != nil {
-            return err
-        }
-        j := int(nBig.Int64())
-        a[i], a[j] = a[j], a[i]
-    }
-    return nil
+func cryptoShuffle(a []PairingUserData) error {
+	// Fisher–Yates with crypto/rand for reproducibility you can inject a RNG
+	for i := len(a) - 1; i > 0; i-- {
+		nBig, err := rand.Int(rand.Reader, big.NewInt(int64(i+1)))
+		if err != nil {
+			return err
+		}
+		j := int(nBig.Int64())
+		a[i], a[j] = a[j], a[i]
+	}
+	return nil
 }
 
 func findOpponent(observedPlayer PairingUserData, playerIndex int, playerBase []PairingUserData, previousOpppo map[string]map[string]bool, stdDirection bool) (bool, PairingUserData, int) {
-	foundOppo bool
-	candidateOppo PairingUserData
-	candidateOppoIndex int
-	if(stdDirection){
-		for candidateOppoIndex := (playerIndex+1); candidateOppoIndex < limit; candidateOppoIndex ++ {
+	var foundOppo bool
+	var candidateOppo PairingUserData
+	var candidateOppoIndex int
+	if stdDirection {
+		for candidateOppoIndex := (playerIndex + 1); candidateOppoIndex < len(playerBase); candidateOppoIndex++ {
 			candidateOppo := playerBase[candidateOppoIndex]
 			if innerMap, ok := previousOpppo[observedPlayer.UserId]; ok {
-			    if val, ok := innerMap[candidateOppo.UserId]; ok {
-			        // Both a and b exist, val contains the value
-			        if val {
-			        	//candidateOppo is a past oppo of observedPlayer
-			        	//continue cycling
-			        	continue
-			        } 
-			    } 
+				if val, ok := innerMap[candidateOppo.UserId]; ok {
+					// Both a and b exist, val contains the value
+					if val {
+						//candidateOppo is a past oppo of observedPlayer
+						//continue cycling
+						continue
+					}
+				}
 			}
 
 			foundOppo = true
@@ -366,17 +387,17 @@ func findOpponent(observedPlayer PairingUserData, playerIndex int, playerBase []
 			break
 		}
 	} else {
-		for candidateOppoIndex := (playerIndex+1); candidateOppoIndex > 0; candidateOppoIndex -- {
+		for candidateOppoIndex := (playerIndex + 1); candidateOppoIndex > 0; candidateOppoIndex-- {
 			candidateOppo := playerBase[candidateOppoIndex]
 			if innerMap, ok := previousOpppo[observedPlayer.UserId]; ok {
-			    if val, ok := innerMap[candidateOppo.UserId]; ok {
-			        // Both a and b exist, val contains the value
-			        if val {
-			        	//candidateOppo is a past oppo of observedPlayer
-			        	//continue cycling
-			        	continue
-			        } 
-			    } 
+				if val, ok := innerMap[candidateOppo.UserId]; ok {
+					// Both a and b exist, val contains the value
+					if val {
+						//candidateOppo is a past oppo of observedPlayer
+						//continue cycling
+						continue
+					}
+				}
 			}
 
 			foundOppo = true
@@ -385,7 +406,7 @@ func findOpponent(observedPlayer PairingUserData, playerIndex int, playerBase []
 		}
 	}
 
-	return foundOppo, candidateOppo, candidateOppoIndex 
+	return foundOppo, candidateOppo, candidateOppoIndex
 }
 
 ////////////////////////////////////////////////////////////
@@ -394,7 +415,7 @@ func findOpponent(observedPlayer PairingUserData, playerIndex int, playerBase []
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 
-func validateOrganizerUserAndTournamentState(app *pocketbase.PocketBase, userIDRequestor string, tournamentID string) (*core.Record, error) {
+func validateOrganizerUserAndTournamentStateForRound(app *pocketbase.PocketBase, userIDRequestor string, tournamentID string) (*core.Record, error) {
 
 	//check if user is the organizer of the providerd tournament
 	collectionT, err := app.FindCollectionByNameOrId("tournaments")
@@ -444,25 +465,25 @@ func validateOrganizerUserAndTournamentState(app *pocketbase.PocketBase, userIDR
 }
 
 func validateRoundFeasibilityAndComputeIndex(app *pocketbase.PocketBase, tournamentID string, roundKind string, roundSize int) (int, int, error) {
-	var index int;
-	var size int;
-	var roundKindLastRound string;
+	var index int
+	var size int
+	var roundKindLastRound string
 
 	/////////////////////////////////////////////////////////
 	//RETRIEVE THE NUM OF REGISTERED PLAYER TO ASSESS IF NEW ROUND COULD BE CREATED
 	/////////////////////////////////////////////////////////
 	collectionE, err := app.FindCollectionByNameOrId("enrollments")
 	if err != nil {
-		return index, fmt.Errorf("failed to find tournaments enrollments: %w", err)
+		return index, 0, fmt.Errorf("failed to find tournaments enrollments: %w", err)
 	}
 	playersNum, err := app.CountRecords(
 		collectionE,
 		dbx.HashExp{"id_tournament": tournamentID},
 		dbx.HashExp{"listKind": "registered"},
 	)
-	
+
 	if err != nil {
-		return index, size, fmt.Errorf("Failed to assesst feasibility for tournament: %w", err2)
+		return index, size, fmt.Errorf("Failed to assesst feasibility for tournament: %w", err)
 	}
 
 	/////////////////////////////////////////////////////////
@@ -470,45 +491,48 @@ func validateRoundFeasibilityAndComputeIndex(app *pocketbase.PocketBase, tournam
 	/////////////////////////////////////////////////////////
 	collectionR, err := app.FindCollectionByNameOrId("rounds")
 	if err != nil {
-		return index, fmt.Errorf("failed to find tournaments rounds: %w", err)
+		return index, size, fmt.Errorf("failed to find tournaments rounds: %w", err)
 	}
 
 	round, err := app.FindFirstRecordByFilter(
 		collectionR,
-		"id = {:id}", //ORDER BY ROUNDINDEX DESC 
+		"id = {:id}", //ORDER BY ROUNDINDEX DESC
 		dbx.Params{
 			"id": tournamentID,
 		},
 	)
 
+	var roundSizeLastRound int
+	var playersNextRoundNum int
+
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
-			index = 0;
-			size = playersNum;
+			index = 0
+			size = int(playersNum)
 		}
 		return index, size, fmt.Errorf("failed to check rounds for this tournament: %w", err)
 	} else {
 		index = round.GetInt("roundIndex")
 		roundKindLastRound = round.GetString("roundKind")
-		roundCompletedLastRound = round.GetBool("completed")
+		roundCompletedLastRound := round.GetBool("completed")
 		roundSizeLastRound = round.GetInt("roundSize")
-	
+
 		/////////////////////////////////////////////////////////
 		//CHECK ROUND IS COMPLETED TO PROCEED
 		/////////////////////////////////////////////////////////
-		if(!roundCompletedLastRound){
+		if !roundCompletedLastRound {
 			return index, size, fmt.Errorf("The previous round is not completed yet")
 		}
 		/////////////////////////////////////////////////////////
 		//CHECK NEW SWISS ROUND IS NOT AFTER A TOP CUT ROUND
 		/////////////////////////////////////////////////////////
-		if(roundKind == roundKindSwiss && roundKindLastRound == roundKindTopCut){
+		if roundKind == roundKindSwiss && roundKindLastRound == roundKindTopCut {
 			return index, size, fmt.Errorf("You cannot create a swiss round if you already started a topCut Round earlier")
 		}
 
 		collectionRR, err := app.FindCollectionByNameOrId("rankings")
 		if err != nil {
-			return index, fmt.Errorf("failed to find tournaments rankings: %w", err)
+			return index, size, fmt.Errorf("failed to find tournaments rankings: %w", err)
 		}
 		playersNextRoundNum, err := app.CountRecords(
 			collectionRR,
@@ -516,36 +540,40 @@ func validateRoundFeasibilityAndComputeIndex(app *pocketbase.PocketBase, tournam
 			dbx.HashExp{"roundIndex": index},
 			dbx.HashExp{"dropped": false},
 		)
-		
+
 		if err != nil {
-			return index, size, fmt.Errorf("Failed to assesst feasibility for rankings: %w", err2)
+			return index, size, fmt.Errorf("Failed to assesst feasibility for rankings: %w", err)
 		}
-		size = playersNextRoundNum;
+		size = int(playersNextRoundNum)
 	}
 	/////////////////////////////////////////////////////////
 	//playersNum >= 2^index TO ALLOW A NEW SWISS ROUND AND playersNum >= 2 TO ALLOW A NEW TOP CUT ROUND WITH INDEX 0
-	//playersNumLastRoundNotDropped >=2 
+	//playersNumLastRoundNotDropped >=2
 	/////////////////////////////////////////////////////////
-	if(roundKind == roundKindSwiss){
-		if playersNum >= (1 << index) {
-		    return index++, size, nil
+	if roundKind == roundKindSwiss {
+		if int(playersNum) >= (1 << index) {
+			index++
+			return index, size, nil
 		} else {
-			return index, size, fmt.Errorf("Cannot create this swiss round with the player base of this tournament: %w", err) 
+			return index, size, fmt.Errorf("Cannot create this swiss round with the player base of this tournament: %w", err)
 		}
 	} else {
-		if(index == 0){
-			if(playersNum >= roundSize){
-				return index++, roundSize, nil
+		if index == 0 {
+			if int(playersNum) >= roundSize {
+				index++
+				return index, roundSize, nil
 			} else {
-				return index, roundSize, fmt.Errorf("Cannot create this top cut round with the player base of this tournament: %w", err) 
+				return index, roundSize, fmt.Errorf("Cannot create this top cut round with the player base of this tournament: %w", err)
 			}
 		} else {
-			if(roundKindLastRound == roundKindSwiss && playersNextRoundNum >= roundSize){
+			if roundKindLastRound == roundKindSwiss && playersNextRoundNum >= roundSize {
 				//quello prima era svizzera
-				return index++, roundSize, nil;
-			} else if(roundKindLastRound == roundKindSwiss && roundSizeLastRound == 2*roundSize){
-				//quello prima era top cut 
-				return index++, roundSize, nil;
+				index++
+				return index, roundSize, nil
+			} else if roundKindLastRound == roundKindSwiss && roundSizeLastRound == 2*roundSize {
+				//quello prima era top cut
+				index++
+				return index, roundSize, nil
 			} else {
 				return index, roundSize, fmt.Errorf("Failed to assesst feasibility for tournament")
 			}
@@ -553,54 +581,53 @@ func validateRoundFeasibilityAndComputeIndex(app *pocketbase.PocketBase, tournam
 	}
 }
 
-func getPlayerList(app *pocketbase.PocketBase, tournamentID string, roundKind string, roundIndex int, roundSize int) ([]PairingUserData, map[string]map[string]bool, map[string]bool, error) {
-	
+func getPlayerList(app core.App, tournamentID string, roundKind string, roundIndex int, roundSize int) ([]PairingUserData, map[string]map[string]bool, map[string]bool, error) {
+
 	var usersToPair []PairingUserData
-	prevOpponents = map[string]map[string]bool{}
-	hadBye = map[string]bool{}
+	var prevOpponents = map[string]map[string]bool{}
+	var hadBye = map[string]bool{}
 
 	add := func(a, b string) {
-        if prevOpponents[a] == nil {
-            prevOpponents[a] = map[string]bool{}
-        }
-        prevOpponents[a][b] = true
-    }
+		if prevOpponents[a] == nil {
+			prevOpponents[a] = map[string]bool{}
+		}
+		prevOpponents[a][b] = true
+	}
 
-	if(roundIndex == 1){
+	if roundIndex == 1 {
 		collectionE, err := app.FindCollectionByNameOrId("enrollments")
 		if err != nil {
-			return nil, fmt.Errorf("failed to find enrollments table: %w", err)
+			return usersToPair, prevOpponents, hadBye, fmt.Errorf("failed to find enrollments table: %w", err)
 		}
 
-		enrollmnets , err := app.FindRecordsByFilter(
+		enrollments, err := app.FindRecordsByFilter(
 			collectionE,
 			"id_tournament = {:tournamentID} && listKind = 'registered'",
-			nil,
-			nil,
-			nil,
-			dbx.Params{ 
-				"tournamentID": tournamentID 
-			}, 
+			"",
+			-1,
+			0,
+			dbx.Params{
+				"tournamentID": tournamentID,
+			},
 		)
 
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
-				return nil, fmt.Errorf("The table enrollments is not populated: %w", err)	
+				return usersToPair, prevOpponents, hadBye, fmt.Errorf("The table enrollments is not populated: %w", err)
 			}
-			return nil, fmt.Errorf("failed to check enrollments for this tournament: %w", err)
+			return usersToPair, prevOpponents, hadBye, fmt.Errorf("failed to check enrollments for this tournament: %w", err)
 		}
 
-
 		for _, record := range enrollments {
-		    pairing := PairingUserData{
-		        UserId:       record.GetString("id_user"),
-		        TournamentId: record.GetString("id_tournament"),
-		        Points:       record.GetInt("points"),
-		        TB1:          record.GetFloat("TB1"),
-		        TB2:          record.GetFloat("TB2"),
-		        TB3:          record.GetFloat("TB3"),
-		    }
-		    usersToPair = append(usersToPair, pairing)
+			pairing := PairingUserData{
+				UserId:       record.GetString("id_user"),
+				TournamentId: record.GetString("id_tournament"),
+				Points:       record.GetInt("points"),
+				TB1:          record.GetFloat("TB1"),
+				TB2:          record.GetFloat("TB2"),
+				TB3:          record.GetFloat("TB3"),
+			}
+			usersToPair = append(usersToPair, pairing)
 		}
 	} else {
 		collectionRR, err := app.FindCollectionByNameOrId("rankings")
@@ -608,79 +635,78 @@ func getPlayerList(app *pocketbase.PocketBase, tournamentID string, roundKind st
 			return usersToPair, prevOpponents, hadBye, fmt.Errorf("failed to find rankings table: %w", err)
 		}
 
-		rankings , err := app.FindRecordsByFilter(
+		rankings, err := app.FindRecordsByFilter(
 			collectionRR,
 			"id_tournament = {:tournamentID} && roundIndex = {:roundIndex} && dropped = false",
 			"points,TB1,TB2,TB3",
 			roundSize,
-			nil,
-			dbx.Params{ 
+			0,
+			dbx.Params{
 				"tournamentID": tournamentID,
-				"roundIndex": roundIndex
-			}, 
+				"roundIndex":   roundIndex,
+			},
 		)
 
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
-				return usersToPair, prevOpponents, hadBye, fmt.Errorf("The table rankings is not populated for the selected round: %w", err)	
+				return usersToPair, prevOpponents, hadBye, fmt.Errorf("The table rankings is not populated for the selected round: %w", err)
 			}
 			return usersToPair, prevOpponents, hadBye, fmt.Errorf("failed to check rankings for this tournament: %w", err)
 		}
 
-
 		for _, record := range rankings {
-		    pairing := PairingUserData{
-		        UserId:       record.GetString("id_user"),
-		        TournamentId: record.GetString("id_tournament"),
-		        Points:       record.GetInt("points"),
-		        TB1:          record.GetFloat("TB1"),
-		        TB2:          record.GetFloat("TB2"),
-		        TB3:          record.GetFloat("TB3"),
-		    }
-		    usersToPair = append(usersToPair, pairing)
+			pairing := PairingUserData{
+				UserId:       record.GetString("id_user"),
+				TournamentId: record.GetString("id_tournament"),
+				Points:       record.GetInt("points"),
+				TB1:          record.GetFloat("TB1"),
+				TB2:          record.GetFloat("TB2"),
+				TB3:          record.GetFloat("TB3"),
+			}
+			usersToPair = append(usersToPair, pairing)
 		}
 
-		//Populating history and bye map 
+		//Populating history and bye map
 		collectionP, err := app.FindCollectionByNameOrId("pairings")
 		if err != nil {
 			return usersToPair, prevOpponents, hadBye, fmt.Errorf("failed to find pairings table: %w", err)
 		}
 
-		pairings , err := app.FindRecordsByFilter(
+		pairings, err := app.FindRecordsByFilter(
 			collectionP,
 			"id_tournament = {:tournamentID} && roundIndex < {:roundIndex}",
-			nil,
-			nil,
-			nil,
-			dbx.Params{ 
+			"",
+			-1,
+			0,
+			dbx.Params{
 				"tournamentID": tournamentID,
-				"roundIndex": roundIndex
-			}, 
+				"roundIndex":   roundIndex,
+			},
 		)
 
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
-				return usersToPair, prevOpponents, hadBye, fmt.Errorf("The table pairings is not populated for the selected tournament: %w", err)	
+				return usersToPair, prevOpponents, hadBye, fmt.Errorf("The table pairings is not populated for the selected tournament: %w", err)
 			}
 			return usersToPair, prevOpponents, hadBye, fmt.Errorf("failed to check pairings for this tournament: %w", err)
 		}
 
 		for _, record := range pairings {
-		    //add info history and bye 
-		    isBye := record.GetInt("points")
-		    idPlayerA := record.GetInt("playerA")
-		    idPlayerB := record.GetInt("playerB")
-		    if isBye {
-	            if a != ByePlayerID {
-	                hadBye[idPlayerA] = true
-	            }
-	            if b != ByePlayerID {
-	                hadBye[idPlayerB] = true
-	            }
-	        } else {
-	        	add(idPlayerA, idPlayerB)
-        		add(idPlayerB, idPlayerA)
-	        }
+			//add info history and bye
+			isBye := record.GetBool("isBye")
+			idPlayerA := record.GetString("playerA")
+			idPlayerB := record.GetString("playerB")
+			if isBye {
+				if idPlayerA != ByePlayerID {
+					hadBye[idPlayerA] = true
+				}
+				if idPlayerB != ByePlayerID {
+					hadBye[idPlayerB] = true
+				}
+			} else {
+				add(idPlayerA, idPlayerB)
+				add(idPlayerB, idPlayerA)
+			}
 		}
 
 	}
@@ -688,21 +714,26 @@ func getPlayerList(app *pocketbase.PocketBase, tournamentID string, roundKind st
 	return usersToPair, prevOpponents, hadBye, nil
 }
 
-func generateRankings(app *pocketbase.PocketBase, playerBase []PairingUserData, tournamentID string, roundKind string, roundIndex int) error {
-	collectionRR, err := app.FindCollectionByNameOrId("rankings")
+func generateRankings(app core.App, playerBase []PairingUserData, tournamentID string, roundKind string, roundIndex int, roundSize int) error {
+	_, err := app.FindCollectionByNameOrId("rankings")
 	if err != nil {
 		return fmt.Errorf("failed to find rankings table: %w", err)
 	}
 
 	for _, player := range playerBase {
-		result, err2 = txApp.DB().NewQuery(
+		_, err2 := app.DB().NewQuery(
 			`INSERT INTO rankings (id_tournament, roundIndex, roundKind, completed, roundSize, created, updated)
 			SELECT {:id_tournament}, {:roundIndex}, {:roundKind}, false, {:roundSize}, datetime('now'), datetime('now')`).
 			Bind(dbx.Params{
 				"id_tournament": tournamentID,
-				"roundIndex": 	 roundIndex,
+				"roundIndex":    roundIndex,
 				"roundKind":     roundKind,
 				"roundSize":     roundSize,
+				"id_user":       player.UserId,
+				"points":        player.Points,
+				"TB1":           player.TB1,
+				"TB2":           player.TB2,
+				"TB3":           player.TB3,
 			}).
 			Execute()
 
@@ -714,117 +745,178 @@ func generateRankings(app *pocketbase.PocketBase, playerBase []PairingUserData, 
 	return nil
 }
 
-func generatePairings(app *pocketbase.PocketBase, playerBase []PairingUserData, previousOpppo map[string]map[string]bool, hadBye map[string]bool, tournamentID string, roundKind string, roundIndex int) error {
+func generatePairings(app core.App, playerBase []PairingUserData, previousOpppo map[string]map[string]bool, hadBye map[string]bool, tournamentID string, roundKind string, roundIndex int, roundId string) error {
 	odd := len(playerBase)%2 == 1
 	var pairs []PairingMatchData
 	if roundIndex == 1 {
 		// Shuffle players
-        if err := cryptoShuffle(playerBase); err != nil {
-            return err
-        }
+		if err := cryptoShuffle(playerBase); err != nil {
+			return err
+		}
 	}
-	
+
 	limit := len(playerBase)
-	if(roundKind == roundKindSwiss){
-		if roundIndex == 1 {
-			if(odd){
-				counterForAvoidByeDuplication=0
-				//add bye at the bottom
-				for i := 0; i < len(playerBase); i++ {
-					last := playerBase[len(playerBase)-1+counterForAvoidByeDuplication]
-					if(hadBye[last.UserId]){
-						counterForAvoidByeDuplication++
+	if roundKind == roundKindSwiss {
+
+		for i := 0; i < limit; i += 2 {
+			observedPlayer := playerBase[i]
+			foundOppo, candidateOppo, candidateOppoIndex := findOpponent(observedPlayer, i, playerBase, previousOpppo, true)
+
+			if foundOppo {
+				playerBase = append(
+					append(
+						append(
+							playerBase[:(i+1)],
+							candidateOppo,
+						),
+						playerBase[(i+1):(i+1+candidateOppoIndex)]...,
+					),
+					playerBase[(i+candidateOppoIndex+2):]...,
+				)
+			} else {
+				foundOppo, candidateOppo, candidateOppoIndex := findOpponent(observedPlayer, i, playerBase, previousOpppo, false)
+				if foundOppo {
+					playerBase = append(
+						append(
+							append(
+								playerBase[:candidateOppoIndex],
+								playerBase[(candidateOppoIndex+1):(i+1)]...,
+							),
+							candidateOppo,
+						),
+						playerBase[(i+1):]...,
+					)
+					var rebalancePlayerIndex int
+					oddUpSideOppo := candidateOppoIndex%2 == 1
+					if oddUpSideOppo {
+						rebalancePlayerIndex = candidateOppoIndex - 1
 					} else {
-						if counterForAvoidByeDuplication > 0 { 
-							playerBase = append(playerBase[:i], playerBase[(i+1):]...)
-							playerBase = append(playerBase, last)
-						}
-						break
+						rebalancePlayerIndex = candidateOppoIndex + 1
 					}
+					foundOppo, candidateOppo, candidateOppoIndex := findOpponent(playerBase[rebalancePlayerIndex], i, playerBase, previousOpppo, true)
+					if !foundOppo {
+						return errors.New("I cannot avoid rematch in this tournament and in this round")
+					} else {
+						playerBase = append(
+							append(
+								append(
+									playerBase[:rebalancePlayerIndex+1],
+									candidateOppo,
+								),
+								append(
+									playerBase[(rebalancePlayerIndex+2):candidateOppoIndex],
+									playerBase[candidateOppoIndex+1:]...,
+								)...,
+							),
+						)
+					}
+				} else {
+					return errors.New("I cannot avoid rematch in this tournament and in this round")
 				}
-				if(counterForAvoidByeDuplication >= len(playerBase)) {
-					return "All users had already a bye. Not acceptable situation"
-				}
-				pairs = append(pairs, PairingMatchData{
-					UserIdPlayerA: last.UserId, 
-					UserIdPlayerB: ByePlayerID, 
-					TournamentId: tournamentID, 
-					RoundId: ????,
-					RoundIndex: roundIndex,
-					IsBye: true,
-					TableIndex: (len(playerBase)-1)/2,
-					UserIdWinner: last.UserId, 
-				})
-				limit := len(playerBase)-1 
 			}
+		}
 
-			processed map string bool 
-			for i := 0; i < limit; i += 2 {
-				observedPlayer := playerBase[i] 
-				foundOppo, candidateOppo, candidateOppoIndex := findOpponent(observedPlayer, i, playerBase, previousOpppo, true)
+		var last = playerBase[len(playerBase)-1]
+		if odd {
+			var counterForAvoidByeDuplication = 0
+			//add bye at the bottom
+			for i := 0; i < len(playerBase); i++ {
 
-				if(foundOppo){
-					playerBase = append(playerBase[:(i+1)], candidateOppo, playerBase[(i+1):(i+1+candidateOppoIndex)], playerBase[(i+candidateOppoIndex+2):]...)
-				} else{
-					foundOppo, candidateOppo, candidateOppoIndex := findOpponent(observedPlayer, i, playerBase, previousOpppo, false)
-					if(foundOppo){
-						playerBase = append(playerBase[:candidateOppoIndex], playerBase[candidateOppoIndex+1:i+1], candidateOppo, playerBase[(i+1):]...)
-						oddUpSideOppo := candidateOppoIndex%2 == 1
-						rebalancePlayerIndex := candidateOppoIndex-1
-						foundOppo, candidateOppo, candidateOppoIndex := findOpponent(playerBase[rebalancePlayerIndex], i, playerBase, previousOpppo, true)
-						if(!foundOppo){
-							return "I cannot avoid rematch in this tournament and in this round"
-						} else {
-							//playerBase = append(playerBase[:candidateOppoIndex], playerBase[candidateOppoIndex+1:i+1], candidateOppo, playerBase[(i+1):]...)
-						}
+				last = playerBase[len(playerBase)-1-counterForAvoidByeDuplication]
+
+				if hadBye[last.UserId] {
+					counterForAvoidByeDuplication++
+					continue
+				} else {
+					oddCounter := counterForAvoidByeDuplication%2 == 1
+					var possibleOppontentIndex int
+					if oddCounter {
+						possibleOppontentIndex = len(playerBase) - 1 - (counterForAvoidByeDuplication + 1)
 					} else {
-						return "I cannot avoid rematch in this tournament and in this round"
+						possibleOppontentIndex = len(playerBase) - 1 - (counterForAvoidByeDuplication - 1)
 					}
+					possibleOpponent := playerBase[possibleOppontentIndex]
+					if innerMap, ok := previousOpppo[possibleOpponent.UserId]; ok {
+						if val, ok := innerMap[playerBase[len(playerBase)-1].UserId]; ok {
+							// Both a and b exist, val contains the value
+							if val {
+								counterForAvoidByeDuplication++
+								continue
+							}
+						}
+					}
+					if counterForAvoidByeDuplication > 0 {
+						playerBase = append(
+							append(
+								append(
+									playerBase[:len(playerBase)-1-counterForAvoidByeDuplication],
+									playerBase[len(playerBase)-1],
+								),
+								playerBase[len(playerBase)-counterForAvoidByeDuplication:len(playerBase)-1]...,
+							),
+						)
+					}
+					break
 				}
+			}
+			if counterForAvoidByeDuplication >= len(playerBase) {
+				return errors.New("All users had already a bye. Not acceptable situation")
+			}
+			limit = len(playerBase) - 1
+		}
 
-
-
-
-
-	            pairs = append(pairs, PairingMatchData{
-					UserIdPlayerA: playerBase[i].UserId, 
-					UserIdPlayerB: playerBase[i+1].UserId, 
-					TournamentId: tournamentID, 
-					RoundId: ????,
-					RoundIndex: roundIndex,
-					IsBye: false,
-					TableIndex: ((i/2)+1),
+		for i := 0; i < limit; i += 2 {
+			if odd && i == limit-1 {
+				//last player is bye
+				pairs = append(pairs, PairingMatchData{
+					UserIdPlayerA: last.UserId,
+					UserIdPlayerB: ByePlayerID,
+					TournamentId:  tournamentID,
+					RoundId:       roundId,
+					RoundIndex:    roundIndex,
+					IsBye:         true,
+					TableIndex:    (len(playerBase) - 1) / 2,
+					UserIdWinner:  last.UserId,
 				})
-	        }
-	    } else {
+			} else {
+				pairs = append(pairs, PairingMatchData{
+					UserIdPlayerA: playerBase[i].UserId,
+					UserIdPlayerB: playerBase[i+1].UserId,
+					TournamentId:  tournamentID,
+					RoundId:       roundId,
+					RoundIndex:    roundIndex,
+					IsBye:         false,
+					TableIndex:    ((i / 2) + 1),
+				})
+			}
+		}
 
-	    }
 	} else {
-		if(odd){
-			return "a top cut round cannot accept a odd playerbase"
+		if odd {
+			return errors.New("a top cut round cannot accept a odd playerbase")
 		}
 		for i := 0; i < limit; i += 2 {
-            pairs = append(pairs, PairingMatchData{
-				UserIdPlayerA: playerBase[i].UserId, 
-				UserIdPlayerB: playerBase[len(playerBase)-i].UserId, 
-				TournamentId: tournamentID, 
-				RoundId: ????,
-				RoundIndex: roundIndex,
-				IsBye: false,
-				TableIndex: ((i/2)+1),
+			pairs = append(pairs, PairingMatchData{
+				UserIdPlayerA: playerBase[i].UserId,
+				UserIdPlayerB: playerBase[len(playerBase)-i].UserId,
+				TournamentId:  tournamentID,
+				RoundId:       roundId,
+				RoundIndex:    roundIndex,
+				IsBye:         false,
+				TableIndex:    ((i / 2) + 1),
 			})
-        }
+		}
 	}
-	
+	return nil
 }
 
 func executeDBRound(app *pocketbase.PocketBase, tournamentID string, roundKind string, roundIndex int, roundSize int) error {
 	err := app.RunInTransaction(func(txApp core.App) error {
 		var err2 error
 		var result sql.Result
-		
-		if(roundIndex<1){
-			return "round index not acceptable"
+
+		if roundIndex < 1 {
+			return errors.New("round index not acceptable")
 		}
 
 		////////////////////////////////////////////////////
@@ -835,7 +927,7 @@ func executeDBRound(app *pocketbase.PocketBase, tournamentID string, roundKind s
 			SELECT {:id_tournament}, {:roundIndex}, {:roundKind}, false, {:roundSize}, datetime('now'), datetime('now')`).
 			Bind(dbx.Params{
 				"id_tournament": tournamentID,
-				"roundIndex": 	 roundIndex,
+				"roundIndex":    roundIndex,
 				"roundKind":     roundKind,
 				"roundSize":     roundSize,
 			}).
@@ -845,22 +937,27 @@ func executeDBRound(app *pocketbase.PocketBase, tournamentID string, roundKind s
 			return fmt.Errorf("round insert failed: %w", err2)
 		}
 
+		roundId, err2 := result.LastInsertId()
+		if roundId == 0 || err2 != nil {
+			return fmt.Errorf("round insert failed: %w", err2)
+		}
+
 		usersToPair, prevOpponents, hadBye, err3 := getPlayerList(txApp, tournamentID, roundKind, roundIndex, roundSize)
 
 		if err3 != nil {
 			return fmt.Errorf("something goes wrong in retriving player base: %w", err2)
 		}
 		////////////////////////////////////////////////////
-		// GENERATION OF RANKINGS RECORDS	
+		// GENERATION OF RANKINGS RECORDS
 		////////////////////////////////////////////////////
-		err3 := generateRankings(txApp, usersToPair, tournamentID, roundKind, roundIndex)
+		err3 = generateRankings(txApp, usersToPair, tournamentID, roundKind, roundIndex, roundSize)
 		if err3 != nil {
 			return fmt.Errorf("something goes wrong in generating rankings: %w", err2)
 		}
 		////////////////////////////////////////////////////
 		// GENERATION OF PAIRINGS RECORDS
 		////////////////////////////////////////////////////
-		err3 := generatePairings(txApp, usersToPair, prevOpponents, hadBye, tournamentID, roundKind, roundIndex)
+		err3 = generatePairings(txApp, usersToPair, prevOpponents, hadBye, tournamentID, roundKind, roundIndex, roundId)
 		if err3 != nil {
 			return fmt.Errorf("something goes wrong in generating pairings: %w", err2)
 		}
@@ -869,4 +966,3 @@ func executeDBRound(app *pocketbase.PocketBase, tournamentID string, roundKind s
 	})
 	return err
 }
-
