@@ -1,3 +1,42 @@
+//ROUND 
+//   roundId
+//   tournament_id
+//   roundIndex
+//   roundKind (swiss, topcut)
+//   roundSize (only for topcut)
+//   completed (bool)
+//   created
+//   updated
+//RANKING
+//   rankingId
+//	 tournament_id
+//   round_id
+//   roundIndex -- ext 
+//   roundKind -- ext
+//   roundSize -- ext
+//   user_id
+//   name -- ext
+//   surname -- ext
+//   username -- ext
+//   points
+//   TB1
+//   TB2
+//   TB3
+//PAIRING
+//   pairingId
+//   tournament_id
+//   round_id
+//   roundIndex -- ext
+//   roundKind -- ext
+//   roundSize -- ext
+//   playerA (user_id or bye_id)
+//   playerB (user_id or bye_id)
+//   isBye (bool)
+//   tableIndex
+//   winner (user_id or empty if not finished)
+
+
+
 //round se è topcut avrà anche size
 //round avrà bool completed
 //tournament avrà bool online
@@ -922,17 +961,24 @@ func executeDBRound(app *pocketbase.PocketBase, tournamentID string, roundKind s
 		////////////////////////////////////////////////////
 		// GENERATION OF ROUND RECORD
 		////////////////////////////////////////////////////
-		result, err2 = txApp.DB().NewQuery(
-			`INSERT INTO rounds (id_tournament, roundIndex, roundKind, completed, roundSize, created, updated)
-			SELECT {:id_tournament}, {:roundIndex}, {:roundKind}, false, {:roundSize}, datetime('now'), datetime('now')`).
-			Bind(dbx.Params{
-				"id_tournament": tournamentID,
-				"roundIndex":    roundIndex,
-				"roundKind":     roundKind,
-				"roundSize":     roundSize,
-			}).
-			Execute()
-
+		//ROUND 
+		//   roundId
+		//   tournament_id
+		//   roundIndex
+		//   roundKind (swiss, topcut)
+		//   roundSize (only for topcut)
+		//   completed (bool)
+		//   created
+		//   updated
+		result, err2 = txApp.DB().Insert("rounds", dbx.Params{
+			"id_tournament": tournamentID,
+			"roundIndex":    roundIndex,
+			"roundKind":     roundKind,
+			"completed":     false,
+			"roundSize":     roundSize,
+			"created":       time.Now(),
+			"updated":       time.Now(),
+		}).Execute()
 		if err2 != nil {
 			return fmt.Errorf("round insert failed: %w", err2)
 		}
@@ -957,7 +1003,7 @@ func executeDBRound(app *pocketbase.PocketBase, tournamentID string, roundKind s
 		////////////////////////////////////////////////////
 		// GENERATION OF PAIRINGS RECORDS
 		////////////////////////////////////////////////////
-		err3 = generatePairings(txApp, usersToPair, prevOpponents, hadBye, tournamentID, roundKind, roundIndex, roundId)
+		err3 = generatePairings(txApp, usersToPair, prevOpponents, hadBye, tournamentID, roundKind, roundIndex, result)
 		if err3 != nil {
 			return fmt.Errorf("something goes wrong in generating pairings: %w", err2)
 		}
