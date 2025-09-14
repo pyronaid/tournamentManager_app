@@ -21,18 +21,6 @@ type EnrollmentRequest struct {
 	FromOwner    *bool  `json:"from_owner" validate:"required"`
 }
 
-type ErrorResponse struct {
-	Error   string `json:"error"`
-	Message string `json:"message"`
-	Code    int    `json:"code"`
-}
-
-type SuccessResponse struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-	Data    any    `json:"data,omitempty"`
-}
-
 type UserDetailSucessResponse struct {
 	Found                bool   `json:"found"`
 	Enrolled             bool   `json:"enrolled"`
@@ -176,22 +164,6 @@ func RegisterTournamentEnrollmentAPI(app *pocketbase.PocketBase) {
 	})
 }
 
-func RegisterHeathCheckAPI(app *pocketbase.PocketBase) {
-	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
-		se.Router.GET("/api/myhealthcheck", func(e *core.RequestEvent) error {
-			return e.JSON(http.StatusOK, SuccessResponse{
-				Success: true,
-				Message: "API is healthy",
-				Data: map[string]string{
-					"status": "OK",
-				},
-			})
-		})
-
-		return se.Next()
-	})
-}
-
 // //////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////
 // Sub functions for checks
@@ -302,15 +274,6 @@ func (ctx *ValidationContext) validateOrganizerAndTournament() *ErrorResponse {
 	}
 	ctx.Tournament = tournament
 	return nil
-}
-
-// Helper function to send error response
-func sendErrorResponse(e *core.RequestEvent, errorResp *ErrorResponse) error {
-	statusCode := http.StatusBadRequest
-	if errorResp.Code != 0 {
-		statusCode = errorResp.Code
-	}
-	return e.JSON(statusCode, errorResp)
 }
 
 ////////////////////////////////////////////////////////////

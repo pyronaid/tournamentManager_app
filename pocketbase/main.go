@@ -23,6 +23,10 @@ func main() {
 	epapis.RegisterTournamentEnrollmentAPI(app)
 	epapis.DeleteTournamentEnrollmentAPI(app)
 	epapis.GetUserInfoToEnrollAPI(app)
+
+	epapis.CreateRoundAPI(app)
+	epapis.DeleteRoundAPI(app)
+
 	epapis.RegisterHeathCheckAPI(app)
 
 	hooks.SetupNewsCollectionHooks(app)

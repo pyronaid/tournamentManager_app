@@ -3,6 +3,7 @@ package apis
 import (
 	"net/http"
 
+	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
 )
 
@@ -25,4 +26,20 @@ func sendErrorResponse(e *core.RequestEvent, errorResp *ErrorResponse) error {
 		statusCode = errorResp.Code
 	}
 	return e.JSON(statusCode, errorResp)
+}
+
+func RegisterHeathCheckAPI(app *pocketbase.PocketBase) {
+	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
+		se.Router.GET("/api/myhealthcheck", func(e *core.RequestEvent) error {
+			return e.JSON(http.StatusOK, SuccessResponse{
+				Success: true,
+				Message: "API is healthy",
+				Data: map[string]string{
+					"status": "OK",
+				},
+			})
+		})
+
+		return se.Next()
+	})
 }
