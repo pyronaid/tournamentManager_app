@@ -85,8 +85,8 @@ type ValidationContextRound struct {
 	Data            RoundsRequest
 	DataDel         RoundsDelRequest
 	Tournament      *core.Record
-	RoundIndex      int
-	RoundSize       int
+	RoundIndex      *int
+	RoundSize       *int
 	StartTime       time.Time
 }
 
@@ -125,8 +125,20 @@ func CreateRoundAPI(app *pocketbase.PocketBase) {
 				return sendErrorResponse(e, validationErr)
 			}
 
+			var roundIndexChecked int
+			var roundSizeChecked int
 			// Execute update in enrollment with check on capacity if needed
-			err := executeDBRound(app, ctx.Data.TournamentID, ctx.Data.RoundKind, ctx.RoundIndex, ctx.RoundSize)
+			if ctx.RoundIndex == nil || ctx.RoundSize == nil {
+				return e.JSON(http.StatusBadRequest, ErrorResponse{
+					Error:   "ROUND_INDEX_SIZE_COMPUTATION_FAILED",
+					Message: "Round index or size computation failed",
+					Code:    http.StatusBadRequest,
+				})
+			} else {
+				roundIndexChecked = *ctx.RoundIndex
+				roundSizeChecked = *ctx.RoundSize
+			}
+			err := executeDBRound(app, ctx.Data.TournamentID, ctx.Data.RoundKind, roundIndexChecked, roundSizeChecked)
 			if err != nil {
 				return e.JSON(http.StatusBadRequest, ErrorResponse{
 					Error:   "ROUND_GENERATION_FAILED",
@@ -161,7 +173,7 @@ func DeleteRoundAPI(app *pocketbase.PocketBase) {
 			}
 
 			// Execute update in enrollment with check on capacity if needed
-			err := executeDBDeleteRound(app, ctx.DataDel.TournamentID, ctx.DataDel.RoundId, ctx.DataDel.RoundIndex)
+			err := executeDBDeleteRound(app, ctx.DataDel.TournamentID, ctx.DataDel.RoundId, ctx.DataDel.RoundIndex, ctx.DataDel.RoundKind)
 			if err != nil {
 				return e.JSON(http.StatusBadRequest, ErrorResponse{
 					Error:   "ROUND_DELETION_FAILED",
@@ -199,7 +211,7 @@ func validateRoundsGenerationRequest(e *core.RequestEvent, app *pocketbase.Pocke
 	}
 
 	// Step 6: round concistency
-	app.Logger().Info("validateRoundConsistency")
+	ctx.logRoundMessage(app, false, "validateRoundConsistency")
 	if err := ctx.validateRoundConsistency(app); err != nil {
 		return nil, err
 	}
@@ -220,37 +232,35 @@ func validateRoundsRequest(e *core.RequestEvent, app *pocketbase.PocketBase, del
 	}
 
 	// Step 1: Authentication check
-	app.Logger().Info("validateAuthentication")
 	if err := ctx.validateAuthentication(e); err != nil {
 		return nil, err
 	}
 
 	// Step 2: Request body parsing and validation
-	app.Logger().Info("validateRequestBody")
 	if err := ctx.validateRequestBody(e, delFlag); err != nil {
 		return nil, err
 	}
 
 	// Step 3: Required fields validation
-	app.Logger().Info("validateRequiredFields")
+	ctx.logRoundMessage(app, delFlag, "validateRequiredFields")
 	if err := ctx.validateRequiredFields(delFlag); err != nil {
 		return nil, err
 	}
 
 	// Step 4: List type validation
-	app.Logger().Info("validateListType")
+	ctx.logRoundMessage(app, delFlag, "validateListType")
 	if err := ctx.validateListType(); err != nil {
 		return nil, err
 	}
 
 	// Step 5: Organizer and tournament state validation
-	app.Logger().Info("validateOrganizerAndTournament")
+	ctx.logRoundMessage(app, delFlag, "validateOrganizerAndTournament")
 	if err := ctx.validateOrganizerAndTournament(); err != nil {
 		return nil, err
 	}
 
 	// Step 6: round feasibility
-	app.Logger().Info("validateRoundFeasibility")
+	ctx.logRoundMessage(app, delFlag, "validateRoundFeasibility")
 	if err := ctx.validateRoundFeasibility(delFlag); err != nil {
 		return nil, err
 	}
@@ -471,14 +481,25 @@ func (ctx *ValidationContextRound) validateRoundFeasibility(delFlag bool) *Error
 			ctx.DataDel.RoundIndex,
 		)
 	} else {
+		var roundSizeChecked int
+		// Execute update in enrollment with check on capacity if needed
+		if ctx.RoundSize == nil {
+			return &ErrorResponse{
+				Error:   "ROUND_INDEX_SIZE_COMPUTATION_FAILED",
+				Message: "Round index or size computation failed",
+				Code:    http.StatusBadRequest,
+			}
+		} else {
+			roundSizeChecked = *ctx.RoundSize
+		}
 		index, size, err = validateRoundFeasibilityAndComputeIndex(
 			ctx.App,
 			ctx.Data.TournamentID,
 			ctx.Data.RoundKind,
-			ctx.RoundSize,
+			roundSizeChecked,
 		)
-		ctx.RoundIndex = index
-		ctx.RoundSize = size
+		ctx.RoundIndex = &index
+		ctx.RoundSize = &size
 	}
 	if err != nil {
 		return &ErrorResponse{
@@ -489,6 +510,35 @@ func (ctx *ValidationContextRound) validateRoundFeasibility(delFlag bool) *Error
 	}
 
 	return nil
+}
+
+// //////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////
+// Sub functions for logging
+// //////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////
+func (ctx *ValidationContextRound) logRoundMessage(app *pocketbase.PocketBase, delFlag bool, message string) {
+	if delFlag {
+		app.Logger().Info(
+			fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%d roundKind:%s",
+				message,
+				ctx.DataDel.TournamentID,
+				ctx.DataDel.RoundId,
+				ctx.DataDel.RoundIndex,
+				ctx.DataDel.RoundKind,
+			),
+		)
+	} else {
+		app.Logger().Info(
+			fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%s roundKind:%s",
+				message,
+				ctx.Data.TournamentID,
+				"to-be-generated",
+				safeInt(ctx.RoundIndex),
+				ctx.Data.RoundKind,
+			),
+		)
+	}
 }
 
 // //////////////////////////////////////////////////////////
@@ -1129,6 +1179,15 @@ func executeDBRound(app *pocketbase.PocketBase, tournamentID string, roundKind s
 		//   completed (bool)
 		//   created
 		//   updated
+		app.Logger().Info(
+			fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%d roundKind:%s",
+				"Provo a creare il round",
+				tournamentID,
+				"to-be-generated",
+				roundIndex,
+				roundKind,
+			),
+		)
 		result, err2 = txApp.DB().Insert("rounds", dbx.Params{
 			"id_tournament": tournamentID,
 			"roundIndex":    roundIndex,
@@ -1161,6 +1220,15 @@ func executeDBRound(app *pocketbase.PocketBase, tournamentID string, roundKind s
 			roundId = roundRecord.Id
 		}
 
+		app.Logger().Info(
+			fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%d roundKind:%s",
+				"Prendo la lista di utenti coinvolti in questo round",
+				tournamentID,
+				roundId,
+				roundIndex,
+				roundKind,
+			),
+		)
 		usersToPair, prevOpponents, hadBye, err3 := getPlayerList(txApp, tournamentID, roundIndex, roundSize)
 
 		if err3 != nil {
@@ -1169,6 +1237,15 @@ func executeDBRound(app *pocketbase.PocketBase, tournamentID string, roundKind s
 		////////////////////////////////////////////////////
 		// GENERATION OF RANKINGS RECORDS
 		////////////////////////////////////////////////////
+		app.Logger().Info(
+			fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%d roundKind:%s",
+				"Genero la classifica per questo round con gli utenti coinvolti",
+				tournamentID,
+				roundId,
+				roundIndex,
+				roundKind,
+			),
+		)
 		err3 = generateRankings(txApp, usersToPair, tournamentID, roundId)
 		if err3 != nil {
 			return fmt.Errorf("something goes wrong in generating rankings: %w", err2)
@@ -1176,6 +1253,15 @@ func executeDBRound(app *pocketbase.PocketBase, tournamentID string, roundKind s
 		////////////////////////////////////////////////////
 		// GENERATION OF PAIRINGS RECORDS
 		////////////////////////////////////////////////////
+		app.Logger().Info(
+			fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%d roundKind:%s",
+				"Genero gli accoppiamenti per questo round con gli utenti coinvolti",
+				tournamentID,
+				roundId,
+				roundIndex,
+				roundKind,
+			),
+		)
 		err3 = generatePairings(txApp, usersToPair, prevOpponents, hadBye, tournamentID, roundKind, roundIndex, roundId)
 		if err3 != nil {
 			return fmt.Errorf("something goes wrong in generating pairings: %w", err2)
@@ -1185,11 +1271,20 @@ func executeDBRound(app *pocketbase.PocketBase, tournamentID string, roundKind s
 	})
 	return err
 }
-func executeDBDeleteRound(app *pocketbase.PocketBase, tournamentID string, roundId string, roundIndex int) error {
+func executeDBDeleteRound(app *pocketbase.PocketBase, tournamentID string, roundId string, roundIndex int, roundKind string) error {
 	err := app.RunInTransaction(func(txApp core.App) error {
 		var err2 error
 		var result sql.Result
 
+		app.Logger().Info(
+			fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%d roundKind:%s",
+				"Pulizia record ROUND",
+				tournamentID,
+				roundId,
+				roundIndex,
+				roundKind,
+			),
+		)
 		result, err2 = txApp.DB().Delete("rounds", dbx.NewExp(
 			"id_tournament={:tournamentID} && roundIndex={:roundIndex} && id={:roundId}",
 			dbx.Params{
@@ -1206,6 +1301,15 @@ func executeDBDeleteRound(app *pocketbase.PocketBase, tournamentID string, round
 			return fmt.Errorf("round delete failed: %w", err2)
 		}
 
+		app.Logger().Info(
+			fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%d roundKind:%s",
+				"Pulizia record RANKINGS",
+				tournamentID,
+				roundId,
+				roundIndex,
+				roundKind,
+			),
+		)
 		_, err2 = txApp.DB().Delete("rankings", dbx.NewExp(
 			"id_tournament={:tournamentID} && roundIndex={:roundIndex} && id_round={:roundId}",
 			dbx.Params{
@@ -1218,6 +1322,15 @@ func executeDBDeleteRound(app *pocketbase.PocketBase, tournamentID string, round
 			return fmt.Errorf("ranking delete failed: %w", err2)
 		}
 
+		app.Logger().Info(
+			fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%d roundKind:%s",
+				"Pulizia record PAIRINGS",
+				tournamentID,
+				roundId,
+				roundIndex,
+				roundKind,
+			),
+		)
 		_, err2 = txApp.DB().Delete("pairings", dbx.NewExp(
 			"id_tournament={:tournamentID} && roundIndex={:roundIndex} && id_round={:roundId}",
 			dbx.Params{
