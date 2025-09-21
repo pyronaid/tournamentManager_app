@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/pocketbase/pocketbase"
@@ -42,4 +43,25 @@ func RegisterHeathCheckAPI(app *pocketbase.PocketBase) {
 
 		return se.Next()
 	})
+}
+
+func safeString(s *string) string {
+	if s == nil {
+		return "nil"
+	}
+	return *s
+}
+
+func safeInt(i *int) string {
+	if i == nil {
+		return "nil"
+	}
+	return fmt.Sprintf("%d", *i)
+}
+
+func safeBool(b *bool) string {
+	if b == nil {
+		return "nil"
+	}
+	return fmt.Sprintf("%t", *b)
 }
