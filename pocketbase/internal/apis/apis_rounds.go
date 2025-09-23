@@ -1044,16 +1044,20 @@ func generatePairings(app core.App, playerBase []PairingUserData, previousOpppo 
 			)
 
 			if foundOppo {
-				playerBase = append(
+
+				resultTemp := append(
 					append(
-						append(
-							playerBase[:(i+1)],
-							candidateOppo,
-						),
-						playerBase[(i+1):(candidateOppoIndex)]...,
+						playerBase[:(i+1)],
+						candidateOppo,
 					),
-					playerBase[(candidateOppoIndex+1):]...,
+					playerBase[(i+1):(candidateOppoIndex)]...,
 				)
+
+				if candidateOppoIndex+1 < len(playerBase) {
+					resultTemp = append(resultTemp, playerBase[(candidateOppoIndex+1):]...)
+				}
+				playerBase = resultTemp
+
 				app.Logger().Info(
 					fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%d roundKind:%s iteration:%d playerBase:%v",
 						"Player base dopo lo scambio",
@@ -1068,37 +1072,45 @@ func generatePairings(app core.App, playerBase []PairingUserData, previousOpppo 
 			} else {
 				foundOppo, candidateOppo, candidateOppoIndex := findOpponent(observedPlayer, i, playerBase, previousOpppo, false)
 				if foundOppo {
-					playerBase = append(
+					resultTemp := append(
 						append(
-							append(
-								playerBase[:candidateOppoIndex],
-								playerBase[(candidateOppoIndex+1):(i+1)]...,
-							),
-							candidateOppo,
+							playerBase[:candidateOppoIndex],
+							playerBase[(candidateOppoIndex+1):(i+1)]...,
 						),
-						playerBase[(i+1):]...,
+						candidateOppo,
 					)
-					var rebalancePlayerIndex int
-					oddUpSideOppo := candidateOppoIndex%2 == 1
-					if oddUpSideOppo {
-						rebalancePlayerIndex = candidateOppoIndex - 1
-					} else {
-						rebalancePlayerIndex = candidateOppoIndex + 1
+
+					if (i + 1) < len(playerBase) {
+						resultTemp = append(resultTemp, playerBase[(i+1):]...)
 					}
-					foundOppo, candidateOppo, candidateOppoIndex := findOpponent(playerBase[rebalancePlayerIndex], (i+1), playerBase, previousOpppo, true)
+					playerBase = resultTemp
+
+					rebalancePlayerIndex := candidateOppoIndex - 1
+					/*
+						oddUpSideOppo := candidateOppoIndex%2 == 1
+						if oddUpSideOppo {
+							rebalancePlayerIndex = candidateOppoIndex - 1
+						} else {
+							rebalancePlayerIndex = candidateOppoIndex + 1
+						}
+					*/
+					foundOppo, candidateOppo, candidateOppoIndex := findOpponent(playerBase[rebalancePlayerIndex], (i + 1), playerBase, previousOpppo, true)
 					if !foundOppo {
 						return errors.New("i cannot avoid rematch in this tournament and in this round")
 					} else {
-						playerBase = append(
+						resultTemp := append(
 							append(
 								playerBase[:rebalancePlayerIndex+1],
 								candidateOppo,
 							),
-							append(
-								playerBase[(rebalancePlayerIndex+2):candidateOppoIndex],
-								playerBase[candidateOppoIndex+1:]...,
-							)...,
+							playerBase[(rebalancePlayerIndex+1):candidateOppoIndex]...,
 						)
+
+						if candidateOppoIndex+1 < len(playerBase) {
+							resultTemp = append(resultTemp, playerBase[candidateOppoIndex+1:]...)
+						}
+						playerBase = resultTemp
+
 						app.Logger().Info(
 							fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%d roundKind:%s iteration:%d playerBase:%v",
 								"Player base dopo lo scambio",
@@ -1129,30 +1141,53 @@ func generatePairings(app core.App, playerBase []PairingUserData, previousOpppo 
 					counterForAvoidByeDuplication++
 					continue
 				} else {
-					oddCounter := counterForAvoidByeDuplication%2 == 1
-					var possibleOppontentIndex int
-					if oddCounter {
-						possibleOppontentIndex = len(playerBase) - 1 - (counterForAvoidByeDuplication + 1)
-					} else {
-						possibleOppontentIndex = len(playerBase) - 1 - (counterForAvoidByeDuplication - 1)
-					}
-					possibleOpponent := playerBase[possibleOppontentIndex]
-					if innerMap, ok := previousOpppo[possibleOpponent.UserId]; ok {
-						if val, ok := innerMap[playerBase[len(playerBase)-1].UserId]; ok {
-							// Both a and b exist, val contains the value
-							if val {
-								counterForAvoidByeDuplication++
-								continue
+					if counterForAvoidByeDuplication > 0 {
+						oddCounter := counterForAvoidByeDuplication%2 == 1
+						var possibleOppontentIndex int
+						if oddCounter {
+							possibleOppontentIndex = len(playerBase) - 1 - (counterForAvoidByeDuplication + 1)
+						} else {
+							possibleOppontentIndex = len(playerBase) - 1 - (counterForAvoidByeDuplication - 1)
+						}
+						possibleOpponent := playerBase[possibleOppontentIndex]
+						if innerMap, ok := previousOpppo[possibleOpponent.UserId]; ok {
+							if val, ok := innerMap[playerBase[len(playerBase)-1].UserId]; ok {
+								// Both a and b exist, val contains the value
+								if val {
+									counterForAvoidByeDuplication++
+									continue
+								}
 							}
 						}
-					}
-					if counterForAvoidByeDuplication > 0 {
-						playerBase = append(
-							append(
-								playerBase[:len(playerBase)-1-counterForAvoidByeDuplication],
-								playerBase[len(playerBase)-1],
+
+						if oddCounter {
+							playerBase = append(
+								append(
+									playerBase[:(possibleOppontentIndex+1)],
+									playerBase[len(playerBase)-1],
+								),
+								playerBase[(len(playerBase)-1-counterForAvoidByeDuplication):(len(playerBase)-1)]...,
+							)
+						} else {
+							playerBase = append(
+								append(
+									playerBase[:(len(playerBase)-1-counterForAvoidByeDuplication)],
+									playerBase[possibleOppontentIndex],
+									playerBase[len(playerBase)-1],
+								),
+								playerBase[(possibleOppontentIndex+1):(len(playerBase)-1)]...,
+							)
+						}
+						app.Logger().Info(
+							fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%d roundKind:%s iteration:%d playerBase:%v",
+								"Player base dopo lo scambio",
+								tournamentID,
+								roundId,
+								roundIndex,
+								roundKind,
+								i,
+								playerBase,
 							),
-							playerBase[len(playerBase)-counterForAvoidByeDuplication:len(playerBase)-1]...,
 						)
 					}
 					break
@@ -1191,19 +1226,31 @@ func generatePairings(app core.App, playerBase []PairingUserData, previousOpppo 
 		}
 
 	} else {
-		if odd {
-			return errors.New("a top cut round cannot accept a odd playerbase")
-		}
+		//top cut
 		for i := 0; i < limit; i += 2 {
-			pairs = append(pairs, PairingMatchData{
-				UserIdPlayerA: playerBase[i].UserId,
-				UserIdPlayerB: playerBase[len(playerBase)-i-1].UserId,
-				TournamentId:  tournamentID,
-				RoundId:       roundId,
-				RoundIndex:    roundIndex,
-				IsBye:         false,
-				TableIndex:    ((i / 2) + 1),
-			})
+			if odd && i == 0 {
+				//last player is bye
+				pairs = append(pairs, PairingMatchData{
+					UserIdPlayerA: playerBase[i].UserId,
+					UserIdPlayerB: ByePlayerID,
+					TournamentId:  tournamentID,
+					RoundId:       roundId,
+					RoundIndex:    roundIndex,
+					IsBye:         true,
+					TableIndex:    ((i / 2) + 1),
+					UserIdWinner:  playerBase[i].UserId,
+				})
+			} else {
+				pairs = append(pairs, PairingMatchData{
+					UserIdPlayerA: playerBase[i].UserId,
+					UserIdPlayerB: playerBase[len(playerBase)-i-1].UserId,
+					TournamentId:  tournamentID,
+					RoundId:       roundId,
+					RoundIndex:    roundIndex,
+					IsBye:         false,
+					TableIndex:    ((i / 2) + 1),
+				})
+			}
 		}
 	}
 	//PAIRING
@@ -1327,7 +1374,7 @@ func executeDBRound(app *pocketbase.PocketBase, tournamentID string, roundKind s
 		)
 		err3 = generateRankings(txApp, usersToPair, tournamentID, roundId)
 		if err3 != nil {
-			return fmt.Errorf("something goes wrong in generating rankings: %w", err2)
+			return fmt.Errorf("something goes wrong in generating rankings: %w", err3)
 		}
 		////////////////////////////////////////////////////
 		// GENERATION OF PAIRINGS RECORDS
