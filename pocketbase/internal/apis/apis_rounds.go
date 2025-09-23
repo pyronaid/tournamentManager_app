@@ -62,6 +62,7 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/tools/types"
 )
 
 type RoundsRequest struct {
@@ -113,7 +114,7 @@ type PairingMatchData struct {
 const (
 	roundKindTopCut = "topcut"
 	roundKindSwiss  = "swiss"
-	ByePlayerID     = "00000000000000000000000000"
+	ByePlayerID     = "000000000000000"
 )
 
 func CreateRoundAPI(app *pocketbase.PocketBase) {
@@ -960,6 +961,7 @@ func generateRankings(app core.App, playerBase []PairingUserData, tournamentID s
 	//   TB1
 	//   TB2
 	//   TB3
+	nowRankings := types.NowDateTime()
 	for _, player := range playerBase {
 		_, err2 := app.DB().Insert("rankings", dbx.Params{
 			"id_tournament": tournamentID,
@@ -969,8 +971,8 @@ func generateRankings(app core.App, playerBase []PairingUserData, tournamentID s
 			"TB1":           player.TB1,
 			"TB2":           player.TB2,
 			"TB3":           player.TB3,
-			"created":       time.Now(),
-			"updated":       time.Now(),
+			"created":       nowRankings,
+			"updated":       nowRankings,
 		}).Execute()
 		if err2 != nil {
 			return fmt.Errorf("ranking insert failed: %w", err2)
@@ -1000,6 +1002,9 @@ func generatePairings(app core.App, playerBase []PairingUserData, previousOpppo 
 	}
 
 	limit := len(playerBase)
+	if odd {
+		limit = len(playerBase) - 1
+	}
 	app.Logger().Info(
 		fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%d roundKind:%s playerBase:%v",
 			"Player base iniziale",
@@ -1015,7 +1020,7 @@ func generatePairings(app core.App, playerBase []PairingUserData, previousOpppo 
 		for i := 0; i < limit; i = (i + 2) {
 			app.Logger().Info(
 				fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%d roundKind:%s iteration:%d",
-					"Iterasazione per accoppiare i giocatori",
+					"Iterazione per accoppiare i giocatori",
 					tournamentID,
 					roundId,
 					roundIndex,
@@ -1196,33 +1201,31 @@ func generatePairings(app core.App, playerBase []PairingUserData, previousOpppo 
 			if counterForAvoidByeDuplication >= len(playerBase) {
 				return errors.New("all users had already a bye. Not acceptable situation")
 			}
-			limit = len(playerBase) - 1
 		}
 
 		for i := 0; i < limit; i += 2 {
-			if odd && i == limit-1 {
-				//last player is bye
-				pairs = append(pairs, PairingMatchData{
-					UserIdPlayerA: last.UserId,
-					UserIdPlayerB: ByePlayerID,
-					TournamentId:  tournamentID,
-					RoundId:       roundId,
-					RoundIndex:    roundIndex,
-					IsBye:         true,
-					TableIndex:    (len(playerBase) - 1) / 2,
-					UserIdWinner:  last.UserId,
-				})
-			} else {
-				pairs = append(pairs, PairingMatchData{
-					UserIdPlayerA: playerBase[i].UserId,
-					UserIdPlayerB: playerBase[i+1].UserId,
-					TournamentId:  tournamentID,
-					RoundId:       roundId,
-					RoundIndex:    roundIndex,
-					IsBye:         false,
-					TableIndex:    ((i / 2) + 1),
-				})
-			}
+			pairs = append(pairs, PairingMatchData{
+				UserIdPlayerA: playerBase[i].UserId,
+				UserIdPlayerB: playerBase[i+1].UserId,
+				TournamentId:  tournamentID,
+				RoundId:       roundId,
+				RoundIndex:    roundIndex,
+				IsBye:         false,
+				TableIndex:    ((i / 2) + 1),
+			})
+		}
+		if odd {
+			//last player is bye
+			pairs = append(pairs, PairingMatchData{
+				UserIdPlayerA: last.UserId,
+				UserIdPlayerB: ByePlayerID,
+				TournamentId:  tournamentID,
+				RoundId:       roundId,
+				RoundIndex:    roundIndex,
+				IsBye:         true,
+				TableIndex:    (len(playerBase) + 1) / 2,
+				UserIdWinner:  last.UserId,
+			})
 		}
 
 	} else {
@@ -1265,6 +1268,7 @@ func generatePairings(app core.App, playerBase []PairingUserData, previousOpppo 
 	//   isBye (bool)
 	//   tableIndex
 	//   winner (user_id or empty if not finished)
+	nowPairings := types.NowDateTime()
 	for _, pairing := range pairs {
 		_, err2 := app.DB().Insert("pairings", dbx.Params{
 			"id_tournament": tournamentID,
@@ -1274,8 +1278,8 @@ func generatePairings(app core.App, playerBase []PairingUserData, previousOpppo 
 			"isBye":         pairing.IsBye,
 			"tableIndex":    pairing.TableIndex,
 			"winner":        pairing.UserIdWinner,
-			"created":       time.Now(),
-			"updated":       time.Now(),
+			"created":       nowPairings,
+			"updated":       nowPairings,
 		}).Execute()
 		if err2 != nil {
 			return fmt.Errorf("ranking insert failed: %w", err2)
@@ -1314,14 +1318,15 @@ func executeDBRound(app *pocketbase.PocketBase, tournamentID string, roundKind s
 				roundKind,
 			),
 		)
+		nowRound := types.NowDateTime()
 		result, err2 = txApp.DB().Insert("rounds", dbx.Params{
 			"id_tournament": tournamentID,
 			"roundIndex":    roundIndex,
 			"roundKind":     roundKind,
 			"completed":     false,
 			"roundSize":     roundSize,
-			"created":       time.Now(),
-			"updated":       time.Now(),
+			"created":       nowRound,
+			"updated":       nowRound,
 		}).Execute()
 		if err2 != nil {
 			return fmt.Errorf("round insert failed: %w", err2)
