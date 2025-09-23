@@ -1,23 +1,42 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:uuid/uuid.dart';
 
+import '../../../app_flow/services/LoaderService.dart';
+import '../../../app_flow/services/PocketbaseApiManagerService.dart';
+import '../../../app_flow/services/SnackBarService.dart';
+import '../../../app_flow/services/supportClass/alert_classes.dart';
+import '../../../app_flow/services/supportClass/snackbar_style.dart';
 import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 import '../../../backend/schema/rounds_record.dart';
+import '../../../components/fab_expandable/fab_expandable_widget.dart';
 import '../../nav_bar/tournament_model.dart';
 
 class TournamentRoundsModel extends ChangeNotifier {
 
   final TournamentModel tournamentModel;
 
+  late LoaderService loaderService;
+  late SnackBarService snackBarService;
+  late PocketbaseApiManagerService _pocketbaseApiManagerService;
+
   late PagingController<int, RoundsRecord> _pagingController;
   static const _pageSize = 30;
   late bool _isLoading;
   late DateTime? _lastUpdatedRounds;
 
+  List<RoundKind> _availablePages = [];
+
   /////////////////////////////CONSTRUCTOR
   TournamentRoundsModel({required this.tournamentModel}){
     _isLoading = tournamentModel.isLoading;
     _lastUpdatedRounds = tournamentModel.updatedRounds;
+    loaderService = GetIt.instance<LoaderService>();
+    snackBarService = GetIt.instance<SnackBarService>();
+    _pocketbaseApiManagerService = GetIt.instance<PocketbaseApiManagerService>();
+    _availablePages = _calculateAvailablePages();
     _pagingController = PagingController(firstPageKey: 1);
     _pagingController.addPageRequestListener((pageKey) => _fetchPage(pageKey));
   }
@@ -26,6 +45,64 @@ class TournamentRoundsModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   DateTime? get lastUpdatedRounds => _lastUpdatedRounds;
   PagingController<int, RoundsRecord> get pagingControllerRounds => _pagingController;
+  List<RoundKind> get availablePages => List.unmodifiable(_availablePages);
+  bool get isTournamentOngoing => tournamentModel.isTournamentOngoing;
+  List<RoundKind> _calculateAvailablePages(){
+    final pages = <RoundKind>[
+      RoundKind.topcut
+    ];
+
+    pages.add(RoundKind.swiss);
+    pages.reversed;
+
+    return pages;
+  }
+  List<ActionButton> buildFabActions(BuildContext context) {
+    final actions = <ActionButton>[];
+
+    for (final pageType in _availablePages.reversed) {
+      late IconData icon;
+      late String title;
+
+      switch (pageType) {
+        case RoundKind.swiss:
+          icon = Icons.scoreboard;
+          title = " Turno Svizzera ";
+          break;
+        case RoundKind.topcut:
+          icon = Icons.sports;
+          title = " Turno Top cut ";
+          break;
+      }
+
+      actions.add(
+        ActionButton(
+          onPressed: () {
+            context.goNamed(
+                'DialogGenerateRound',
+                pathParameters: {
+                  'tournamentId': tournamentModel.tournamentId,
+                }.withoutNulls,
+                extra: {
+                  'req' : AlertRequest(
+                    title: 'ATTENZIONE: Generazione del round in corso...',
+                    description: "Sei sicuro di voler generare un nuovo round di tipologia ${pageType.desc}?",
+                    buttonTitleCancelled: "Annulla",
+                    buttonTitleConfirmed: "Continua",
+                    functionConfirmed: (List<dynamic>? formValues) {
+                      return generateRound(pageType);
+                    },
+                  ),
+                }
+            );
+          },
+          icon: icon,
+          title: title,
+        ),
+      );
+    }
+    return actions;
+  }
 
   /////////////////////////////SETTER
   Future<void> _fetchPage(int pageKey) async {
@@ -56,6 +133,38 @@ class TournamentRoundsModel extends ChangeNotifier {
   }
   Future<void> deleteRound(String roundId) async {
     await tournamentModel.deleteRound(pb, roundId);
+  }
+  Future<void> generateRound(RoundKind roundKind) async {
+    final index = _availablePages.indexOf(roundKind);
+    if (index != -1) {
+      String executionId = const Uuid().v4();
+      loaderService.showLoader(id: executionId);
+      try {
+        final response = await _pocketbaseApiManagerService.post(
+            PocketbaseApiManagerService.generateTournamentRoundAPI,
+            body: {
+              "id_tournament": tournamentModel.tournamentId,
+              "round_kind" : roundKind.name,
+              "round_size" : tournamentModel.tournamentRegisteredSize,
+            },
+            headers: {'Authorization': pb.authStore.token}
+        );
+        pagingControllerRounds.refresh();
+        snackBarService.showSnackBar(
+            message: "Generazione completata",
+            title: 'Creazione round avvenuta con successo',
+            style: SnackbarStyle.success
+        );
+      } on HttpException catch (e, _){
+        snackBarService.showSnackBar(
+            message: e.message,
+            title: 'Errore generazione round: ${e.title != null ? e.title! : ""}',
+            style: SnackbarStyle.error
+        );
+      }
+      loaderService.hideLoader(id: executionId);
+      notifyListeners();
+    }
   }
 
 

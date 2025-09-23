@@ -168,7 +168,8 @@ class TournamentModel extends ChangeNotifier {
   Future<void> deleteRound(PocketBase pb, String roundId) async {
     String executionId = const Uuid().v4();
     loaderService.showLoader(id: executionId);
-    await RoundsRecord.deleteRound(tournamentsRef!, roundId);
+    //TODO call API function to delete exhaustive round and other tables records
+    //await RoundsRecord.deleteRound(tournamentsRef!, roundId);
     notifyListeners();
     loaderService.hideLoader(id: executionId);
   }

@@ -216,7 +216,7 @@ class RoundsRecord extends PocketstoreRecord {
   RoundKind getRoundKindEnum(stringValue) {
     return RoundKind.values.firstWhere(
           (e) => e.name == stringValue,
-      orElse: () => RoundKind.unknown,
+      orElse: () => RoundKind.swiss,
     );
   }
 }
@@ -273,8 +273,7 @@ class RoundsRecordDocumentEquality implements Equality<RoundsRecord> {
 
 enum RoundKind {
   swiss("Svizzera"),
-  top("TopCut"),
-  unknown("unknown");
+  topcut("TopCut");
 
   final String desc;
 
@@ -284,6 +283,6 @@ enum RoundKind {
 RoundKind getRoundKindByName(String name) {
   return RoundKind.values.firstWhere(
         (state) => state.name == name,
-    orElse: () => RoundKind.unknown,
+    orElse: () => RoundKind.swiss,
   );
 }

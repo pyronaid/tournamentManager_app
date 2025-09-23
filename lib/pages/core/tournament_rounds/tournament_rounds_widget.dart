@@ -6,6 +6,7 @@ import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/pages/core/tournament_rounds/tournament_rounds_model.dart';
 
 import '../../../backend/schema/rounds_record.dart';
+import '../../../components/fab_expandable/fab_expandable_widget.dart';
 import '../../../components/generic_loading/generic_loading_widget.dart';
 import '../../../components/no_tournament_round_card/no_tournament_rounds_card_widget.dart';
 import '../../../components/tournament_round_card/tournament_rounds_card_widget.dart';
@@ -67,17 +68,10 @@ class _TournamentRoundsWidgetState extends State<TournamentRoundsWidget> {
             return Scaffold(
               key: _scaffoldKey,
               backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-              floatingActionButton: FloatingActionButton(
-                heroTag: 'rounds_add',
-                backgroundColor: CustomFlowTheme.of(context).primary,
-                onPressed: (){
-                  print("ciaoooo");
-                },
-                child: Icon(
-                  Icons.add,
-                  color: CustomFlowTheme.of(context).info,
-                ),
-              ),
+              floatingActionButton: providerTournamentRounds.isTournamentOngoing ? FabExpandableWidget(
+                distance: 60,
+                children: providerTournamentRounds.buildFabActions(context),
+              ) : null,
               body: SafeArea(
                 top: true,
                 child: RefreshIndicator(

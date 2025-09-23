@@ -16,7 +16,7 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
 
   late final TournamentModel tournamentModel;
 
-  late LoaderService loaderService ;
+  late LoaderService loaderService;
   late SnackBarService snackBarService;
   late PocketbaseApiManagerService _pocketbaseApiManagerService;
 

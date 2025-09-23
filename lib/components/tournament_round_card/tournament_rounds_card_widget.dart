@@ -98,7 +98,7 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  widget.roundRef!.roundKind == RoundKind.top ? "${widget.roundRef!.roundKind.desc} ${widget.roundRef!.population}" : "${widget.roundRef!.roundKind.desc} ${widget.roundRef!.index}",
+                  widget.roundRef!.roundKind == RoundKind.topcut ? "${widget.roundRef!.roundKind.desc} ${widget.roundRef!.population}" : "${widget.roundRef!.roundKind.desc} ${widget.roundRef!.index}",
                   style: CustomFlowTheme.of(context).titleLarge.override(color: CustomFlowTheme.of(context).cardMain),
                 ),
               ],

@@ -81,6 +81,12 @@ class TournamentRoutes {
           builder: (context, params) => const TournamentRoundsContainer(),
           routes: [
             GoRoute(
+              name: 'DialogGenerateRound',
+              path: 'dialog-generate-round',
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+            ),
+            GoRoute(
               name: 'DialogDeleteRound',
               path: 'dialog-delete-round',
               redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
