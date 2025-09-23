@@ -22,6 +22,7 @@ alias ll="ls -latr"
 ############ START/STOP/CHANGE SERVICES
 sudo systemctl stop pocketbase (stop before)
 sudo vi /etc/systemd/system/pocketbase.service (change it)
+    ExecStart=/home/pocketbase/pocketbase serve --http=0.0.0.0:80 --debug
     ExecStart=/home/pocketbase/pocketbase serve --http=0.0.0.0:80
     ExecStart=/home/pocketbase/extended-pocketbase serve --http=0.0.0.0:8080
 sudo systemctl daemon-reload
