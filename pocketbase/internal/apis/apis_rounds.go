@@ -1113,7 +1113,7 @@ func generatePairings(app core.App, playerBase []PairingUserData, previousOpppo 
 
 						app.Logger().Info(
 							fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%d roundKind:%s iteration:%d playerBase:%v",
-								"Player base dopo lo scambio",
+								"Player base dopo lo scambio di ribilanciamento",
 								tournamentID,
 								roundId,
 								roundIndex,
@@ -1180,7 +1180,7 @@ func generatePairings(app core.App, playerBase []PairingUserData, previousOpppo 
 						}
 						app.Logger().Info(
 							fmt.Sprintf("%s tournamentId:%s roundId:%s roundIndex:%d roundKind:%s iteration:%d playerBase:%v",
-								"Player base dopo lo scambio",
+								"Player base dopo lo scambio per il bye",
 								tournamentID,
 								roundId,
 								roundIndex,
