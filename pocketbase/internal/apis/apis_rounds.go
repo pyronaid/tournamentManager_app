@@ -19,10 +19,10 @@
 //   name -- ext
 //   surname -- ext
 //   username -- ext
-//   points
-//   TB1
-//   TB2
-//   TB3
+//   points -- computed
+//   TB1 -- computed
+//   TB2 -- computed
+//   TB3 -- computed
 //   dropped (bool)
 //   created
 //   updated
@@ -967,10 +967,6 @@ func generateRankings(app core.App, playerBase []PairingUserData, tournamentID s
 			"id_tournament": tournamentID,
 			"id_round":      roundId,
 			"id_user":       player.UserId,
-			"points":        player.Points,
-			"TB1":           player.TB1,
-			"TB2":           player.TB2,
-			"TB3":           player.TB3,
 			"created":       nowRankings,
 			"updated":       nowRankings,
 		}).Execute()

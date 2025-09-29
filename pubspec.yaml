@@ -167,6 +167,9 @@ flutter:
      - assets/images/icons/onepiece_pointer.png
      - assets/images/icons/ygoadv_pointer.png
      - assets/images/icons/ygoretro_pointer.png
+     - assets/images/icons/versus.png
+     - assets/images/icons/ongoing.png
+     - assets/images/icons/completed.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

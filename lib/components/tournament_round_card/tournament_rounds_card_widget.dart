@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/components/tournament_round_card/tournament_rounds_card_model.dart';
 
@@ -85,7 +86,153 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
           ),
           child: Padding(
             padding: const EdgeInsetsDirectional.all(15),
-            child: Column(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(
+                  flex: 1,
+                  fit: FlexFit.tight, // Makes it behave like Expanded
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        'assets/images/icons/versus.png',
+                        width: 20.w,
+                        height: 20.w,
+                        fit: BoxFit.cover,
+                      ),
+                      Text(
+                        widget.roundRef!.roundKind.desc,
+                        style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                        softWrap: true,
+                      ),
+                      Text(
+                        widget.roundRef!.roundKind == RoundKind.topcut ?
+                        "CUT ${widget.roundRef!.size}" :
+                        "ROUND ${widget.roundRef!.index}",
+                        style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                        softWrap: true,
+                      ),
+                    ],
+                  ),
+                ),
+                Flexible(
+                  flex: 2,
+                  fit: FlexFit.loose, // Allows shrinking if content is smaller
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            widget.roundRef!.completed ?
+                              'assets/images/icons/completed.png' :
+                              'assets/images/icons/ongoing.png',
+                            width: 30,
+                            height: 30,
+                            fit: BoxFit.cover,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              widget.roundRef!.completed ?
+                              "Completato" :
+                              "In corso",
+                              style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).cardMain),
+                              softWrap: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/images/icons/player.png',
+                            width: 30,
+                            height: 30,
+                            fit: BoxFit.cover,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              "Giocatori del round : ${widget.roundRef!.size}",
+                              style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).cardMain),
+                              maxLines: null,
+                              softWrap: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/images/icons/round.png',
+                            width: 30,
+                            height: 30,
+                            fit: BoxFit.cover,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              "Pairing completati : ${widget.roundRef!.matchCompleted} / ${widget.roundRef!.matchAll}",
+                              style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).cardMain),
+                              maxLines: null,
+                              softWrap: true,
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                /*//COLUMN1
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Image.asset(
+                      'assets/images/icons/versus.png',
+                      width: 20.w,
+                      height: 20.w,
+                      fit: BoxFit.cover,
+                    ),
+                    Text(
+                      widget.roundRef!.roundKind == RoundKind.topcut ? 
+                        "${widget.roundRef!.roundKind.desc} - ROUND ${widget.roundRef!.size}" : 
+                        "${widget.roundRef!.roundKind.desc} ${widget.roundRef!.index}",
+                      style: CustomFlowTheme.of(context).titleLarge.override(color: CustomFlowTheme.of(context).cardMain),
+                    ),
+                  ],
+                ),
+                //COLUMN2
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.roundRef!.roundKind == RoundKind.topcut ? "${widget.roundRef!.roundKind.desc} ${widget.roundRef!.size}" : "${widget.roundRef!.roundKind.desc} ${widget.roundRef!.index}",
+                      style: CustomFlowTheme.of(context).titleLarge.override(color: CustomFlowTheme.of(context).cardMain),
+                    ),
+                    Text(
+                      widget.roundRef!.roundKind == RoundKind.topcut ? "${widget.roundRef!.roundKind.desc} ${widget.roundRef!.size}" : "${widget.roundRef!.roundKind.desc} ${widget.roundRef!.index}",
+                      style: CustomFlowTheme.of(context).titleLarge.override(color: CustomFlowTheme.of(context).cardMain),
+                    ),
+                    Text(
+                      widget.roundRef!.roundKind == RoundKind.topcut ? "${widget.roundRef!.roundKind.desc} ${widget.roundRef!.size}" : "${widget.roundRef!.roundKind.desc} ${widget.roundRef!.index}",
+                      style: CustomFlowTheme.of(context).titleLarge.override(color: CustomFlowTheme.of(context).cardMain),
+                    ),
+                  ],
+                )*/
+              ],
+            ),
+            /*child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -98,11 +245,11 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  widget.roundRef!.roundKind == RoundKind.topcut ? "${widget.roundRef!.roundKind.desc} ${widget.roundRef!.population}" : "${widget.roundRef!.roundKind.desc} ${widget.roundRef!.index}",
+                  widget.roundRef!.roundKind == RoundKind.topcut ? "${widget.roundRef!.roundKind.desc} ${widget.roundRef!.size}" : "${widget.roundRef!.roundKind.desc} ${widget.roundRef!.index}",
                   style: CustomFlowTheme.of(context).titleLarge.override(color: CustomFlowTheme.of(context).cardMain),
                 ),
               ],
-            ),
+            ),*/
           ),
         ),
       ),

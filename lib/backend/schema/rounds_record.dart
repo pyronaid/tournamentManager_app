@@ -8,17 +8,21 @@ import 'package:tournamentmanager/backend/schema/util/pocketbase_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 
 class RoundsRecord extends PocketstoreRecord {
+  static const String collectionNameExt = "rounds_extended";
   static const String collectionName = "rounds";
   static const String idFieldName = 'id';
   static const String idTournamentFieldName = 'id_tournament';
-  static const String indexFieldName = 'index';
-  static const String populationFieldName = 'population';
-  static const String roundKindFieldName = 'roundKind';
+  static const String indexFieldName = 'roundIndex';
+  static const String sizeFieldName = 'roundSize';
+  static const String kindFieldName = 'roundKind';
   static const String completedFieldName = 'completed';
   static const String createdFieldName = 'created';
   static const String updatedFieldName = 'updated';
   static const String collectionIdFieldName = 'collectionId';
   static const String collectionNameFieldName = 'collectionName';
+
+  static const String matchAllFieldName = 'matchAll';
+  static const String matchCompletedFieldName = 'matchCompleted';
 
   static const String idOwnerFieldName = 'id_owner';
 
@@ -29,6 +33,8 @@ class RoundsRecord extends PocketstoreRecord {
     _initializeFields();
   }
 
+  late final bool extFlag;
+
   late String _uid;
   String get uid => _uid;
 
@@ -38,8 +44,8 @@ class RoundsRecord extends PocketstoreRecord {
   late int _index;
   int get index => _index;
 
-  late int _population;
-  int get population => _population;
+  late int _size;
+  int get size => _size;
 
   late RoundKind _roundKind;
   RoundKind get roundKind => _roundKind;
@@ -47,8 +53,11 @@ class RoundsRecord extends PocketstoreRecord {
   late bool _completed;
   bool get completed => _completed;
 
-  late String _ownerId;
-  String get ownerId => _ownerId;
+  late int _matchAll;
+  int get matchAll => _matchAll;
+
+  late int _matchCompleted;
+  int get matchCompleted => _matchCompleted;
 
   late DateTime _createdTime;
   DateTime get createdTime => _createdTime;
@@ -61,18 +70,29 @@ class RoundsRecord extends PocketstoreRecord {
 
 
   void _initializeFields() {
+    if(snapshotData.containsKey(matchAllFieldName)) {
+      _matchAll = snapshotData[matchAllFieldName];
+    } else { _matchAll = 0; }
+    if(snapshotData.containsKey(matchCompletedFieldName)) {
+      extFlag = true;
+      _matchCompleted = snapshotData[matchCompletedFieldName];
+    } else {
+      extFlag = false;
+      _matchCompleted = 0;
+    }
+
     _uid = snapshotData[idFieldName];
     _tournamentId = snapshotData[idTournamentFieldName];
     _index = snapshotData[indexFieldName];
-    _population = snapshotData[populationFieldName];
-    _roundKind = getRoundKindEnum(snapshotData[roundKindFieldName]);
+    _size = snapshotData[sizeFieldName];
+    _roundKind = getRoundKindEnum(snapshotData[kindFieldName]);
     _completed = snapshotData[completedFieldName] != null ? snapshotData[completedFieldName] == 1 : false;
     _createdTime = tryParseDate(snapshotData[createdFieldName])!;
     _updatedTime = tryParseDate(snapshotData[updatedFieldName])!;
     _collectionId = snapshotData[collectionIdFieldName];
     _collectionName = snapshotData[collectionNameFieldName];
 
-    _ownerId = getExpandendValue(snapshotData['expand'], idTournamentFieldName, idOwnerFieldName)!;
+    //_ownerId = getExpandendValue(snapshotData['expand'], idTournamentFieldName, idOwnerFieldName)!;
   }
 
   static RoundsRecord fromSnapshot(RecordModel snapshot) => RoundsRecord._(
@@ -83,13 +103,13 @@ class RoundsRecord extends PocketstoreRecord {
   static Stream<RoundsRecord> getDocument(PocketBase pb, String id, {String? expand}) {
     final controller = StreamController<RoundsRecord>();
 
-    pb.collection(collectionName).getOne(id, expand: expand).then((record) {
+    pb.collection(collectionNameExt).getOne(id, expand: expand).then((record) {
       if (!controller.isClosed) controller.add(RoundsRecord.fromSnapshot(record));
     }).catchError((error){
       if (!controller.isClosed) controller.addError(error);
     });
 
-    pb.collection(collectionName).subscribe(id, expand: expand, (e) {
+    pb.collection(collectionNameExt).subscribe(id, expand: expand, (e) {
       if (e.record != null) {
         if (!controller.isClosed) controller.add(RoundsRecord.fromSnapshot(e.record!));
       }
@@ -97,7 +117,7 @@ class RoundsRecord extends PocketstoreRecord {
 
     // Clean up on stream cancellation
     controller.onCancel = () {
-      pb.collection(collectionName).unsubscribe();
+      pb.collection(collectionNameExt).unsubscribe();
     };
 
     return controller.stream;
@@ -106,7 +126,7 @@ class RoundsRecord extends PocketstoreRecord {
     final controller = StreamController<List<RoundsRecord>>();
     final List<RoundsRecord> documents = [];
 
-    pb.collection(collectionName).getList(filter: filter, sort: sorting, page: page, perPage: perPage, expand: expand).then((recordList) {
+    pb.collection(collectionNameExt).getList(filter: filter, sort: sorting, page: page, perPage: perPage, expand: expand).then((recordList) {
       if (!controller.isClosed) {
         List<RoundsRecord> newsList = recordList.items.map((record) => RoundsRecord.fromSnapshot(record)).toList();
         documents.addAll(newsList);
@@ -116,7 +136,7 @@ class RoundsRecord extends PocketstoreRecord {
       if (!controller.isClosed) controller.addError(error);
     });
 
-    pb.collection(collectionName).subscribe('*', filter: filter, query: {'page' : page, 'perPage' : perPage}, expand: expand, (e) {
+    pb.collection(collectionNameExt).subscribe('*', filter: filter, query: {'page' : page, 'perPage' : perPage}, expand: expand, (e) {
       if (!controller.isClosed && e.record != null) {
         RoundsRecord record = RoundsRecord.fromSnapshot(e.record!);
 
@@ -139,15 +159,15 @@ class RoundsRecord extends PocketstoreRecord {
 
     // Clean up on stream cancellation
     controller.onCancel = () {
-      pb.collection(collectionName).unsubscribe();
+      pb.collection(collectionNameExt).unsubscribe();
     };
 
     return controller.stream;
   }
   static Future<RoundsRecord> getDocumentOnce(PocketBase pb, String id, {String? expand}) =>
-      pb.collection(collectionName).getOne(id, expand: expand).then((s) => RoundsRecord.fromSnapshot(s));
+      pb.collection(collectionNameExt).getOne(id, expand: expand).then((s) => RoundsRecord.fromSnapshot(s));
   static Future<List<RoundsRecord>> getDocumentsOnce(PocketBase pb, String filter, {String? expand, String? sorting, int page=1, int perPage = 30, Map<String, dynamic> queryMap = const {}}) =>
-      pb.collection(collectionName).getList(
+      pb.collection(collectionNameExt).getList(
           filter: filter,
           sort: sorting,
           page: page,
@@ -234,9 +254,9 @@ Map<String, dynamic> createRoundsRecordData({
       RoundsRecord.idFieldName: uid,
       RoundsRecord.idTournamentFieldName: tournamentId,
       RoundsRecord.indexFieldName: index,
-      RoundsRecord.populationFieldName: population,
+      RoundsRecord.sizeFieldName: population,
       RoundsRecord.completedFieldName: completed ? 1 : 0,
-      RoundsRecord.roundKindFieldName: roundKind.name,
+      RoundsRecord.kindFieldName: roundKind.name,
     }.withoutNulls,
   );
 
@@ -251,7 +271,7 @@ class RoundsRecordDocumentEquality implements Equality<RoundsRecord> {
     return e1?.tournamentId == e2?.tournamentId &&
         e1?.uid == e2?.uid &&
         e1?.index == e2?.index &&
-        e1?.population == e2?.population &&
+        e1?.size == e2?.size &&
         e1?.roundKind == e2?.roundKind &&
         e1?.completed == e2?.completed;
   }
@@ -261,7 +281,7 @@ class RoundsRecordDocumentEquality implements Equality<RoundsRecord> {
     e?.tournamentId,
     e?.uid,
     e?.index,
-    e?.population,
+    e?.size,
     e?.roundKind,
     e?.completed,
   ]);
