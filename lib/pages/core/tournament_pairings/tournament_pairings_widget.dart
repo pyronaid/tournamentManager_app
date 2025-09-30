@@ -3,9 +3,13 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/pages/core/tournament_pairings/tournament_pairings_model.dart';
 
+import '../../../backend/schema/pairings_record.dart';
 import '../../../components/fab_expandable/fab_expandable_widget.dart';
 import '../../../components/generic_loading/generic_loading_widget.dart';
+import '../../../components/no_tournament_pairing_card/no_tournament_pairings_card_widget.dart';
+import '../../../components/tournament_pairing_card/tournament_pairing_card_widget.dart';
 
 
 class TournamentPairingsWidget extends StatefulWidget {
@@ -64,10 +68,6 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
             return Scaffold(
               key: _scaffoldKey,
               backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-              floatingActionButton: providerTournamentPairings.isTournamentOngoing ? FabExpandableWidget(
-                distance: 60,
-                children: providerTournamentPairings.buildFabActions(context),
-              ) : null,
               body: SafeArea(
                 top: true,
                 child: RefreshIndicator(
@@ -94,9 +94,9 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
                             itemBuilder: (context, item, index) => TournamentPairingsCardWidget(
                               key: Key('Keykia_${item.uid}_position_${index}_of_pairings'),
                               //last: index == (providerMyTournaments.pagingControllerActive.itemList!.length - 1),
-                              roundRef: item,
+                              pairingRef: item,
                               indexo: index,
-                              deleteFun: (pairingsId) => providerTournamentPairings.deleteRound(pairingsId),
+                              deleteFun: (pairingsId) => providerTournamentPairings.deletePairing(pairingsId),
                             ),
                             firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
                             noItemsFoundIndicatorBuilder: (_) => const NoTournamentPairingsCardWidget(

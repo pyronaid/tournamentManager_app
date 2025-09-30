@@ -6,12 +6,13 @@ import '../../../app_flow/services/LoaderService.dart';
 import '../../../app_flow/services/PocketbaseApiManagerService.dart';
 import '../../../app_flow/services/SnackBarService.dart';
 import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
-import '../../../backend/schema/rounds_record.dart';
+import '../../../backend/schema/pairings_record.dart';
 import '../../nav_bar/tournament_model.dart';
 
 class TournamentPairingsModel extends ChangeNotifier {
 
   final TournamentModel tournamentModel;
+  final String roundId;
 
   late LoaderService loaderService;
   late SnackBarService snackBarService;
@@ -24,7 +25,7 @@ class TournamentPairingsModel extends ChangeNotifier {
 
 
   /////////////////////////////CONSTRUCTOR
-  TournamentPairingsModel({required this.tournamentModel}){
+  TournamentPairingsModel({required this.tournamentModel, required this.roundId}){
     _isLoading = tournamentModel.isLoading;
     _lastUpdatedRounds = tournamentModel.updatedRounds;
     loaderService = GetIt.instance<LoaderService>();
@@ -37,7 +38,7 @@ class TournamentPairingsModel extends ChangeNotifier {
   /////////////////////////////GETTER
   bool get isLoading => _isLoading;
   DateTime? get lastUpdatedRounds => _lastUpdatedRounds;
-  PagingController<int, PairingsRecord> get pagingControllerRounds => _pagingController;
+  PagingController<int, PairingsRecord> get pagingControllerPairings => _pagingController;
   bool get isTournamentOngoing => tournamentModel.isTournamentOngoing;
 
 
@@ -45,9 +46,9 @@ class TournamentPairingsModel extends ChangeNotifier {
   Future<void> _fetchPage(int pageKey) async {
     PagingController<int, PairingsRecord> pagingController = _pagingController;
     try {
-      final List<RoundsRecord> newItems = await PairingsRecord.getDocumentsOnce(
+      final List<PairingsRecord> newItems = await PairingsRecord.getDocumentsOnce(
           pb,
-          '${PairingsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}"',
+          '${PairingsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}" && ${PairingsRecord.idRoundFieldName} = "${roundId}"',
           expand: PairingsRecord.idTournamentFieldName,
           sorting: PairingsRecord.createdFieldName,
           page: pageKey,
@@ -68,6 +69,10 @@ class TournamentPairingsModel extends ChangeNotifier {
   Future<void> onRefresh() async {
     _pagingController.refresh();
   }
+  Future<void> deletePairing(String pairingsId) async {
+    await tournamentModel.deletePairing(pb, roundId, pairingsId);
+  }
+
 
   @override
   void dispose() {

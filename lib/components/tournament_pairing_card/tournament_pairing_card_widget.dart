@@ -2,30 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
-import 'package:tournamentmanager/components/tournament_round_card/tournament_rounds_card_model.dart';
+import 'package:tournamentmanager/components/tournament_pairing_card/tournament_pairing_card_model.dart';
 
 import '../../app_flow/app_flow_theme.dart';
+import '../../backend/schema/pairings_record.dart';
 import '../../backend/schema/rounds_record.dart';
 
-class TournamentRoundsCardWidget extends StatefulWidget {
+class TournamentPairingsCardWidget extends StatefulWidget {
 
-  const TournamentRoundsCardWidget({
+  const TournamentPairingsCardWidget({
     super.key,
-    required this.roundRef,
+    required this.pairingRef,
     required this.indexo,
     required this.deleteFun,
   });
 
-  final RoundsRecord? roundRef;
+  final PairingsRecord? pairingRef;
   final int indexo;
   final Future<void> Function(String roundId) deleteFun;
 
   @override
-  State<TournamentRoundsCardWidget> createState() => _TournamentRoundCardWidgetState();
+  State<TournamentPairingsCardWidget> createState() => _TournamentPairingsCardWidgetState();
 }
 
-class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> {
-  late TournamentRoundsCardModel _model;
+class _TournamentPairingsCardWidgetState extends State<TournamentPairingsCardWidget> {
+  late TournamentPairingsCardModel _model;
 
   @override
   void setState(VoidCallback callback) {
@@ -36,7 +37,7 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => TournamentRoundsCardModel(widget.deleteFun, widget.roundRef!.uid));
+    _model = createModel(context, () => TournamentPairingsCardModel(widget.deleteFun, widget.pairingRef!.uid));
 
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }
@@ -62,12 +63,12 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
             SlidableAction(
               onPressed: (context){
                 context.goNamed(
-                    'DialogDeleteRound',
+                    'DialogDeletePairing',
                     pathParameters: {
-                      'tournamentId': widget.roundRef!.tournamentId,
+                      'tournamentId': widget.pairingRef!.tournamentId,
                     }.withoutNulls,
                     extra: {
-                      'req' : _model.showDeleteRoundAlertRequest(widget.roundRef!.uid),
+                      'req' : _model.showDeletePairingAlertRequest(widget.pairingRef!.uid),
                     }
                 );
               },
@@ -104,14 +105,14 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
                         fit: BoxFit.cover,
                       ),
                       Text(
-                        widget.roundRef!.roundKind.desc,
+                        widget.pairingRef!.roundKind.desc,
                         style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
                         softWrap: true,
                       ),
                       Text(
-                        widget.roundRef!.roundKind == RoundKind.topcut ?
-                        "CUT ${widget.roundRef!.size}" :
-                        "ROUND ${widget.roundRef!.index}",
+                        widget.pairingRef!.roundKind == RoundKind.topcut ?
+                        "CUT ${widget.pairingRef!.size}" :
+                        "ROUND ${widget.pairingRef!.index}",
                         style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
                         softWrap: true,
                       ),
@@ -128,7 +129,7 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Image.asset(
-                            widget.roundRef!.completed ?
+                            widget.pairingRef!.completed ?
                               'assets/images/icons/completed.png' :
                               'assets/images/icons/ongoing.png',
                             width: 30,
@@ -138,7 +139,7 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              widget.roundRef!.completed ?
+                              widget.pairingRef!.completed ?
                               "Completato" :
                               "In corso",
                               style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).cardMain),
@@ -160,7 +161,7 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              "Giocatori del round : ${widget.roundRef!.size}",
+                              "Giocatori del round : ${widget.pairingRef!.size}",
                               style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).cardMain),
                               maxLines: null,
                               softWrap: true,
@@ -181,7 +182,7 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              "Pairing completati : ${widget.roundRef!.matchCompleted} / ${widget.roundRef!.matchAll}",
+                              "Pairing completati : ${widget.pairingRef!.matchCompleted} / ${widget.pairingRef!.matchAll}",
                               style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).cardMain),
                               maxLines: null,
                               softWrap: true,
