@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/components/tournament_pairing_card/tournament_pairing_card_model.dart';
 
 import '../../app_flow/app_flow_theme.dart';
 import '../../backend/schema/pairings_record.dart';
-import '../../backend/schema/rounds_record.dart';
 
 class TournamentPairingsCardWidget extends StatefulWidget {
 
@@ -53,67 +50,319 @@ class _TournamentPairingsCardWidgetState extends State<TournamentPairingsCardWid
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(10, 15, 10, 0),
-      child: Slidable(
-        // Specify a key if the Slidable is dismissible.
-        key: ValueKey(widget.indexo),
-        // The end action pane is the one at the right or the bottom side.
-        endActionPane: ActionPane(
-          motion: const ScrollMotion(),
-          children: [
-            SlidableAction(
-              onPressed: (context){
-                context.goNamed(
-                    'DialogDeletePairing',
-                    pathParameters: {
-                      'tournamentId': widget.pairingRef!.tournamentId,
-                    }.withoutNulls,
-                    extra: {
-                      'req' : _model.showDeletePairingAlertRequest(widget.pairingRef!.uid),
-                    }
-                );
-              },
-              backgroundColor: CustomFlowTheme.of(context).error,
-              foregroundColor: CustomFlowTheme.of(context).info,
-              icon: Icons.delete,
-              label: 'Delete',
-            ),
-          ],
-        ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.all(Radius.circular(10.0)),
         child: Container(
           width: 1000,
-          decoration: BoxDecoration(
-            color: CustomFlowTheme.of(context).tertiary,
-            borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-          ),
-          child: Padding(
-            padding: const EdgeInsetsDirectional.all(15),
+          color: CustomFlowTheme.of(context).tertiary,
+          child: Container(
+            constraints: const BoxConstraints(
+              minHeight: 100,
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Flexible(
                   flex: 1,
-                  fit: FlexFit.tight, // Makes it behave like Expanded
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.asset(
-                        'assets/images/icons/versus.png',
-                        width: 20.w,
-                        height: 20.w,
-                        fit: BoxFit.cover,
+                  fit: FlexFit.tight,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.only(topRight: Radius.circular(10.0), bottomRight: Radius.circular(10.0)),
+                      color: widget.pairingRef!.completed
+                          ? CustomFlowTheme.of(context).completed
+                          : CustomFlowTheme.of(context).ongoing,
+                    ),
+                    width: 15,
+                    height: 100,
+                  ),
+                ),
+                Flexible(
+                  flex: 2,
+                  fit: FlexFit.loose,
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(5, 15, 5, 15),
+                      child: Image.asset(
+                        widget.pairingRef!.playerAWon ?
+                          'assets/images/icons/playerWin.png':
+                          'assets/images/icons/playerLose.png',
+                        fit: BoxFit.fitHeight,
                       ),
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 5,
+                  fit: FlexFit.loose,
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(0, 15, 0, 15),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'NOME',
+                            style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                            softWrap: true,
+                          ),
+                          Text(
+                            widget.pairingRef!.namePlayerA,
+                            style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
+                            softWrap: true,
+                          ),
+                          Text(
+                            'COGN.',
+                            style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                            softWrap: true,
+                          ),
+                          Text(
+                            widget.pairingRef!.surnamePlayerA,
+                            style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
+                            softWrap: true,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 3,
+                  fit: FlexFit.loose,
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(5, 15, 5, 15),
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Flexible(
+                                flex: 2,
+                                fit: FlexFit.tight,
+                                child: Image.asset(
+                                  'assets/images/icons/table.png',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Flexible(
+                                flex: 1,
+                                fit: FlexFit.tight,
+                                child: Text(
+                                  " ${widget.pairingRef!.tableIndex}",
+                                  style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                                  softWrap: true,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (widget.pairingRef!.dropPlayerA || widget.pairingRef!.dropPlayerB) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  flex: 2,
+                                  fit: FlexFit.tight,
+                                  child: widget.pairingRef!.dropPlayerA ?
+                                    Image.asset(
+                                      'assets/images/icons/dropped.png',
+                                      fit: BoxFit.cover,
+                                    ) :
+                                    const SizedBox(
+                                    ),
+                                ),
+                                const Flexible(
+                                  flex: 1,
+                                  fit: FlexFit.tight,
+                                  child: SizedBox(
+                                  ),
+                                ),
+                                Flexible(
+                                  flex: 2,
+                                  fit: FlexFit.tight,
+                                  child: widget.pairingRef!.dropPlayerB ?
+                                    Image.asset(
+                                      'assets/images/icons/dropped.png',
+                                      fit: BoxFit.cover,
+                                    ) :
+                                    const SizedBox(
+                                    ),
+                                ),
+                              ],
+                            ),
+                          ],
+                          if (widget.pairingRef!.isBye) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  flex: 2,
+                                  fit: FlexFit.tight,
+                                  child: widget.pairingRef!.playerAWon ?
+                                    Image.asset(
+                                      'assets/images/icons/bye.png',
+                                      fit: BoxFit.cover,
+                                    ) :
+                                    const SizedBox(
+                                    ),
+                                ),
+                                const Flexible(
+                                  flex: 1,
+                                  fit: FlexFit.tight,
+                                  child: SizedBox(
+                                  ),
+                                ),
+                                Flexible(
+                                  flex: 2,
+                                  fit: FlexFit.tight,
+                                  child: widget.pairingRef!.playerBWon ?
+                                    Image.asset(
+                                      'assets/images/icons/bye.png',
+                                      fit: BoxFit.cover,
+                                    ) :
+                                    const SizedBox(
+                                    ),
+                                ),
+                              ],
+                            ),
+                          ],
+                          if (widget.pairingRef!.noShow) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  flex: 2,
+                                  fit: FlexFit.tight,
+                                  child: widget.pairingRef!.playerAWon ?
+                                    const SizedBox(
+                                    ) :
+                                    Image.asset(
+                                      'assets/images/icons/noshow.png',
+                                      fit: BoxFit.cover,
+                                    ),
+                                ),
+                                const Flexible(
+                                  flex: 1,
+                                  fit: FlexFit.tight,
+                                  child: SizedBox(
+                                  ),
+                                ),
+                                Flexible(
+                                  flex: 2,
+                                  fit: FlexFit.tight,
+                                  child: widget.pairingRef!.playerBWon ?
+                                    const SizedBox(
+                                    ) :
+                                    Image.asset(
+                                      'assets/images/icons/noshow.png',
+                                      fit: BoxFit.cover,
+                                    ),
+                                ),
+                              ],
+                            ),
+                          ]
+                        ],
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 5,
+                  fit: FlexFit.loose,
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(0, 15, 0, 15),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            'NOME',
+                            style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                            softWrap: true,
+                          ),
+                          Text(
+                            widget.pairingRef!.namePlayerB,
+                            style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
+                            softWrap: true,
+                          ),
+                          Text(
+                            'COGN.',
+                            style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                            softWrap: true,
+                          ),
+                          Text(
+                            widget.pairingRef!.surnamePlayerB,
+                            style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
+                            softWrap: true,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 2,
+                  fit: FlexFit.loose,
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(5, 15, 5, 15),
+                      child: Image.asset(
+                        widget.pairingRef!.playerBWon ?
+                        'assets/images/icons/playerWin.png':
+                        'assets/images/icons/playerLose.png',
+                        fit: BoxFit.fitHeight,
+                      ),
+                    ),
+                  ),
+                ),
+
+                /*
+                Flexible(
+                  flex: 1,
+                  fit: FlexFit.loose, // Makes it behave like Expanded
+                  child: Container(
+                    color: Colors.white, // Your background color
+                    alignment: Alignment.center,
+                    child: Text(
+                      'A',
+                      style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                      softWrap: true,
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 2,
+                  fit: FlexFit.tight, // Makes it behave like Expanded
+                  child: Image.asset(
+                    'assets/images/icons/playerA.png',
+                    width: 30,
+                    height: 30,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Flexible(
+                  flex: 3,
+                  fit: FlexFit.loose, // Allows shrinking if content is smaller
+                  child: Column(
+                    children: [
                       Text(
-                        widget.pairingRef!.roundKind.desc,
-                        style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                        "NOME: temp",
+                        style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).cardMain),
                         softWrap: true,
                       ),
                       Text(
-                        widget.pairingRef!.roundKind == RoundKind.topcut ?
-                        "CUT ${widget.pairingRef!.size}" :
-                        "ROUND ${widget.pairingRef!.index}",
-                        style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                        "COGNOME: temp",
+                        style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).cardMain),
                         softWrap: true,
                       ),
                     ],
@@ -124,75 +373,47 @@ class _TournamentPairingsCardWidgetState extends State<TournamentPairingsCardWid
                   fit: FlexFit.loose, // Allows shrinking if content is smaller
                   child: Column(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            widget.pairingRef!.completed ?
-                              'assets/images/icons/completed.png' :
-                              'assets/images/icons/ongoing.png',
-                            width: 30,
-                            height: 30,
-                            fit: BoxFit.cover,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              widget.pairingRef!.completed ?
-                              "Completato" :
-                              "In corso",
-                              style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).cardMain),
-                              softWrap: true,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        "T: X",
+                        style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).cardMain),
+                        softWrap: true,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            'assets/images/icons/player.png',
-                            width: 30,
-                            height: 30,
-                            fit: BoxFit.cover,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              "Giocatori del round : ${widget.pairingRef!.size}",
-                              style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).cardMain),
-                              maxLines: null,
-                              softWrap: true,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        "VS",
+                        style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).cardMain),
+                        softWrap: true,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            'assets/images/icons/round.png',
-                            width: 30,
-                            height: 30,
-                            fit: BoxFit.cover,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              "Pairing completati : ${widget.pairingRef!.matchCompleted} / ${widget.pairingRef!.matchAll}",
-                              style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).cardMain),
-                              maxLines: null,
-                              softWrap: true,
-                            ),
-                          ),
-                        ],
-                      )
                     ],
                   ),
                 ),
+                Flexible(
+                  flex: 3,
+                  fit: FlexFit.loose, // Allows shrinking if content is smaller
+                  child: Column(
+                    children: [
+                      Text(
+                        "NOME: temp",
+                        style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).cardMain),
+                        softWrap: true,
+                      ),
+                      Text(
+                        "COGNOME: temp",
+                        style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).cardMain),
+                        softWrap: true,
+                      ),
+                    ],
+                  ),
+                ),
+                Flexible(
+                  flex: 2,
+                  fit: FlexFit.tight, // Makes it behave like Expanded
+                  child: Image.asset(
+                    'assets/images/icons/playerB.png',
+                    width: 30,
+                    height: 30,
+                    fit: BoxFit.cover,
+                  ),
+                ),*/
               ],
             ),
           ),

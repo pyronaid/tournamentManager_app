@@ -3,6 +3,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/pages/core/tournament_rounds/tournament_rounds_model.dart';
 
 import '../../../backend/schema/rounds_record.dart';
@@ -101,6 +102,18 @@ class _TournamentRoundsWidgetState extends State<TournamentRoundsWidget> {
                               roundRef: item,
                               indexo: index,
                               deleteFun: (roundsId) => providerTournamentRounds.deleteRound(roundsId),
+                              deepFun: (roundId) {
+                                context.pushNamedAuth(
+                                  'TournamentPairings', context.mounted,
+                                  pathParameters: {
+                                    'tournamentId': providerTournamentRounds.tournamentModel.tournamentId,
+                                  }.withoutNulls,
+                                  extra: {
+                                    'roundId' : roundId,
+                                    'provider' : providerTournamentRounds.tournamentModel
+                                  },
+                                );
+                              },
                             ),
                             firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
                             noItemsFoundIndicatorBuilder: (_) => const NoTournamentRoundsCardWidget(

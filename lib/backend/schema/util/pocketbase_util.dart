@@ -24,8 +24,8 @@ String? getFileUrl(String collectionId, String id, String? pathName) {
   return '$pbBaseUri/api/files/$collectionId/$id/$pathName';
 }
 
-String? getExpandendValue(Map<String, dynamic> expandMap, String expandKey, String valueId){
-  String? expandedValue;
+dynamic getExpandendValue(Map<String, dynamic> expandMap, String expandKey, String valueId){
+  dynamic expandedValue;
   if(expandMap.containsKey(expandKey)){
     Map<String, dynamic> expandKeyMap = expandMap[expandKey];
     if(expandKeyMap.containsKey(valueId)){

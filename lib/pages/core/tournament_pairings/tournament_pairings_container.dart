@@ -7,7 +7,12 @@ import 'package:tournamentmanager/pages/core/tournament_pairings/tournament_pair
 import '../../nav_bar/tournament_model.dart';
 
 class TournamentPairingsContainer extends StatefulWidget {
-  const TournamentPairingsContainer({ super.key });
+  const TournamentPairingsContainer({
+    super.key,
+    required this.roundIndex,
+  });
+
+  final String roundIndex;
 
   @override
   State<TournamentPairingsContainer> createState() => _TournamentPairingsContainerState();
@@ -35,7 +40,8 @@ class _TournamentPairingsContainerState extends State<TournamentPairingsContaine
           ChangeNotifierProxyProvider<TournamentModel, TournamentPairingsModel>(
             create: (context) => TournamentPairingsModel(
               // Retrieve tournament provider from widget tree
-                tournamentModel: context.read<TournamentModel>()
+                tournamentModel: context.read<TournamentModel>(),
+                roundId: widget.roundIndex
             ),
             update: (context, tournamentModel, previousPairingsModel) {
               // Optional update method to edit if you only want to catch some
@@ -44,7 +50,8 @@ class _TournamentPairingsContainerState extends State<TournamentPairingsContaine
                   previousPairingsModel.lastUpdatedRounds != tournamentModel.updatedRounds
               ) {
                 return TournamentPairingsModel(
-                    tournamentModel: tournamentModel
+                    tournamentModel: tournamentModel,
+                    roundId: widget.roundIndex
                 );
               }
               return previousPairingsModel;

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:tournamentmanager/pages/core/tournament_pairings/tournament_pairings_container.dart';
 import 'package:tournamentmanager/pages/core/tournament_rounds/tournament_rounds_container.dart';
 
 import '../../../pages/core/add_people/add_people_container.dart';
@@ -80,6 +81,22 @@ class TournamentRoutes {
           redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
           builder: (context, params) => const TournamentRoundsContainer(),
           routes: [
+            CustomRoute(
+                name: 'TournamentPairings',
+                path: 'tournament-pairings',
+                parentNavigatorKey: NavigatorKeys.tournamentRoundKey,
+                redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+                builder: (context, params) => MultiProvider(
+                  providers: [
+                    ChangeNotifierProvider.value(
+                      value: (params.state.extra as Map<String, dynamic>)["provider"] as TournamentModel,
+                    ),
+                  ],
+                  child: TournamentPairingsContainer(
+                    roundIndex: params.getParam('roundId', ParamType.String,),
+                  ),
+                ),
+            ).toRoute(appStateNotifier),
             GoRoute(
               name: 'DialogGenerateRound',
               path: 'dialog-generate-round',

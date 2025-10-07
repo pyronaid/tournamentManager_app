@@ -9,6 +9,7 @@ import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 
 class PairingsRecord extends PocketstoreRecord {
   static const String collectionName = "pairings";
+  static const String collectionNameExt = "pairings_extended";
   static const String idFieldName = 'id';
   static const String idTournamentFieldName = 'id_tournament';
   static const String idRoundFieldName = 'id_round';
@@ -26,7 +27,12 @@ class PairingsRecord extends PocketstoreRecord {
   static const String collectionIdFieldName = 'collectionId';
   static const String collectionNameFieldName = 'collectionName';
 
-  static const String idOwnerFieldName = 'id_owner';
+  static const String namePlayerAFieldName = 'namePlayerA';
+  static const String namePlayerBFieldName = 'namePlayerB';
+  static const String surnamePlayerAFieldName = 'surnamePlayerA';
+  static const String surnamePlayerBFieldName = 'surnamePlayerB';
+  static const String usernamePlayerAFieldName = 'usernamePlayerA';
+  static const String usernamePlayerBFieldName = 'usernamePlayerB';
 
   PairingsRecord._(
       super.reference,
@@ -34,6 +40,8 @@ class PairingsRecord extends PocketstoreRecord {
       ) {
     _initializeFields();
   }
+
+  late final bool extFlag;
 
   late String _uid;
   String get uid => _uid;
@@ -77,11 +85,57 @@ class PairingsRecord extends PocketstoreRecord {
   late DateTime _updatedTime;
   DateTime get updatedTime => _updatedTime;
 
+  late String _namePlayerA;
+  String get namePlayerA => _namePlayerA;
+
+  late String _namePlayerB;
+  String get namePlayerB => _namePlayerB;
+
+  late String _surnamePlayerA;
+  String get surnamePlayerA => _surnamePlayerA;
+
+  late String _surnamePlayerB;
+  String get surnamePlayerB => _surnamePlayerB;
+
+  late String _usernamePlayerA;
+  String get usernamePlayerA => _usernamePlayerA;
+
+  late String _usernamePlayerB;
+  String get usernamePlayerB => _usernamePlayerB;
+
+  bool get completed => winner != "" || doubleLoss;
+  bool get playerAWon => winner == playerA;
+  bool get playerBWon => winner == playerB;
+
   late String _collectionId;
   late String _collectionName;
 
 
   void _initializeFields() {
+    if(snapshotData.containsKey(namePlayerAFieldName)) {
+      _namePlayerA = snapshotData[namePlayerAFieldName];
+    } else { _namePlayerA = '';}
+    if(snapshotData.containsKey(namePlayerBFieldName)) {
+      _namePlayerB = snapshotData[namePlayerBFieldName];
+    } else { _namePlayerB = '';}
+    if(snapshotData.containsKey(surnamePlayerAFieldName)) {
+      _surnamePlayerA = snapshotData[surnamePlayerAFieldName];
+    } else { _surnamePlayerA = '';}
+    if(snapshotData.containsKey(surnamePlayerBFieldName)) {
+      _surnamePlayerB = snapshotData[surnamePlayerBFieldName];
+    } else { _surnamePlayerB = '';}
+    if(snapshotData.containsKey(usernamePlayerAFieldName)) {
+      _usernamePlayerA = snapshotData[usernamePlayerAFieldName];
+    } else { _usernamePlayerA = '';}
+    if(snapshotData.containsKey(usernamePlayerBFieldName)) {
+      extFlag = true;
+      _usernamePlayerB = snapshotData[usernamePlayerBFieldName];
+    } else {
+      extFlag = false;
+      _usernamePlayerB = '';
+    }
+
+
     _uid = snapshotData[idFieldName];
     _tournamentId = snapshotData[idTournamentFieldName];
     _roundId = snapshotData[idRoundFieldName];
@@ -110,13 +164,13 @@ class PairingsRecord extends PocketstoreRecord {
   static Stream<PairingsRecord> getDocument(PocketBase pb, String id, {String? expand}) {
     final controller = StreamController<PairingsRecord>();
 
-    pb.collection(collectionName).getOne(id, expand: expand).then((record) {
+    pb.collection(collectionNameExt).getOne(id, expand: expand).then((record) {
       if (!controller.isClosed) controller.add(PairingsRecord.fromSnapshot(record));
     }).catchError((error){
       if (!controller.isClosed) controller.addError(error);
     });
 
-    pb.collection(collectionName).subscribe(id, expand: expand, (e) {
+    pb.collection(collectionNameExt).subscribe(id, expand: expand, (e) {
       if (e.record != null) {
         if (!controller.isClosed) controller.add(PairingsRecord.fromSnapshot(e.record!));
       }
@@ -124,7 +178,7 @@ class PairingsRecord extends PocketstoreRecord {
 
     // Clean up on stream cancellation
     controller.onCancel = () {
-      pb.collection(collectionName).unsubscribe();
+      pb.collection(collectionNameExt).unsubscribe();
     };
 
     return controller.stream;
@@ -133,7 +187,7 @@ class PairingsRecord extends PocketstoreRecord {
     final controller = StreamController<List<PairingsRecord>>();
     final List<PairingsRecord> documents = [];
 
-    pb.collection(collectionName).getList(filter: filter, sort: sorting, page: page, perPage: perPage, expand: expand).then((recordList) {
+    pb.collection(collectionNameExt).getList(filter: filter, sort: sorting, page: page, perPage: perPage, expand: expand).then((recordList) {
       if (!controller.isClosed) {
         List<PairingsRecord> newsList = recordList.items.map((record) => PairingsRecord.fromSnapshot(record)).toList();
         documents.addAll(newsList);
@@ -143,7 +197,7 @@ class PairingsRecord extends PocketstoreRecord {
       if (!controller.isClosed) controller.addError(error);
     });
 
-    pb.collection(collectionName).subscribe('*', filter: filter, query: {'page' : page, 'perPage' : perPage}, expand: expand, (e) {
+    pb.collection(collectionNameExt).subscribe('*', filter: filter, query: {'page' : page, 'perPage' : perPage}, expand: expand, (e) {
       if (!controller.isClosed && e.record != null) {
         PairingsRecord record = PairingsRecord.fromSnapshot(e.record!);
 
@@ -166,15 +220,15 @@ class PairingsRecord extends PocketstoreRecord {
 
     // Clean up on stream cancellation
     controller.onCancel = () {
-      pb.collection(collectionName).unsubscribe();
+      pb.collection(collectionNameExt).unsubscribe();
     };
 
     return controller.stream;
   }
   static Future<PairingsRecord> getDocumentOnce(PocketBase pb, String id, {String? expand}) =>
-      pb.collection(collectionName).getOne(id, expand: expand).then((s) => PairingsRecord.fromSnapshot(s));
+      pb.collection(collectionNameExt).getOne(id, expand: expand).then((s) => PairingsRecord.fromSnapshot(s));
   static Future<List<PairingsRecord>> getDocumentsOnce(PocketBase pb, String filter, {String? expand, String? sorting, int page=1, int perPage = 30, Map<String, dynamic> queryMap = const {}}) =>
-      pb.collection(collectionName).getList(
+      pb.collection(collectionNameExt).getList(
           filter: filter,
           sort: sorting,
           page: page,
@@ -184,6 +238,8 @@ class PairingsRecord extends PocketstoreRecord {
       ).then(
               (s) => s.items.map(
                   (record) => PairingsRecord.fromSnapshot(record)).toList()
+      ).catchError(
+              (e) => print(e)
       );
   static Future<void> deletePairing(pb, String idP) async {
     pb.collection(collectionName).delete(idP);

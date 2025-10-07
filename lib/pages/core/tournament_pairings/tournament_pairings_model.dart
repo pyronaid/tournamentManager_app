@@ -70,7 +70,7 @@ class TournamentPairingsModel extends ChangeNotifier {
     _pagingController.refresh();
   }
   Future<void> deletePairing(String pairingsId) async {
-    await tournamentModel.deletePairing(pb, roundId, pairingsId);
+    print("deletePairingsFunction");
   }
 
 

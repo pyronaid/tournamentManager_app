@@ -6,7 +6,6 @@ import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/pages/core/tournament_pairings/tournament_pairings_model.dart';
 
 import '../../../backend/schema/pairings_record.dart';
-import '../../../components/fab_expandable/fab_expandable_widget.dart';
 import '../../../components/generic_loading/generic_loading_widget.dart';
 import '../../../components/no_tournament_pairing_card/no_tournament_pairings_card_widget.dart';
 import '../../../components/tournament_pairing_card/tournament_pairing_card_widget.dart';

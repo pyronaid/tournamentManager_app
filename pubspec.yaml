@@ -171,6 +171,12 @@ flutter:
      - assets/images/icons/versus.png
      - assets/images/icons/ongoing.png
      - assets/images/icons/completed.png
+     - assets/images/icons/playerWin.png
+     - assets/images/icons/playerLose.png
+     - assets/images/icons/dropped.png
+     - assets/images/icons/noshow.png
+     - assets/images/icons/table.png
+     - assets/images/icons/bye.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
