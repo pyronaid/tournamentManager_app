@@ -15,7 +15,7 @@ class ScaffoldWithLevelTwoNestedNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool showBottomAndUpperNav = !RegExp(r'/tournament-(dets|people|news)/(?!dialog-)[a-zA-Z]+').hasMatch(GoRouter.of(context).getCurrentLocation());
+    final bool showBottomAndUpperNav = !RegExp(r'/tournament-(dets|people|news|rounds)/(?!dialog-)[a-zA-Z]+').hasMatch(GoRouter.of(context).getCurrentLocation());
     final bool isDialogRoute = RegExp(r'/dialog-[a-zA-Z]+').hasMatch(GoRouter.of(context).getCurrentLocation());
 
     return PopScope(
@@ -27,7 +27,7 @@ class ScaffoldWithLevelTwoNestedNavigation extends StatelessWidget {
         if (RegExp(r'.*/tournament-(dets|rounds|people|news)$').hasMatch(GoRouter.of(context).getCurrentLocation())) {
           router.go('/dashboard');
         } else {
-          Navigator.pop(context);
+          context.safePop();
         }
       },
       child: Scaffold(
@@ -38,7 +38,7 @@ class ScaffoldWithLevelTwoNestedNavigation extends StatelessWidget {
             child: IconButton(
               icon: const Icon(Icons.arrow_back),
               tooltip: isDialogRoute ? null : MaterialLocalizations.of(context).backButtonTooltip,
-              onPressed: isDialogRoute ? null : () => Navigator.maybePop(context),
+              onPressed: isDialogRoute ? null : () => context.safePop(),
             ),
           ),
           toolbarHeight: 35.sp,

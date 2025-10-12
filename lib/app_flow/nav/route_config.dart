@@ -124,7 +124,7 @@ class RouteGuard {
     // Check if we're at the initial route
     if (currentLocation == '/${state.pathParameters['tournamentId']}') {
       if (context.mounted) {
-        context.pop();
+        context.safePop();
       }
       return state.uri.toString();
     }

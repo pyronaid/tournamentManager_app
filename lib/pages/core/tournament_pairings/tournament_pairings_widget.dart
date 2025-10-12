@@ -3,12 +3,17 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/components/custom_expansion_panel/custom_expansion_panel_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_pairings/tournament_pairings_model.dart';
 
+import '../../../app_flow/app_flow_model.dart';
 import '../../../backend/schema/pairings_record.dart';
+import '../../../components/custom_appbar_widget.dart';
 import '../../../components/generic_loading/generic_loading_widget.dart';
 import '../../../components/no_tournament_pairing_card/no_tournament_pairings_card_widget.dart';
+import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 import '../../../components/tournament_pairing_card/tournament_pairing_card_widget.dart';
+import '../../../components/tournament_pairing_card_expand/tournament_pairing_card_expand_widget.dart';
 
 
 class TournamentPairingsWidget extends StatefulWidget {
@@ -34,6 +39,7 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
 
     tournamentPairingsModel = context.read<TournamentPairingsModel>();
+    tournamentPairingsModel.initContextVars(context);
   }
 
   @override
@@ -80,7 +86,78 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
                       ////////////////
                       //Pairings SECTION HEADER
                       /////////////////
-
+                      SliverAppBar(
+                        automaticallyImplyLeading: false,
+                        pinned: true,
+                        snap: false,
+                        floating: false,
+                        expandedHeight: 250.0,
+                        collapsedHeight: 250.0,
+                        backgroundColor: CustomFlowTheme.of(context).secondary,
+                        flexibleSpace: Padding(
+                          padding: const EdgeInsetsDirectional.symmetric(horizontal: 15, vertical: 15),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              wrapWithModel(
+                                model: providerTournamentPairings.customAppbarModel,
+                                updateCallback: () => setState(() {}),
+                                child: CustomAppbarWidget(
+                                  backButton: true,
+                                  actionButton: false,
+                                  actionButtonAction: () async {},
+                                  optionsButtonAction: () async {},
+                                ),
+                              ),
+                              ////////////////
+                              //PAGE TITLE
+                              /////////////////
+                              Padding(
+                                padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 30),
+                                child: Text(
+                                  'Dettaglio Pairings',
+                                  style: CustomFlowTheme.of(context).displaySmall,
+                                ),
+                              ),
+                              ////////////////
+                              //research box
+                              /////////////////
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 65.w,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                                      child: TextField(
+                                        controller: providerTournamentPairings.playerNameTextController,
+                                        focusNode: providerTournamentPairings.playerNameFocusNode,
+                                        autofocus: false,
+                                        obscureText: false,
+                                        decoration: standardInputDecoration(
+                                          context,
+                                          prefixIcon: Icon(
+                                            Icons.person,
+                                            color: CustomFlowTheme.of(context).secondaryText,
+                                            size: 18,
+                                          ),
+                                        ),
+                                        style: CustomFlowTheme.of(context).bodyLarge.override(
+                                          fontWeight: FontWeight.w500,
+                                          lineHeight: 1,
+                                        ),
+                                        minLines: 1,
+                                        cursorColor: CustomFlowTheme.of(context).primary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
 
                       ////////////////
                       //Pairings SECTION INF LIST
@@ -90,12 +167,20 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
                         sliver: PagedSliverList<int, PairingsRecord>(
                           pagingController: providerTournamentPairings.pagingControllerPairings,
                           builderDelegate: PagedChildBuilderDelegate<PairingsRecord>(
-                            itemBuilder: (context, item, index) => TournamentPairingsCardWidget(
-                              key: Key('Keykia_${item.uid}_position_${index}_of_pairings'),
-                              //last: index == (providerMyTournaments.pagingControllerActive.itemList!.length - 1),
-                              pairingRef: item,
-                              indexo: index,
-                              deleteFun: (pairingsId) => providerTournamentPairings.deletePairing(pairingsId),
+                            itemBuilder: (context, item, index) => CustomExpansionPanelWidget(
+                              isExpandable: !item.isBye,
+                              expandedContentBuilder: (context){
+                                return TournamentPairingCardExpandWidget(
+                                  pairingRef: item,
+                                );
+                              },
+                              child: TournamentPairingsCardWidget(
+                                key: Key('Keykia_${item.uid}_position_${index}_of_pairings'),
+                                //last: index == (providerMyTournaments.pagingControllerActive.itemList!.length - 1),
+                                pairingRef: item,
+                                indexo: index,
+                                deleteFun: (pairingsId) => providerTournamentPairings.deletePairing(pairingsId),
+                              ),
                             ),
                             firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
                             noItemsFoundIndicatorBuilder: (_) => const NoTournamentPairingsCardWidget(

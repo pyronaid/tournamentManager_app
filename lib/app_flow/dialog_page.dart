@@ -60,7 +60,7 @@ class DialogWidget extends StatelessWidget {
     if (extra == null) {
       // Use addPostFrameCallback to avoid build-time navigation
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Router.neglect(context, () => context.pop());
+        Router.neglect(context, () => context.safePop());
       });
       // Return an empty container while redirecting
       return Container();
@@ -133,7 +133,7 @@ class DialogWidget extends StatelessWidget {
             padding: const EdgeInsets.only(right: 8),
             child: ElevatedButton(
               onPressed: () {
-                Router.neglect(context, () => context.pop());
+                Router.neglect(context, () => context.safePop());
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.surfaceContainerHighest,
@@ -173,7 +173,7 @@ class DialogWidget extends StatelessWidget {
                     },
                   );
                 } else {
-                  Router.neglect(context, () => context.pop());
+                  Router.neglect(context, () => context.safePop());
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -228,7 +228,7 @@ class _DialogFormWidgetState extends State<DialogFormWidget> {
     if (extra == null) {
       // Use addPostFrameCallback to avoid build-time navigation
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Router.neglect(context, () => context.pop());
+        Router.neglect(context, () => context.safePop());
       });
       // Return an empty container while redirecting
       return Container();
@@ -324,7 +324,7 @@ class _DialogFormWidgetState extends State<DialogFormWidget> {
             padding: const EdgeInsets.only(right: 8),
             child: ElevatedButton(
               onPressed: () {
-                Router.neglect(context, () => context.pop());
+                Router.neglect(context, () => context.safePop());
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.surfaceContainerHighest,
@@ -366,7 +366,7 @@ class _DialogFormWidgetState extends State<DialogFormWidget> {
                       },
                     );
                   } else {
-                    Router.neglect(context, () => context.pop());
+                    Router.neglect(context, () => context.safePop());
                   }
                 }
               },

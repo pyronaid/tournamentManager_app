@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/components/custom_appbar_widget.dart';
@@ -167,7 +168,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                               } else {
                                 await pocketAuthManager.resetPassword(_model.emailAddressTextController!.text);
                                 logFirebaseEvent('Button_navigate_back');
-                                context.pop();
+                                context.safePop();
                               }
                             },
                             text: 'Reset Password',

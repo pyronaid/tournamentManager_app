@@ -1,12 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
+import '../../../app_flow/app_flow_model.dart';
 import '../../../app_flow/services/LoaderService.dart';
 import '../../../app_flow/services/PocketbaseApiManagerService.dart';
 import '../../../app_flow/services/SnackBarService.dart';
 import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 import '../../../backend/schema/pairings_record.dart';
+import '../../../components/custom_appbar_model.dart';
 import '../../nav_bar/tournament_model.dart';
 
 class TournamentPairingsModel extends ChangeNotifier {
@@ -16,12 +20,19 @@ class TournamentPairingsModel extends ChangeNotifier {
 
   late LoaderService loaderService;
   late SnackBarService snackBarService;
-  late PocketbaseApiManagerService _pocketbaseApiManagerService;
 
   late PagingController<int, PairingsRecord> _pagingController;
   static const _pageSize = 30;
   late bool _isLoading;
   late DateTime? _lastUpdatedRounds;
+
+  late TextEditingController _playerNameTextController;
+  late FocusNode _playerNameFocusNode;
+  Timer? debounce;
+  String oldValueToCompare = '';
+  String currentFilter = '';
+
+  late CustomAppbarModel customAppbarModel;
 
 
   /////////////////////////////CONSTRUCTOR
@@ -30,9 +41,24 @@ class TournamentPairingsModel extends ChangeNotifier {
     _lastUpdatedRounds = tournamentModel.updatedRounds;
     loaderService = GetIt.instance<LoaderService>();
     snackBarService = GetIt.instance<SnackBarService>();
-    _pocketbaseApiManagerService = GetIt.instance<PocketbaseApiManagerService>();
     _pagingController = PagingController(firstPageKey: 1);
     _pagingController.addPageRequestListener((pageKey) => _fetchPage(pageKey));
+    currentFilter = '';
+    _playerNameTextController = TextEditingController();
+    _playerNameFocusNode = FocusNode();
+    /////////////////////////////LISTENERS
+    _playerNameTextController.addListener(() {
+      final currentText = _playerNameTextController.text;
+      if(_playerNameTextController.text.isNotEmpty && _playerNameTextController.text.length > 1 && oldValueToCompare != currentText){
+        oldValueToCompare = currentText;
+
+        if (debounce?.isActive ?? false) debounce!.cancel();
+        debounce = Timer(const Duration(milliseconds: 800), () async {
+          currentFilter = currentText;
+          _pagingController.refresh();
+        });
+      }
+    });
   }
 
   /////////////////////////////GETTER
@@ -40,15 +66,29 @@ class TournamentPairingsModel extends ChangeNotifier {
   DateTime? get lastUpdatedRounds => _lastUpdatedRounds;
   PagingController<int, PairingsRecord> get pagingControllerPairings => _pagingController;
   bool get isTournamentOngoing => tournamentModel.isTournamentOngoing;
+  TextEditingController get playerNameTextController => _playerNameTextController;
+  FocusNode get playerNameFocusNode => _playerNameFocusNode;
 
 
   /////////////////////////////SETTER
   Future<void> _fetchPage(int pageKey) async {
     PagingController<int, PairingsRecord> pagingController = _pagingController;
     try {
+      String filterComposed = '${PairingsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}" && ${PairingsRecord.idRoundFieldName} = "$roundId"';
+      if(currentFilter.isNotEmpty){
+        filterComposed = '$filterComposed && '
+            '(${PairingsRecord.namePlayerAFieldName} ~ "$currentFilter" || '
+            '${PairingsRecord.surnamePlayerAFieldName} ~ "$currentFilter" || '
+            '${PairingsRecord.usernamePlayerAFieldName} ~ "$currentFilter" || '
+            '${PairingsRecord.namePlayerBFieldName} ~ "$currentFilter" || '
+            '${PairingsRecord.surnamePlayerBFieldName} ~ "$currentFilter" || '
+            '${PairingsRecord.usernamePlayerBFieldName} ~ "$currentFilter" || '
+            '${PairingsRecord.playerAFieldName} ~ "$currentFilter" || '
+            '${PairingsRecord.playerBFieldName} ~ "$currentFilter")';
+      }
       final List<PairingsRecord> newItems = await PairingsRecord.getDocumentsOnce(
           pb,
-          '${PairingsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}" && ${PairingsRecord.idRoundFieldName} = "${roundId}"',
+          filterComposed,
           expand: PairingsRecord.idTournamentFieldName,
           sorting: PairingsRecord.createdFieldName,
           page: pageKey,
@@ -77,7 +117,12 @@ class TournamentPairingsModel extends ChangeNotifier {
   @override
   void dispose() {
     _pagingController.dispose();
+    customAppbarModel.dispose();
     super.dispose();
+  }
+
+  void initContextVars(BuildContext context) {
+    customAppbarModel = createModel(context, () => CustomAppbarModel());
   }
 
 }

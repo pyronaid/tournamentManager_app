@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/components/custom_appbar_widget.dart';
@@ -420,7 +421,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
                                     createEditNewsModel.newsImageUrlTemp,
                                     createEditNewsModel.newsShowTimestampEnVar
                                 );
-                                if(result){ Navigator.of(context).pop(); }
+                                if(result){ context.safePop(); }
                                 logFirebaseEvent('Button_haptic_feedback');
                                 HapticFeedback.lightImpact();
                               },

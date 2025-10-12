@@ -47,6 +47,7 @@ abstract class CustomFlowTheme {
   late Color primary;
   late Color secondary;
   late Color tertiary;
+  late Color tertiaryDark;
   late Color alternate;
   late Color primaryText;
   late Color secondaryText;
@@ -152,6 +153,7 @@ class LightModeTheme extends CustomFlowTheme {
   late Color primary = const Color(0xFF448AFF);
   late Color secondary = const Color(0xFF386EC8);
   late Color tertiary = const Color(0xFF7CA3E4);
+  late Color tertiaryDark = const Color(0xFF5672A3);
   late Color alternate = const Color(0xFFE0E3E7);
   late Color primaryText = const Color(0xFF272727);
   late Color secondaryText = const Color(0xFF797979);
@@ -359,6 +361,7 @@ class DarkModeTheme extends CustomFlowTheme {
   late Color primary = const Color(0xFF448AFF);
   late Color secondary = const Color(0xFF386EC8);
   late Color tertiary = const Color(0xFF7CA3E4);
+  late Color tertiaryDark = const Color(0xFF5672A3);
   late Color alternate = const Color(0xFF22282F);
   late Color primaryText = const Color(0xFFFFFFFF);
   late Color secondaryText = const Color(0xFF999999);
