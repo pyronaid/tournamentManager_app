@@ -3,30 +3,28 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
-import 'package:tournamentmanager/components/custom_expansion_panel/custom_expansion_panel_widget.dart';
-import 'package:tournamentmanager/pages/core/tournament_pairings/tournament_pairings_model.dart';
+import 'package:tournamentmanager/pages/core/tournament_rankings/tournament_rankings_model.dart';
 
 import '../../../app_flow/app_flow_model.dart';
-import '../../../backend/schema/pairings_record.dart';
+import '../../../backend/schema/rankings_record.dart';
 import '../../../components/custom_appbar_widget.dart';
 import '../../../components/generic_loading/generic_loading_widget.dart';
-import '../../../components/no_tournament_pairing_card/no_tournament_pairings_card_widget.dart';
+import '../../../components/no_tournament_ranking_card/no_tournament_rankings_card_widget.dart';
 import '../../../components/standard_graphics/standard_graphics_widgets.dart';
-import '../../../components/tournament_pairing_card/tournament_pairing_card_widget.dart';
-import '../../../components/tournament_pairing_card_expand/tournament_pairing_card_expand_widget.dart';
+import '../../../components/tournament_ranking_card/tournament_ranking_card_widget.dart';
 
 
-class TournamentPairingsWidget extends StatefulWidget {
-  const TournamentPairingsWidget({super.key});
+class TournamentRankingsWidget extends StatefulWidget {
+  const TournamentRankingsWidget({super.key});
 
   @override
-  State<TournamentPairingsWidget> createState() => _TournamentPairingsWidgetState();
+  State<TournamentRankingsWidget> createState() => _TournamentRankingsWidgetState();
 }
 
 
-class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
+class _TournamentRankingsWidgetState extends State<TournamentRankingsWidget> {
 
-  late TournamentPairingsModel tournamentPairingsModel;
+  late TournamentRankingsModel tournamentRankingsModel;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _unfocusNode = FocusNode();
@@ -38,8 +36,8 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
     //logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentDetail'});
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
 
-    tournamentPairingsModel = context.read<TournamentPairingsModel>();
-    tournamentPairingsModel.initContextVars(context);
+    tournamentRankingsModel = context.read<TournamentRankingsModel>();
+    tournamentRankingsModel.initContextVars(context);
   }
 
   @override
@@ -54,10 +52,10 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
       onTap: () => _unfocusNode.canRequestFocus
           ? FocusScope.of(context).requestFocus(_unfocusNode)
           : FocusScope.of(context).unfocus(),
-      child: Consumer<TournamentPairingsModel>(
-          builder: (context, providerTournamentPairings, _) {
-            print("[BUILD IN CORSO] tournament_pairings_widget.dart");
-            if (providerTournamentPairings.isLoading) {
+      child: Consumer<TournamentRankingsModel>(
+          builder: (context, providerTournamentRankings, _) {
+            print("[BUILD IN CORSO] tournament_rankings_widget.dart");
+            if (providerTournamentRankings.isLoading) {
               return Scaffold(
                 key: _scaffoldKey,
                 backgroundColor: CustomFlowTheme.of(context).primaryBackground,
@@ -77,14 +75,14 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
                 top: true,
                 child: RefreshIndicator(
                   onRefresh: () async {
-                    await providerTournamentPairings.onRefresh();
+                    await providerTournamentRankings.onRefresh();
                   },
                   child: CustomScrollView(
                     slivers: [
                       // use sliver padding if needed https://api.flutter.dev/flutter/widgets/SliverPadding-class.html
 
                       ////////////////
-                      //Pairings SECTION HEADER
+                      //Rankings SECTION HEADER
                       /////////////////
                       SliverAppBar(
                         automaticallyImplyLeading: false,
@@ -100,15 +98,12 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               wrapWithModel(
-                                model: providerTournamentPairings.customAppbarModel,
+                                model: providerTournamentRankings.customAppbarModel,
                                 updateCallback: () => setState(() {}),
                                 child: CustomAppbarWidget(
                                   backButton: true,
-                                  actionButton: true,
-                                  actionButtonText: 'Rankings',
-                                  actionButtonAction: () async {
-                                    print("echo");
-                                  },
+                                  actionButton: false,
+                                  actionButtonAction: () async {},
                                   optionsButtonAction: () async {},
                                 ),
                               ),
@@ -118,7 +113,7 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
                               Padding(
                                 padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 30),
                                 child: Text(
-                                  'Dettaglio Pairings',
+                                  'Ranking',
                                   style: CustomFlowTheme.of(context).displaySmall,
                                 ),
                               ),
@@ -134,8 +129,8 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 5),
                                       child: TextField(
-                                        controller: providerTournamentPairings.playerNameTextController,
-                                        focusNode: providerTournamentPairings.playerNameFocusNode,
+                                        controller: providerTournamentRankings.playerNameTextController,
+                                        focusNode: providerTournamentRankings.playerNameFocusNode,
                                         autofocus: false,
                                         obscureText: false,
                                         decoration: standardInputDecoration(
@@ -163,33 +158,23 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
                       ),
 
                       ////////////////
-                      //Pairings SECTION INF LIST
+                      //Rankings SECTION INF LIST
                       /////////////////
                       SliverPadding(
                         padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                        sliver: PagedSliverList<int, PairingsRecord>(
-                          pagingController: providerTournamentPairings.pagingControllerPairings,
-                          builderDelegate: PagedChildBuilderDelegate<PairingsRecord>(
-                            itemBuilder: (context, item, index) => CustomExpansionPanelWidget(
-                              isExpandable: !item.isBye,
-                              expandedContentBuilder: (context){
-                                return TournamentPairingCardExpandWidget(
-                                  pairingRef: item,
-                                  updateFun: (pairingsId, dataToUpdate) => providerTournamentPairings.updatePairing(pairingsId, dataToUpdate),
-                                );
-                              },
-                              child: TournamentPairingsCardWidget(
-                                key: Key('Keykia_${item.uid}_position_${index}_of_pairings'),
-                                //last: index == (providerMyTournaments.pagingControllerActive.itemList!.length - 1),
-                                pairingRef: item,
-                                indexo: index,
-                                deleteFun: (pairingsId) => providerTournamentPairings.deletePairing(pairingsId),
-                              ),
+                        sliver: PagedSliverList<int, RankingsRecord>(
+                          pagingController: providerTournamentRankings.pagingControllerRankings,
+                          builderDelegate: PagedChildBuilderDelegate<RankingsRecord>(
+                            itemBuilder: (context, item, index) => TournamentRankingsCardWidget(
+                              key: Key('Keykia_${item.uid}_position_${index}_of_rankings'),
+                              //last: index == (providerMyTournaments.pagingControllerActive.itemList!.length - 1),
+                              rankingRef: item,
+                              indexo: index,
                             ),
                             firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-                            noItemsFoundIndicatorBuilder: (_) => const NoTournamentPairingsCardWidget(
+                            noItemsFoundIndicatorBuilder: (_) => const NoTournamentRankingsCardWidget(
                               active: true,
-                              phrase: "Nessun pairing pubblicato",
+                              phrase: "Nessun player in classifica",
                             ),
                             newPageProgressIndicatorBuilder: (_) => const Center(child: CircularProgressIndicator()),
                           ),
@@ -198,7 +183,7 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
                       ),
 
                       ////////////////
-                      //Pairings SECTION END
+                      //Rankings SECTION END
                       /////////////////
                       SliverToBoxAdapter(
                         child: SizedBox(

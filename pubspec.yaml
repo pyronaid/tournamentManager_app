@@ -35,7 +35,6 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  algoliasearch: ^1.27.3
   auto_size_text: ^3.0.0
   #cached_network_image: ^3.3.1   #ADDED_NOT_DEMANDED
   cloud_firestore: ^5.0.0
@@ -177,6 +176,8 @@ flutter:
      - assets/images/icons/noshow.png
      - assets/images/icons/table.png
      - assets/images/icons/bye.png
+     - assets/images/icons/double_loss.png
+     - assets/images/icons/ranking.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -56,7 +56,7 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
       padding: const EdgeInsetsDirectional.fromSTEB(10, 15, 10, 0),
       child: Slidable(
         // Specify a key if the Slidable is dismissible.
-        key: ValueKey(widget.indexo),
+        key: ValueKey("round${widget.indexo}"),
         // The end action pane is the one at the right or the bottom side.
         endActionPane: ActionPane(
           motion: const ScrollMotion(),

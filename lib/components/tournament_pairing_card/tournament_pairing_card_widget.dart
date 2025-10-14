@@ -268,7 +268,37 @@ class _TournamentPairingsCardWidgetState extends State<TournamentPairingsCardWid
                                 ),
                               ],
                             ),
-                          ]
+                          ],
+                          if (widget.pairingRef!.doubleLoss) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  flex: 2,
+                                  fit: FlexFit.tight,
+                                  child: Image.asset(
+                                    'assets/images/icons/double_loss.png',
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                const Flexible(
+                                  flex: 1,
+                                  fit: FlexFit.tight,
+                                  child: SizedBox(
+                                  ),
+                                ),
+                                Flexible(
+                                  flex: 2,
+                                  fit: FlexFit.tight,
+                                  child: Image.asset(
+                                    'assets/images/icons/double_loss.png',
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
                     ),
                   ),

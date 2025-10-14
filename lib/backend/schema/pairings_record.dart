@@ -272,6 +272,7 @@ class PairingsRecord extends PocketstoreRecord {
       );
     } catch (e) {
       print("Failed to update fields: $e");
+      rethrow;
     }
   }
 

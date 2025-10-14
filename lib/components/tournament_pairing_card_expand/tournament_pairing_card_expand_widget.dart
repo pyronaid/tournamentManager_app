@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/components/tournament_pairing_card_expand/tournament_pairing_card_expand_model.dart';
 
 import '../../app_flow/app_flow_model.dart';
@@ -12,10 +11,12 @@ class TournamentPairingCardExpandWidget extends StatefulWidget {
 
   const TournamentPairingCardExpandWidget({
     super.key,
-    required this.pairingRef
+    required this.pairingRef,
+    required this.updateFun
   });
 
   final PairingsRecord? pairingRef;
+  final Future<void> Function(String roundId, Map<String, dynamic> dataToUpdate) updateFun;
 
   @override
   State<TournamentPairingCardExpandWidget> createState() => _TournamentPairingCardExpandWidgetState();
@@ -36,9 +37,13 @@ class _TournamentPairingCardExpandWidgetState extends State<TournamentPairingCar
   void initState() {
     super.initState();
     _model = createModel(context, () => TournamentPairingCardExpandModel(
+      pairingId: widget.pairingRef!.uid,
       dropPlayerA: widget.pairingRef!.dropPlayerA,
       dropPlayerB: widget.pairingRef!.dropPlayerB,
+      winnerId: widget.pairingRef!.winner,
+      doubleLoss: widget.pairingRef!.doubleLoss,
       noShow: widget.pairingRef!.noShow,
+      updateFun: widget.updateFun,
     ));
 
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
@@ -221,7 +226,7 @@ class _TournamentPairingCardExpandWidgetState extends State<TournamentPairingCar
                                 ],
                               ),
                               leading: Radio<String>(
-                                value: TournamentPairingCardExpandModel.doubleLoss,
+                                value: TournamentPairingCardExpandModel.doubleLossString,
                                 groupValue: _model.selectedWinner,
                                 onChanged: (value) {
                                   setState(() {
@@ -280,10 +285,21 @@ class _TournamentPairingCardExpandWidgetState extends State<TournamentPairingCar
                                   child: AFButtonWidget(
                                     onPressed: () async {
                                       FocusScope.of(context).unfocus();
+                                      if(_model.validationMessageError.isNotEmpty){
+                                        setState(() {
+                                          _model.emptyValidationMessageErrorList();
+                                        });
+                                      }
                                       if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
                                         return;
                                       }
-
+                                      if(_model.selectedWinner == null){
+                                        setState(() {
+                                          _model.addErrorMessage('Nessuna opzione winner scelta');
+                                        });
+                                        return;
+                                      }
+                                      await _model.updateTrigger();
                                       HapticFeedback.lightImpact();
                                     },
                                     text: 'Salva',
