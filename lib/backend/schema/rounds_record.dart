@@ -15,7 +15,6 @@ class RoundsRecord extends PocketstoreRecord {
   static const String indexFieldName = 'roundIndex';
   static const String sizeFieldName = 'roundSize';
   static const String kindFieldName = 'roundKind';
-  static const String completedFieldName = 'completed';
   static const String createdFieldName = 'created';
   static const String updatedFieldName = 'updated';
   static const String collectionIdFieldName = 'collectionId';
@@ -23,6 +22,7 @@ class RoundsRecord extends PocketstoreRecord {
 
   static const String matchAllFieldName = 'matchAll';
   static const String matchCompletedFieldName = 'matchCompleted';
+  static const String completedFieldName = 'completed';
 
   static const String idOwnerFieldName = 'id_owner';
 
@@ -70,6 +70,9 @@ class RoundsRecord extends PocketstoreRecord {
 
 
   void _initializeFields() {
+    if(snapshotData.containsKey(completedFieldName)) {
+      _completed = snapshotData[completedFieldName] != null ? snapshotData[completedFieldName] == 1 : false;
+    } else { _completed = false; }
     if(snapshotData.containsKey(matchAllFieldName)) {
       _matchAll = snapshotData[matchAllFieldName];
     } else { _matchAll = 0; }
@@ -86,7 +89,6 @@ class RoundsRecord extends PocketstoreRecord {
     _index = snapshotData[indexFieldName];
     _size = snapshotData[sizeFieldName];
     _roundKind = getRoundKindEnum(snapshotData[kindFieldName]);
-    _completed = snapshotData[completedFieldName] != null ? snapshotData[completedFieldName] == 1 : false;
     _createdTime = tryParseDate(snapshotData[createdFieldName])!;
     _updatedTime = tryParseDate(snapshotData[updatedFieldName])!;
     _collectionId = snapshotData[collectionIdFieldName];

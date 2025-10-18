@@ -56,8 +56,8 @@ class TournamentPairingCardExpandModel extends CustomFlowModel<TournamentPairing
     } else {
       updatedFields[PairingsRecord.winnerFieldName] = selectedWinner;
       updatedFields[PairingsRecord.doubleLossFieldName] = false;
-      updatedFields[PairingsRecord.noShowFieldName] = noShow;
     }
+    updatedFields[PairingsRecord.noShowFieldName] = noShow;
     updatedFields[PairingsRecord.dropPlayerAFieldName] = dropPlayerA;
     updatedFields[PairingsRecord.dropPlayerBFieldName] = dropPlayerB;
     await updateFun(pairingId, updatedFields);
