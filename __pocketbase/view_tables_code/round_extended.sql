@@ -1,6 +1,7 @@
 SELECT
     id,
     id_tournament,
+    id_owner,
     roundIndex,
     roundSize,
     roundKind,
@@ -13,6 +14,7 @@ FROM (
     SELECT
         r.id,
         r.id_tournament,
+        t.id_owner,
         r.roundIndex,
         r.roundSize,
         r.roundKind,
@@ -25,12 +27,14 @@ FROM (
         p.id_tournament = r.id_tournament
         AND p.id_round = r.id
     )
+    LEFT JOIN tournaments t ON (
+        t.id = r.id_tournament
+    )
     GROUP BY r.id,
              r.id_tournament,
              r.roundIndex,
              r.roundSize,
              r.roundKind,
-             r.completed,
              r.created,
              r.updated
 )

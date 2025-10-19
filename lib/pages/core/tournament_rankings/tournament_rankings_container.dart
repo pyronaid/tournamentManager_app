@@ -9,10 +9,10 @@ import '../../nav_bar/tournament_model.dart';
 class TournamentRankingsContainer extends StatefulWidget {
   const TournamentRankingsContainer({
     super.key,
-    required this.roundIndex,
+    required this.roundId,
   });
 
-  final String roundIndex;
+  final String roundId;
 
   @override
   State<TournamentRankingsContainer> createState() => _TournamentRankingsContainerState();
@@ -41,7 +41,7 @@ class _TournamentRankingsContainerState extends State<TournamentRankingsContaine
             create: (context) => TournamentRankingsModel(
               // Retrieve tournament provider from widget tree
                 tournamentModel: context.read<TournamentModel>(),
-                roundId: widget.roundIndex
+                roundId: widget.roundId
             ),
             update: (context, tournamentModel, previousRankingsModel) {
               // Optional update method to edit if you only want to catch some
@@ -51,7 +51,7 @@ class _TournamentRankingsContainerState extends State<TournamentRankingsContaine
               ) {
                 return TournamentRankingsModel(
                     tournamentModel: tournamentModel,
-                    roundId: widget.roundIndex
+                    roundId: widget.roundId
                 );
               }
               return previousRankingsModel;

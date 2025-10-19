@@ -3,6 +3,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/components/custom_expansion_panel/custom_expansion_panel_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_pairings/tournament_pairings_model.dart';
 
@@ -107,7 +108,16 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
                                   actionButton: true,
                                   actionButtonText: 'Rankings',
                                   actionButtonAction: () async {
-                                    print("echo");
+                                    context.pushNamedAuth(
+                                      'TournamentRankings', context.mounted,
+                                      pathParameters: {
+                                        'tournamentId': providerTournamentPairings.tournamentModel.tournamentsRef,
+                                      }.withoutNulls,
+                                      extra: {
+                                        'roundId': providerTournamentPairings.roundId,
+                                        'provider': providerTournamentPairings.tournamentModel,
+                                      },
+                                    );
                                   },
                                   optionsButtonAction: () async {},
                                 ),

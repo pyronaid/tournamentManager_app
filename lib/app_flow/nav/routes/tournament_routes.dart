@@ -10,6 +10,7 @@ import '../../../pages/core/tournament_detail/tournament_detail_container.dart';
 import '../../../pages/core/tournament_news/tournament_news_container.dart';
 import '../../../pages/core/tournament_people/tournament_people_container.dart';
 import '../../../pages/core/tournament_people/tournament_people_model.dart';
+import '../../../pages/core/tournament_rankings/tournament_rankings_container.dart';
 import '../../../pages/nav_bar/scaffold_leveltwo_nested_navigation.dart';
 import '../../../pages/nav_bar/tournament_model.dart';
 import '../../app_flow_util.dart';
@@ -96,6 +97,24 @@ class TournamentRoutes {
                     roundIndex: params.getParam('roundId', ParamType.String,),
                   ),
                 ),
+              routes: [
+                CustomRoute(
+                  name: 'TournamentRankings',
+                  path: 'tournament-rankings',
+                  parentNavigatorKey: NavigatorKeys.tournamentRoundKey,
+                  redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+                  builder: (context, params) =>  MultiProvider(
+                    providers: [
+                      ChangeNotifierProvider.value(
+                        value: (params.state.extra as Map<String, dynamic>)["provider"] as TournamentModel,
+                      ),
+                    ],
+                    child: TournamentRankingsContainer(
+                      roundId: params.getParam('roundId', ParamType.String,),
+                    ),
+                  ),
+                ).toRoute(appStateNotifier),
+              ],
             ).toRoute(appStateNotifier),
             GoRoute(
               name: 'DialogGenerateRound',

@@ -67,13 +67,16 @@ class TournamentRankingsModel extends ChangeNotifier {
     try {
       String filterComposed = '${RankingsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}" && ${RankingsRecord.idRoundFieldName} = "$roundId"';
       if(currentFilter.isNotEmpty){
-        filterComposed = '$filterComposed';
+        filterComposed = '$filterComposed && '
+            '(${RankingsRecord.userNameFieldName} ~ "$currentFilter" || '
+            '${RankingsRecord.userSurnameFieldName} ~ "$currentFilter" || '
+            '${RankingsRecord.userUsernameFieldName} ~ "$currentFilter")';
       }
       final List<RankingsRecord> newItems = await RankingsRecord.getDocumentsOnce(
           pb,
           filterComposed,
           expand: RankingsRecord.idTournamentFieldName,
-          sorting: RankingsRecord.createdFieldName,
+          sorting: '-${RankingsRecord.pointsFieldName},-${RankingsRecord.t1FieldName},-${RankingsRecord.t2FieldName},-${RankingsRecord.t3FieldName}',
           page: pageKey,
           perPage: _pageSize
       );

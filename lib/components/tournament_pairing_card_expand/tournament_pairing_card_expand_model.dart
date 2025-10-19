@@ -53,6 +53,7 @@ class TournamentPairingCardExpandModel extends CustomFlowModel<TournamentPairing
     Map<String, dynamic> updatedFields = {};
     if(selectedWinner == doubleLossString){
       updatedFields[PairingsRecord.doubleLossFieldName] = true;
+      updatedFields[PairingsRecord.winnerFieldName] = null;
     } else {
       updatedFields[PairingsRecord.winnerFieldName] = selectedWinner;
       updatedFields[PairingsRecord.doubleLossFieldName] = false;

@@ -14,6 +14,9 @@ class RankingsRecord extends PocketstoreRecord {
   static const String idTournamentFieldName = 'id_tournament';
   static const String idRoundFieldName = 'id_round';
   static const String idUserFieldName = 'id_user';
+  static const String userNameFieldName = 'userName';
+  static const String userSurnameFieldName = 'userSurname';
+  static const String userUsernameFieldName = 'userUsername';
   static const String isDropFieldName = 'isDrop';
   static const String createdFieldName = 'created';
   static const String updatedFieldName = 'updated';
@@ -48,6 +51,15 @@ class RankingsRecord extends PocketstoreRecord {
   late String _userId;
   String get userId => _userId;
 
+  late String _userName;
+  String get userName => _userName;
+
+  late String _userSurname;
+  String get userSurname => _userSurname;
+
+  late String _userUsername;
+  String get userUsername => _userUsername;
+
   late bool _isDrop;
   bool get isDrop => _isDrop;  
 
@@ -80,18 +92,30 @@ class RankingsRecord extends PocketstoreRecord {
     if(snapshotData.containsKey(currentRoundIndexFieldName)) {
       _currentRoundIndex = snapshotData[currentRoundIndexFieldName];
     } else { _currentRoundIndex = getExpandendValue(snapshotData['expand'], idRoundFieldName, roundIndexFieldName)!; }
+    if(snapshotData.containsKey(userNameFieldName)) {
+      _userName = snapshotData[userNameFieldName];
+    } else { _userName = '';}
+    if(snapshotData.containsKey(userSurnameFieldName)) {
+      _userSurname = snapshotData[userSurnameFieldName];
+    } else { _userSurname = '';}
+    if(snapshotData.containsKey(userUsernameFieldName)) {
+      _userUsername = snapshotData[userUsernameFieldName];
+    } else { _userUsername = '';}
+    if(snapshotData.containsKey(isDropFieldName)) {
+      _isDrop = snapshotData[isDropFieldName] == 1;
+    } else { _isDrop = false;}
     if(snapshotData.containsKey(pointsFieldName)) {
       _points = snapshotData[pointsFieldName];
     } else { _points = 0;}
     if(snapshotData.containsKey(t1FieldName)) {
-      _t1 = snapshotData[t1FieldName];
+      _t1 = snapshotData[t1FieldName].toDouble();
     } else { _t1 = 0.0;}
     if(snapshotData.containsKey(t2FieldName)) {
-      _t2 = snapshotData[t2FieldName];
+      _t2 = snapshotData[t2FieldName].toDouble();
     } else { _t2 = 0.0;}
     if(snapshotData.containsKey(t3FieldName)) {
       extFlag = true;
-      _t3 = snapshotData[t3FieldName];
+      _t3 = snapshotData[t3FieldName].toDouble();
     } else { 
       extFlag = false;
       _t3 = 0.0;
@@ -101,7 +125,6 @@ class RankingsRecord extends PocketstoreRecord {
     _tournamentId = snapshotData[idTournamentFieldName];
     _roundId = snapshotData[idRoundFieldName];
     _userId = snapshotData[idUserFieldName];
-    _isDrop = snapshotData[isDropFieldName];
 
     _createdTime = tryParseDate(snapshotData[createdFieldName])!;
     _updatedTime = tryParseDate(snapshotData[updatedFieldName])!;
