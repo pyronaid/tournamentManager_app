@@ -47,24 +47,106 @@ class _TournamentRankingsCardWidgetState extends State<TournamentRankingsCardWid
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(10, 0, 10, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(10, 5, 10, 0),
       child: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          bottomRight: Radius.circular(10.0),
-          bottomLeft: Radius.circular(10.0),
-        ),
         child: Container(
           width: 1000,
-          color: CustomFlowTheme.of(context).tertiaryDark,
+          color: CustomFlowTheme.of(context).tertiary,
           child: Container(
             constraints: const BoxConstraints(
               minHeight: 100,
             ),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsetsDirectional.all(10),
-                child: Text('data'),
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(
+                  flex: 1,
+                  fit: FlexFit.tight,
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      (widget.indexo + 1).toString(),
+                      style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                      softWrap: true,
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 5,
+                  fit: FlexFit.loose,
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(0, 15, 0, 15),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.rankingRef!.userName + ' ' + widget.rankingRef!.userSurname,
+                            style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
+                            softWrap: true,
+                          ),
+                          Text(
+                            widget.rankingRef!.userUsername,
+                            style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
+                            softWrap: true,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 2,
+                  fit: FlexFit.loose,
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      (widget.rankingRef!.points).toString(),
+                      style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                      softWrap: true,
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 2,
+                  fit: FlexFit.loose,
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      (widget.rankingRef!.t1).toString(),
+                      style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                      softWrap: true,
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 2,
+                  fit: FlexFit.loose,
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      (widget.rankingRef!.t2).toString(),
+                      style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                      softWrap: true,
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 2,
+                  fit: FlexFit.loose,
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      (widget.rankingRef!.t3).toString(),
+                      style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                      softWrap: true,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
