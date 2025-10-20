@@ -1,50 +1,60 @@
 //ROUND
-//   roundId
-//   tournament_id
+//   id
+//   id_tournament
 //   roundIndex
-//   roundKind (swiss, topcut)
 //   roundSize (only for topcut)
-//   completed (bool)
+//   roundKind (swiss, topcut)
 //   created
 //   updated
 //// tournament_id + roundIndex unique index
+//ROUND_EXTENDED (in addition)
+//   id_owner
+//   matchAll (int)
+//	 matchCompleted (int)
+//   completed (bool)
 //RANKING
-//   rankingId
-//	 tournament_id
-//   round_id
-//   roundIndex -- ext
-//   roundKind -- ext
-//   roundSize -- ext
-//   user_id
-//   name -- ext
-//   surname -- ext
-//   username -- ext
+//   id
+//	 id_tournament
+//	 id_round
+//   id_user
+//   created
+//   updated
+//// tournament_id + round_id + user_id unique index
+//RANKING_EXTENDED (in addition)
+//   id_owner
+//   currentRoundIndex
+//   userName
+//   userSurname
+//   userUsername
+//   isDrop
 //   points -- computed
 //   TB1 -- computed
 //   TB2 -- computed
 //   TB3 -- computed
-//   dropped (bool)
-//   created
-//   updated
-//// tournament_id + round_id + user_id unique index
 //PAIRING
-//   pairingId
-//   tournament_id
-//   round_id
-//   roundIndex -- ext
-//   roundKind -- ext
-//   roundSize -- ext
+//   id
+//   id_tournament
+//   id_round
 //   playerA (user_id or bye_id)
 //   dropPlayerA (bool)
 //   playerB (user_id or bye_id)
 //   dropPlayerB (bool)
 //   isBye (bool)
+//   doubleLoss (bool)
+//   noShow (bool)
 //   tableIndex
 //   winner (user_id or empty if not finished)
 //   created
 //   updated
 //// tournament_id + round_id + playerA unique index
 //// tournament_id + round_id + playerB unique index
+//PAIRING_EXTENDED (in addition)
+//   namePlayerA
+//   surnamePlayerA
+//   usernamePlayerA
+//   namePlayerB
+//   surnamePlayerB
+//   usernamePlayerB
 
 package apis
 
