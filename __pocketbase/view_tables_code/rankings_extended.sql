@@ -9,7 +9,6 @@ WITH rankings_ext AS (
     t.id_owner,
     r.id_round,
     ro.roundIndex,
-    r.isDrop,
     r.created,
     r.updated
   FROM rankings r
@@ -108,7 +107,7 @@ rankings_focused_user AS (
     r.userName,
     r.userSurname,
     r.userUsername,
-    COUNT(
+    SUM(
         CASE
             WHEN p.playerA = r.id_user AND p.dropPlayerA = true THEN 1
             WHEN p.playerB = r.id_user AND p.dropPlayerB = true THEN 1
