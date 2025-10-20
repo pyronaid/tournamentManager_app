@@ -89,8 +89,8 @@ class _TournamentRankingsWidgetState extends State<TournamentRankingsWidget> {
                         pinned: true,
                         snap: false,
                         floating: false,
-                        expandedHeight: 250.0,
-                        collapsedHeight: 250.0,
+                        expandedHeight: 285.0,
+                        collapsedHeight: 285.0,
                         backgroundColor: CustomFlowTheme.of(context).secondary,
                         flexibleSpace: Padding(
                           padding: const EdgeInsetsDirectional.symmetric(horizontal: 15, vertical: 15),
@@ -151,6 +151,107 @@ class _TournamentRankingsWidgetState extends State<TournamentRankingsWidget> {
                                     ),
                                   ),
                                 ],
+                              ),
+                              Padding(
+                                padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 0),
+                                child: ClipRRect(
+                                  child: Container(
+                                    width: 1000,
+                                    color: CustomFlowTheme.of(context).tertiary,
+                                    child: Container(
+                                      constraints: const BoxConstraints(
+                                        minHeight: 20,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Flexible(
+                                            flex: 1,
+                                            fit: FlexFit.tight,
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                'p.',
+                                                style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                                                softWrap: true,
+                                              ),
+                                            ),
+                                          ),
+                                          Flexible(
+                                            flex: 5,
+                                            fit: FlexFit.tight,
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              child: Padding(
+                                                padding: const EdgeInsetsDirectional.fromSTEB(0, 15, 0, 15),
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Player',
+                                                      style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                                                      softWrap: true,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Flexible(
+                                            flex: 2,
+                                            fit: FlexFit.loose,
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                'points',
+                                                style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
+                                                softWrap: true,
+                                              ),
+                                            ),
+                                          ),
+                                          Flexible(
+                                            flex: 3,
+                                            fit: FlexFit.loose,
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                'T1',
+                                                style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
+                                                softWrap: true,
+                                              ),
+                                            ),
+                                          ),
+                                          Flexible(
+                                            flex: 3,
+                                            fit: FlexFit.loose,
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                'T2',
+                                                style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
+                                                softWrap: true,
+                                              ),
+                                            ),
+                                          ),
+                                          Flexible(
+                                            flex: 2,
+                                            fit: FlexFit.loose,
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                'T3',
+                                                style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
+                                                softWrap: true,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ],
                           ),

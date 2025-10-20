@@ -74,7 +74,7 @@ class _TournamentRankingsCardWidgetState extends State<TournamentRankingsCardWid
                 ),
                 Flexible(
                   flex: 5,
-                  fit: FlexFit.loose,
+                  fit: FlexFit.tight,
                   child: Container(
                     alignment: Alignment.center,
                     child: Padding(
@@ -84,8 +84,8 @@ class _TournamentRankingsCardWidgetState extends State<TournamentRankingsCardWid
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.rankingRef!.userName + ' ' + widget.rankingRef!.userSurname,
-                            style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
+                            '${widget.rankingRef!.userName} ${widget.rankingRef!.userSurname}',
+                            style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
                             softWrap: true,
                           ),
                           Text(
@@ -105,31 +105,31 @@ class _TournamentRankingsCardWidgetState extends State<TournamentRankingsCardWid
                     alignment: Alignment.center,
                     child: Text(
                       (widget.rankingRef!.points).toString(),
-                      style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                      style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
                       softWrap: true,
                     ),
                   ),
                 ),
                 Flexible(
-                  flex: 2,
+                  flex: 3,
                   fit: FlexFit.loose,
                   child: Container(
                     alignment: Alignment.center,
                     child: Text(
                       (widget.rankingRef!.t1).toString(),
-                      style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                      style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
                       softWrap: true,
                     ),
                   ),
                 ),
                 Flexible(
-                  flex: 2,
+                  flex: 3,
                   fit: FlexFit.loose,
                   child: Container(
                     alignment: Alignment.center,
                     child: Text(
                       (widget.rankingRef!.t2).toString(),
-                      style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                      style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
                       softWrap: true,
                     ),
                   ),
@@ -141,7 +141,7 @@ class _TournamentRankingsCardWidgetState extends State<TournamentRankingsCardWid
                     alignment: Alignment.center,
                     child: Text(
                       (widget.rankingRef!.t3).toString(),
-                      style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                      style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
                       softWrap: true,
                     ),
                   ),
