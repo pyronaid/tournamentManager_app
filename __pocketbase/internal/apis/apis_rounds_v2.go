@@ -42,7 +42,7 @@ type PairingData struct {
 type RoundsRequest struct {
 	TournamentID string `json:"id_tournament" validate:"required"`
 	RoundKind    string `json:"round_kind" validate:"required"`
-	RoundSize    *int   `json:"round_size" validate:"optional"`
+	RoundSize    int    `json:"round_size" validate:"optional"`
 	RoundIndex   int    `json:"round_index" validate:"optional"`
 	RoundId      string `json:"round_id" validate:"optional"`
 }
@@ -112,7 +112,7 @@ func DeleteRoundAPI(app *pocketbase.PocketBase) {
 			}
 
 			// Execute update in enrollment with check on capacity if needed
-			err := executeDBDeleteRound(app, ctx.DataDel.TournamentID, ctx.DataDel.RoundId, ctx.DataDel.RoundIndex, ctx.DataDel.RoundKind)
+			err := executeDBDeleteRound(app, ctx.Data.TournamentID, ctx.Data.RoundId, ctx.Data.RoundIndex, ctx.Data.RoundKind)
 			if err != nil {
 				return e.JSON(http.StatusBadRequest, ErrorResponse{
 					Error:   "ROUND_DELETION_FAILED",
@@ -528,7 +528,7 @@ func validateRoundsGenerationRequest(e *core.RequestEvent, app *pocketbase.Pocke
 	}
 
 	// Step 5: round concistency
-	if err := ctx.validateRoundConsistency(app); err != nil {
+	if err := ctx.ValidateRoundConsistency(); err != nil {
 		return nil, err
 	}
 	return ctx, nil
@@ -596,7 +596,7 @@ func (ctx *ValidationContextRound) ValidateRequestBody(e *core.RequestEvent, del
 			Code:    http.StatusBadRequest,
 		}
 	}
-	if ctx.Data.TournamentID == "" || ctx.Data.RoundKind == "" || (ctx.Data.RoundKind == roundKindTopCut && ctx.Data.RoundSize == nil) {
+	if ctx.Data.TournamentID == "" || ctx.Data.RoundKind == "" || (ctx.Data.RoundKind == roundKindTopCut && ctx.Data.RoundSize == 0) {
 		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRequestBody END tournamentId=TOBEDEFINED roundIndex=TOBEDEFINED"))
 		return &ErrorResponse{
 			Error:   "MISSING_REQUIRED_FIELDS",
@@ -745,8 +745,8 @@ func (ctx *ValidationContextRound) ValidateRoundDelFeasibilityAndComputeIndex() 
 }
 
 func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *ErrorResponse {
-	var index *int
-	var size *int
+	var index int
+	var size int
 	var roundKindLastRound string
 	var roundSizeLastRound int
 	var playersNextRoundNum int
@@ -915,7 +915,7 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 		}
 	} else {
 		if index == 0 {
-			if int(playersNum) >= *ctx.Data.RoundSize {
+			if int(playersNum) >= ctx.Data.RoundSize {
 				index++
 			} else {
 				ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
@@ -926,10 +926,10 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 				}
 			}
 		} else {
-			if roundKindLastRound == roundKindSwiss && playersNextRoundNum >= *ctx.Data.RoundSize {
+			if roundKindLastRound == roundKindSwiss && playersNextRoundNum >= ctx.Data.RoundSize {
 				//quello prima era svizzera
 				index++
-			} else if roundKindLastRound == roundKindSwiss && roundSizeLastRound == 2*(*ctx.Data.RoundSize) {
+			} else if roundKindLastRound == roundKindSwiss && roundSizeLastRound == 2*(ctx.Data.RoundSize) {
 				//quello prima era top cut
 				index++
 			} else {
@@ -942,8 +942,117 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 			}
 		}
 	}
-	ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
-	ctx.RoundSize = size
-	ctx.RoundIndex = index
+	ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d NewRoundSize=%d NewRoundIndex", ctx.Data.TournamentID, ctx.Data.RoundIndex, size, index))
+	ctx.RoundSize = &size
+	ctx.RoundIndex = &index
+	return nil
+}
+
+func (ctx *ValidationContextRound) ValidateRoundConsistency() *ErrorResponse {
+	ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency START tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+	collectionR, err := ctx.App.FindCollectionByNameOrId("rounds")
+	if err != nil {
+		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		return &ErrorResponse{
+			Error:   "ROUNDS_COLLECTION_NOT_FOUND",
+			Message: fmt.Sprintf("failed to find tournaments rounds: %v", err),
+			Code:    http.StatusInternalServerError,
+		}
+	}
+
+	_, err = ctx.App.FindFirstRecordByFilter(
+		collectionR,
+		"id_tournament = {:tournamentID} && roundIndex = {:roundIndex}", //ORDER BY ROUNDINDEX DESC
+		dbx.Params{
+			"tournamentID": ctx.Data.TournamentID,
+			"roundIndex":   ctx.RoundIndex,
+		},
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
+			//ok
+		} else {
+			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			return &ErrorResponse{
+				Error:   "ROUNDS_CHECK_FAILED",
+				Message: fmt.Sprintf("failed to check rounds for this tournament: %v", err),
+				Code:    http.StatusInternalServerError,
+			}
+		}
+	} else {
+		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		return &ErrorResponse{
+			Error:   "ROUND_ALREADY_POPULATED",
+			Message: fmt.Sprintf("The round is already populated for this roundIndex %s %s", safeInt(ctx.RoundIndex), ctx.Data.TournamentID),
+			Code:    http.StatusBadRequest,
+		}
+	}
+
+	collectionRR, err := ctx.App.FindCollectionByNameOrId("rankings")
+	if err != nil {
+		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		return &ErrorResponse{
+			Error:   "RANKINGS_COLLECTION_NOT_FOUND",
+			Message: fmt.Sprintf("failed to find tournaments rankings: %v", err),
+			Code:    http.StatusInternalServerError,
+		}
+	}
+
+	_, err = ctx.App.FindFirstRecordByFilter(
+		collectionRR,
+		"id_tournament = {:tournamentID} && id_round.roundIndex = {:roundIndex}", //ORDER BY ROUNDINDEX DESC
+		dbx.Params{
+			"tournamentID": ctx.Data.TournamentID,
+			"roundIndex":   ctx.RoundIndex,
+		},
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
+			//ok
+		} else {
+			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			return &ErrorResponse{
+				Error:   "RANKINGS_CHECK_FAILED",
+				Message: fmt.Sprintf("failed to check rankings for this roundIndex (%s) tournamentId (%s): %v", safeInt(ctx.RoundIndex), ctx.Data.TournamentID, err),
+				Code:    http.StatusInternalServerError,
+			}
+		}
+	}
+
+	collectionP, err := ctx.App.FindCollectionByNameOrId("pairings")
+	if err != nil {
+		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		return &ErrorResponse{
+			Error:   "PAIRINGS_COLLECTION_NOT_FOUND",
+			Message: fmt.Sprintf("failed to find tournaments pairings: %v", err),
+			Code:    http.StatusInternalServerError,
+		}
+	}
+
+	_, err = ctx.App.FindFirstRecordByFilter(
+		collectionP,
+		"id_tournament = {:tournamentID} && id_round.roundIndex = {:roundIndex}", //ORDER BY ROUNDINDEX DESC
+		dbx.Params{
+			"tournamentID": ctx.Data.TournamentID,
+			"roundIndex":   ctx.RoundIndex,
+		},
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
+			//ok
+		} else {
+			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			return &ErrorResponse{
+				Error:   "PAIRINGS_CHECK_FAILED",
+				Message: fmt.Sprintf("failed to check pairings for this roundIndex (%s) tournamentId (%s): %v", safeInt(ctx.RoundIndex), ctx.Data.TournamentID, err),
+				Code:    http.StatusInternalServerError,
+			}
+		}
+	}
+
+	ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 	return nil
 }
