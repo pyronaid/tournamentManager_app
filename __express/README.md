@@ -8,22 +8,31 @@ If no errors, your JSON is valid!
 
 
 # Test 
-# Install dependencies
+## Install dependencies
 npm install
-# Test the server
+## Test the server
 npm start
 
 Visit http://localhost:3000/health
 
+
 # Deployment
+## Install Vercel CLI globally
+npm install -g vercel
 ## First deployment (creates project)
 vercel
-
+## Login to Vercel
+vercel login
+## Deploy
+vercel
 ## Production deployment
 vercel --prod
-
 ## View deployment logs
 vercel logs
-
 ## List all deployments
 vercel ls
+
+
+
+
+
