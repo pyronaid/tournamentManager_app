@@ -12,6 +12,7 @@ If no errors, your JSON is valid!
 npm install
 # Test the server
 npm start
+
 Visit http://localhost:3000/health
 
 # Deployment
