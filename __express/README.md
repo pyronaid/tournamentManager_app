@@ -23,8 +23,8 @@ npm install -g vercel
 vercel
 ## Login to Vercel
 vercel login
-## Production deployment
-vercel --prod
+## deployment
+vercel
 
 Follow the prompts:
 - Set up and deploy? Yes
@@ -33,6 +33,20 @@ Follow the prompts:
 - Project name: firebase-notification-service (or your choice)
 - Directory: ./ (current directory)
 - Override settings? No
+## Set each environment variable
+- vercel env add FIREBASE_PROJECT_ID
+- vercel env add FIREBASE_PRIVATE_KEY
+- vercel env add FIREBASE_PRIVATE_KEY_ID
+- vercel env add FIREBASE_CLIENT_EMAIL
+- vercel env add FIREBASE_CLIENT_ID
+- vercel env add API_SECRET_KEY
+- vercel env add ALLOWED_ORIGINS
+
+For ALLOWED_ORIGINS, enter: https://your-pocketbase-domain.com
+
+Or use the vercel dashboard 
+## Production deployment
+vercel --prod
 ## View deployment logs
 vercel logs
 ## List all deployments
