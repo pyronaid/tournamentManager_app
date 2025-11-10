@@ -23,10 +23,16 @@ npm install -g vercel
 vercel
 ## Login to Vercel
 vercel login
-## Deploy
-vercel
 ## Production deployment
 vercel --prod
+
+Follow the prompts:
+- Set up and deploy? Yes
+- Which scope? Select your account
+- Link to existing project? No
+- Project name: firebase-notification-service (or your choice)
+- Directory: ./ (current directory)
+- Override settings? No
 ## View deployment logs
 vercel logs
 ## List all deployments
