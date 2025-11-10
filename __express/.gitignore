@@ -1,0 +1,22 @@
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Dependencies
+node_modules/
+
+# Vercel
+.vercel
+
+# Firebase credentials
+firebase-service-account.json
+*-firebase-adminsdk-*.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
