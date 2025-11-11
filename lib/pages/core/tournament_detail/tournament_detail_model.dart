@@ -94,7 +94,7 @@ class TournamentDetailModel extends ChangeNotifier {
       buttonTitleCancelled: "Annulla",
       buttonTitleConfirmed: "Salva",
       formInfo: [
-        () => TextFormElement(
+        () async => TextFormElement(
           key: GlobalKey<TextFormElementState>(),
           controllerInitValue: tournamentModel.tournamentCapacity,
           keyboardType: TextInputType.number,
@@ -122,7 +122,7 @@ class TournamentDetailModel extends ChangeNotifier {
       buttonTitleCancelled: "Annulla",
       buttonTitleConfirmed: "Salva",
       formInfo: [
-        () => TextFormElement(
+        () async => TextFormElement(
           key: GlobalKey<TextFormElementState>(),
           controllerInitValue: tournamentModel.tournamentName,
           iconPrefix: Icons.style,

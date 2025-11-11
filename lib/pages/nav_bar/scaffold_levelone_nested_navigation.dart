@@ -76,7 +76,7 @@ class ScaffoldWithLevelOneNestedNavigation extends StatelessWidget {
           automaticallyImplyLeading: false,
           toolbarHeight: 35.sp,
           elevation: 0,
-          backgroundColor: isDialogRoute ? CustomFlowTheme.of(context).secondary.withOpacity(0.5) : CustomFlowTheme.of(context).secondary,
+          backgroundColor: isDialogRoute ? CustomFlowTheme.of(context).secondary.withValues(alpha: 0.5) : CustomFlowTheme.of(context).secondary,
           title: IgnorePointer(
             ignoring: isDialogRoute,
             child: Row(
@@ -91,7 +91,7 @@ class ScaffoldWithLevelOneNestedNavigation extends StatelessWidget {
           centerTitle: true,
           systemOverlayStyle: SystemUiOverlayStyle(
             // Status bar color
-            statusBarColor: isDialogRoute ? CustomFlowTheme.of(context).secondary.withOpacity(0.5) : CustomFlowTheme.of(context).secondary,
+            statusBarColor: isDialogRoute ? CustomFlowTheme.of(context).secondary.withValues(alpha: 0.5) : CustomFlowTheme.of(context).secondary,
             // Status bar brightness (optional)
             statusBarIconBrightness: CustomFlowTheme.bright(context), // For Android (dark icons)
             statusBarBrightness: CustomFlowTheme.bright(context), // For iOS (dark icons)
@@ -103,9 +103,9 @@ class ScaffoldWithLevelOneNestedNavigation extends StatelessWidget {
           child: BottomNavigationBar(
             currentIndex: navigationShell.currentIndex,
             onTap: (i) => navigationShell.goBranch(i),
-            backgroundColor: isDialogRoute ? CustomFlowTheme.of(context).primaryBackground.withOpacity(0.5) : CustomFlowTheme.of(context).primaryBackground,
-            selectedItemColor: isDialogRoute ? CustomFlowTheme.of(context).primary.withOpacity(0.5) : CustomFlowTheme.of(context).primary,
-            unselectedItemColor: isDialogRoute ? CustomFlowTheme.of(context).secondaryText.withOpacity(0.5) : CustomFlowTheme.of(context).secondaryText,
+            backgroundColor: isDialogRoute ? CustomFlowTheme.of(context).primaryBackground.withValues(alpha: 0.5) : CustomFlowTheme.of(context).primaryBackground,
+            selectedItemColor: isDialogRoute ? CustomFlowTheme.of(context).primary.withValues(alpha: 0.5) : CustomFlowTheme.of(context).primary,
+            unselectedItemColor: isDialogRoute ? CustomFlowTheme.of(context).secondaryText.withValues(alpha: 0.5) : CustomFlowTheme.of(context).secondaryText,
             showSelectedLabels: true,
             showUnselectedLabels: true,
             type: BottomNavigationBarType.fixed,

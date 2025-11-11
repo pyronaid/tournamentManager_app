@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:tournamentmanager/backend/schema/rounds_record.dart';
 import 'package:tournamentmanager/pages/core/tournament_pairings/tournament_pairings_container.dart';
 import 'package:tournamentmanager/pages/core/tournament_rounds/tournament_rounds_container.dart';
 
@@ -120,7 +121,11 @@ class TournamentRoutes {
               name: 'DialogGenerateRound',
               path: 'dialog-generate-round',
               redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+              pageBuilder: (context, state) => DialogPage(builder: (_) =>
+                ((state.extra as Map<String, dynamic>)['pageType'] as RoundKind) == RoundKind.swiss ?
+                  DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],) :
+                  DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],),
+              ),
             ),
             GoRoute(
               name: 'DialogDeleteRound',

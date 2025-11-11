@@ -23,6 +23,7 @@ class RoundsRecord extends PocketstoreRecord {
   static const String matchAllFieldName = 'matchAll';
   static const String matchCompletedFieldName = 'matchCompleted';
   static const String completedFieldName = 'completed';
+  static const String availablePlayersFieldName = 'availablePlayers';
 
   static const String idOwnerFieldName = 'id_owner';
 
@@ -59,6 +60,9 @@ class RoundsRecord extends PocketstoreRecord {
   late int _matchCompleted;
   int get matchCompleted => _matchCompleted;
 
+  late int _availablePlayers;
+  int get availablePlayers => _availablePlayers;
+
   late DateTime _createdTime;
   DateTime get createdTime => _createdTime;
 
@@ -73,6 +77,9 @@ class RoundsRecord extends PocketstoreRecord {
     if(snapshotData.containsKey(completedFieldName)) {
       _completed = snapshotData[completedFieldName] != null ? snapshotData[completedFieldName] == 1 : false;
     } else { _completed = false; }
+    if(snapshotData.containsKey(availablePlayersFieldName)) {
+      _availablePlayers = snapshotData[availablePlayersFieldName];
+    } else { _availablePlayers = 0; }
     if(snapshotData.containsKey(matchAllFieldName)) {
       _matchAll = snapshotData[matchAllFieldName];
     } else { _matchAll = 0; }

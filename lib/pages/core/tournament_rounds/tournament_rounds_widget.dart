@@ -101,7 +101,7 @@ class _TournamentRoundsWidgetState extends State<TournamentRoundsWidget> {
                               //last: index == (providerMyTournaments.pagingControllerActive.itemList!.length - 1),
                               roundRef: item,
                               indexo: index,
-                              deleteFun: (roundsId) => providerTournamentRounds.deleteRound(roundsId),
+                              deleteFun: (item) => providerTournamentRounds.deleteRound(item),
                               deepFun: (roundId) {
                                 context.pushNamedAuth(
                                   'TournamentPairings', context.mounted,

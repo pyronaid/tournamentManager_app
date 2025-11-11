@@ -25,7 +25,7 @@ class TournamentRegisteredPeopleModel extends TournamentPeopleModel {
     /////////////////////////////LISTENERS
     _registeredPeopleNameTextController.addListener(() {
       final currentText = _registeredPeopleNameTextController.text;
-      if(_registeredPeopleNameTextController.text.isNotEmpty && _registeredPeopleNameTextController.text.length > 1 && oldValueToCompare != currentText){
+      if((_registeredPeopleNameTextController.text.isEmpty || _registeredPeopleNameTextController.text.length > 2) && oldValueToCompare != currentText){
         oldValueToCompare = currentText;
 
         if (debounce?.isActive ?? false) debounce!.cancel();

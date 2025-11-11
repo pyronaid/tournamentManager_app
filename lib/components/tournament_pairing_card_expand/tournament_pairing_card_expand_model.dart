@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:tournamentmanager/backend/schema/pairings_record.dart';
+import 'package:tournamentmanager/backend/schema/rounds_record.dart';
 import 'package:tournamentmanager/components/tournament_pairing_card_expand/tournament_pairing_card_expand_widget.dart';
 
 import '../../app_flow/app_flow_model.dart';
@@ -14,6 +15,7 @@ class TournamentPairingCardExpandModel extends CustomFlowModel<TournamentPairing
   late bool dropPlayerA;
   late bool dropPlayerB;
   late bool noShow;
+  late RoundKind roundKind;
   late List<String> validationMessageError;
   late Future<void> Function(String roundId, Map<String, dynamic> dataToUpdate) updateFun;
 
@@ -22,6 +24,7 @@ class TournamentPairingCardExpandModel extends CustomFlowModel<TournamentPairing
     required this.dropPlayerA,
     required this.dropPlayerB,
     required this.noShow,
+    required this.roundKind,
     required this.updateFun,
     required this.winnerId,
     required this.doubleLoss,

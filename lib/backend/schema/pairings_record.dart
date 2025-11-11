@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:http/http.dart';
 import 'package:pocketbase/pocketbase.dart';
+import 'package:tournamentmanager/backend/schema/rounds_record.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 import 'package:tournamentmanager/backend/schema/util/pocketbase_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
@@ -34,6 +35,8 @@ class PairingsRecord extends PocketstoreRecord {
   static const String usernamePlayerAFieldName = 'usernamePlayerA';
   static const String usernamePlayerBFieldName = 'usernamePlayerB';
 
+  static const String roundKindFieldName = 'roundKind';
+
   PairingsRecord._(
       super.reference,
       super.data,
@@ -51,6 +54,9 @@ class PairingsRecord extends PocketstoreRecord {
 
   late String _roundId;
   String get roundId => _roundId;
+
+  late RoundKind _roundKind;
+  RoundKind get roundKind => _roundKind;
 
   late String _playerA;
   String get playerA => _playerA;
@@ -153,7 +159,7 @@ class PairingsRecord extends PocketstoreRecord {
     _collectionId = snapshotData[collectionIdFieldName];
     _collectionName = snapshotData[collectionNameFieldName];
 
-    //_ownerId = getExpandendValue(snapshotData['expand'], idTournamentFieldName, idOwnerFieldName)!;
+    _roundKind = getRoundKindByName(getExpandendValue(snapshotData['expand'], idRoundFieldName, roundKindFieldName)!);
   }
 
   static PairingsRecord fromSnapshot(RecordModel snapshot) => PairingsRecord._(

@@ -248,7 +248,7 @@ class TournamentFinderModel extends ChangeNotifier {
       buttonTitleCancelled: "Annulla",
       buttonTitleConfirmed: "Filtra",
       formInfo: [
-        () => TextFormElement(
+        () async => TextFormElement(
           controllerInitValue: _name,
           iconPrefix: Icons.style,
           validatorFunction: tournamentNameTextControllerValidator,
@@ -256,7 +256,7 @@ class TournamentFinderModel extends ChangeNotifier {
           label: "Nome Torneo",
           key: GlobalKey<TextFormElementState>(),
         ),
-        () => TextAheadAddressFormElement(
+        () async => TextAheadAddressFormElement(
           controllerInitValue: _place,
           iconPrefix: Icons.place,
           validatorFunction: _tournamentCenterPlaceTextControllerValidator,
@@ -264,7 +264,7 @@ class TournamentFinderModel extends ChangeNotifier {
           callHintFunc: (String? text) => callAddressHint(text),
           key: GlobalKey<TextAheadAddressFormElementState>(),
         ),
-        () => SliderFormElement(
+        () async => SliderFormElement(
           label: "Raggio (in km) di ricerca",
           sliderValue: _radiusInKm,
           min: minRadius,
@@ -273,7 +273,7 @@ class TournamentFinderModel extends ChangeNotifier {
           valueLabel: (value) => value.toStringAsFixed(0),
           key: GlobalKey<SliderFormElementState>(),
         ),
-        () => DropdownFormElement<Game>(
+        () async => DropdownFormElement<Game>(
           label: "Giochi di interesse",
           value: null,
           items: Game.values.where((game) => game.desc.isNotEmpty).toList(),
@@ -281,7 +281,7 @@ class TournamentFinderModel extends ChangeNotifier {
           nameExtractor: (Game item) => item.desc,
           key: GlobalKey<DropdownFormElementState>(),
         ),
-        () => CalendarPickerFormElement(
+        () async => CalendarPickerFormElement(
           from: _dateStart,
           to: _dateEnd,
           label: "Date di ricerca",
@@ -295,7 +295,6 @@ class TournamentFinderModel extends ChangeNotifier {
         List<Game>? gamesToFilter = (formValues[3]! as List<Game>);
         List<DateTime>? dataRangeToFilter = (formValues[4]!.whereType<DateTime>().toList() as List<DateTime>);
         await refreshSearchByFilter(nameToFilter, placeIdToFilter, sliderToFilter, gamesToFilter, dataRangeToFilter);
-
       },
     );
     return req;

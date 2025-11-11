@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tournamentmanager/backend/schema/rounds_record.dart';
 import 'package:tournamentmanager/components/tournament_pairing_card_expand/tournament_pairing_card_expand_model.dart';
 
 import '../../app_flow/app_flow_model.dart';
@@ -43,6 +44,7 @@ class _TournamentPairingCardExpandWidgetState extends State<TournamentPairingCar
       winnerId: widget.pairingRef!.winner,
       doubleLoss: widget.pairingRef!.doubleLoss,
       noShow: widget.pairingRef!.noShow,
+      roundKind: widget.pairingRef!.roundKind,
       updateFun: widget.updateFun,
     ));
 
@@ -212,7 +214,7 @@ class _TournamentPairingCardExpandWidgetState extends State<TournamentPairingCar
                       TableRow(
                         children: [
                           TableCell(
-                            child: ListTile(
+                            child: _model.roundKind == RoundKind.swiss ? ListTile(
                               title: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -234,6 +236,10 @@ class _TournamentPairingCardExpandWidgetState extends State<TournamentPairingCar
                                   });
                                 },
                               ),
+                            ) : Text(
+                              '',
+                              style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                              softWrap: true,
                             ),
                           ),
                           TableCell(

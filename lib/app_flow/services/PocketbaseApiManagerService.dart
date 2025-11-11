@@ -9,6 +9,7 @@ class PocketbaseApiManagerService {
   static const String deleteTournamentEnrollmentAPI  = "/api/tournamentManager/delete";
   static const String gatherUserInfoForTournamentEnrollmentAPI  = "/api/tournamentManager/getUserInfo";
   static const String generateTournamentRoundAPI  = "/api/tournamentManager/generateRound";
+  static const String deleteTournamentRoundAPI  = "/api/tournamentManager/deleteRound";
 
   static const String foundKeyUserInfoResponseMap  = "found";
   static const String enrolledKeyUserInfoResponseMap  = "enrolled";

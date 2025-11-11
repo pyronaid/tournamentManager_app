@@ -28,7 +28,7 @@ class AlertRequest {
 }
 
 class AlertFormRequest extends AlertRequest{
-  final List<FormInformation Function()> formInfo;
+  final List<Future<FormInformation> Function()> formInfo;
 
   AlertFormRequest({
     required this.formInfo,
@@ -270,6 +270,68 @@ class SliderFormElementState extends State<SliderFormElement> {
             ),
           ]
         ),
+      ],
+    );
+  }
+}
+
+class SingleDropdownFormElement<T> extends FormInformation {
+  final T? value;
+  final List<T> items;
+  final T? selectedItem;
+
+  const SingleDropdownFormElement({
+    required GlobalKey<SingleDropdownFormElementState> key,
+    required super.label,
+    required this.value,
+    required this.items,
+    this.selectedItem,
+  }) : super(key: key);
+
+  @override
+  State<SingleDropdownFormElement<T>> createState() => SingleDropdownFormElementState<T>();
+
+  @override
+  dynamic result() {
+    final currentState = (key as GlobalKey<SingleDropdownFormElementState>).currentState;
+    return currentState?._selectedItem;
+  }
+}
+
+class SingleDropdownFormElementState<T> extends State<SingleDropdownFormElement<T>> {
+  T? _selectedItem;
+  List<T> _allItems = [];
+  late final FocusNode focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedItem = widget.selectedItem;
+    _allItems = List.from(widget.items);
+    //focusNode = FocusNode();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 4),
+          child: Text(
+            widget.label,
+            style: CustomFlowTheme.of(context).bodyMedium,
+          ),
+        ),
+        DropdownMenu(
+          enableSearch: false,
+          initialSelection: _allItems[_allItems.length-1],
+          dropdownMenuEntries: _allItems.map((it) => DropdownMenuEntry(value: it, label: "$it")).toList(),
+          onSelected: (value) {
+            _selectedItem = value;
+          },
+          //focusNode: focusNode,
+        )
       ],
     );
   }

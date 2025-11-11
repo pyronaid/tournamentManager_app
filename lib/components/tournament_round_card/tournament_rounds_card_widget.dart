@@ -19,7 +19,7 @@ class TournamentRoundsCardWidget extends StatefulWidget {
 
   final RoundsRecord? roundRef;
   final int indexo;
-  final Future<void> Function(String roundId) deleteFun;
+  final Future<void> Function(RoundsRecord round) deleteFun;
   final Function(String) deepFun;
 
   @override
@@ -69,7 +69,7 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
                       'tournamentId': widget.roundRef!.tournamentId,
                     }.withoutNulls,
                     extra: {
-                      'req' : _model.showDeleteRoundAlertRequest(widget.roundRef!.uid),
+                      'req' : _model.showDeleteRoundAlertRequest(widget.roundRef!),
                     }
                 );
               },
@@ -116,7 +116,7 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
                         ),
                         Text(
                           widget.roundRef!.roundKind == RoundKind.topcut ?
-                          "CUT ${widget.roundRef!.size}" :
+                          "TOP ${widget.roundRef!.size}" :
                           "ROUND ${widget.roundRef!.index}",
                           style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
                           softWrap: true,

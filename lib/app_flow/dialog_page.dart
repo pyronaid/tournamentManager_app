@@ -36,7 +36,7 @@ class DialogPage<T> extends Page<T> {
       settings: this,
       builder: builder,
       anchorPoint: anchorPoint,
-      barrierColor: barrierColor ?? theme.colorScheme.scrim.withOpacity(0.5),
+      barrierColor: barrierColor ?? theme.colorScheme.scrim.withValues(alpha: 0.5),
       barrierDismissible: barrierDismissible,
       barrierLabel: barrierLabel,
       useSafeArea: useSafeArea,
@@ -70,7 +70,7 @@ class DialogWidget extends StatelessWidget {
       backgroundColor: Colors.transparent,
       resizeToAvoidBottomInset: false,
       body: Container(
-        color: colorScheme.scrim.withOpacity(0.5),
+        color: colorScheme.scrim.withValues(alpha: 0.5),
         child: Stack(
           children: [
             Positioned.fill(
@@ -208,7 +208,7 @@ class DialogFormWidget extends StatefulWidget {
 }
 
 class _DialogFormWidgetState extends State<DialogFormWidget> {
-  late List<FormInformation> _formInformation;
+  late List<Future<FormInformation>> _formInformation;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
@@ -238,12 +238,12 @@ class _DialogFormWidgetState extends State<DialogFormWidget> {
       backgroundColor: Colors.transparent,
       resizeToAvoidBottomInset: false,
       body: Container(
-        color: colorScheme.scrim.withOpacity(0.5),
+        color: colorScheme.scrim.withValues(alpha: 0.5),
         child: Stack(
           children: [
             Positioned.fill(
               child: GestureDetector(
-                onTap: () => FocusScope.of(context).unfocus(),
+                onTap: () {},
                 behavior: HitTestBehavior.opaque,
                 child: Container(color: Colors.transparent),
               ),
@@ -302,15 +302,41 @@ class _DialogFormWidgetState extends State<DialogFormWidget> {
       constraints: BoxConstraints(
         maxHeight: 45.h,
       ),
-      child: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          autovalidateMode: AutovalidateMode.disabled,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: _formInformation,
-          ),
-        ),
+      child: FutureBuilder<List<FormInformation>>(
+        future: Future.wait(_formInformation),
+        builder: (context, snapshot){
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          // Error state
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Error loading form: ${snapshot.error}',
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
+            );
+          }
+          // Success state
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text('No form data available'),
+            );
+          }
+          return SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              autovalidateMode: AutovalidateMode.disabled,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: snapshot.data!,
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -344,47 +370,70 @@ class _DialogFormWidgetState extends State<DialogFormWidget> {
           ),
         ),
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 8),
-            child: ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState?.validate() ?? false) {
-                  List<dynamic> formValues = _formInformation.map((inf) => inf.result()).toList();
-                  if (widget.request.functionConfirmed != null) {
-                    await widget.request.functionConfirmed!(formValues);
+          child: FutureBuilder<List<FormInformation>>(
+            future: Future.wait(_formInformation),
+            builder: (context, snapshot){
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              // Error state
+              if (snapshot.hasError) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      'Error loading form: ${snapshot.error}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+                );
+              }
+              // Success state
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(
+                  child: Text('No form data available'),
+                );
+              }
+              return ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState?.validate() ?? false) {
+                    List<dynamic> formValues = snapshot.data!.map((inf) => inf.result()).toList();
+                    if (widget.request.functionConfirmed != null) {
+                      await widget.request.functionConfirmed!(formValues);
+                    }
+                    if (widget.request.redirectConfirmed != null) {
+                      logFirebaseEvent('Button_navigate_to');
+                      context.goNamed(
+                        widget.request.redirectConfirmed!,
+                        extra: <String, dynamic>{
+                          kTransitionInfoKey: const TransitionInfo(
+                            hasTransition: true,
+                            transitionType: PageTransitionType.fade,
+                            duration: Duration(milliseconds: 0),
+                          ),
+                        },
+                      );
+                    } else {
+                      Router.neglect(context, () => context.safePop());
+                    }
                   }
-                  if (widget.request.redirectConfirmed != null) {
-                    logFirebaseEvent('Button_navigate_to');
-                    context.goNamed(
-                      widget.request.redirectConfirmed!,
-                      extra: <String, dynamic>{
-                        kTransitionInfoKey: const TransitionInfo(
-                          hasTransition: true,
-                          transitionType: PageTransitionType.fade,
-                          duration: Duration(milliseconds: 0),
-                        ),
-                      },
-                    );
-                  } else {
-                    Router.neglect(context, () => context.safePop());
-                  }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.error,
-                foregroundColor: colorScheme.onError,
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.error,
+                  foregroundColor: colorScheme.onError,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-              ),
-              child: Text(
-                widget.request.buttonTitleConfirmed,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
+                child: Text(
+                  widget.request.buttonTitleConfirmed,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ),
       ],

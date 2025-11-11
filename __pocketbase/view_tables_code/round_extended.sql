@@ -9,7 +9,8 @@ SELECT
     updated,
     matchAll,
     matchCompleted,
-    (matchAll = matchCompleted) as completed
+    (matchAll = matchCompleted) as completed,
+    availablePlayers
 FROM (
     SELECT
         r.id,
@@ -21,7 +22,16 @@ FROM (
         r.created,
         r.updated,
         COUNT(p.id) as matchAll,
-        COUNT(CASE WHEN (p.winner != '' AND p.winner IS NOT NULL) OR p.doubleLoss = 1 THEN 1 END) as matchCompleted
+        COUNT(CASE WHEN (p.winner != '' AND p.winner IS NOT NULL) OR p.doubleLoss = 1 THEN 1 END) as matchCompleted,
+        SUM(
+            CASE
+                WHEN p.dropPlayerA != true AND p.dropPlayerB != true AND p.isBye != true THEN 2
+                WHEN p.dropPlayerA != true AND p.dropPlayerB != true AND p.isBye = true THEN 1
+                WHEN p.dropPlayerA != true AND p.dropPlayerB = true THEN 1
+                WHEN p.dropPlayerA = true AND p.dropPlayerB != true THEN 1
+                ELSE 0
+            END
+        ) as availablePlayers
     FROM rounds r
     LEFT JOIN pairings p ON (
         p.id_tournament = r.id_tournament

@@ -9,6 +9,7 @@ WITH rankings_ext AS (
     t.id_owner,
     r.id_round,
     ro.roundIndex,
+    r.indexR,
     r.created,
     r.updated
   FROM rankings r
@@ -114,11 +115,19 @@ rankings_focused_user AS (
             ELSE 0
         END
     ) > 0 as isDrop,
+    SUM(
+        CASE
+            WHEN p.playerA = r.id_user AND p.winner = p.playerA AND r.roundIndex = p.roundIndex THEN 1
+            WHEN p.playerB = r.id_user AND p.winner = p.playerB AND r.roundIndex = p.roundIndex THEN 1
+            ELSE 0
+        END
+    ) > 0 as lastWon,
     COUNT(CASE WHEN p.winner = r.id_user THEN 1 END) as user_wins,
     COUNT(CASE WHEN (p.winner = r.id_user AND p.noShow = true)  THEN 1 END) as user_wins_no_show,
     COUNT(CASE WHEN (p.winner = r.id_user AND p.isBye = true)  THEN 1 END) as user_wins_bye,
     SUM(CASE WHEN ((p.winner != '' AND p.winner != r.id_user) OR p.doubleLoss = true) THEN (p.roundIndex * p.roundIndex) ELSE 0 END) as user_sum_lose_index,
     COUNT(p.id) as user_matches,
+    r.indexR,
     r.created,
     r.updated
   FROM rankings_ext r
@@ -200,6 +209,7 @@ rankings_focused_oppoppo AS (
         r.userSurname,
         r.userUsername,
         r.isDrop,
+        r.lastWon,
         (user_wins * 3) as points,
         (CASE WHEN opponent_win_percentage IS NULL
              THEN 0
@@ -221,6 +231,7 @@ rankings_focused_oppoppo AS (
         oppopponent_total_matches,
         oppopponent_wins,
         oppopponent_win_percentage,
+        r.indexR,
         r.created,
         r.updated
     FROM rankings_focused_user r

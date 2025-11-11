@@ -206,7 +206,7 @@ class EditProfileModel extends ChangeNotifier {
       buttonTitleCancelled: "Annulla",
       buttonTitleConfirmed: "Cambia",
       formInfo: [
-        () => TextFormElement(
+        () async => TextFormElement(
           controllerInitValue: currentUserEmail,
           iconPrefix: Icons.mail,
           validatorFunction: emailAddressTextControllerValidator,
@@ -215,7 +215,7 @@ class EditProfileModel extends ChangeNotifier {
           readOnly: true,
           key: GlobalKey<TextFormElementState>(),
         ),
-        () => TextFormElement(
+        () async => TextFormElement(
           controllerInitValue: '',
           iconPrefix: Icons.mail,
           validatorFunction: emailAddressNewTextControllerValidator,
@@ -223,7 +223,7 @@ class EditProfileModel extends ChangeNotifier {
           label: "Mail nuova",
           key: GlobalKey<TextFormElementState>(),
         ),
-        () => TextFormElement(
+        () async => TextFormElement(
           controllerInitValue: '',
           iconPrefix: Icons.lock,
           obscureTextSwitch: true,

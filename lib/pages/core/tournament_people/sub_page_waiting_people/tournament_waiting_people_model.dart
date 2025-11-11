@@ -26,7 +26,7 @@ class TournamentWaitingPeopleModel extends TournamentPeopleModel {
     /////////////////////////////LISTENERS
     _waitingPeopleNameTextController.addListener(() {
       final currentText = _waitingPeopleNameTextController.text;
-      if(_waitingPeopleNameTextController.text.isNotEmpty && _waitingPeopleNameTextController.text.length > 1 && oldValueToCompare != currentText){
+      if((_waitingPeopleNameTextController.text.isNotEmpty || _waitingPeopleNameTextController.text.length > 2) && oldValueToCompare != currentText){
         oldValueToCompare = currentText;
 
         if (debounce?.isActive ?? false) debounce!.cancel();

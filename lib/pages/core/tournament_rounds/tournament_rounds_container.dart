@@ -40,8 +40,8 @@ class _TournamentRoundsContainerState extends State<TournamentRoundsContainer> {
             update: (context, tournamentModel, previousRoundsModel) {
               // Optional update method to edit if you only want to catch some
               if (previousRoundsModel == null ||
-                  previousRoundsModel.isLoading != tournamentModel.isLoading ||
-                  previousRoundsModel.lastUpdatedRounds != tournamentModel.updatedRounds
+                  previousRoundsModel.isLoading != tournamentModel.isLoading
+                  || previousRoundsModel.lastUpdatedRounds != tournamentModel.updatedRounds
               ) {
                 return TournamentRoundsModel(
                     tournamentModel: tournamentModel

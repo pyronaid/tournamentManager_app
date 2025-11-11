@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -84,15 +86,36 @@ class TournamentRoundsModel extends ChangeNotifier {
                   'tournamentId': tournamentModel.tournamentId,
                 }.withoutNulls,
                 extra: {
-                  'req' : AlertRequest(
-                    title: 'ATTENZIONE: Generazione del round in corso...',
-                    description: "Sei sicuro di voler generare un nuovo round di tipologia ${pageType.desc}?",
-                    buttonTitleCancelled: "Annulla",
-                    buttonTitleConfirmed: "Continua",
-                    functionConfirmed: (List<dynamic>? formValues) {
-                      return generateRound(pageType);
-                    },
-                  ),
+                  'pageType' : pageType,
+                  'req' :
+                  pageType == RoundKind.swiss ?
+                    AlertRequest(
+                        title: 'ATTENZIONE: Generazione del round in corso...',
+                        description: "Sei sicuro di voler generare un nuovo round di tipologia ${pageType.desc}?",
+                        buttonTitleCancelled: "Annulla",
+                        buttonTitleConfirmed: "Continua",
+                        functionConfirmed: (List<dynamic>? formValues) async => await generateRound(pageType, null),
+                    ):
+                    AlertFormRequest(
+                        title: 'ATTENZIONE: Generazione del round in corso...',
+                        description: "Sei sicuro di voler generare un nuovo round di tipologia ${pageType.desc}?",
+                        buttonTitleCancelled: "Annulla",
+                        buttonTitleConfirmed: "Continua",
+                        formInfo: [
+                          () async => SingleDropdownFormElement<String>(
+                            label: "top size",
+                            value: "ALL",
+                            selectedItem: 'ALL',
+                            items: await computeListOfTopSizes(),
+                            key: GlobalKey<SingleDropdownFormElementState>(),
+                          )
+                        ],
+                        functionConfirmed: (List<dynamic>? formValues) async {
+                          if((formValues![0] as String?) != null && ((formValues[0] as String?) == 'ALL' || int.tryParse(formValues[0]) != null)){
+                            await generateRound(pageType, int.tryParse(formValues[0]) ?? 0);
+                          }
+                        },
+                    ),
                 }
             );
           },
@@ -131,10 +154,38 @@ class TournamentRoundsModel extends ChangeNotifier {
   Future<void> onRefresh() async {
     _pagingController.refresh();
   }
-  Future<void> deleteRound(String roundId) async {
-    await tournamentModel.deleteRound(pb, roundId);
+  Future<void> deleteRound(RoundsRecord round) async {
+    String executionId = const Uuid().v4();
+    loaderService.showLoader(id: executionId);
+    try {
+      final response = await _pocketbaseApiManagerService.post(
+          PocketbaseApiManagerService.deleteTournamentRoundAPI,
+          body: {
+            "id_tournament": tournamentModel.tournamentId,
+            "round_kind" : round.roundKind.name,
+            "round_size" : round.size,
+            "round_index" : round.index,
+            "round_id" : round.uid,
+          },
+          headers: {'Authorization': pb.authStore.token}
+      );
+      pagingControllerRounds.refresh();
+      snackBarService.showSnackBar(
+          message: "Cancellazione completata",
+          title: 'Rimozione round avvenuta con successo',
+          style: SnackbarStyle.success
+      );
+    } on HttpException catch (e, _){
+      snackBarService.showSnackBar(
+          message: e.message,
+          title: 'Errore cancellazione round: ${e.title != null ? e.title! : ""}',
+          style: SnackbarStyle.error
+      );
+    }
+    loaderService.hideLoader(id: executionId);
+    notifyListeners();
   }
-  Future<void> generateRound(RoundKind roundKind) async {
+  Future<void> generateRound(RoundKind roundKind, int? size) async {
     final index = _availablePages.indexOf(roundKind);
     if (index != -1) {
       String executionId = const Uuid().v4();
@@ -145,7 +196,7 @@ class TournamentRoundsModel extends ChangeNotifier {
             body: {
               "id_tournament": tournamentModel.tournamentId,
               "round_kind" : roundKind.name,
-              "round_size" : tournamentModel.tournamentRegisteredSize,
+              "round_size" : size ?? tournamentModel.tournamentRegisteredSize,
             },
             headers: {'Authorization': pb.authStore.token}
         );
@@ -172,6 +223,33 @@ class TournamentRoundsModel extends ChangeNotifier {
   void dispose() {
     _pagingController.dispose();
     super.dispose();
+  }
+
+  Future<List<String>> computeListOfTopSizes() async {
+    List<String> possibleSizes = [];
+    try{
+      final List<RoundsRecord> newItems = await RoundsRecord.getDocumentsOnce(
+          pb,
+          '${RoundsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}"',
+          sorting: RoundsRecord.indexFieldName,
+          page: 0,
+          perPage: 1
+      );
+
+      if(newItems.isNotEmpty) {
+        if (newItems[0].roundKind == RoundKind.swiss) {
+          for (int i = 1; pow(2,i) < newItems[0].availablePlayers; i++) {
+            possibleSizes.add(pow(2,i).toString());
+          }
+          possibleSizes.add('ALL');
+        } else {
+          possibleSizes.add((newItems[0].size/2).toString());
+        }
+      }
+    } catch (error) {
+
+    }
+    return possibleSizes;
   }
 
 }

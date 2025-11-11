@@ -40,7 +40,7 @@ class TournamentRankingsModel extends ChangeNotifier {
     /////////////////////////////LISTENERS
     _playerNameTextController.addListener(() {
       final currentText = _playerNameTextController.text;
-      if(_playerNameTextController.text.isNotEmpty && _playerNameTextController.text.length > 1 && oldValueToCompare != currentText){
+      if((_playerNameTextController.text.isNotEmpty || _playerNameTextController.text.length > 2) && oldValueToCompare != currentText){
         oldValueToCompare = currentText;
 
         if (debounce?.isActive ?? false) debounce!.cancel();

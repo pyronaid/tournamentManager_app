@@ -50,7 +50,7 @@ class TournamentPairingsModel extends ChangeNotifier {
     /////////////////////////////LISTENERS
     _playerNameTextController.addListener(() {
       final currentText = _playerNameTextController.text;
-      if(_playerNameTextController.text.isNotEmpty && _playerNameTextController.text.length > 1 && oldValueToCompare != currentText){
+      if((_playerNameTextController.text.isNotEmpty || _playerNameTextController.text.length > 2) && oldValueToCompare != currentText){
         oldValueToCompare = currentText;
 
         if (debounce?.isActive ?? false) debounce!.cancel();
@@ -90,8 +90,8 @@ class TournamentPairingsModel extends ChangeNotifier {
       final List<PairingsRecord> newItems = await PairingsRecord.getDocumentsOnce(
           pb,
           filterComposed,
-          expand: PairingsRecord.idTournamentFieldName,
-          sorting: PairingsRecord.createdFieldName,
+          expand: PairingsRecord.idRoundFieldName,
+          sorting: PairingsRecord.tableIndexFieldName,
           page: pageKey,
           perPage: _pageSize
       );
