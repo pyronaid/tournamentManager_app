@@ -166,6 +166,7 @@ func GetEligiblePlayersForPairing(app core.App, tournamentId string, roundIndex 
 		// first round, all players with 0 points
 		collectionE, err := app.FindCollectionByNameOrId("enrollments")
 		if err != nil {
+			app.Logger().Error(fmt.Sprintf("GetEligiblePlayersForPairing ERROR roundIndex=1 tournamentId=%s roundIndex=%d roundKind=%s", tournamentId, roundIndex, roundKind))
 			return playersToPair, prevOpponentsMap, hadByeMap, fmt.Errorf("GetEligiblePlayersForPairing failed to find enrollments table: %w", err)
 		}
 		enrollments, err := app.FindRecordsByFilter(
@@ -181,8 +182,10 @@ func GetEligiblePlayersForPairing(app core.App, tournamentId string, roundIndex 
 		)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
+				app.Logger().Error(fmt.Sprintf("GetEligiblePlayersForPairing ERROR roundIndex=1 tournamentId=%s roundIndex=%d roundKind=%s", tournamentId, roundIndex, roundKind))
 				return playersToPair, prevOpponentsMap, hadByeMap, fmt.Errorf("GetEligiblePlayersForPairing the table enrollments is not populated: %w", err)
 			}
+			app.Logger().Error(fmt.Sprintf("GetEligiblePlayersForPairing ERROR roundIndex=1 tournamentId=%s roundIndex=%d roundKind=%s", tournamentId, roundIndex, roundKind))
 			return playersToPair, prevOpponentsMap, hadByeMap, fmt.Errorf("GetEligiblePlayersForPairing failed to check enrollments for this tournament: %w", err)
 		}
 		app.Logger().Debug(fmt.Sprintf("GetEligiblePlayersForPairing Populate PlayerData roundIndex=1 tournamentId=%s roundIndex=%d roundKind=%s", tournamentId, roundIndex, roundKind))
@@ -231,8 +234,10 @@ func GetEligiblePlayersForPairing(app core.App, tournamentId string, roundIndex 
 
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
+				app.Logger().Error(fmt.Sprintf("GetEligiblePlayersForPairing ERROR roundIndex!=1 tournamentId=%s roundIndex=%d roundKind=%s", tournamentId, roundIndex, roundKind))
 				return playersToPair, prevOpponentsMap, hadByeMap, fmt.Errorf("GetEligiblePlayersForPairing the table rankings is not populated for the selected round: %w", err)
 			}
+			app.Logger().Error(fmt.Sprintf("GetEligiblePlayersForPairing ERROR roundIndex!=1 tournamentId=%s roundIndex=%d roundKind=%s", tournamentId, roundIndex, roundKind))
 			return playersToPair, prevOpponentsMap, hadByeMap, fmt.Errorf("GetEligiblePlayersForPairing failed to check rankings for this tournament: %w", err)
 		}
 		app.Logger().Debug(fmt.Sprintf("GetEligiblePlayersForPairing Populate PlayerData tournamentId=%s roundIndex=%d roundKind=%s playerLeng=%d", tournamentId, roundIndex, roundKind, len(rankings)))
@@ -242,6 +247,7 @@ func GetEligiblePlayersForPairing(app core.App, tournamentId string, roundIndex 
 			t2, err3 := strconv.ParseFloat(strings.Trim(record.GetString("T2"), "\""), 64)
 			t3, err4 := strconv.ParseFloat(strings.Trim(record.GetString("T3"), "\""), 64)
 			if err1 != nil || err2 != nil || err3 != nil || err4 != nil {
+				app.Logger().Error(fmt.Sprintf("GetEligiblePlayersForPairing ERROR roundIndex!=1 tournamentId=%s roundIndex=%d roundKind=%s", tournamentId, roundIndex, roundKind))
 				return playersToPair, prevOpponentsMap, hadByeMap, fmt.Errorf("GetEligiblePlayersForPairing failed to parse points/t1/t2/t3 for player %s: %w %w %w %w", record.GetString("id_user"), err1, err2, err3, err4)
 			}
 
@@ -274,8 +280,10 @@ func GetEligiblePlayersForPairing(app core.App, tournamentId string, roundIndex 
 		)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
+				app.Logger().Error(fmt.Sprintf("GetEligiblePlayersForPairing ERROR tournamentId=%s roundIndex=%d roundKind=%s", tournamentId, roundIndex, roundKind))
 				return playersToPair, prevOpponentsMap, hadByeMap, fmt.Errorf("GetEligiblePlayersForPairing the table pairings is not populated for the selected tournament: %w", err)
 			}
+			app.Logger().Error(fmt.Sprintf("GetEligiblePlayersForPairing ERROR tournamentId=%s roundIndex=%d roundKind=%s", tournamentId, roundIndex, roundKind))
 			return playersToPair, prevOpponentsMap, hadByeMap, fmt.Errorf("GetEligiblePlayersForPairing failed to check pairings_extended for this tournament: %w", err)
 		}
 		app.Logger().Debug(fmt.Sprintf("GetEligiblePlayersForPairing Populate prevOpponentsMap & hadByeMap roundIndex=1 tournamentId=%s roundIndex=%d roundKind=%s", tournamentId, roundIndex, roundKind))
@@ -620,7 +628,7 @@ func (ctx *ValidationContextRound) ValidateAuthentication(e *core.RequestEvent) 
 func (ctx *ValidationContextRound) ValidateRequestBody(e *core.RequestEvent, delFlag bool) *ErrorResponse {
 	ctx.App.Logger().Debug("ValidateRequestBody START tournamentId=TOBEDEFINED roundIndex=TOBEDEFINED")
 	if err := e.BindBody(&ctx.Data); err != nil {
-		ctx.App.Logger().Debug("ValidateRequestBody END tournamentId=TOBEDEFINED roundIndex=TOBEDEFINED")
+		ctx.App.Logger().Error("ValidateRequestBody ERROR tournamentId=TOBEDEFINED roundIndex=TOBEDEFINED")
 		return &ErrorResponse{
 			Error:   "INVALID_REQUEST",
 			Message: fmt.Sprintf("ValidateRequestBody: Invalid request body format %v", err),
@@ -628,7 +636,7 @@ func (ctx *ValidationContextRound) ValidateRequestBody(e *core.RequestEvent, del
 		}
 	}
 	if ctx.Data.TournamentID == "" || ctx.Data.RoundKind == "" || (ctx.Data.RoundKind == roundKindTopCut && ctx.Data.RoundSize == 0) {
-		ctx.App.Logger().Debug("ValidateRequestBody END tournamentId=TOBEDEFINED roundIndex=TOBEDEFINED")
+		ctx.App.Logger().Error("ValidateRequestBody ERROR tournamentId=TOBEDEFINED roundIndex=TOBEDEFINED")
 		return &ErrorResponse{
 			Error:   "MISSING_REQUIRED_FIELDS",
 			Message: "ValidateRequestBody: tournament_id, round_kind are required (and roundSize if round_kind is topcut)",
@@ -637,7 +645,7 @@ func (ctx *ValidationContextRound) ValidateRequestBody(e *core.RequestEvent, del
 	}
 	if delFlag {
 		if ctx.Data.RoundIndex == 0 || ctx.Data.RoundId == "" {
-			ctx.App.Logger().Debug("ValidateRequestBody END tournamentId=TOBEDEFINED roundIndex=TOBEDEFINED")
+			ctx.App.Logger().Error("ValidateRequestBody ERROR tournamentId=TOBEDEFINED roundIndex=TOBEDEFINED")
 			return &ErrorResponse{
 				Error:   "MISSING_REQUIRED_FIELDS",
 				Message: "ValidateRequestBody: round_index, round_id are required for round deletion",
@@ -647,7 +655,7 @@ func (ctx *ValidationContextRound) ValidateRequestBody(e *core.RequestEvent, del
 	}
 	validRoundKind := []string{roundKindTopCut, roundKindSwiss}
 	if !slices.Contains(validRoundKind, ctx.Data.RoundKind) {
-		ctx.App.Logger().Debug("ValidateRequestBody END tournamentId=TOBEDEFINED roundIndex=TOBEDEFINED")
+		ctx.App.Logger().Error("ValidateRequestBody ERROR tournamentId=TOBEDEFINED roundIndex=TOBEDEFINED")
 		return &ErrorResponse{
 			Error:   "INVALID_LIST_TYPE",
 			Message: "ValidateRequestBody: round_kind must be one of: topcut, swiss",
@@ -722,6 +730,7 @@ func (ctx *ValidationContextRound) ValidateOrganizerAndTournament() *ErrorRespon
 	//check if tournament is in a state that allows modifications
 	state := tournament.GetString("state")
 	if state != "ongoing" {
+		ctx.App.Logger().Error(fmt.Sprintf("ValidateOrganizerAndTournament ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 		return &ErrorResponse{
 			Error:   "ORGANIZER_VERIFICATION_FAILED",
 			Message: fmt.Sprintf("ValidateOrganizerAndTournament: tournament is not in a state that allows round gen (current state: %s) tournamentId=%s roundIndex=%d", state, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -739,7 +748,7 @@ func (ctx *ValidationContextRound) ValidateRoundDelFeasibilityAndComputeIndex() 
 	/////////////////////////////////////////////////////////
 	collectionR, err := ctx.App.FindCollectionByNameOrId("rounds")
 	if err != nil {
-		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 		return &ErrorResponse{
 			Error:   "ROUND_DEL_FEASIBILITY_FAILED",
 			Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: failed to find tournaments rounds: %v tournamentId=%s roundIndex=%d", err, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -748,7 +757,7 @@ func (ctx *ValidationContextRound) ValidateRoundDelFeasibilityAndComputeIndex() 
 	}
 	round, err := ctx.App.FindRecordById(collectionR, ctx.Data.RoundId)
 	if err != nil {
-		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 		return &ErrorResponse{
 			Error:   "ROUND_DEL_FEASIBILITY_FAILED",
 			Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: failed to find the round to delete: %v tournamentId=%s roundIndex=%d", err, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -756,7 +765,7 @@ func (ctx *ValidationContextRound) ValidateRoundDelFeasibilityAndComputeIndex() 
 		}
 	}
 	if round.GetString("id_tournament") != ctx.Data.TournamentID {
-		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 		return &ErrorResponse{
 			Error:   "ROUND_DEL_FEASIBILITY_FAILED",
 			Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: the round to delete does not belong to the provided tournament tournamentId=%s roundIndex=%d error=%v", ctx.Data.TournamentID, ctx.Data.RoundIndex, err),
@@ -764,7 +773,7 @@ func (ctx *ValidationContextRound) ValidateRoundDelFeasibilityAndComputeIndex() 
 		}
 	}
 	if round.GetInt("roundIndex") != ctx.Data.RoundIndex {
-		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 		return &ErrorResponse{
 			Error:   "ROUND_DEL_FEASIBILITY_FAILED",
 			Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: the round to delete does not have the provided roundIndex tournamentId=%s roundIndex=%d error=%v", ctx.Data.TournamentID, ctx.Data.RoundIndex, err),
@@ -786,7 +795,7 @@ func (ctx *ValidationContextRound) ValidateRoundDelFeasibilityAndComputeIndex() 
 		},
 	)
 	if err != nil {
-		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 		return &ErrorResponse{
 			Error:   "ROUND_DEL_FEASIBILITY_FAILED",
 			Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: failed to check rounds for this tournament: %v tournamentId=%s roundIndex=%d", err, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -797,7 +806,7 @@ func (ctx *ValidationContextRound) ValidateRoundDelFeasibilityAndComputeIndex() 
 		indexString := rounds[0].GetString("roundIndex")
 		index, err := strconv.Atoi(indexString)
 		if err != nil {
-			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 			return &ErrorResponse{
 				Error:   "ROUND_DEL_FEASIBILITY_FAILED",
 				Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: failed to parse roundIndex of last round to int for tournament: %v tournamentId=%s roundIndex=%d", err, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -805,7 +814,7 @@ func (ctx *ValidationContextRound) ValidateRoundDelFeasibilityAndComputeIndex() 
 			}
 		}
 		if index != ctx.Data.RoundIndex {
-			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 			return &ErrorResponse{
 				Error:   "ROUND_DEL_FEASIBILITY_FAILED",
 				Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: only the last round can be deleted tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -833,7 +842,7 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 	/////////////////////////////////////////////////////////
 	collectionE, err := ctx.App.FindCollectionByNameOrId("enrollments")
 	if err != nil {
-		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 		return &ErrorResponse{
 			Error:   "ROUND_FEASIBILITY_FAILED",
 			Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: failed to find tournaments enrollments: %v tournamentId=%s roundIndex=%d", err, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -846,7 +855,7 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 		dbx.HashExp{"listKind": "registered"},
 	)
 	if err != nil {
-		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 		return &ErrorResponse{
 			Error:   "ROUND_FEASIBILITY_FAILED",
 			Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex:failed to assesst feasibility for tournament: %v tournamentId=%s roundIndex=%d", err, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -859,7 +868,7 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 	/////////////////////////////////////////////////////////
 	collectionR, err := ctx.App.FindCollectionByNameOrId("rounds_extended")
 	if err != nil {
-		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 		return &ErrorResponse{
 			Error:   "ROUND_FEASIBILITY_FAILED",
 			Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: failed to find tournaments rounds_extended: %v tournamentId=%s roundIndex=%d", err, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -878,7 +887,7 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 	)
 	if err != nil || round == nil || len(round) == 0 {
 		if err != nil && !errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
-			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 			return &ErrorResponse{
 				Error:   "ROUND_FEASIBILITY_FAILED",
 				Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: failed to check rounds_extended for this tournament: %v tournamentId=%s roundIndex=%d", err, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -893,7 +902,7 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 		indexString := round[0].GetString("roundIndex") //convertion to int
 		index, err = strconv.Atoi(indexString)
 		if err != nil {
-			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 			return &ErrorResponse{
 				Error:   "ROUND_FEASIBILITY_FAILED",
 				Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: failed to parse roundIndex of last round to int for tournament: %v tournamentId=%s roundIndex=%d", err, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -904,7 +913,7 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 		roundCompletedLastRoundString := round[0].GetString("completed")
 		roundCompletedLastRound, err := strconv.ParseBool(roundCompletedLastRoundString)
 		if err != nil {
-			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 			return &ErrorResponse{
 				Error:   "ROUND_FEASIBILITY_FAILED",
 				Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: failed to parse completed of last round to bool for tournament: %v tournamentId=%s roundIndex=%d", err, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -914,7 +923,7 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 		roundSizeLastRoundString := round[0].GetString("roundSize")
 		roundSizeLastRound, err = strconv.Atoi(roundSizeLastRoundString)
 		if err != nil {
-			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 			return &ErrorResponse{
 				Error:   "ROUND_FEASIBILITY_FAILED",
 				Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: failed to parse roundSize of last round to int for tournament: %v tournamentId=%s roundIndex=%d", err, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -926,7 +935,7 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 		//CHECK ROUND IS COMPLETED TO PROCEED
 		/////////////////////////////////////////////////////////
 		if !roundCompletedLastRound {
-			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 			return &ErrorResponse{
 				Error:   "ROUND_FEASIBILITY_FAILED",
 				Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: the previous round is not completed yet tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -937,7 +946,7 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 		//CHECK NEW SWISS ROUND IS NOT AFTER A TOP CUT ROUND
 		/////////////////////////////////////////////////////////
 		if ctx.Data.RoundKind == roundKindSwiss && roundKindLastRound == roundKindTopCut {
-			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 			return &ErrorResponse{
 				Error:   "ROUND_FEASIBILITY_FAILED",
 				Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: you cannot create a swiss round if you already started a topCut Round earlier tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -947,7 +956,7 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 
 		collectionRR, err := ctx.App.FindCollectionByNameOrId("rankings_extended")
 		if err != nil {
-			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 			return &ErrorResponse{
 				Error:   "ROUND_FEASIBILITY_FAILED",
 				Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: failed to find tournaments rankings_extended: %v tournamentId=%s roundIndex=%d", err, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -961,7 +970,7 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 			dbx.HashExp{"isDrop": false},
 		)
 		if err != nil {
-			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 			return &ErrorResponse{
 				Error:   "ROUND_FEASIBILITY_FAILED",
 				Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: failed to assesst feasibility for rankings_extended: %v tournamentId=%s roundIndex=%d", err, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -979,7 +988,7 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 		if int(playersNum) >= (1 << index) {
 			index++
 		} else {
-			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 			return &ErrorResponse{
 				Error:   "ROUND_FEASIBILITY_FAILED",
 				Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: cannot create this swiss round with the player base of this tournament (not enough player): tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -992,7 +1001,7 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 			if int(playersNum) >= ctx.Data.RoundSize {
 				index++
 			} else {
-				ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+				ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 				return &ErrorResponse{
 					Error:   "ROUND_FEASIBILITY_FAILED",
 					Message: fmt.Sprintf("ValidateRoundDelFeasibilityAndComputeIndex: cannot create this top cut round with the player base of this tournament: %v tournamentId=%s roundIndex=%d", err, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -1007,7 +1016,7 @@ func (ctx *ValidationContextRound) ValidateRoundFeasibilityAndComputeIndex() *Er
 				//quello prima era top cut
 				index++
 			} else {
-				ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex END tournamentId=%s roundIndex=%d roundKindLastRound=%s, playersNextRoundNum=%d, roundSizeLastRound=%d LastRoundIndex=%d newRoundSize=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex, roundKindLastRound, playersNextRoundNum, roundSizeLastRound, index, ctx.Data.RoundSize))
+				ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex ERROR tournamentId=%s roundIndex=%d roundKindLastRound=%s, playersNextRoundNum=%d, roundSizeLastRound=%d LastRoundIndex=%d newRoundSize=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex, roundKindLastRound, playersNextRoundNum, roundSizeLastRound, index, ctx.Data.RoundSize))
 				return &ErrorResponse{
 					Error:   "ROUND_FEASIBILITY_FAILED",
 					Message: fmt.Sprintf("ValidateRoundFeasibilityAndComputeIndex: failed to assesst feasibility for tournament: %v tournamentId=%s roundIndex=%d", err, ctx.Data.TournamentID, ctx.Data.RoundIndex),
@@ -1027,7 +1036,7 @@ func (ctx *ValidationContextRound) ValidateRoundConsistency() *ErrorResponse {
 	ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency START tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 	collectionR, err := ctx.App.FindCollectionByNameOrId("rounds")
 	if err != nil {
-		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundConsistency ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 		return &ErrorResponse{
 			Error:   "ROUNDS_COLLECTION_NOT_FOUND",
 			Message: fmt.Sprintf("failed to find tournaments rounds: %v", err),
@@ -1048,7 +1057,7 @@ func (ctx *ValidationContextRound) ValidateRoundConsistency() *ErrorResponse {
 		if errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
 			//ok
 		} else {
-			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundConsistency ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 			return &ErrorResponse{
 				Error:   "ROUNDS_CHECK_FAILED",
 				Message: fmt.Sprintf("failed to check rounds for this tournament: %v", err),
@@ -1056,7 +1065,7 @@ func (ctx *ValidationContextRound) ValidateRoundConsistency() *ErrorResponse {
 			}
 		}
 	} else {
-		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundConsistency ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 		return &ErrorResponse{
 			Error:   "ROUND_ALREADY_POPULATED",
 			Message: fmt.Sprintf("The round is already populated for this roundIndex %s %s", safeInt(ctx.RoundIndex), ctx.Data.TournamentID),
@@ -1066,7 +1075,7 @@ func (ctx *ValidationContextRound) ValidateRoundConsistency() *ErrorResponse {
 
 	collectionRR, err := ctx.App.FindCollectionByNameOrId("rankings")
 	if err != nil {
-		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundConsistency ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 		return &ErrorResponse{
 			Error:   "RANKINGS_COLLECTION_NOT_FOUND",
 			Message: fmt.Sprintf("failed to find tournaments rankings: %v", err),
@@ -1087,7 +1096,7 @@ func (ctx *ValidationContextRound) ValidateRoundConsistency() *ErrorResponse {
 		if errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
 			//ok
 		} else {
-			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundConsistency ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 			return &ErrorResponse{
 				Error:   "RANKINGS_CHECK_FAILED",
 				Message: fmt.Sprintf("failed to check rankings for this roundIndex (%s) tournamentId (%s): %v", safeInt(ctx.RoundIndex), ctx.Data.TournamentID, err),
@@ -1098,7 +1107,7 @@ func (ctx *ValidationContextRound) ValidateRoundConsistency() *ErrorResponse {
 
 	collectionP, err := ctx.App.FindCollectionByNameOrId("pairings")
 	if err != nil {
-		ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+		ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundConsistency ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 		return &ErrorResponse{
 			Error:   "PAIRINGS_COLLECTION_NOT_FOUND",
 			Message: fmt.Sprintf("failed to find tournaments pairings: %v", err),
@@ -1119,7 +1128,7 @@ func (ctx *ValidationContextRound) ValidateRoundConsistency() *ErrorResponse {
 		if errors.Is(err, sql.ErrNoRows) { // or PocketBase equivalent
 			//ok
 		} else {
-			ctx.App.Logger().Debug(fmt.Sprintf("ValidateRoundConsistency END tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
+			ctx.App.Logger().Error(fmt.Sprintf("ValidateRoundConsistency ERROR tournamentId=%s roundIndex=%d", ctx.Data.TournamentID, ctx.Data.RoundIndex))
 			return &ErrorResponse{
 				Error:   "PAIRINGS_CHECK_FAILED",
 				Message: fmt.Sprintf("failed to check pairings for this roundIndex (%s) tournamentId (%s): %v", safeInt(ctx.RoundIndex), ctx.Data.TournamentID, err),
@@ -1147,7 +1156,7 @@ func ExecuteDBRound(app *pocketbase.PocketBase, Data RoundsRequest, roundIndexCh
 		app.Logger().Debug(fmt.Sprintf("ExecuteDBRound ROUND CREATION tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
 		rounds, err := txApp.FindCollectionByNameOrId("rounds")
 		if err != nil {
-			app.Logger().Debug(fmt.Sprintf("ExecuteDBRound END tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+			app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
 			return fmt.Errorf("ExecuteDBRound: failed to find rounds table: %w", err)
 		}
 		record := core.NewRecord(rounds)
@@ -1168,7 +1177,7 @@ func ExecuteDBRound(app *pocketbase.PocketBase, Data RoundsRequest, roundIndexCh
 		playersList, historyPairings, historyBye, err := GetEligiblePlayersForPairing(txApp, Data.TournamentID, roundIndexChecked, roundSizeChecked, Data.RoundKind, roundKindLastRound)
 		app.Logger().Debug(fmt.Sprintf("ExecuteDBRound INFO tournamentId=%s roundIndex=%d playerlist=%v historyPairings=%v historyBye=%v", Data.TournamentID, roundIndexChecked, playersList, historyPairings, historyBye))
 		if err != nil {
-			app.Logger().Debug(fmt.Sprintf("ExecuteDBRound END tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+			app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
 			return fmt.Errorf("ExecuteDBRound: failed to retrieve eligible players for pairing: %w", err)
 		}
 
@@ -1178,7 +1187,7 @@ func ExecuteDBRound(app *pocketbase.PocketBase, Data RoundsRequest, roundIndexCh
 		app.Logger().Debug(fmt.Sprintf("ExecuteDBRound RANKING CREATION tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
 		rankings, err := txApp.FindCollectionByNameOrId("rankings")
 		if err != nil {
-			app.Logger().Debug(fmt.Sprintf("ExecuteDBRound END tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+			app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
 			return fmt.Errorf("ExecuteDBRound: failed to find rankings table: %w", err)
 		}
 		for i, player := range playersList {
@@ -1198,7 +1207,7 @@ func ExecuteDBRound(app *pocketbase.PocketBase, Data RoundsRequest, roundIndexCh
 		if roundIndexChecked == 1 {
 			err := ShufflePlayersList(txApp, playersList, Data.TournamentID, roundIndexChecked)
 			if err != nil {
-				app.Logger().Debug(fmt.Sprintf("ExecuteDBRound END tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+				app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
 				return fmt.Errorf("ExecuteDBRound: failed to shuffle players list for first round: %w", err)
 			}
 		}
@@ -1211,7 +1220,7 @@ func ExecuteDBRound(app *pocketbase.PocketBase, Data RoundsRequest, roundIndexCh
 			var byePairingData PairingData
 			byePairingData, playersList, err = CreateByePairingIfNeeded(txApp, playersList, historyBye, Data.TournamentID, roundIndexChecked)
 			if err != nil {
-				app.Logger().Debug(fmt.Sprintf("ExecuteDBRound END tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+				app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
 				return fmt.Errorf("ExecuteDBRound: failed to create bye pairing: %w", err)
 			} else {
 				pairingsList = append(pairingsList, byePairingData)
@@ -1223,7 +1232,7 @@ func ExecuteDBRound(app *pocketbase.PocketBase, Data RoundsRequest, roundIndexCh
 		//#####################################
 		clusterPlayers, err := ClusterPlayersByPoints(txApp, playersList, Data.TournamentID, roundIndexChecked)
 		if err != nil {
-			app.Logger().Debug(fmt.Sprintf("ExecuteDBRound END tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+			app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
 			return fmt.Errorf("ExecuteDBRound: failed to clusterize players: %w", err)
 		}
 
@@ -1235,7 +1244,7 @@ func ExecuteDBRound(app *pocketbase.PocketBase, Data RoundsRequest, roundIndexCh
 			app.Logger().Debug(fmt.Sprintf("ExecuteDBRound PAIRINGS CREATION FOR CLUSTER with %d points tournamentId=%s roundIndex=%d clusterSize=%d lefthoverSize=%d", cluster[0].Points, Data.TournamentID, roundIndexChecked, len(cluster), len(currentLefthovers)))
 			pairings, newLefthovers, err := PairClusterWithRematchHandling(txApp, cluster, currentLefthovers, historyPairings, Data.TournamentID, roundIndexChecked)
 			if err != nil {
-				app.Logger().Debug(fmt.Sprintf("ExecuteDBRound END tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+				app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
 				return fmt.Errorf("ExecuteDBRound: failed to create pairings for cluster with %d points: %w", cluster[0].Points, err)
 			} else {
 				pairingsList = append(pairingsList, pairings...)
@@ -1243,13 +1252,13 @@ func ExecuteDBRound(app *pocketbase.PocketBase, Data RoundsRequest, roundIndexCh
 			}
 		}
 		if len(currentLefthovers) > 0 {
-			app.Logger().Debug(fmt.Sprintf("ExecuteDBRound PAIRINGS CREATION FOR FINAL LEFTHOVERS tournamentId=%s roundIndex=%d lefthoversSize=%d", Data.TournamentID, roundIndexChecked, len(currentLefthovers)))
+			app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d lefthoversSize=%d", Data.TournamentID, roundIndexChecked, len(currentLefthovers)))
 			return fmt.Errorf("ExecuteDBRound: failed to create pairings -- lefthover remained")
 		} else {
 			app.Logger().Debug(fmt.Sprintf("ExecuteDBRound PAIRINGS CREATION tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
 			pairings, err := txApp.FindCollectionByNameOrId("pairings")
 			if err != nil {
-				app.Logger().Debug(fmt.Sprintf("ExecuteDBRound END tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+				app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
 				return fmt.Errorf("ExecuteDBRound: failed to find pairings table: %w", err)
 			}
 			tableIndex := 1
@@ -1278,7 +1287,7 @@ func ExecuteDBRound(app *pocketbase.PocketBase, Data RoundsRequest, roundIndexCh
 		return nil
 	})
 	if err != nil {
-		app.Logger().Debug(fmt.Sprintf("ExecuteDBRound END tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+		app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
 		return fmt.Errorf("ExecuteDBRound: failed to transaction: %w", err)
 	}
 
@@ -1300,7 +1309,7 @@ func ExecuteDBDeleteRound(app *pocketbase.PocketBase, Data RoundsRequest) error 
 			},
 		)).Execute()
 		if err != nil {
-			app.Logger().Debug(fmt.Sprintf("ExecuteDBDeleteRound END tournamentId=%s roundIndex=%d", Data.TournamentID, Data.RoundIndex))
+			app.Logger().Error(fmt.Sprintf("ExecuteDBDeleteRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, Data.RoundIndex))
 			return fmt.Errorf("ExecuteDBDeleteRound: failed to delete pairing records: %v", err)
 		}
 
@@ -1315,7 +1324,7 @@ func ExecuteDBDeleteRound(app *pocketbase.PocketBase, Data RoundsRequest) error 
 			},
 		)).Execute()
 		if err != nil {
-			app.Logger().Debug(fmt.Sprintf("ExecuteDBDeleteRound END tournamentId=%s roundIndex=%d", Data.TournamentID, Data.RoundIndex))
+			app.Logger().Error(fmt.Sprintf("ExecuteDBDeleteRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, Data.RoundIndex))
 			return fmt.Errorf("ExecuteDBDeleteRound: failed to delete rankings records: %v", err)
 		}
 
@@ -1331,14 +1340,14 @@ func ExecuteDBDeleteRound(app *pocketbase.PocketBase, Data RoundsRequest) error 
 			},
 		)).Execute()
 		if err != nil {
-			app.Logger().Debug(fmt.Sprintf("ExecuteDBDeleteRound END tournamentId=%s roundIndex=%d", Data.TournamentID, Data.RoundIndex))
+			app.Logger().Error(fmt.Sprintf("ExecuteDBDeleteRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, Data.RoundIndex))
 			return fmt.Errorf("ExecuteDBDeleteRound: failed to delete round record: %v", err)
 		}
 
 		return nil
 	})
 	if err != nil {
-		app.Logger().Debug(fmt.Sprintf("ExecuteDBDeleteRound END tournamentId=%s roundIndex=%d", Data.TournamentID, Data.RoundIndex))
+		app.Logger().Error(fmt.Sprintf("ExecuteDBDeleteRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, Data.RoundIndex))
 		return fmt.Errorf("ExecuteDBDeleteRound: failed to transaction: %w", err)
 	}
 
