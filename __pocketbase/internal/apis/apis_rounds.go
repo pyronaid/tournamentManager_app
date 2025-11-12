@@ -330,34 +330,79 @@ func ShufflePlayersList(app core.App, players []PlayerData, tournamentId string,
 // Returns the pairing created (or nil) and the updated players list
 // (without the player that received the bye)
 // The player with the lowest points that never had a bye is selected
-func CreateByePairingIfNeeded(app core.App, players []PlayerData, hadByeMap map[string]bool, tournamentId string, roundIndex int) (PairingData, []PlayerData, error) {
+func CreateByePairingIfNeeded(app core.App, players []PlayerData, hadByeMap map[string]bool, tournamentId string, roundIndex int, roundKind string) ([]PairingData, []PlayerData, error) {
 	app.Logger().Debug(fmt.Sprintf("CreateByePairingIfNeeded START tournamentId=%s roundIndex=%d", tournamentId, roundIndex))
-	if len(players)%2 == 0 {
-		//even number of players, no bye needed
-		app.Logger().Debug(fmt.Sprintf("CreateByePairingIfNeeded No needed because even number of players tournamentId=%s roundIndex=%d", tournamentId, roundIndex))
-		app.Logger().Debug(fmt.Sprintf("CreateByePairingIfNeeded END tournamentId=%s roundIndex=%d", tournamentId, roundIndex))
-		return PairingData{}, players, nil
-	}
-	//odd number of players, bye needed
-	//var byePlayerIndex = -1
-	for i := len(players) - 1; i >= 0; i-- {
-		player := players[i]
-		if !hadByeMap[player.UserId] {
-			byePairing := PairingData{
-				UserIdPlayerA: player.UserId,
-				UserIdPlayerB: ByePlayerID,
-				IsBye:         true,
-				TableIndex:    (len(players)-1)/2 + 1, //last table
-				UserIdWinner:  player.UserId,
-			}
-			//remove player from list
-			players = append(players[:i], players[i+1:]...)
-			app.Logger().Debug(fmt.Sprintf("CreateByePairingIfNeeded tournamentId=%s roundIndex=%d The player %s receives a bye ", tournamentId, roundIndex, player.UserId))
+	if roundKind == roundKindSwiss {
+		app.Logger().Debug(fmt.Sprintf("CreateByePairingIfNeeded SWISS CASE tournamentId=%s roundIndex=%d", tournamentId, roundIndex))
+		if len(players)%2 == 0 {
+			//even number of players, no bye needed
+			app.Logger().Debug(fmt.Sprintf("CreateByePairingIfNeeded No needed because even number of players tournamentId=%s roundIndex=%d", tournamentId, roundIndex))
 			app.Logger().Debug(fmt.Sprintf("CreateByePairingIfNeeded END tournamentId=%s roundIndex=%d", tournamentId, roundIndex))
-			return byePairing, players, nil
+			return []PairingData{}, players, nil
+		}
+		//odd number of players, bye needed
+		//var byePlayerIndex = -1
+		for i := len(players) - 1; i >= 0; i-- {
+			player := players[i]
+			if !hadByeMap[player.UserId] {
+				byePairing := PairingData{
+					UserIdPlayerA: player.UserId,
+					UserIdPlayerB: ByePlayerID,
+					IsBye:         true,
+					TableIndex:    (len(players)-1)/2 + 1, //last table
+					UserIdWinner:  player.UserId,
+				}
+				//remove player from list
+				players = append(players[:i], players[i+1:]...)
+				app.Logger().Debug(fmt.Sprintf("CreateByePairingIfNeeded tournamentId=%s roundIndex=%d The player %s receives a bye ", tournamentId, roundIndex, player.UserId))
+				app.Logger().Debug(fmt.Sprintf("CreateByePairingIfNeeded END tournamentId=%s roundIndex=%d", tournamentId, roundIndex))
+				return []PairingData{byePairing}, players, nil
+			}
+		}
+		return []PairingData{}, players, errors.New("CreateByePairingIfNeeded no eligible player for bye found - all players already had a bye")
+	} else {
+		app.Logger().Debug(fmt.Sprintf("CreateByePairingIfNeeded TOPCAT CASE tournamentId=%s roundIndex=%d", tournamentId, roundIndex))
+		//comput the minimum power of 2 >= len(players)
+		powerOf2 := 1
+		for powerOf2 < len(players) {
+			powerOf2 *= 2
+		}
+		numByes := powerOf2 - len(players)
+
+		if numByes == 0 {
+			app.Logger().Debug(fmt.Sprintf("CreateByePairingIfNeeded No needed because number of players is power of 2 tournamentId=%s roundIndex=%d", tournamentId, roundIndex))
+			app.Logger().Debug(fmt.Sprintf("CreateByePairingIfNeeded END tournamentId=%s roundIndex=%d", tournamentId, roundIndex))
+			return []PairingData{}, players, nil
+		} else if numByes > 0 && roundIndex == 1 {
+			app.Logger().Debug(fmt.Sprintf("CreateByePairingIfNeeded %d Byes needed because number of players is not power of 2 tournamentId=%s roundIndex=%d", numByes, tournamentId, roundIndex))
+			var byePairings []PairingData
+			//for each bye needed create a pairing taking a random player from the player list
+			for byeIdx := 0; byeIdx < numByes; byeIdx++ {
+				//select random index
+				nBig, err := rand.Int(rand.Reader, big.NewInt(int64(len(players))))
+				if err != nil {
+					return []PairingData{}, players, fmt.Errorf("CreateByePairingIfNeeded something goes wrong in bye random assignment %v", err)
+				}
+				byePlayerIndex := int(nBig.Int64())
+				playerToBye := players[byePlayerIndex]
+				byePairing := PairingData{
+					UserIdPlayerA: playerToBye.UserId,
+					UserIdPlayerB: ByePlayerID,
+					IsBye:         true,
+					TableIndex:    powerOf2/2 - byeIdx, //last tables
+					UserIdWinner:  playerToBye.UserId,
+				}
+				//remove player from list
+				players = append(players[:byePlayerIndex], players[byePlayerIndex+1:]...)
+				byePairings = append(byePairings, byePairing)
+				app.Logger().Debug(fmt.Sprintf("CreateByePairingIfNeeded tournamentId=%s roundIndex=%d The player %s receives a bye ", tournamentId, roundIndex, playerToBye.UserId))
+			}
+			app.Logger().Debug(fmt.Sprintf("CreateByePairingIfNeeded END tournamentId=%s roundIndex=%d", tournamentId, roundIndex))
+			return byePairings, players, nil
+		} else {
+			return []PairingData{}, players, errors.New("CreateByePairingIfNeeded Byes can be assigned only in first round for topcut rounds")
 		}
 	}
-	return PairingData{}, players, errors.New("CreateByePairingIfNeeded no eligible player for bye found - all players already had a bye")
 }
 
 // function that given the list of player return an array containing some sub-array
@@ -385,6 +430,23 @@ func ClusterPlayersByPoints(app core.App, players []PlayerData, tournamentId str
 	clusters = append(clusters, currentCluster)
 	app.Logger().Debug(fmt.Sprintf("ClusterPlayersByPoints END tournamentId=%s roundIndex=%d", tournamentId, roundIndex))
 	return clusters, nil
+}
+
+func PairTopCutPlayers(app core.App, players []PlayerData, tournamentId string, roundIndex int) ([]PairingData, error) {
+	var pairings []PairingData
+	app.Logger().Debug(fmt.Sprintf("PairTopCutPlayers START tournamentId=%s roundIndex=%d", tournamentId, roundIndex))
+	for i := 0; i < len(players)/2; i++ {
+		pairing := PairingData{
+			UserIdPlayerA: players[i].UserId,
+			UserIdPlayerB: players[len(players)-1-i].UserId,
+			IsBye:         false,
+			TableIndex:    0, //to be assigned later
+			UserIdWinner:  "",
+		}
+		pairings = append(pairings, pairing)
+	}
+	app.Logger().Debug(fmt.Sprintf("PairTopCutPlayers END tournamentId=%s roundIndex=%d", tournamentId, roundIndex))
+	return pairings, nil
 }
 
 // function that
@@ -1217,73 +1279,91 @@ func ExecuteDBRound(app *pocketbase.PocketBase, Data RoundsRequest, roundIndexCh
 		//#####################################
 		if len(playersList)%2 != 0 {
 			app.Logger().Debug(fmt.Sprintf("ExecuteDBRound BYE CREATION tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
-			var byePairingData PairingData
-			byePairingData, playersList, err = CreateByePairingIfNeeded(txApp, playersList, historyBye, Data.TournamentID, roundIndexChecked)
+			var byePairingData []PairingData
+			byePairingData, playersList, err = CreateByePairingIfNeeded(txApp, playersList, historyBye, Data.TournamentID, roundIndexChecked, Data.RoundKind)
 			if err != nil {
 				app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
 				return fmt.Errorf("ExecuteDBRound: failed to create bye pairing: %w", err)
 			} else {
-				pairingsList = append(pairingsList, byePairingData)
+				pairingsList = append(pairingsList, byePairingData...)
 			}
 		}
 
-		//#####################################
-		//CLUSTERIZE PLAYERS
-		//#####################################
-		clusterPlayers, err := ClusterPlayersByPoints(txApp, playersList, Data.TournamentID, roundIndexChecked)
-		if err != nil {
-			app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
-			return fmt.Errorf("ExecuteDBRound: failed to clusterize players: %w", err)
-		}
-
-		//#####################################
-		//CREATE PAIRINGS WITH REMATCH HANDLING
-		//#####################################
-		currentLefthovers := make([]PlayerData, 0)
-		for _, cluster := range clusterPlayers {
-			app.Logger().Debug(fmt.Sprintf("ExecuteDBRound PAIRINGS CREATION FOR CLUSTER with %d points tournamentId=%s roundIndex=%d clusterSize=%d lefthoverSize=%d", cluster[0].Points, Data.TournamentID, roundIndexChecked, len(cluster), len(currentLefthovers)))
-			pairings, newLefthovers, err := PairClusterWithRematchHandling(txApp, cluster, currentLefthovers, historyPairings, Data.TournamentID, roundIndexChecked)
+		switch Data.RoundKind {
+		case roundKindSwiss:
+			//#####################################
+			//CLUSTERIZE PLAYERS
+			//#####################################
+			clusterPlayers, err := ClusterPlayersByPoints(txApp, playersList, Data.TournamentID, roundIndexChecked)
 			if err != nil {
 				app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
-				return fmt.Errorf("ExecuteDBRound: failed to create pairings for cluster with %d points: %w", cluster[0].Points, err)
+				return fmt.Errorf("ExecuteDBRound: failed to clusterize players: %w", err)
+			}
+
+			//#####################################
+			//CREATE PAIRINGS WITH REMATCH HANDLING
+			//#####################################
+			currentLefthovers := make([]PlayerData, 0)
+			for _, cluster := range clusterPlayers {
+				app.Logger().Debug(fmt.Sprintf("ExecuteDBRound PAIRINGS CREATION FOR CLUSTER with %d points tournamentId=%s roundIndex=%d clusterSize=%d lefthoverSize=%d", cluster[0].Points, Data.TournamentID, roundIndexChecked, len(cluster), len(currentLefthovers)))
+				pairings, newLefthovers, err := PairClusterWithRematchHandling(txApp, cluster, currentLefthovers, historyPairings, Data.TournamentID, roundIndexChecked)
+				if err != nil {
+					app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+					return fmt.Errorf("ExecuteDBRound: failed to create pairings for cluster with %d points: %w", cluster[0].Points, err)
+				} else {
+					pairingsList = append(pairingsList, pairings...)
+					currentLefthovers = newLefthovers
+				}
+			}
+			if len(currentLefthovers) > 0 {
+				app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d lefthoversSize=%d", Data.TournamentID, roundIndexChecked, len(currentLefthovers)))
+				return fmt.Errorf("ExecuteDBRound: failed to create pairings -- lefthover remained")
+			}
+
+		case roundKindTopCut:
+			//#####################################
+			//CREATE PAIRINGS WITH OPPOSITE RANKING POSITIONS
+			//#####################################
+			app.Logger().Debug(fmt.Sprintf("ExecuteDBRound PAIRINGS CREATION FOR TOPCUT tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+			pairings, err := PairTopCutPlayers(txApp, playersList, Data.TournamentID, roundIndexChecked)
+			if err != nil {
+				app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+				return fmt.Errorf("ExecuteDBRound: failed to create top cut pairings: %w", err)
 			} else {
 				pairingsList = append(pairingsList, pairings...)
-				currentLefthovers = newLefthovers
 			}
-		}
-		if len(currentLefthovers) > 0 {
-			app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d lefthoversSize=%d", Data.TournamentID, roundIndexChecked, len(currentLefthovers)))
-			return fmt.Errorf("ExecuteDBRound: failed to create pairings -- lefthover remained")
-		} else {
-			app.Logger().Debug(fmt.Sprintf("ExecuteDBRound PAIRINGS CREATION tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
-			pairings, err := txApp.FindCollectionByNameOrId("pairings")
-			if err != nil {
-				app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
-				return fmt.Errorf("ExecuteDBRound: failed to find pairings table: %w", err)
-			}
-			tableIndex := 1
-			for i := range pairingsList {
-				if pairingsList[i].TableIndex == 0 {
-					pairingsList[i].TableIndex = tableIndex
-					tableIndex++
-				}
-			}
-			for _, pairing := range pairingsList {
-				record := core.NewRecord(pairings)
-				record.Set("id_tournament", Data.TournamentID)
-				record.Set("id_round", roundId)
-				record.Set("playerA", strings.Trim(pairing.UserIdPlayerA, "\""))
-				record.Set("playerB", strings.Trim(pairing.UserIdPlayerB, "\""))
-				record.Set("isBye", pairing.IsBye)
-				record.Set("tableIndex", pairing.TableIndex)
-				record.Set("winner", strings.Trim(pairing.UserIdWinner, "\""))
-				if err := txApp.Save(record); err != nil {
-					return fmt.Errorf("ExecuteDBRound: ranking insert failed: %w", err)
-				}
-			}
-			app.Logger().Debug(fmt.Sprintf("ExecuteDBRound ALL PAIRINGS CREATED SUCCESSFULLY tournamentId=%s roundIndex=%d totalPairings=%d", Data.TournamentID, roundIndexChecked, len(pairingsList)))
+		default:
+			app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+			return fmt.Errorf("ExecuteDBRound: unknown roundKind %s tournamentId=%s roundIndex=%d", Data.RoundKind, Data.TournamentID, roundIndexChecked)
 		}
 
+		app.Logger().Debug(fmt.Sprintf("ExecuteDBRound PAIRINGS CREATION tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+		pairings, err := txApp.FindCollectionByNameOrId("pairings")
+		if err != nil {
+			app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+			return fmt.Errorf("ExecuteDBRound: failed to find pairings table: %w", err)
+		}
+		tableIndex := 1
+		for i := range pairingsList {
+			if pairingsList[i].TableIndex == 0 {
+				pairingsList[i].TableIndex = tableIndex
+				tableIndex++
+			}
+		}
+		for _, pairing := range pairingsList {
+			record := core.NewRecord(pairings)
+			record.Set("id_tournament", Data.TournamentID)
+			record.Set("id_round", roundId)
+			record.Set("playerA", strings.Trim(pairing.UserIdPlayerA, "\""))
+			record.Set("playerB", strings.Trim(pairing.UserIdPlayerB, "\""))
+			record.Set("isBye", pairing.IsBye)
+			record.Set("tableIndex", pairing.TableIndex)
+			record.Set("winner", strings.Trim(pairing.UserIdWinner, "\""))
+			if err := txApp.Save(record); err != nil {
+				return fmt.Errorf("ExecuteDBRound: ranking insert failed: %w", err)
+			}
+		}
+		app.Logger().Debug(fmt.Sprintf("ExecuteDBRound ALL PAIRINGS CREATED SUCCESSFULLY tournamentId=%s roundIndex=%d totalPairings=%d", Data.TournamentID, roundIndexChecked, len(pairingsList)))
 		return nil
 	})
 	if err != nil {
