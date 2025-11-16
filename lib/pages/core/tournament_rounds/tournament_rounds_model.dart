@@ -231,7 +231,7 @@ class TournamentRoundsModel extends ChangeNotifier {
       final List<RoundsRecord> newItems = await RoundsRecord.getDocumentsOnce(
           pb,
           '${RoundsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}"',
-          sorting: RoundsRecord.indexFieldName,
+          sorting: "-${RoundsRecord.indexFieldName}",
           page: 0,
           perPage: 1
       );
@@ -243,7 +243,7 @@ class TournamentRoundsModel extends ChangeNotifier {
           }
           possibleSizes.add('ALL');
         } else {
-          possibleSizes.add((newItems[0].size/2).toString());
+          possibleSizes.add((newItems[0].size/2).toInt().toString());
         }
       }
     } catch (error) {

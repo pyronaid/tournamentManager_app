@@ -141,7 +141,7 @@ class _TournamentPairingCardExpandWidgetState extends State<TournamentPairingCar
                             ),
                           ),
                           TableCell(
-                            child: SwitchListTile(
+                            child: _model.roundKind == RoundKind.swiss ? SwitchListTile(
                               value: _model.dropPlayerA,
                               onChanged: (value) {
                                 setState(() {
@@ -153,6 +153,10 @@ class _TournamentPairingCardExpandWidgetState extends State<TournamentPairingCar
                                 style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
                                 softWrap: true,
                               ),
+                            ) : Text(
+                              '',
+                              style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                              softWrap: true,
                             ),
                           ),
                         ],
@@ -195,7 +199,7 @@ class _TournamentPairingCardExpandWidgetState extends State<TournamentPairingCar
                             ),
                           ),
                           TableCell(
-                            child: SwitchListTile(
+                            child: _model.roundKind == RoundKind.swiss ? SwitchListTile(
                               value: _model.dropPlayerB,
                               onChanged: (value) {
                                 setState(() {
@@ -207,6 +211,10 @@ class _TournamentPairingCardExpandWidgetState extends State<TournamentPairingCar
                                 style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
                                 softWrap: true,
                               ),
+                            ) : Text(
+                              '',
+                              style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                              softWrap: true,
                             ),
                           ),
                         ],
@@ -243,7 +251,7 @@ class _TournamentPairingCardExpandWidgetState extends State<TournamentPairingCar
                             ),
                           ),
                           TableCell(
-                            child: SwitchListTile(
+                            child: _model.roundKind == RoundKind.swiss ? SwitchListTile(
                               value: _model.noShow,
                               onChanged: (value) {
                                 setState(() {
@@ -255,6 +263,10 @@ class _TournamentPairingCardExpandWidgetState extends State<TournamentPairingCar
                                 style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
                                 softWrap: true,
                               ),
+                            ) : Text(
+                              '',
+                              style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
+                              softWrap: true,
                             ),
                           ),
                         ],
