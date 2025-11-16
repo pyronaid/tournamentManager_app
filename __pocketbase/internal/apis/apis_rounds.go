@@ -1277,17 +1277,16 @@ func ExecuteDBRound(app *pocketbase.PocketBase, Data RoundsRequest, roundIndexCh
 		//#####################################
 		//CREATE BYE PAIRING IF NEEDED
 		//#####################################
-		if len(playersList)%2 != 0 {
-			app.Logger().Debug(fmt.Sprintf("ExecuteDBRound BYE CREATION tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
-			var byePairingData []PairingData
-			byePairingData, playersList, err = CreateByePairingIfNeeded(txApp, playersList, historyBye, Data.TournamentID, roundIndexChecked, Data.RoundKind)
-			if err != nil {
-				app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
-				return fmt.Errorf("ExecuteDBRound: failed to create bye pairing: %w", err)
-			} else {
-				pairingsList = append(pairingsList, byePairingData...)
-			}
-		}
+        app.Logger().Debug(fmt.Sprintf("ExecuteDBRound BYE CREATION tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+        var byePairingData []PairingData
+        byePairingData, playersList, err = CreateByePairingIfNeeded(txApp, playersList, historyBye, Data.TournamentID, roundIndexChecked, Data.RoundKind)
+        if err != nil {
+            app.Logger().Error(fmt.Sprintf("ExecuteDBRound ERROR tournamentId=%s roundIndex=%d", Data.TournamentID, roundIndexChecked))
+            return fmt.Errorf("ExecuteDBRound: failed to create bye pairing: %w", err)
+        } else {
+            pairingsList = append(pairingsList, byePairingData...)
+        }
+
 
 		switch Data.RoundKind {
 		case roundKindSwiss:

@@ -168,6 +168,7 @@ flutter:
      - assets/images/icons/ygoadv_pointer.png
      - assets/images/icons/ygoretro_pointer.png
      - assets/images/icons/versus.png
+     - assets/images/icons/versus_top.png
      - assets/images/icons/ongoing.png
      - assets/images/icons/completed.png
      - assets/images/icons/playerWin.png

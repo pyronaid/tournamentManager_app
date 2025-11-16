@@ -104,7 +104,7 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Image.asset(
-                          'assets/images/icons/versus.png',
+                          widget.roundRef!.roundKind == RoundKind.swiss ? 'assets/images/icons/versus.png' : 'assets/images/icons/versus_top.png',
                           width: 20.w,
                           height: 20.w,
                           fit: BoxFit.cover,
