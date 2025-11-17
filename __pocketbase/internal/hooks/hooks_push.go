@@ -1,12 +1,19 @@
 package hooks
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"time"
 
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
 )
+
+const API_VERCEL_ADDRESS = "https://tournamentmanagerexpress-js.vercel.app/"
+const API_VERCEL_ADDRESS_SENDNOTIFICATION = API_VERCEL_ADDRESS + "/send-notification"
 
 // NotificationResult represents the result of a push notification attempt
 type NotificationResult struct {
@@ -18,6 +25,21 @@ type NotificationResult struct {
 // NotificationHelper provides methods for handling notifications
 type NotificationHelper struct {
 	app *pocketbase.PocketBase
+}
+
+type NotificationRequest struct {
+	Tokens  []string            `json:"tokens"`
+	Title   string              `json:"title"`
+	Body    string              `json:"body"`
+	Data    map[string]string   `json:"data,omitempty"`
+	Options NotificationOptions `json:"options,omitempty"`
+}
+
+type NotificationOptions struct {
+	ChannelId string `json:"channelId,omitempty"`
+	Sound     string `json:"sound,omitempty"`
+	Badge     int    `json:"badge,omitempty"`
+	Icon      string `json:"icon,omitempty"`
 }
 
 // NewNotificationHelper creates a new notification helper instance
@@ -70,7 +92,7 @@ func (h *NotificationHelper) GetUserTokens(userId string) ([]string, error) {
 	)
 
 	if err != nil || len(records) == 0 {
-		h.app.Logger().Error("[GetUserTokens] Failed to query device_tokens for user %s: %v", userId, err)
+		h.app.Logger().Error(fmt.Sprintf("[GetUserTokens] Failed to query device_tokens for user %s: %v", userId, err))
 		return nil, fmt.Errorf("[GetUserTokens] Failed to query device_tokens for user %s: %v", userId, err)
 	}
 
@@ -97,10 +119,72 @@ func (h *NotificationHelper) GetNotificationMessage(tableIndex int, playerName s
 // SendPushNotification sends a push notification via Firebase FCM
 func (h *NotificationHelper) SendPushNotification(tokens []string, title string, body string, data map[string]string) NotificationResult {
 	// TODO: Implement actual Firebase FCM integration
+	notificationRequest := NotificationRequest{
+		Tokens: tokens,
+		Title:  title,
+		Body:   body,
+		Data:   data,
+		Options: NotificationOptions{
+			ChannelId: "default",
+			Sound:     "default",
+			Badge:     1,
+			Icon:      "icon_name",
+		},
+	}
+	// Method 1: json.Marshal (returns []byte)
+	jsonData, err := json.Marshal(notificationRequest)
+	if err != nil {
+		h.app.Logger().Error(fmt.Sprintf("[SendPushNotification] Error converting notification to JSON: %v", err))
+		return NotificationResult{
+			Success:   false,
+			TotalSent: len(tokens),
+			Error:     "Error converting notification to JSON",
+		}
+	}
 	// This is a placeholder that you'll need to implement with Firebase Admin SDK
+	req, err := http.NewRequest("POST", API_VERCEL_ADDRESS_SENDNOTIFICATION, bytes.NewBuffer([]byte(jsonData)))
+	if err != nil {
+		h.app.Logger().Error(fmt.Sprintf("[SendPushNotification] Error creating request: %v", err))
+		return NotificationResult{
+			Success:   false,
+			TotalSent: len(tokens),
+			Error:     "Error creating HTTP request",
+		}
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+
+	// Send request using default HTTP client
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		h.app.Logger().Error(fmt.Sprintf("[SendPushNotification] Error sending request: %v", err))
+		return NotificationResult{
+			Success:   false,
+			TotalSent: len(tokens),
+			Error:     "Error sending request",
+		}
+	}
+	defer resp.Body.Close()
+
+	// Read response body
+	bodyRes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		h.app.Logger().Error(fmt.Sprintf("[SendPushNotification] Error reading response body: %v", err))
+		return NotificationResult{
+			Success:   false,
+			TotalSent: len(tokens),
+			Error:     "Error reading response body",
+		}
+	}
+
+	// Print status and body and convert later to proper result
+	h.app.Logger().Debug(fmt.Sprintf("Status: %s", resp.Status))
+	h.app.Logger().Debug(fmt.Sprintf("Response: %s", string(bodyRes)))
 
 	// For now, return a mock success
-	h.app.Logger().Debug(fmt.Sprintf("[FCM] Would send notification: %s - %s to %d devices", title, body, len(tokens)))
+	h.app.Logger().Debug(fmt.Sprintf("[SendPushNotification] Would send notification: %s - %s to %d devices", title, body, len(tokens)))
 
 	return NotificationResult{
 		Success:   true,
@@ -160,7 +244,7 @@ func SetupPairingsCollectionHooks(app *pocketbase.PocketBase) {
 				// Push notification to player A and B
 				tokens, err := helper.GetUserTokens(playerId)
 				if err != nil {
-					app.Logger().Error("[Notification Hook] Failed to get user tokens for playerId %s: %v", playerId, err)
+					app.Logger().Error(fmt.Sprintf("[Notification Hook] Failed to get user tokens for playerId %s: %v", playerId, err))
 					continue
 				}
 
@@ -183,9 +267,9 @@ func SetupPairingsCollectionHooks(app *pocketbase.PocketBase) {
 				result := helper.SendPushNotification(tokens, title, body, data)
 
 				if result.Success {
-					app.Logger().Debug("[Notification Hook] [player %d] ✅ Notification sent successfully to %d devices", playerId, result.TotalSent)
+					app.Logger().Debug(fmt.Sprintf("[Notification Hook] [player %s] ✅ Notification sent successfully to %d devices", playerId, result.TotalSent))
 				} else {
-					app.Logger().Error("[Notification Hook] [player %d] ❌ Failed to send notification: %s", playerId, result.Error)
+					app.Logger().Error(fmt.Sprintf("[Notification Hook] [player %s] ❌ Failed to send notification: %s", playerId, result.Error))
 				}
 
 			}
