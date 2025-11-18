@@ -98,10 +98,10 @@ class _TournamentRoundsWidgetState extends State<TournamentRoundsWidget> {
                           builderDelegate: PagedChildBuilderDelegate<RoundsRecord>(
                             itemBuilder: (context, item, index) => TournamentRoundsCardWidget(
                               key: Key('Keykia_${item.uid}_position_${index}_of_rounds'),
-                              //last: index == (providerMyTournaments.pagingControllerActive.itemList!.length - 1),
                               roundRef: item,
                               indexo: index,
                               deleteFun: (item) => providerTournamentRounds.deleteRound(item),
+                              closeFun: index == (providerTournamentRounds.pagingControllerRounds.itemList!.length - 1) ? (item) => providerTournamentRounds.closeTournament(item) : null,
                               deepFun: (roundId) {
                                 context.pushNamedAuth(
                                   'TournamentPairings', context.mounted,

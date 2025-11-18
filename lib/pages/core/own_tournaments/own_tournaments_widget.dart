@@ -188,6 +188,16 @@ class _OwnTournamentsWidgetState extends State<OwnTournamentsWidget> {
                         shrinkWrapFirstPageIndicators: true,
                       ),
                     ],
+
+                    ////////////////
+                    //ROUNDS SECTION END
+                    /////////////////
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: 100,
+                        width: 100.w,
+                      ),
+                    )
                   ],
                 ),
               );

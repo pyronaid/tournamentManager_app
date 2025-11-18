@@ -185,6 +185,37 @@ class TournamentRoundsModel extends ChangeNotifier {
     loaderService.hideLoader(id: executionId);
     notifyListeners();
   }
+  Future<void> closeTournament(RoundsRecord round) async {
+    String executionId = const Uuid().v4();
+    loaderService.showLoader(id: executionId);
+    try {
+      final response = await _pocketbaseApiManagerService.post(
+          PocketbaseApiManagerService.closeTournamentAPI,
+          body: {
+            "id_tournament": tournamentModel.tournamentId,
+            "round_kind" : round.roundKind.name,
+            "round_size" : round.size,
+            "round_index" : round.index,
+            "round_id" : round.uid,
+          },
+          headers: {'Authorization': pb.authStore.token}
+      );
+      pagingControllerRounds.refresh();
+      snackBarService.showSnackBar(
+          message: "Chiusura torneo completata",
+          title: 'Chiusura torneo avvenuta con successo',
+          style: SnackbarStyle.success
+      );
+    } on HttpException catch (e, _){
+      snackBarService.showSnackBar(
+          message: e.message,
+          title: 'Errore chiusura torneo: ${e.title != null ? e.title! : ""}',
+          style: SnackbarStyle.error
+      );
+    }
+    loaderService.hideLoader(id: executionId);
+    notifyListeners();
+  }
   Future<void> generateRound(RoundKind roundKind, int? size) async {
     final index = _availablePages.indexOf(roundKind);
     if (index != -1) {

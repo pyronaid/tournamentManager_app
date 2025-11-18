@@ -8,9 +8,14 @@ import '../../app_flow/services/supportClass/alert_classes.dart';
 class TournamentRoundsCardModel extends CustomFlowModel<TournamentRoundsCardWidget> {
   ///  Local state fields for this component.
   late final Future<void> Function(RoundsRecord round) deleteFun;
+  late final Future<void> Function(RoundsRecord round)? closeFun;
   late final String roundUid;
 
-  TournamentRoundsCardModel(this.deleteFun, this.roundUid,);
+  TournamentRoundsCardModel({
+    required this.deleteFun,
+    required this.roundUid,
+    this.closeFun
+  });
 
   @override
   void initState(BuildContext context) {
@@ -24,6 +29,16 @@ class TournamentRoundsCardModel extends CustomFlowModel<TournamentRoundsCardWidg
       buttonTitleCancelled: "Annulla",
       buttonTitleConfirmed: "Continua",
       functionConfirmed: (List<dynamic>? formValues) => deleteFun(round),
+    );
+    return req;
+  }
+  AlertRequest showCloseTournamentAlertRequest(RoundsRecord round){
+    AlertRequest req = AlertRequest(
+      title: 'ATTENZIONE: Chiusura del torneo in corso...',
+      description: "Sei sicuro di voler chiudere il torneo e nominare il vincitore? ",
+      buttonTitleCancelled: "Annulla",
+      buttonTitleConfirmed: "Continua",
+      functionConfirmed: closeFun != null ? (List<dynamic>? formValues) => closeFun!(round) : null,
     );
     return req;
   }

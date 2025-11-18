@@ -133,6 +133,12 @@ class TournamentRoutes {
               redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
+            GoRoute(
+              name: 'DialogCloseTournament',
+              path: 'dialog-close-tournament',
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+            ),
           ],
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),

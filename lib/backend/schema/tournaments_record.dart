@@ -128,13 +128,17 @@ class TournamentsRecord extends PocketstoreRecord {
   late StateTournament  _state;
   StateTournament get state => _state;
   Future<void> setState(PocketBase pb, String newState) async {
+    StateTournament oldState = state;
     _state = getStateTournamentByName(newState);
+    if(oldState == StateTournament.close && state != StateTournament.close){
+      await updateField(pb, uid, idWinnerFieldName, null);
+    }
     await updateField(pb, uid, stateFieldName, newState);
   }
 
-  late String? _winnerId;
-  String? get winnerUserId => _winnerId;
-  Future<void> setWinnerUserId(PocketBase pb, String winnerUserId) async {
+  late List<dynamic>? _winnerId;
+  List<dynamic>? get winnerUserId => _winnerId;
+  Future<void> setWinnerUserId(PocketBase pb, List<dynamic> winnerUserId) async {
     _winnerId = winnerUserId;
     await updateField(pb, uid, idWinnerFieldName, winnerUserId);
   }

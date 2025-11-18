@@ -26,6 +26,7 @@ func main() {
 
 	epapis.CreateRoundAPI(app)
 	epapis.DeleteRoundAPI(app)
+	epapis.CloseTournamentAPI(app)
 
 	epapis.RegisterHeathCheckAPI(app)
 

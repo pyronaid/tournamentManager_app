@@ -15,11 +15,13 @@ class TournamentRoundsCardWidget extends StatefulWidget {
     required this.indexo,
     required this.deleteFun,
     required this.deepFun,
+    this.closeFun,
   });
 
   final RoundsRecord? roundRef;
   final int indexo;
   final Future<void> Function(RoundsRecord round) deleteFun;
+  final Future<void> Function(RoundsRecord round)? closeFun;
   final Function(String) deepFun;
 
   @override
@@ -38,7 +40,11 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => TournamentRoundsCardModel(widget.deleteFun, widget.roundRef!.uid));
+    _model = createModel(context, () => TournamentRoundsCardModel(
+        deleteFun: widget.deleteFun,
+        closeFun: widget.closeFun,
+        roundUid: widget.roundRef!.uid
+    ));
 
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }
@@ -78,6 +84,25 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
               icon: Icons.delete,
               label: 'Delete',
             ),
+            if(widget.closeFun != null)...[
+              SlidableAction(
+                onPressed: (context){
+                  context.goNamed(
+                      'DialogCloseTournament',
+                      pathParameters: {
+                        'tournamentId': widget.roundRef!.tournamentId,
+                      }.withoutNulls,
+                      extra: {
+                        'req' : _model.showCloseTournamentAlertRequest(widget.roundRef!),
+                      }
+                  );
+                },
+                backgroundColor: CustomFlowTheme.of(context).completed,
+                foregroundColor: CustomFlowTheme.of(context).info,
+                icon: Icons.key,
+                label: 'Chiudi\nTorneo',
+              ),
+            ]
           ],
         ),
         child: InkWell(

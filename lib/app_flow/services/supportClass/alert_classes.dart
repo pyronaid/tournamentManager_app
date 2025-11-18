@@ -308,6 +308,9 @@ class SingleDropdownFormElementState<T> extends State<SingleDropdownFormElement<
     super.initState();
     _selectedItem = widget.selectedItem;
     _allItems = List.from(widget.items);
+    if(!_allItems.contains(_selectedItem)){
+      _selectedItem = _allItems[0];
+    }
     //focusNode = FocusNode();
   }
 
