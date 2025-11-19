@@ -119,47 +119,49 @@ class _TournamentRegisteredPeopleWidgetState extends State<TournamentRegisteredP
                                   ),
                                 ),
                               ),
-                              Center(
-                                child: AFButtonWidget(
-                                  onPressed: () async {
-                                    FocusScope.of(context).unfocus();
-                                    logFirebaseEvent('Button_load_pic');
-                                    context.pushNamedAuth(
-                                      'AddPeople', context.mounted,
-                                      pathParameters: {
-                                        'tournamentId': providerRegisteredPeople.tournamentModel.tournamentId,
-                                      }.withoutNulls,
-                                      extra: {
-                                        'listType' : ListType.registered.name,
-                                        'provider' : providerRegisteredPeople
-                                      },
-                                    );
-                                    logFirebaseEvent('Button_haptic_feedback');
-                                    HapticFeedback.lightImpact();
-                                  },
-                                  text: '',
-                                  icon: const Icon(Icons.add_circle,),
-                                  options: AFButtonOptions(
-                                    width: 50,
-                                    height: 50,
-                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                    iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                    iconColor: Colors.white,
-                                    iconSize: 14,
-                                    color:  CustomFlowTheme.of(context).primary,
-                                    textStyle: CustomFlowTheme.of(context).labelLarge.override(
-                                      color: CustomFlowTheme.of(context).info,
-                                      fontSize: 0,
+                              if(providerPreregisteredPeople.tournamentModel.isTournamentEditable)...[
+                                Center(
+                                  child: AFButtonWidget(
+                                    onPressed: () async {
+                                      FocusScope.of(context).unfocus();
+                                      logFirebaseEvent('Button_load_pic');
+                                      context.pushNamedAuth(
+                                        'AddPeople', context.mounted,
+                                        pathParameters: {
+                                          'tournamentId': providerRegisteredPeople.tournamentModel.tournamentId,
+                                        }.withoutNulls,
+                                        extra: {
+                                          'listType' : ListType.registered.name,
+                                          'provider' : providerRegisteredPeople
+                                        },
+                                      );
+                                      logFirebaseEvent('Button_haptic_feedback');
+                                      HapticFeedback.lightImpact();
+                                    },
+                                    text: '',
+                                    icon: const Icon(Icons.add_circle,),
+                                    options: AFButtonOptions(
+                                      width: 50,
+                                      height: 50,
+                                      padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                      iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                      iconColor: Colors.white,
+                                      iconSize: 14,
+                                      color:  CustomFlowTheme.of(context).primary,
+                                      textStyle: CustomFlowTheme.of(context).labelLarge.override(
+                                        color: CustomFlowTheme.of(context).info,
+                                        fontSize: 0,
+                                      ),
+                                      elevation: 0,
+                                      borderSide: const BorderSide(
+                                        color: Colors.transparent,
+                                        width: 1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(30),
                                     ),
-                                    elevation: 0,
-                                    borderSide: const BorderSide(
-                                      color: Colors.transparent,
-                                      width: 1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(30),
                                   ),
                                 ),
-                              ),
+                              ]
                             ],
                           ),
                           Padding(
