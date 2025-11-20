@@ -7,8 +7,11 @@ import 'package:simple_accordion/simple_accordion.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
+import 'package:tournamentmanager/components/tournament_winner_card/tournament_winner_card_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_model.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
+
+import '../../../auth/pocketbase_auth/pocketbase_users_record.dart';
 
 
 class TournamentDetailWidget extends StatefulWidget {
@@ -649,6 +652,32 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                         ),
                       ],
                     ),
+                    ////////////////
+                    //WINNER AREA
+                    /////////////////
+                    if(providerTournamentDetail.tournamentModel.tournamentState == StateTournament.close && providerTournamentDetail.tournamentModel.hasWinner)...[
+                      Padding(
+                        padding: const EdgeInsetsDirectional.all(20),
+                        child: Column(
+                          children: List.generate(
+                            providerTournamentDetail.tournamentModel.winner?.length ?? 0,
+                            (index) {
+                              final item = providerTournamentDetail.tournamentModel.winner?[index];
+                              if(item[PocketbaseUser.idFieldName] != null) {
+                                return TournamentWinnerCardWidget(
+                                  name: item[PocketbaseUser.nameFieldName],
+                                  surname: item[PocketbaseUser.surnameFieldName],
+                                  username: item[PocketbaseUser.usernameFieldName],
+                                  userId: item[PocketbaseUser.idFieldName],
+                                );
+                              } else {
+                                return const SizedBox();
+                              }
+                            },
+                          ),
+                        )
+                      )
+                    ],
                     ////////////////
                     //TOOLTIP AREA
                     /////////////////

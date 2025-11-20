@@ -10,10 +10,12 @@ class TournamentRoundsCardModel extends CustomFlowModel<TournamentRoundsCardWidg
   late final Future<void> Function(RoundsRecord round) deleteFun;
   late final Future<void> Function(RoundsRecord round)? closeFun;
   late final String roundUid;
+  late final bool editable;
 
   TournamentRoundsCardModel({
     required this.deleteFun,
     required this.roundUid,
+    required this.editable,
     this.closeFun
   });
 

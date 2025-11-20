@@ -37,6 +37,7 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
 
   /////////////////////////////GETTER
   bool get isLoading => isLoadingFlag;
+  bool get isTournamentEditable => tournamentModel.isTournamentEditable;
   TextEditingController get peopleNameTextController;
   FocusNode get peopleNameFocusNode;
   ListType get listTypeReferral;

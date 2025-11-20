@@ -16,6 +16,7 @@ class TournamentPeopleCardWidget extends StatefulWidget {
     required this.peopleModel,
     required this.promote,
     required this.tournamentRef,
+    required this.editable,
   });
 
 
@@ -25,6 +26,7 @@ class TournamentPeopleCardWidget extends StatefulWidget {
   final ChangeNotifier peopleModel;
   final bool promote;
   final String tournamentRef;
+  final bool editable;
 
   @override
   State<TournamentPeopleCardWidget> createState() => _TournamentPeopleCardWidgetState();
@@ -62,7 +64,7 @@ class _TournamentPeopleCardWidgetState extends State<TournamentPeopleCardWidget>
         // Specify a key if the Slidable is dismissible.
         key: ValueKey("people${widget.indexo}"),
         // The end action pane is the one at the right or the bottom side.
-        endActionPane: ActionPane(
+        endActionPane: widget.editable ? ActionPane(
           motion: const ScrollMotion(),
           children: [
             if (widget.promote) ...[
@@ -102,7 +104,7 @@ class _TournamentPeopleCardWidgetState extends State<TournamentPeopleCardWidget>
               label: 'Delete',
             ),
           ],
-        ),
+        ) : null,
         child: Container(
           width: 1000,
           decoration: BoxDecoration(

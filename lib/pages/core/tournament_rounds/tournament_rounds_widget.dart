@@ -114,6 +114,7 @@ class _TournamentRoundsWidgetState extends State<TournamentRoundsWidget> {
                                   },
                                 );
                               },
+                              editable: providerTournamentRounds.isTournamentEditable,
                             ),
                             firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
                             noItemsFoundIndicatorBuilder: (_) => const NoTournamentRoundsCardWidget(

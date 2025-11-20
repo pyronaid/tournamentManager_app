@@ -15,6 +15,7 @@ class TournamentRoundsCardWidget extends StatefulWidget {
     required this.indexo,
     required this.deleteFun,
     required this.deepFun,
+    required this.editable,
     this.closeFun,
   });
 
@@ -23,6 +24,7 @@ class TournamentRoundsCardWidget extends StatefulWidget {
   final Future<void> Function(RoundsRecord round) deleteFun;
   final Future<void> Function(RoundsRecord round)? closeFun;
   final Function(String) deepFun;
+  final bool editable;
 
   @override
   State<TournamentRoundsCardWidget> createState() => _TournamentRoundCardWidgetState();
@@ -43,7 +45,8 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
     _model = createModel(context, () => TournamentRoundsCardModel(
         deleteFun: widget.deleteFun,
         closeFun: widget.closeFun,
-        roundUid: widget.roundRef!.uid
+        roundUid: widget.roundRef!.uid,
+        editable: widget.editable,
     ));
 
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
@@ -64,26 +67,28 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
         // Specify a key if the Slidable is dismissible.
         key: ValueKey("round${widget.indexo}"),
         // The end action pane is the one at the right or the bottom side.
-        endActionPane: ActionPane(
+        endActionPane: widget.editable ? ActionPane(
           motion: const ScrollMotion(),
           children: [
-            SlidableAction(
-              onPressed: (context){
-                context.goNamed(
-                    'DialogDeleteRound',
-                    pathParameters: {
-                      'tournamentId': widget.roundRef!.tournamentId,
-                    }.withoutNulls,
-                    extra: {
-                      'req' : _model.showDeleteRoundAlertRequest(widget.roundRef!),
-                    }
-                );
-              },
-              backgroundColor: CustomFlowTheme.of(context).error,
-              foregroundColor: CustomFlowTheme.of(context).info,
-              icon: Icons.delete,
-              label: 'Delete',
-            ),
+            if(widget.closeFun != null)...[
+              SlidableAction(
+                onPressed: (context){
+                  context.goNamed(
+                      'DialogDeleteRound',
+                      pathParameters: {
+                        'tournamentId': widget.roundRef!.tournamentId,
+                      }.withoutNulls,
+                      extra: {
+                        'req' : _model.showDeleteRoundAlertRequest(widget.roundRef!),
+                      }
+                  );
+                },
+                backgroundColor: CustomFlowTheme.of(context).error,
+                foregroundColor: CustomFlowTheme.of(context).info,
+                icon: Icons.delete,
+                label: 'Delete',
+              ),
+            ],
             if(widget.closeFun != null)...[
               SlidableAction(
                 onPressed: (context){
@@ -104,7 +109,7 @@ class _TournamentRoundCardWidgetState extends State<TournamentRoundsCardWidget> 
               ),
             ]
           ],
-        ),
+        ): null,
         child: InkWell(
           onTap: (){
             widget.deepFun(widget.roundRef!.uid);

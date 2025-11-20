@@ -200,6 +200,9 @@ class TournamentsRecord extends PocketstoreRecord {
     _lat = snapshotData[latitudeFieldName];
     _long = snapshotData[longitudeFieldName];
     _winnerId = snapshotData[idWinnerFieldName];
+    if(_winnerId != null) {
+      _winnerId = _winnerId!.where((obj) => obj is String || (obj is Map && obj[idFieldName] != null)).toList();
+    }
     _ownerId = snapshotData[idOwnerFieldName];
 
     _lastUpdatedNews = tryParseDate(snapshotData[lastUpdatedNewsFieldName]);

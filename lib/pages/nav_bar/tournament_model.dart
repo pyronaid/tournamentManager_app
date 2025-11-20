@@ -69,6 +69,7 @@ class TournamentModel extends ChangeNotifier {
   }
   String? get tournamentImageUrl => tournamentsRefObj?.image;
   bool get hasWinner => tournamentsRefObj != null ? tournamentsRefObj!.hasWinner() : false;
+  List<dynamic>? get winner => tournamentsRefObj?.winnerUserId!;
   bool get isTournamentOngoing => tournamentsRefObj != null ? tournamentsRefObj!.state == StateTournament.ongoing : false;
   bool get isTournamentEditable => tournamentsRefObj != null ? (tournamentsRefObj!.state == StateTournament.ready || tournamentsRefObj!.state == StateTournament.open) : false;
   int get tournamentPreRegisteredSize => tournamentsRefObj != null ? tournamentsRefObj!.preRegisteredCount : 0;

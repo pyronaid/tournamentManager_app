@@ -119,7 +119,7 @@ class _TournamentRegisteredPeopleWidgetState extends State<TournamentRegisteredP
                                   ),
                                 ),
                               ),
-                              if(providerPreregisteredPeople.tournamentModel.isTournamentEditable)...[
+                              if(providerRegisteredPeople.tournamentModel.isTournamentEditable)...[
                                 Center(
                                   child: AFButtonWidget(
                                     onPressed: () async {
@@ -207,6 +207,7 @@ class _TournamentRegisteredPeopleWidgetState extends State<TournamentRegisteredP
                           peopleModel: providerRegisteredPeople,
                           promote: false,
                           tournamentRef: providerRegisteredPeople.tournamentModel.tournamentId!,
+                          editable: providerRegisteredPeople.isTournamentEditable,
                         ),
                         firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
                         noItemsFoundIndicatorBuilder: (_) => const NoTournamentPeopleCardWidget(

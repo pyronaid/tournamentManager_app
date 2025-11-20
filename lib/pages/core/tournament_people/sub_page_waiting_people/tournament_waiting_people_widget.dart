@@ -119,7 +119,7 @@ class _TournamentWaitingPeopleWidgetState extends State<TournamentWaitingPeopleW
                                     ),
                                   ),
                                 ),
-                                if(providerPreregisteredPeople.tournamentModel.isTournamentEditable)...[
+                                if(providerWaitingPeople.tournamentModel.isTournamentEditable)...[
                                   Center(
                                     child: AFButtonWidget(
                                       onPressed: () async {
@@ -207,6 +207,7 @@ class _TournamentWaitingPeopleWidgetState extends State<TournamentWaitingPeopleW
                             peopleModel: providerWaitingPeople,
                             promote: true,
                             tournamentRef: providerWaitingPeople.tournamentModel.tournamentId!,
+                            editable: providerWaitingPeople.isTournamentEditable,
                           ),
                           firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
                           noItemsFoundIndicatorBuilder: (_) => const NoTournamentPeopleCardWidget(

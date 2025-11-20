@@ -207,6 +207,7 @@ class _TournamentPreregisteredPeopleWidgetState extends State<TournamentPreregis
                             peopleModel: providerPreregisteredPeople,
                             promote: true,
                             tournamentRef: providerPreregisteredPeople.tournamentModel.tournamentId!,
+                            editable: providerPreregisteredPeople.isTournamentEditable,
                           ),
                           firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
                           noItemsFoundIndicatorBuilder: (_) => const NoTournamentPeopleCardWidget(
