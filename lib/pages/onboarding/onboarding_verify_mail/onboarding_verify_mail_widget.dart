@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
@@ -26,6 +28,7 @@ class OnboardingVerifyMailWidget extends StatefulWidget {
 class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget> {
   late OnboardingVerifyMailModel _model;
   late String? _email;
+  bool _isNavigating = false; // Prevent multiple navigations
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _unfocusNode = FocusNode();
@@ -42,8 +45,48 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
       'imageOnPageLoadAnimation1': standardAnimationInfo(context),
     });
     
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-    checkEmailVerification();
+    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {
+      _initializeEmailVerification();
+    }));
+  }
+
+  Future<void> _initializeEmailVerification() async {
+    // Send initial verification email
+    bool emailSent = await _model.sendInitialVerificationEmail(_email);
+
+    if (!emailSent && mounted) {
+      // Show error to user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_model.emailError ?? 'Errore nell\'invio dell\'email'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+
+    // Start watching for verification regardless of email send status
+    _model.startWatchingVerification(
+      onVerified: (isVerified) {
+        if (mounted && isVerified && !_isNavigating) {
+          _isNavigating = true;
+          context.goNamedAuth('Onboarding_VerifyMailSuccess', context.mounted);
+        }
+      },
+      onError: (error) {
+        if (mounted) {
+          print("[Verification Error] $error");
+          // Optionally show timeout message to user
+          if (error is TimeoutException) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Verifica email scaduta. Prova a rimandare l\'email.'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }
+      },
+    );
   }
 
   @override
@@ -178,22 +221,29 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                     child: AFButtonWidget(
-                      onPressed: () async {
+                      onPressed: _model.isEmailSending ? null : () async {
                         FocusScope.of(context).unfocus();
                         logFirebaseEvent('ONBOARDING_VERIFY_MAIL_RESEND_MAIL');
                         logFirebaseEvent('Button_haptic_feedback');
                         HapticFeedback.lightImpact();
                         logFirebaseEvent('Button_resend_mail');
-                        
-
-                        //LOGIC
-                        try{
-                          await pocketAuthManager.sendEmailVerification(currentUserEmail);
-                        } catch (e){
-
+                        bool success = await _model.resendVerificationEmail(_email);
+                        if(mounted){
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  success
+                                      ? 'Email inviata con successo!'
+                                      : _model.emailError ?? 'Errore nell\'invio'
+                              ),
+                              backgroundColor: success ? Colors.green : Colors.red,
+                            ),
+                          );
                         }
                       },
-                      text: 'Rimanda email di verifica',
+                      text: _model.isEmailSending
+                          ? 'Invio in corso...'
+                          : 'Rimanda email di verifica',
                       options: AFButtonOptions(
                         width: double.infinity,
                         height: 50,
@@ -217,12 +267,5 @@ class _OnboardingVerifyMailWidgetState extends State<OnboardingVerifyMailWidget>
         ),
       ),
     );
-  }
-
-  void checkEmailVerification() async{
-    bool isVerified = await _model.interceptVerification();
-    if (mounted && isVerified) {
-      context.goNamedAuth('Onboarding_VerifyMailSuccess', context.mounted );
-    }
   }
 }
