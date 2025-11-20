@@ -38,7 +38,7 @@ class ScaffoldWithLevelTwoNestedNavigation extends StatelessWidget {
             child: IconButton(
               icon: const Icon(Icons.arrow_back),
               tooltip: isDialogRoute ? null : MaterialLocalizations.of(context).backButtonTooltip,
-              onPressed: isDialogRoute ? null : () => context.safePop(),
+              onPressed: isDialogRoute ? null : () => GoRouter.of(context).go('/dashboard'),
             ),
           ),
           toolbarHeight: 35.sp,

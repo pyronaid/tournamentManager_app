@@ -76,8 +76,19 @@ class RouteConfig {
               name: 'TournamentBase',
               path: ':tournamentId',
               parentNavigatorKey: NavigatorKeys.rootNavigator,
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-              builder: (context, params) => const Placeholder2Widget(),
+              redirect: (context, state) {
+                final authCheck = RouteGuard.authGuard(appStateNotifier, context, state);
+                if (authCheck != null) return authCheck;
+
+                final tournamentId = state.pathParameters['tournamentId'];
+                final currentPath = state.uri.path;
+                if (tournamentId != null && currentPath == '/$tournamentId') {
+                  return '/$tournamentId/tournament-dets';
+                }
+
+                return null;
+              },
+              builder: (context, params) => const SizedBox.shrink(),
               routes: [
                 StatefulShellRoute.indexedStack(
                   parentNavigatorKey: NavigatorKeys.rootNavigator,
