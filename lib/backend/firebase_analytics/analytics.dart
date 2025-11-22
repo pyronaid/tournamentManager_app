@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 
@@ -33,8 +32,9 @@ void logFirebaseEvent(String eventName, {Map<String?, Object>? parameters}) {
   FirebaseAnalytics.instance.logEvent(name: eventName, parameters: params);
 }
 
+/*
 void logFirebaseAuthEvent(User? user, String method) {
   final isSignup = user!.metadata.creationTime == user.metadata.lastSignInTime;
   final authEvent = isSignup ? 'sign_up' : 'login';
   logFirebaseEvent(authEvent, parameters: {'method': method});
-}
+}*/
