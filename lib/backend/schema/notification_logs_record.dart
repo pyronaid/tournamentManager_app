@@ -43,7 +43,7 @@ class NotificationLogsRecord extends PocketstoreRecord {
   NotificationType get notificationType => _notificationType;
 
   late String _targetUser;
-  DateTime get targetUser => _targetUser;
+  String get targetUser => _targetUser;
 
   late bool _readStatus;
   bool get readStatus => _readStatus;
@@ -66,7 +66,7 @@ class NotificationLogsRecord extends PocketstoreRecord {
     _uid = snapshotData[idFieldName];
     _title = snapshotData[titleFieldName];
     _message = snapshotData[messageFieldName];
-    _notificationType = getNotificationTypeByName[snapshotData[notificationTypeFieldName]];
+    _notificationType = getNotificationTypeByName(snapshotData[notificationTypeFieldName]);
     _targetUser = snapshotData[targetUserFieldName];
     _readStatus = snapshotData[readStatusFieldName];
     _metadata = snapshotData[metadataFieldName];
@@ -204,7 +204,7 @@ class NotificationLogsRecord extends PocketstoreRecord {
       NotificationLogsRecord._(reference, mapFromFirestore(data));
 
   static Future<NotificationLogsRecord> createRecordFromMap(PocketBase pb, Map<String, dynamic> body) async =>
-      pb.collection(collectionName).create(body: body).then((record) => DeviceTokensRecord.fromSnapshot(record));
+      pb.collection(collectionName).create(body: body).then((record) => NotificationLogsRecord.fromSnapshot(record));
 
   @override
   String toString() =>
