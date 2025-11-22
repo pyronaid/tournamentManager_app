@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:tournamentmanager/components/tournament_pairing_card/tournament_pairing_card_widget.dart';
-import 'package:tournamentmanager/components/tournament_round_card/tournament_rounds_card_widget.dart';
 
 import '../../app_flow/app_flow_model.dart';
 import '../../app_flow/services/supportClass/alert_classes.dart';

@@ -3,7 +3,6 @@ import 'package:tournamentmanager/app_flow/nav/routes/auth_routes.dart';
 import 'package:tournamentmanager/app_flow/nav/routes/first_level_routes.dart';
 import 'package:tournamentmanager/app_flow/nav/routes/tournament_routes.dart';
 import 'package:tournamentmanager/pages/onboarding/loading/loading_widget.dart';
-import 'package:tournamentmanager/pages/placeholder2_widget.dart';
 
 import '../../pages/onboarding/splash/splash_widget.dart';
 import 'nav_basics.dart';

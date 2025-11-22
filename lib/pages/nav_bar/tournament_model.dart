@@ -14,7 +14,6 @@ import 'package:uuid/uuid.dart';
 import '../../app_flow/services/LoaderService.dart';
 import '../../app_flow/services/SnackBarService.dart';
 import '../../auth/pocketbase_auth/pocketbase_auth_util.dart';
-import '../../backend/schema/rounds_record.dart';
 
 class TournamentModel extends ChangeNotifier {
 

@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
-import 'package:tournamentmanager/components/tournament_people_card/tournament_people_card_model.dart';
 import 'package:tournamentmanager/components/tournament_winner_card/tournament_winner_card_model.dart';
 
-import '../../backend/schema/enrollments_record.dart';
 
 class TournamentWinnerCardWidget extends StatefulWidget {
 
