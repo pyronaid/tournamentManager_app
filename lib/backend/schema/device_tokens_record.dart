@@ -52,7 +52,7 @@ class DeviceTokensRecord extends PocketstoreRecord {
   
     _uid = snapshotData[idFieldName];
     _fcmToken = snapshotData[fcmTokenFieldName];
-    _deviceType = getDeviceTypeByName[deviceTypeFieldName];
+    _deviceType = getDeviceTypeByName(snapshotData[deviceTypeFieldName]);
     _lastActive = tryParseDate(snapshotData[lastActiveFieldName])!;
     _createdTime = tryParseDate(snapshotData[createdFieldName])!;
     _updatedTime = tryParseDate(snapshotData[updatedFieldName])!;
@@ -214,7 +214,7 @@ Map<String, dynamic> createDeviceTokensRecordData({
       DeviceTokensRecord.idFieldName: uid,
       DeviceTokensRecord.fcmTokenFieldName: fcmToken,
       DeviceTokensRecord.deviceTypeFieldName: deviceType.name,
-      DeviceTokensRecord.lastActiveFieldName: lastActive ?? FieldValue.serverTimestamp(),
+      DeviceTokensRecord.lastActiveFieldName: lastActive ?? DateTime.now(),
     }.withoutNulls,
   );
 
