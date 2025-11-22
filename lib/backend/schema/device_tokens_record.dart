@@ -11,6 +11,7 @@ class DeviceTokensRecord extends PocketstoreRecord {
   static const String collectionName = "device_tokens";
   
   static const String idFieldName = 'id';
+  static const String idUserFieldName = 'id_user';
   static const String fcmTokenFieldName = 'fcmToken';
   static const String deviceTypeFieldName = 'deviceType';
   static const String lastActiveFieldName = 'lastActive';
@@ -28,6 +29,9 @@ class DeviceTokensRecord extends PocketstoreRecord {
 
   late String _uid;
   String get uid => _uid;
+
+  late String _userId;
+  String get userId => _userId;
 
   late String _fcmToken;
   String get fcmToken => _fcmToken;
@@ -51,6 +55,7 @@ class DeviceTokensRecord extends PocketstoreRecord {
   void _initializeFields() {
   
     _uid = snapshotData[idFieldName];
+    _userId = snapshotData[idUserFieldName];
     _fcmToken = snapshotData[fcmTokenFieldName];
     _deviceType = getDeviceTypeByName(snapshotData[deviceTypeFieldName]);
     _lastActive = tryParseDate(snapshotData[lastActiveFieldName])!;
