@@ -154,10 +154,10 @@ class DeviceTokensRecord extends PocketstoreRecord {
   static Future<void> deleteDeviceToken(pb, String idDT) async {
     pb.collection(collectionName).delete(idDT);
   }
-  static Future<RecordModel> createDeviceToken(pb, Map<String,dynamic> mapObj, {List<MultipartFile>? files}) async {
+  static Future<RecordModel> createDeviceToken(PocketBase pb, Map<String,dynamic> mapObj, {List<MultipartFile>? files}) async {
     return pb.collection(collectionName).create(
       body: mapObj,
-      files: files,
+      files: files??[],
     );
   }
 
