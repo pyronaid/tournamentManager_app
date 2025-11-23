@@ -165,10 +165,10 @@ class NotificationLogsRecord extends PocketstoreRecord {
   static Future<void> deleteNotificationLog(pb, String idNL) async {
     pb.collection(collectionName).delete(idNL);
   }
-  static Future<RecordModel> createNotificationLog(pb, Map<String,dynamic> mapObj, {List<MultipartFile>? files}) async {
+  static Future<RecordModel> createNotificationLog(PocketBase pb, Map<String,dynamic> mapObj, {List<MultipartFile>? files}) async {
     return pb.collection(collectionName).create(
       body: mapObj,
-      files: files,
+      files: files??[],
     );
   }
 
