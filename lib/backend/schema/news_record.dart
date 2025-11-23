@@ -191,10 +191,10 @@ class NewsRecord extends PocketstoreRecord {
   static Future<void> deleteNews(pb, String idN) async {
     pb.collection(collectionName).delete(idN);
   }
-  static Future<RecordModel> createNews(pb, Map<String,dynamic> mapObj, {List<MultipartFile>? files}) async {
+  static Future<RecordModel> createNews(PocketBase pb, Map<String,dynamic> mapObj, {List<MultipartFile>? files}) async {
     return pb.collection(collectionName).create(
       body: mapObj,
-      files: files,
+      files: files??[],
     );
   }
 

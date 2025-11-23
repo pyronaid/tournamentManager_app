@@ -190,10 +190,10 @@ class RoundsRecord extends PocketstoreRecord {
   static Future<void> deleteRound(pb, String idR) async {
     pb.collection(collectionName).delete(idR);
   }
-  static Future<RecordModel> createRound(pb, Map<String,dynamic> mapObj, {List<MultipartFile>? files}) async {
+  static Future<RecordModel> createRound(PocketBase pb, Map<String,dynamic> mapObj, {List<MultipartFile>? files}) async {
     return pb.collection(collectionName).create(
       body: mapObj,
-      files: files,
+      files: files??[],
     );
   }
 

@@ -250,10 +250,10 @@ class PairingsRecord extends PocketstoreRecord {
   static Future<void> deletePairing(pb, String idP) async {
     pb.collection(collectionName).delete(idP);
   }
-  static Future<RecordModel> createPairing(pb, Map<String,dynamic> mapObj, {List<MultipartFile>? files}) async {
+  static Future<RecordModel> createPairing(PocketBase pb, Map<String,dynamic> mapObj, {List<MultipartFile>? files}) async {
     return pb.collection(collectionName).create(
       body: mapObj,
-      files: files,
+      files: files??[],
     );
   }
 
