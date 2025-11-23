@@ -744,9 +744,10 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
 Future<void> _showChangeTournamentDatePicker(BuildContext context, TournamentModel tournamentModel) async {
   // show the dialog
   DateTime? pickedDate = await showDatePicker(
+    locale: const Locale('it'),
     context: context,
     initialDate: tournamentModel.tournamentDate ?? DateTime.now(),
-    firstDate: tournamentModel.tournamentDate ?? DateTime.now(),
+    firstDate: DateTime.now().isBefore(tournamentModel.tournamentDate??DateTime.now()) ? DateTime.now() : tournamentModel.tournamentDate??DateTime.now(),
     lastDate: DateTime(2101),
   );
 

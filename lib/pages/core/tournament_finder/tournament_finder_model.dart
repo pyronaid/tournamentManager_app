@@ -153,7 +153,7 @@ class TournamentFinderModel extends ChangeNotifier {
     final double pixelsPerKm = viewportWidthPixels / (2 * radius);
 
     final double zoomLevel = log(earthCircumferenceKm * latitudeCorrection * pixelsPerKm / 110)/log(2);
-    print("zoom_level $zoomLevel pre clamp");
+    debugPrint("zoom_level $zoomLevel pre clamp");
     return zoomLevel.clamp(1.0, 18.0); // FlutterMap zoom range is 1-18
   }
   void refreshSearchByTap(MapCamera position) {
@@ -163,14 +163,14 @@ class TournamentFinderModel extends ChangeNotifier {
       final double zoom = position.zoom;
       //final double radius = (position.visibleBounds.north - center.latitude) * 111.32 < minRadius ? minRadius : (position.visibleBounds.north - center.latitude) * 111.32;
       final double radius = const Distance().as(LengthUnit.Kilometer, center, position.visibleBounds.northEast);
-      print("RELAZIONE MAPPA RAGGIO: $radius ZOOM: $zoom ");
+      debugPrint("RELAZIONE MAPPA RAGGIO: $radius ZOOM: $zoom ");
       _radiusInKm = radius.clamp(minRadius, maxRadius);
       if(position.visibleBounds.north > (_lastLocation.latitude + (_radiusInKm / 111.32)) ||
           position.visibleBounds.south < (_lastLocation.latitude - (_radiusInKm / 111.32)) ||
           position.visibleBounds.east > (_lastLocation.longitude + (_radiusInKm / (111.32 * cos(_lastLocation.latitude * pi / 180)))) ||
           position.visibleBounds.west < (_lastLocation.longitude - (_radiusInKm / (111.32 * cos(_lastLocation.latitude * pi / 180))))){
 
-        print('REFRESH START BY TAP');
+        debugPrint('REFRESH START BY TAP');
         _lastLocation = position.center;
         await _tournamentsSubscription?.cancel();
         String query = getQuery();
@@ -178,7 +178,7 @@ class TournamentFinderModel extends ChangeNotifier {
           tournamentsListRefObj = tournamentsWithCreatorsList;
           tournamentsListRefObjToDetail = updateObjsToDetail();
           notifyListeners();
-          print('REFRESH END BY TAP');
+          debugPrint('REFRESH END BY TAP');
         });
       } else {
         tournamentsListRefObjToDetail = updateObjsToDetail();
@@ -188,14 +188,14 @@ class TournamentFinderModel extends ChangeNotifier {
   }
   Future<void> refreshSearchByFilter(String? nameToFilter, Map<String, String?>? placeIdToFilter, double? sliderToFilter, List<Game>? gamesToFilter, List<DateTime>? dataRangeToFilter) async {
     if((nameToFilter == null || nameToFilter.isEmpty || nameToFilter == _name) &&
-        (placeIdToFilter == null || placeIdToFilter["placeId"]!.isEmpty || placeIdToFilter["lastSelected"]!.isEmpty || placeIdToFilter["lastSelected"] == _place["lastSelected"]) &&
+        (placeIdToFilter == null || placeIdToFilter["placeId"] == null || placeIdToFilter["lastSelected"] == null || placeIdToFilter["lastSelected"] == _place["lastSelected"]) &&
         (sliderToFilter == null || sliderToFilter == _radiusInKm) &&
-        (gamesToFilter == null || gamesToFilter == _games) &&
+        (gamesToFilter == null || containsSameGames(gamesToFilter,_games)) &&
         (dataRangeToFilter == null || (dataRangeToFilter[0] == _dateStart && dataRangeToFilter[1] == _dateEnd))){
       return;
     }
 
-    print('REFRESH START BY FILTER');
+    debugPrint('REFRESH START BY FILTER');
     //show loading start
     if(dataRangeToFilter != null){
       _dateStart =  dataRangeToFilter[0];
@@ -225,6 +225,7 @@ class TournamentFinderModel extends ChangeNotifier {
           mapController.rotate(0);
         }
       } catch (e){
+        debugPrint('[TournamentFinderModel] Error in refreshSearchByFilter: $e');
       }
     } else {
       double zoomLevel = computeZoomByRadius(_radiusInKm, _mapController.camera.center.latitude,_mapController.camera.center.longitude);
@@ -236,7 +237,7 @@ class TournamentFinderModel extends ChangeNotifier {
     _tournamentsSubscription = TournamentsRecord.getDocuments(pb, false, query).listen((tournamentsWithCreatorsList) {
       tournamentsListRefObj = tournamentsWithCreatorsList;
       tournamentsListRefObjToDetail = updateObjsToDetail();
-      print('REFRESH END BY FILTER');
+      debugPrint('REFRESH END BY FILTER');
       notifyListeners();
     });
     // show loading end
@@ -289,12 +290,16 @@ class TournamentFinderModel extends ChangeNotifier {
         ),
       ],
       functionConfirmed: (List<dynamic>? formValues) async {
-        String? nameToFilter = (formValues![0] as String);
-        Map<String, String?>? placeIdToFilter = (formValues[1] as Map<String, String?>);
-        double? sliderToFilter = (formValues[2] as double);
-        List<Game>? gamesToFilter = (formValues[3]! as List<Game>);
-        List<DateTime>? dataRangeToFilter = (formValues[4]!.whereType<DateTime>().toList() as List<DateTime>);
-        await refreshSearchByFilter(nameToFilter, placeIdToFilter, sliderToFilter, gamesToFilter, dataRangeToFilter);
+        try {
+          String? nameToFilter = (formValues![0] as String);
+          Map<String, String?>? placeIdToFilter = (formValues[1] as Map<String, String?>);
+          double? sliderToFilter = (formValues[2] as double);
+          List<Game>? gamesToFilter = (formValues[3]! as List<Game>);
+          List<DateTime>? dataRangeToFilter = (formValues[4]!.whereType<DateTime>().toList() as List<DateTime>);
+          await refreshSearchByFilter(nameToFilter, placeIdToFilter, sliderToFilter, gamesToFilter, dataRangeToFilter);
+        } catch (e){
+          debugPrint('[TournamentFinderModel] Error in showChangeTournamentFinderSettingsAlertRequest: $e');
+        }
       },
     );
     return req;
@@ -346,7 +351,7 @@ class TournamentFinderModel extends ChangeNotifier {
 
   Future<List> callAddressHint(String? text) async {
     if(text != null && text.isNotEmpty) {
-      print("[PLACES-API] CALL");
+      debugPrint("[PLACES-API] CALL");
       PlacesApiManagerService placesApiManagerServiceCompleted = await placesApiManagerService;
       _placeList = await placesApiManagerServiceCompleted.getSuggestion(text, _sessionToken);
     }
@@ -354,7 +359,7 @@ class TournamentFinderModel extends ChangeNotifier {
   }
 
   String getQuery({bool useFirst = false}) {
-    print("[LOAD FROM FIREBASE IN CORSO] tournament_finder_model.dart");
+    debugPrint("[LOAD FROM FIREBASE IN CORSO] tournament_finder_model.dart");
     double currentLat;
     double currentLong;
     if(useFirst){

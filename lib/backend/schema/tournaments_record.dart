@@ -70,7 +70,7 @@ class TournamentsRecord extends PocketstoreRecord {
   DateTime? get date => _date;
   Future<void> setDate(PocketBase pb, DateTime newDate) async {
     _date = newDate;
-    await updateField(pb, uid, dateFieldName, newDate);
+    await updateField(pb, uid, dateFieldName, newDate.toString());
   }
   bool hasDate() => _date != null;
 
@@ -474,6 +474,14 @@ enum Game {
 
   const Game(this.desc, this.resource, this.iconResource, this.color);
 
+}
+
+bool containsSameGames(List<Game> list1, List<Game> list2){
+  if(list1.length != list2.length) { return false; }
+  for(var g in list1){
+    if(!list2.contains(g)){ return false; }
+  }
+  return true;
 }
 
 enum StateTournament {

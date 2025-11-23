@@ -167,6 +167,9 @@ class CreateOwnModel extends ChangeNotifier {
   /////////////////////////////SETTER
   void switchPreRegistrationEn() {
     _preRegistrationEnabledVar = !_preRegistrationEnabledVar;
+    if(!_preRegistrationEnabledVar && _waitingListEnabledVar){
+      _waitingListEnabledVar = !_waitingListEnabledVar;
+    }
     notifyListeners();
   }
   void switchWaitingListEn() {
@@ -221,6 +224,7 @@ class CreateOwnModel extends ChangeNotifier {
 
       await TournamentsRecord.createRecordFromMap(pb, ownTournament);
       loaderService.hideLoader(id: executionId);
+      resetForm();
       snackBarService.showSnackBar(
         message: 'Torneo creato con successo',
         title: 'Creazione Torneo',
@@ -236,6 +240,17 @@ class CreateOwnModel extends ChangeNotifier {
       );
     }
     return false;
+  }
+
+  void resetForm(){
+    _pageViewController.jumpToPage(0);
+    _tournamentNameTextController.clear();
+    _tournamentAddressTextController.clear();
+    _tournamentCapacityTextController.clear();
+    _tournamentDateTextController.clear();
+    _preRegistrationEnabledVar = false;
+    _waitingListEnabledVar = false;
+    notifyListeners();
   }
 
 

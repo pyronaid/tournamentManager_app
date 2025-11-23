@@ -3,6 +3,8 @@ import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/components/custom_appbar_model.dart';
 import 'package:tournamentmanager/pages/onboarding/sign_in/sign_in_widget.dart';
 
+import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
+
 class SignInModel extends CustomFlowModel<SignInWidget> {
   ///  State fields for stateful widgets in this page.
 
@@ -22,7 +24,6 @@ class SignInModel extends CustomFlowModel<SignInWidget> {
     return null;
   }
 
-
   // State field(s) for password widget.
   FocusNode? passwordFocusNode;
   TextEditingController? passwordTextController;
@@ -39,12 +40,30 @@ class SignInModel extends CustomFlowModel<SignInWidget> {
     return null;
   }
 
+  String errorMessage = '';
+
   @override
   void initState(BuildContext context) {
     customAppbarModel = createModel(context, () => CustomAppbarModel());
     emailAddressTextControllerValidator = _emailAddressTextControllerValidator;
     passwordVisibility = false;
     passwordTextControllerValidator = _passwordTextControllerValidator;
+  }
+
+  Future<bool> executeSignIn() async {
+    errorMessage = "";
+    final user = await pocketAuthManager.signInWithEmail(
+      emailAddressTextController.text,
+      passwordTextController.text,
+    );
+    if (!user.item1) {
+      updatePage((){
+        errorMessage = user.item2??"Errore generico in fase di login";
+      });
+      return false;
+    }
+
+    return true;
   }
 
   @override

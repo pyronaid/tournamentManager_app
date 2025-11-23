@@ -34,7 +34,12 @@ class _SignInWidgetState extends State<SignInWidget> {
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => SignInModel());
+    _model = createModel(context, () => SignInModel()).setOnUpdate(
+      updateOnChange: true,
+      onUpdate: (){
+        setState(() {});
+      },
+    ) as SignInModel;
 
     logFirebaseEvent('screen_view', parameters: {'screen_name': 'SignIn'});
     if (!isWeb) {
@@ -135,6 +140,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                                     focusNode: _model.emailAddressFocusNode,
                                     autofocus: false,
                                     autofillHints: const [AutofillHints.email],
+                                    textCapitalization: TextCapitalization.none,
                                     textInputAction: TextInputAction.next,
                                     obscureText: false,
                                     decoration: standardInputDecoration(
@@ -178,6 +184,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                                     autofocus: false,
                                     autofillHints: const [AutofillHints.password],
                                     textInputAction: TextInputAction.done,
+                                    textCapitalization: TextCapitalization.none,
                                     obscureText: !_model.passwordVisibility,
                                     decoration: standardInputDecoration(
                                       context,
@@ -216,6 +223,19 @@ class _SignInWidgetState extends State<SignInWidget> {
                           ],
                         ),
                       ),
+                      if(_model.errorMessage.isNotEmpty)...[
+                        Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
+                          child: Text(
+                            _model.errorMessage,
+                            style: CustomFlowTheme.of(context).bodyLarge.override(
+                              fontWeight: FontWeight.w500,
+                              color: CustomFlowTheme.of(context).error,
+                              lineHeight: 1,
+                            ),
+                          ),
+                        ),
+                      ],
                       Padding(
                         padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                         child: AFButtonWidget(
@@ -232,15 +252,11 @@ class _SignInWidgetState extends State<SignInWidget> {
                             logFirebaseEvent('Button_auth');
                             GoRouter.of(context).prepareAuthEvent();
 
-                            final user = await pocketAuthManager.signInWithEmail(
-                              _model.emailAddressTextController.text,
-                              _model.passwordTextController.text,
-                            );
-                            if (!user) {
-                              return;
+                            final signed = await _model.executeSignIn();
+                            if (signed) {
+                              context.goNamedAuth('Dashboard', context.mounted);
                             }
 
-                            context.goNamedAuth('Dashboard', context.mounted);
                           },
                           text: 'Accedi',
                           options: AFButtonOptions(

@@ -300,6 +300,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
                                           textInputAction: TextInputAction.next,
                                           obscureText: false,
                                           autofocus: false,
+                                          textCapitalization: TextCapitalization.none,
                                           decoration: standardInputDecoration(
                                             context,
                                             prefixIcon: Icon(
@@ -359,6 +360,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
                                       inputFormatters: <TextInputFormatter>[
                                         FilteringTextInputFormatter.digitsOnly
                                       ],
+                                      textCapitalization: TextCapitalization.none,
                                       textInputAction: TextInputAction.next,
                                       obscureText: false,
                                       decoration: standardInputDecoration(
@@ -507,6 +509,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
 Future<void> _showChangeTournamentDatePicker(BuildContext context, CreateOwnModel createOwnModel) async {
   // show the dialog
   DateTime? pickedDate = await showDatePicker(
+    locale: const Locale('it'),
     context: context,
     initialDate: DateTime.now(),
     firstDate: DateTime.now(),

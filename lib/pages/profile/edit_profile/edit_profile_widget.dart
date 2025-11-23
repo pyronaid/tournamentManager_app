@@ -242,7 +242,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                       },
                                       autofocus: false,
                                       autofillHints: const [AutofillHints.username],
-                                      //textCapitalization: TextCapitalization.words,
+                                      textCapitalization: TextCapitalization.none,
                                       textInputAction: TextInputAction.next,
                                       obscureText: false,
                                       decoration: standardInputDecoration(
@@ -395,7 +395,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                       controller: editProfileModel.emailAddressTextController,
                       focusNode: editProfileModel.emailAddressFocusNode,
                       autofocus: false,
-                      textCapitalization: TextCapitalization.words,
+                      textCapitalization: TextCapitalization.none,
                       readOnly: true,
                       obscureText: false,
                       decoration: const InputDecoration(

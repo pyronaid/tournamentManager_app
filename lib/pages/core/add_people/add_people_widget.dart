@@ -128,7 +128,7 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                                     focusNode: providerAddPeople.idUserFocusNode,
                                     autofocus: false,
                                     autofillHints: const [AutofillHints.name],
-                                    textCapitalization: TextCapitalization.sentences,
+                                    textCapitalization: TextCapitalization.none,
                                     textInputAction: TextInputAction.next,
                                     obscureText: false,
                                     decoration: standardInputDecoration(

@@ -227,7 +227,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                   focusNode: _model.usernameFocusNode,
                                   autofocus: false,
                                   autofillHints: const [AutofillHints.username],
-                                  //textCapitalization: TextCapitalization.words,
+                                  textCapitalization: TextCapitalization.none,
                                   textInputAction: TextInputAction.next,
                                   obscureText: false,
                                   decoration: standardInputDecoration(
@@ -273,6 +273,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                   focusNode: _model.emailAddressFocusNode,
                                   autofocus: false,
                                   autofillHints: const [AutofillHints.email],
+                                  textCapitalization: TextCapitalization.none,
                                   textInputAction: TextInputAction.next,
                                   obscureText: false,
                                   decoration: standardInputDecoration(
@@ -319,6 +320,7 @@ class _OnboardingCreateAccountWidgetState extends State<OnboardingCreateAccountW
                                   focusNode: _model.passwordFocusNode,
                                   autofocus: false,
                                   autofillHints: const [AutofillHints.newPassword],
+                                  textCapitalization: TextCapitalization.none,
                                   textInputAction: TextInputAction.done,
                                   obscureText: !_model.passwordVisibility,
                                   decoration: standardInputDecoration(

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pocketbase/pocketbase.dart';
@@ -5,6 +6,7 @@ import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_users_record.d
 import 'package:tournamentmanager/backend/schema/util/pocketbase_util.dart';
 import 'package:tuple/tuple.dart';
 
+import '../../app_flow/services/DeviceTokenService.dart';
 import '../../app_flow/services/SnackBarService.dart';
 import '../../app_flow/services/supportClass/snackbar_style.dart';
 
@@ -15,9 +17,13 @@ class PocketbaseAuthManager {
   static const String userColl = 'users';
 
   late SnackBarService snackBarService;
+  late final DeviceTokenService _deviceTokenService;
 
   PocketbaseAuthManager(this._pb){
     snackBarService = GetIt.instance<SnackBarService>();
+    _deviceTokenService = DeviceTokenService(_pb);
+    // Start listening for token refresh
+    _deviceTokenService.listenForTokenRefresh();
   }
 
   //#####################################################
@@ -25,14 +31,27 @@ class PocketbaseAuthManager {
   //################# MAIL & PASSWORD AUTH
   //#####################################################
   //#####################################################
-  Future<bool> signInWithEmail(String email, String password) async {
+  Future<Tuple2<bool,String?>> signInWithEmail(String email, String password) async {
     try {
       final authData = await _pb.collection(userColl).authWithPassword(email, password,);
       await _secureStorage.write(key: _tokenKey, value: _pb.authStore.token);
-      return true;
-    } catch (e) {
-      print('Login error: $e');
-      return false;
+      await _deviceTokenService.saveDeviceToken();
+      return const Tuple2(true,null);
+    } on ClientException catch (errorRef, e) {
+      debugPrint('[signInWithEmail] Login error: $e');
+      var convertedMessage = "";
+      if(errorRef.response.isNotEmpty && errorRef.response["message"] != null){
+        switch(errorRef.response["message"]){
+          case "Failed to authenticate.":
+            convertedMessage = "Autenticazione fallita: mail o password non corrette.";
+            break;
+          default:
+            convertedMessage = errorRef.response["message"];
+        }
+      }
+      return Tuple2(false,convertedMessage);
+    } on Exception catch (_, e) {
+      return const Tuple2(false,'Errore generico in fase di login');
     }
   }
   Future<bool> signInWithToken() async {
@@ -52,6 +71,7 @@ class PocketbaseAuthManager {
       } catch (e){
         print('Token validation failed: $e');
         await _secureStorage.delete(key: _tokenKey);
+        await _deviceTokenService.removeDeviceToken();
         _pb.authStore.clear();
         return false;
       }
@@ -80,6 +100,7 @@ class PocketbaseAuthManager {
     try {
       final authData = await _pb.collection(userColl).authWithOTP(otpId, otpCode,);
       await _secureStorage.write(key: _tokenKey, value: _pb.authStore.token);
+      await _deviceTokenService.saveDeviceToken();
       return true;
     } catch (e) {
       print('OTP verification error: $e');
@@ -156,7 +177,7 @@ class PocketbaseAuthManager {
       // After creating, you might want to automatically sign in
       bool sendMailFlag = await sendEmailVerification(user.email!);
       if(!sendMailFlag){ return const Tuple3(false, '', '');}
-      bool signInFlag = await signInWithEmail(user.email!, password);
+      bool signInFlag = (await signInWithEmail(user.email!, password)).item1;
       return Tuple3(signInFlag, '', '');
     } catch (e) {
       Map<String, dynamic>? dataError = (e as ClientException).response['data'];
@@ -202,6 +223,7 @@ class PocketbaseAuthManager {
   Future<void> signOut() async {
     _pb.authStore.clear();
     await _secureStorage.delete(key: _tokenKey);
+    await _deviceTokenService.removeDeviceToken();
   }
   Future<bool> deleteUser() async {
     try {
