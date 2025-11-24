@@ -69,7 +69,7 @@ class _TournamentRoundsWidgetState extends State<TournamentRoundsWidget> {
             return Scaffold(
               key: _scaffoldKey,
               backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-              floatingActionButton: providerTournamentRounds.isTournamentOngoing ? FabExpandableWidget(
+              floatingActionButton: (providerTournamentRounds.isTournamentOngoing && providerTournamentRounds.canInteractOn) ? FabExpandableWidget(
                 distance: 60,
                 children: providerTournamentRounds.buildFabActions(context),
               ) : null,
@@ -115,6 +115,7 @@ class _TournamentRoundsWidgetState extends State<TournamentRoundsWidget> {
                                 );
                               },
                               editable: providerTournamentRounds.isTournamentEditable,
+                              interactable: providerTournamentRounds.canInteractOn,
                             ),
                             firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
                             noItemsFoundIndicatorBuilder: (_) => const NoTournamentRoundsCardWidget(
