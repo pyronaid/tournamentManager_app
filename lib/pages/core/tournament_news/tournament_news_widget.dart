@@ -68,7 +68,7 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
           return Scaffold(
             key: _scaffoldKey,
             backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-            floatingActionButton: FloatingActionButton(
+            floatingActionButton: providerTournamentNews.canInteractOn() ? FloatingActionButton(
               heroTag: 'news_add',
               backgroundColor: CustomFlowTheme.of(context).primary,
               onPressed: (){
@@ -88,7 +88,7 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
                 Icons.add,
                 color: CustomFlowTheme.of(context).info,
               ),
-            ),
+            ) : null,
             body: SafeArea(
               top: true,
               child: RefreshIndicator(
@@ -117,6 +117,7 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
                             //last: index == (providerMyTournaments.pagingControllerActive.itemList!.length - 1),
                             newsRef: item,
                             indexo: index,
+                            interactable: providerTournamentNews.canInteractOn(),
                             deleteFun: (newsId) => providerTournamentNews.deleteNews(newsId),
                           ),
                           firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
