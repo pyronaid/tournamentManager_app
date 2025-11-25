@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
+import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_auth_util.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
 class TournamentDetailModel extends ChangeNotifier {
@@ -54,6 +55,8 @@ class TournamentDetailModel extends ChangeNotifier {
   /////////////////////////////GETTER
   bool get isLoading => _isLoading;
   DateTime? get lastUpdated => _lastUpdated;
+  bool get isTournamentEditable => tournamentModel.isTournamentEditable && tournamentModel.tournamentOwner == currentUserUid;
+  bool get canInteractOn => tournamentModel.tournamentOwner == currentUserUid;
 
 
   /////////////////////////////SETTER

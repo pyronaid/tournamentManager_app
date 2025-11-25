@@ -69,6 +69,7 @@ class TournamentPairingsModel extends ChangeNotifier {
   bool get isTournamentOngoing => tournamentModel.isTournamentOngoing;
   TextEditingController get playerNameTextController => _playerNameTextController;
   FocusNode get playerNameFocusNode => _playerNameFocusNode;
+  bool isTournamentEditable(PairingsRecord rec) => tournamentModel.isTournamentEditable && [tournamentModel.tournamentOwner, rec.playerA, rec.playerB].contains(currentUserUid);
 
 
   /////////////////////////////SETTER

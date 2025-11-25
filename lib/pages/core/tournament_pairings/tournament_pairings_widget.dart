@@ -181,7 +181,7 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
                           pagingController: providerTournamentPairings.pagingControllerPairings,
                           builderDelegate: PagedChildBuilderDelegate<PairingsRecord>(
                             itemBuilder: (context, item, index) => CustomExpansionPanelWidget(
-                              isExpandable: !item.isBye,
+                              isExpandable: !item.isBye && providerTournamentPairings.isTournamentEditable(item),
                               expandedContentBuilder: (context){
                                 return TournamentPairingCardExpandWidget(
                                   pairingRef: item,

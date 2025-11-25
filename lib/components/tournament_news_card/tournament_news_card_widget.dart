@@ -15,12 +15,14 @@ class TournamentNewsCardWidget extends StatefulWidget {
     required this.newsRef,
     required this.indexo,
     required this.deleteFun,
+    required this.interactable,
   });
 
 
   final NewsRecord? newsRef;
   final int indexo;
   final Future<void> Function(String newsId) deleteFun;
+  final bool interactable;
 
   @override
   State<TournamentNewsCardWidget> createState() => _TournamentNewsCardWidgetState();
@@ -38,7 +40,11 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => TournamentNewsCardModel(widget.deleteFun, widget.newsRef!.uid));
+    _model = createModel(context, () => TournamentNewsCardModel(
+      widget.deleteFun,
+      widget.newsRef!.uid,
+      widget.interactable
+    ));
 
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }
@@ -58,7 +64,7 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
         // Specify a key if the Slidable is dismissible.
         key: ValueKey("news${widget.indexo}"),
         // The end action pane is the one at the right or the bottom side.
-        endActionPane: ActionPane(
+        endActionPane: widget.interactable ? ActionPane(
           motion: const ScrollMotion(),
           children: [
             SlidableAction(
@@ -98,7 +104,7 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
               label: 'Delete',
             ),
           ],
-        ),
+        ) : null,
         child: Container(
           width: 1000,
           decoration: BoxDecoration(

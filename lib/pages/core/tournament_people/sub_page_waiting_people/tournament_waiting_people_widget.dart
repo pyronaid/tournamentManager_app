@@ -119,7 +119,7 @@ class _TournamentWaitingPeopleWidgetState extends State<TournamentWaitingPeopleW
                                     ),
                                   ),
                                 ),
-                                if(providerWaitingPeople.tournamentModel.isTournamentEditable)...[
+                                if(providerWaitingPeople.isTournamentEditable)...[
                                   Center(
                                     child: AFButtonWidget(
                                       onPressed: () async {

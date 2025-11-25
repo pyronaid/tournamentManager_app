@@ -119,7 +119,7 @@ class _TournamentPreregisteredPeopleWidgetState extends State<TournamentPreregis
                                     ),
                                   ),
                                 ),
-                                if(providerPreregisteredPeople.tournamentModel.isTournamentEditable)...[
+                                if(providerPreregisteredPeople.isTournamentEditable)...[
                                   Center(
                                     child: AFButtonWidget(
                                       onPressed: () async {

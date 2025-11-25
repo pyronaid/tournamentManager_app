@@ -49,7 +49,8 @@ class TournamentRoundsModel extends ChangeNotifier {
   PagingController<int, RoundsRecord> get pagingControllerRounds => _pagingController;
   List<RoundKind> get availablePages => List.unmodifiable(_availablePages);
   bool get isTournamentOngoing => tournamentModel.isTournamentOngoing;
-  bool get isTournamentEditable => tournamentModel.isTournamentEditable;
+  bool get isTournamentEditable => tournamentModel.isTournamentEditable && currentUserUid == tournamentModel.tournamentOwner;
+  bool get canInteractOn => currentUserUid == tournamentModel.tournamentOwner;
   List<RoundKind> _calculateAvailablePages(){
     final pages = <RoundKind>[
       RoundKind.topcut

@@ -8,8 +8,9 @@ class TournamentNewsCardModel extends CustomFlowModel<TournamentNewsCardWidget> 
   ///  Local state fields for this component.
   late final Future<void> Function(String newsId) deleteFun;
   late final String newsUid;
+  late final bool interactable;
 
-  TournamentNewsCardModel(this.deleteFun, this.newsUid,);
+  TournamentNewsCardModel(this.deleteFun, this.newsUid, this.interactable);
 
   @override
   void initState(BuildContext context) {

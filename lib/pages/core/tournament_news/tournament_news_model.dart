@@ -27,6 +27,7 @@ class TournamentNewsModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   DateTime? get lastUpdatedNews => _lastUpdatedNews;
   PagingController<int, NewsRecord> get pagingControllerNews => _pagingController;
+  bool get canInteractOn => currentUserUid == tournamentModel.tournamentOwner;
 
 
   /////////////////////////////SETTER

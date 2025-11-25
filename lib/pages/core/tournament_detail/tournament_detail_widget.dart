@@ -124,7 +124,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                               backgroundImage: providerTournamentDetail.tournamentModel.tournamentImageUrl == null ? const AssetImage('assets/images/icons/default_tournament.png') : NetworkImage(providerTournamentDetail.tournamentModel.tournamentImageUrl!),
                                             ),
                                           ),
-                                          if(providerTournamentDetail.tournamentModel.isTournamentEditable)
+                                          if(providerTournamentDetail.isTournamentEditable)
                                             Positioned(
                                               bottom: 5,
                                               right: 0,
@@ -165,7 +165,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                                       textAlign: TextAlign.center,
                                                     ),
                                                   ),
-                                                  if(providerTournamentDetail.tournamentModel.isTournamentEditable)
+                                                  if(providerTournamentDetail.isTournamentEditable)
                                                     Padding(
                                                       padding: const EdgeInsetsDirectional.fromSTEB(5, 0, 0, 20),
                                                       child: InkWell(
@@ -326,7 +326,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                             isExpanded: true,
                             icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
                             iconSize: 30,
-                            onChanged: (String? newValue){
+                            onChanged: providerTournamentDetail.canInteractOn ? (String? newValue){
                               if (newValue != null) {
                                 context.goNamed(
                                   'DialogState',
@@ -338,7 +338,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                   }
                                 );
                               }
-                            },
+                            } : null,
                             underline: const SizedBox(), // Remove the default underline
                             items: StateTournament.values
                                 .where((StateTournament state){
@@ -393,7 +393,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(providerTournamentDetail.tournamentModel.isTournamentEditable) {
+                            if(providerTournamentDetail.isTournamentEditable) {
                               _showChangeTournamentDatePicker(context, providerTournamentDetail.tournamentModel);
                             }
                           },
@@ -401,7 +401,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                             width: 33.w,
                             height: 30.sp,
                             decoration: BoxDecoration(
-                              color: providerTournamentDetail.tournamentModel.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
+                              color: providerTournamentDetail.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
                               border: Border.all(
                                 color: CustomFlowTheme.of(context).alternate,
                                 width: 1,
@@ -427,7 +427,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                       Text(
                                         DateFormat('dd/MM/yy').format(providerTournamentDetail.tournamentModel.tournamentDate!),
                                         style: CustomFlowTheme.of(context).labelLarge.override(
-                                          color: providerTournamentDetail.tournamentModel.isTournamentEditable ? Colors.grey : Colors.black,
+                                          color: providerTournamentDetail.isTournamentEditable ? Colors.grey : Colors.black,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
@@ -448,7 +448,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(providerTournamentDetail.tournamentModel.isTournamentEditable) {
+                            if(providerTournamentDetail.isTournamentEditable) {
                               context.goNamed(
                                 'DialogChangeCapacity',
                                 pathParameters: {
@@ -464,7 +464,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                             width: 33.w,
                             height: 30.sp,
                             decoration: BoxDecoration(
-                              color: providerTournamentDetail.tournamentModel.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
+                              color: providerTournamentDetail.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
                               border: Border.all(
                                 color: CustomFlowTheme.of(context).alternate,
                                 width: 1,
@@ -490,7 +490,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                       Text(
                                         providerTournamentDetail.tournamentModel.tournamentCapacity,
                                         style: CustomFlowTheme.of(context).labelLarge.override(
-                                          color: providerTournamentDetail.tournamentModel.isTournamentEditable ? Colors.grey : Colors.black,
+                                          color: providerTournamentDetail.isTournamentEditable ? Colors.grey : Colors.black,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
@@ -519,7 +519,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(providerTournamentDetail.tournamentModel.isTournamentEditable) {
+                            if(providerTournamentDetail.isTournamentEditable) {
                               context.goNamed(
                                 'DialogPreIscrizioni',
                                 pathParameters: {
@@ -539,7 +539,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  providerTournamentDetail.tournamentModel.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
+                                  providerTournamentDetail.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
                                   providerTournamentDetail.tournamentModel.tournamentPreRegistrationEn ? CustomFlowTheme.of(context).success : CustomFlowTheme.of(context).warning,
                                 ],
                               ),
@@ -587,7 +587,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                         /////////////////
                         InkWell(
                           onTap: () {
-                            if(providerTournamentDetail.tournamentModel.isTournamentEditable) {
+                            if(providerTournamentDetail.isTournamentEditable) {
                               context.goNamed(
                                   'DialogWaitingList',
                                   pathParameters: {
