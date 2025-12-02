@@ -61,75 +61,83 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
           top: true,
           child: Align(
             alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    wrapWithModel(
-                      model: createOwnModel.customAppbarModel,
-                      updateCallback: () => setState(() {}),
-                      child: CustomAppbarWidget(
-                        backButton: true,
-                        actionButton: false,
-                        actionButtonAction: () async {},
-                        optionsButtonAction: () async {},
-                      ),
-                    ),
-                    ////////////////
-                    //PAGE TITLE
-                    /////////////////
-                    Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 30),
-                      child: Text(
-                        'Crea un nuovo torneo',
-                        style: CustomFlowTheme.of(context).displaySmall,
-                      ),
-                    ),
-                    ////////////////
-                    //CAROUSEL
-                    /////////////////
-                    SizedBox(
-                      width: double.infinity,
-                      height: 22.h,
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                        child: PageView(
-                          controller: createOwnModel.pageViewController,
-                          scrollDirection: Axis.horizontal,
-                          children: Game.values.where((game) => game.desc.isNotEmpty).map((game) {
-                            //////////////////////////////////////////////////
-                            //////////////////////////////////////////////////
-                            //////////////////////////////////////////////////
-                            // ELEMENT OF CAROUSEL
-                            return Column(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                  child: Image.asset(
-                                    game.resource,
-                                    height: 20.h,
-                                    fit: BoxFit.cover,
-                                  ).animateOnPageLoad(createOwnModel.animationsMap[game.index]!),
-                                ),
-                              ],
-                            );
-                          }).toList(),
-                          onPageChanged: (int value){
-                            createOwnModel.jumpToPageAndNotify(value);
-                          },
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    color: CustomFlowTheme.of(context).secondary,
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        wrapWithModel(
+                          model: createOwnModel.customAppbarModel,
+                          updateCallback: () => setState(() {}),
+                          child: CustomAppbarWidget(
+                            backButton: true,
+                            actionButton: false,
+                            actionButtonAction: () async {},
+                            optionsButtonAction: () async {},
+                          ),
                         ),
+                        ////////////////
+                        //PAGE TITLE
+                        /////////////////
+                        Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+                          child: Text(
+                            'Crea un nuovo torneo',
+                            style: CustomFlowTheme.of(context).displaySmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ////////////////
+                  //CAROUSEL
+                  /////////////////
+                  SizedBox(
+                    width: double.infinity,
+                    height: 24.h,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(24, 20, 24, 0),
+                      child: PageView(
+                        controller: createOwnModel.pageViewController,
+                        scrollDirection: Axis.horizontal,
+                        children: Game.values.where((game) => game.desc.isNotEmpty).map((game) {
+                          //////////////////////////////////////////////////
+                          //////////////////////////////////////////////////
+                          //////////////////////////////////////////////////
+                          // ELEMENT OF CAROUSEL
+                          return Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+                                child: Image.asset(
+                                  game.resource,
+                                  height: 20.h,
+                                  fit: BoxFit.cover,
+                                ).animateOnPageLoad(createOwnModel.animationsMap[game.index]!),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                        onPageChanged: (int value){
+                          createOwnModel.jumpToPageAndNotify(value);
+                        },
                       ),
                     ),
-                    ////////////////
-                    //FORM
-                    /////////////////
-                    Form(
+                  ),
+                  ////////////////
+                  //FORM
+                  /////////////////
+                  Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+                    child: Form(
                       key: _formKey,
                       autovalidateMode: AutovalidateMode.disabled,
                       child: Column(
@@ -454,43 +462,43 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
                         ],
                       ),
                     ),
-                    ////////////////
-                    //VALIDATION BUTTON
-                    /////////////////
-                    Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                      child: AFButtonWidget(
-                        onPressed: () async {
-                          FocusScope.of(context).unfocus();
-                          logFirebaseEvent('ONBOARDING_CREATE_OWN_CREATE_OWN');
-                          logFirebaseEvent('Button_validate_form');
-                          if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
-                            return;
-                          }
-                          logFirebaseEvent('Button_haptic_feedback');
-                          HapticFeedback.lightImpact();
-                          bool result = await createOwnModel.saveTournament();
-                          if(result){ context.goNamedAuth('Dashboard', context.mounted); }
-                        },
-                        text: 'Crea Torneo',
-                        options: AFButtonOptions(
-                          width: double.infinity,
-                          height: 50,
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                          iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                          color: CustomFlowTheme.of(context).primary,
-                          textStyle: CustomFlowTheme.of(context).titleSmall,
-                          elevation: 0,
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(25),
+                  ),
+                  ////////////////
+                  //VALIDATION BUTTON
+                  /////////////////
+                  Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(24, 24, 24, 0),
+                    child: AFButtonWidget(
+                      onPressed: () async {
+                        FocusScope.of(context).unfocus();
+                        logFirebaseEvent('ONBOARDING_CREATE_OWN_CREATE_OWN');
+                        logFirebaseEvent('Button_validate_form');
+                        if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
+                          return;
+                        }
+                        logFirebaseEvent('Button_haptic_feedback');
+                        HapticFeedback.lightImpact();
+                        bool result = await createOwnModel.saveTournament();
+                        if(result){ context.goNamedAuth('Dashboard', context.mounted); }
+                      },
+                      text: 'Crea Torneo',
+                      options: AFButtonOptions(
+                        width: double.infinity,
+                        height: 50,
+                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                        iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                        color: CustomFlowTheme.of(context).primary,
+                        textStyle: CustomFlowTheme.of(context).titleSmall,
+                        elevation: 0,
+                        borderSide: const BorderSide(
+                          color: Colors.transparent,
+                          width: 1,
                         ),
+                        borderRadius: BorderRadius.circular(25),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           )

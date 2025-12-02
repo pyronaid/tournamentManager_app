@@ -57,7 +57,7 @@ class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
           : FocusScope.of(context).unfocus(),
       child: Consumer<TournamentPairingsModel>(
           builder: (context, providerTournamentPairings, _) {
-            print("[BUILD IN CORSO] tournament_pairings_widget.dart");
+            debugPrint("[BUILD IN CORSO] tournament_pairings_widget.dart");
             if (providerTournamentPairings.isLoading) {
               return Scaffold(
                 key: _scaffoldKey,

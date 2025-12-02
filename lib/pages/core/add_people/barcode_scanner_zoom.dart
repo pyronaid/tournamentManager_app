@@ -101,35 +101,43 @@ class _BarcodeScannerWithZoomState extends State<BarcodeScannerWithZoom> {
         top: true,
         child: Align(
           alignment: Alignment.topCenter,
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                wrapWithModel(
-                  model: customAppbarModel,
-                  updateCallback: () => setState(() {}),
-                  child: CustomAppbarWidget(
-                    backButton: true,
-                    actionButton: false,
-                    actionButtonAction: () async {},
-                    optionsButtonAction: () async {},
-                  ),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24.0),
+                color: CustomFlowTheme.of(context).secondary,
+                child: Column(
+                  children: [
+                    wrapWithModel(
+                      model: customAppbarModel,
+                      updateCallback: () => setState(() {}),
+                      child: CustomAppbarWidget(
+                        backButton: true,
+                        actionButton: false,
+                        actionButtonAction: () async {},
+                        optionsButtonAction: () async {},
+                      ),
+                    ),
+                    ////////////////
+                    //PAGE TITLE
+                    /////////////////
+                    Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 30),
+                      child: Text(
+                        'Scannerizza il qr code del giocatore',
+                        style: CustomFlowTheme.of(context).displaySmall,
+                      ),
+                    ),
+                  ],
                 ),
-                ////////////////
-                //PAGE TITLE
-                /////////////////
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 30),
-                  child: Text(
-                    'Scannerizza il qr code del giocatore',
-                    style: CustomFlowTheme.of(context).displaySmall,
-                  ),
-                ),
-                Expanded(
-                  //height: 50.h,
+              ),
+              Expanded(
+                //height: 50.h,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
                   child: Stack(
                     children: [
                       MobileScanner(
@@ -172,8 +180,8 @@ class _BarcodeScannerWithZoomState extends State<BarcodeScannerWithZoom> {
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

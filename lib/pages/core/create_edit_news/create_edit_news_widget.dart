@@ -64,50 +64,61 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
           top: true,
           child: Align(
             alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: SingleChildScrollView(
-                child: Consumer<NewsModel>(
-                    builder: (context, providerNews, _){
-                      print("[BUILD IN CORSO] create_edit_news_widget.dart");
-                      if(providerNews.isLoading){
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if(providerNews.newsImageUrl != null){
-                        createEditNewsModel.setUseNetworkImage(true);
-                      }
-                      createEditNewsModel.setNewsShowTimestampEnVar(providerNews.newsShowTimestampEn);
+            child: SingleChildScrollView(
+              child: Consumer<NewsModel>(
+                  builder: (context, providerNews, _){
+                    debugPrint("[BUILD IN CORSO] create_edit_news_widget.dart");
+                    if(providerNews.isLoading){
+                      return const Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    if(providerNews.newsImageUrl != null){
+                      createEditNewsModel.setUseNetworkImage(true);
+                    }
+                    createEditNewsModel.setNewsShowTimestampEnVar(providerNews.newsShowTimestampEn);
 
 
-                      return Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          wrapWithModel(
-                            model: createEditNewsModel.customAppbarModel,
-                            updateCallback: () => setState(() {}),
-                            child: CustomAppbarWidget(
-                              backButton: true,
-                              actionButton: false,
-                              actionButtonAction: () async {},
-                              optionsButtonAction: () async {},
-                            ),
+                    return Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          color: CustomFlowTheme.of(context).secondary,
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            children: [
+                              wrapWithModel(
+                                model: createEditNewsModel.customAppbarModel,
+                                updateCallback: () => setState(() {}),
+                                child: CustomAppbarWidget(
+                                  backButton: true,
+                                  actionButton: false,
+                                  actionButtonAction: () async {},
+                                  optionsButtonAction: () async {},
+                                ),
+                              ),
+                              ////////////////
+                              //PAGE TITLE
+                              /////////////////
+                              Padding(
+                                padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 30),
+                                child: Text(
+                                  createEditNewsModel.saveWayEn ? 'Crea una nuova notizia' : 'Modifica notizia',
+                                  style: CustomFlowTheme.of(context).displaySmall,
+                                ),
+                              ),
+                            ],
                           ),
-                          ////////////////
-                          //PAGE TITLE
-                          /////////////////
-                          Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 30),
-                            child: Text(
-                              createEditNewsModel.saveWayEn ? 'Crea una nuova notizia' : 'Modifica notizia',
-                              style: CustomFlowTheme.of(context).displaySmall,
-                            ),
-                          ),
-                          ////////////////
-                          //FORM
-                          /////////////////
-                          Form(
+                        ),
+                        ////////////////
+                        //FORM
+                        /////////////////
+                        Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Form(
                             key: _formKey,
                             autovalidateMode: AutovalidateMode.disabled,
                             child: Column(
@@ -399,53 +410,53 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
                               ],
                             ),
                           ),
-                          ////////////////
-                          //VALIDATION BUTTON
-                          /////////////////
-                          Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                            child: AFButtonWidget(
-                              onPressed: () async {
-                                FocusScope.of(context).unfocus();
-                                createEditNewsModel.saveWayEn ? logFirebaseEvent('ONBOARDING_CREATE_NEWS_CREATE_NEWS') : logFirebaseEvent('ONBOARDING_EDIT_NEWS_EDIT_NEWS');
-                                logFirebaseEvent('Button_validate_form');
-                                if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
-                                  return;
-                                }
+                        ),
+                        ////////////////
+                        //VALIDATION BUTTON
+                        /////////////////
+                        Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
+                          child: AFButtonWidget(
+                            onPressed: () async {
+                              FocusScope.of(context).unfocus();
+                              createEditNewsModel.saveWayEn ? logFirebaseEvent('ONBOARDING_CREATE_NEWS_CREATE_NEWS') : logFirebaseEvent('ONBOARDING_EDIT_NEWS_EDIT_NEWS');
+                              logFirebaseEvent('Button_validate_form');
+                              if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
+                                return;
+                              }
 
-                                bool result = await providerNews.saveEditNews(
-                                    createEditNewsModel.saveWayEn,
-                                    createEditNewsModel.fieldControllerTitle.text,
-                                    createEditNewsModel.fieldControllerSubTitle.text,
-                                    createEditNewsModel.fieldControllerDescription.text,
-                                    createEditNewsModel.newsImageUrlTemp,
-                                    createEditNewsModel.newsShowTimestampEnVar
-                                );
-                                if(result){ context.safePop(); }
-                                logFirebaseEvent('Button_haptic_feedback');
-                                HapticFeedback.lightImpact();
-                              },
-                              text: createEditNewsModel.saveWayEn ? 'Crea News' : 'Modifica News',
-                              options: AFButtonOptions(
-                                width: double.infinity,
-                                height: 50,
-                                padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                color: CustomFlowTheme.of(context).primary,
-                                textStyle: CustomFlowTheme.of(context).titleSmall,
-                                elevation: 0,
-                                borderSide: const BorderSide(
-                                  color: Colors.transparent,
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(25),
+                              bool result = await providerNews.saveEditNews(
+                                  createEditNewsModel.saveWayEn,
+                                  createEditNewsModel.fieldControllerTitle.text,
+                                  createEditNewsModel.fieldControllerSubTitle.text,
+                                  createEditNewsModel.fieldControllerDescription.text,
+                                  createEditNewsModel.newsImageUrlTemp,
+                                  createEditNewsModel.newsShowTimestampEnVar
+                              );
+                              if(result){ context.safePop(); }
+                              logFirebaseEvent('Button_haptic_feedback');
+                              HapticFeedback.lightImpact();
+                            },
+                            text: createEditNewsModel.saveWayEn ? 'Crea News' : 'Modifica News',
+                            options: AFButtonOptions(
+                              width: double.infinity,
+                              height: 50,
+                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                              iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                              color: CustomFlowTheme.of(context).primary,
+                              textStyle: CustomFlowTheme.of(context).titleSmall,
+                              elevation: 0,
+                              borderSide: const BorderSide(
+                                color: Colors.transparent,
+                                width: 1,
                               ),
+                              borderRadius: BorderRadius.circular(25),
                             ),
                           ),
-                        ],
-                      );
-                    }
-                ),
+                        ),
+                      ],
+                    );
+                  }
               ),
             ),
           ),

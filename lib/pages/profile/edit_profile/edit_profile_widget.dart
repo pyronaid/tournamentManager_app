@@ -64,334 +64,351 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
           child: SingleChildScrollView(
             child: Align(
               alignment: const AlignmentDirectional(0, 0),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    wrapWithModel(
-                      model: editProfileModel.customAppbarModel,
-                      updateCallback: () => setState(() {}),
-                      child: CustomAppbarWidget(
-                        backButton: true,
-                        actionButton: true,
-                        actionButtonText: 'Salva',
-                        actionButtonAction: () async {
-                          logFirebaseEvent('EDIT_PROFILE_Container_or1jni5i_CALLBACK');
-                          logFirebaseEvent('customAppbar_backend_call');
-                          if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
-                            return;
-                          }
-                          editProfileModel.updateUserProfile(_formKey);
-                          logFirebaseEvent('customAppbar_update_page_state');
-                        },
-                        optionsButtonAction: () async {},
-                      ),
-                    ),
-                    ////////////////
-                    //PAGE TITLE
-                    /////////////////
-                    Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                      child: Text(
-                        'Modifica Profilo',
-                        style: CustomFlowTheme.of(context).displaySmall,
-                      ),
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    color: CustomFlowTheme.of(context).secondary,
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
                       children: [
+                        wrapWithModel(
+                          model: editProfileModel.customAppbarModel,
+                          updateCallback: () => setState(() {}),
+                          child: CustomAppbarWidget(
+                            backButton: true,
+                            actionButton: true,
+                            actionButtonText: 'Salva',
+                            actionButtonAction: () async {
+                              logFirebaseEvent('EDIT_PROFILE_Container_or1jni5i_CALLBACK');
+                              logFirebaseEvent('customAppbar_backend_call');
+                              if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
+                                return;
+                              }
+                              editProfileModel.updateUserProfile(_formKey);
+                              logFirebaseEvent('customAppbar_update_page_state');
+                            },
+                            optionsButtonAction: () async {},
+                          ),
+                        ),
+                        ////////////////
+                        //PAGE TITLE
+                        /////////////////
                         Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
-                          child: Form(
-                            key: _formKey,
-                            autovalidateMode: AutovalidateMode.disabled,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ////////////////
-                                //FIRST FORM NAME
-                                /////////////////
-                                Padding(
-                                  padding:const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                  child: Text(
-                                    'Nome',
-                                    style: CustomFlowTheme.of(context).bodyLarge,
-                                  ),
-                                ),
-                                Padding(
-                                  padding:const EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
-                                  child: AuthUserStreamWidget(
-                                    builder: (context) => TextFormField(
-                                      controller: editProfileModel.nameTextController,
-                                      focusNode: editProfileModel.nameFocusNode,
-                                      onChanged: (_) {
-                                        EasyDebounce.debounce(
-                                          '_model.fullNameTextController',
-                                          const Duration(milliseconds: 2000),
-                                              () async {
-                                            logFirebaseEvent('EDIT_PROFILE_fullName_ON_TEXTFIELD_CHANG');
-                                            logFirebaseEvent('fullName_update_page_state');
-                                          },
-                                        );
-                                        editProfileModel.clearServerError('name');
-                                      },
-                                      autofocus: false,
-                                      autofillHints: const [AutofillHints.name],
-                                      textCapitalization: TextCapitalization.words,
-                                      textInputAction: TextInputAction.next,
-                                      obscureText: false,
-                                      decoration: standardInputDecoration(
-                                        context,
-                                        prefixIcon: Icon(
-                                          Icons.person,
-                                          color: CustomFlowTheme.of(context).secondaryText,
-                                          size: 18,
-                                        ),
-                                      ),
-                                      style: CustomFlowTheme.of(context).bodyLarge.override(
-                                        fontWeight: FontWeight.w500,
-                                        lineHeight: 1,
-                                      ),
-                                      minLines: 1,
-                                      cursorColor: CustomFlowTheme.of(context).primary,
-                                      validator: editProfileModel.nameTextControllerValidator?.asValidator(context),
-                                    ),
-                                  ),
-                                ),
-                                ////////////////
-                                //FIRST FORM SURNAME
-                                /////////////////
-                                Padding(
-                                  padding:const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                  child: Text(
-                                    'Cognome',
-                                    style: CustomFlowTheme.of(context).bodyLarge,
-                                  ),
-                                ),
-                                Padding(
-                                  padding:const EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
-                                  child: AuthUserStreamWidget(
-                                    builder: (context) => TextFormField(
-                                      controller: editProfileModel.surnameTextController,
-                                      focusNode: editProfileModel.surnameFocusNode,
-                                      onChanged: (_) {
-                                        EasyDebounce.debounce(
-                                          '_model.surnameTextController',
-                                          const Duration(milliseconds: 2000),
-                                              () async {
-                                            logFirebaseEvent('EDIT_PROFILE_surname_ON_TEXTFIELD_CHANG');
-                                            logFirebaseEvent('surname_update_page_state');
-                                          },
-                                        );
-                                        editProfileModel.clearServerError('surname');
-                                      },
-                                      autofocus: false,
-                                      autofillHints: const [AutofillHints.familyName],
-                                      textCapitalization: TextCapitalization.words,
-                                      textInputAction: TextInputAction.next,
-                                      obscureText: false,
-                                      decoration: standardInputDecoration(
-                                        context,
-                                        prefixIcon: Icon(
-                                          Icons.person,
-                                          color: CustomFlowTheme.of(context).secondaryText,
-                                          size: 18,
-                                        ),
-                                      ),
-                                      style: CustomFlowTheme.of(context).bodyLarge.override(
-                                        fontWeight: FontWeight.w500,
-                                        lineHeight: 1,
-                                      ),
-                                      minLines: 1,
-                                      cursorColor: CustomFlowTheme.of(context).primary,
-                                      validator: editProfileModel.surnameTextControllerValidator?.asValidator(context),
-                                    ),
-                                  ),
-                                ),
-                                ////////////////
-                                //FIRST FORM USERNAME
-                                /////////////////
-                                Padding(
-                                  padding:const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                  child: Text(
-                                    'Username',
-                                    style: CustomFlowTheme.of(context).bodyLarge,
-                                  ),
-                                ),
-                                Padding(
-                                  padding:const EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
-                                  child: AuthUserStreamWidget(
-                                    builder: (context) => TextFormField(
-                                      controller: editProfileModel.usernameTextController,
-                                      focusNode: editProfileModel.usernameFocusNode,
-                                      onChanged: (_) {
-                                        EasyDebounce.debounce(
-                                          '_model.usernameTextController',
-                                          const Duration(milliseconds: 2000),
-                                              () async {
-                                            logFirebaseEvent('EDIT_PROFILE_username_ON_TEXTFIELD_CHANG');
-                                            logFirebaseEvent('username_update_page_state');
-                                          },
-                                        );
-                                        editProfileModel.clearServerError('username');
-                                      },
-                                      autofocus: false,
-                                      autofillHints: const [AutofillHints.username],
-                                      textCapitalization: TextCapitalization.none,
-                                      textInputAction: TextInputAction.next,
-                                      obscureText: false,
-                                      decoration: standardInputDecoration(
-                                        context,
-                                        prefixIcon: Icon(
-                                          Icons.person,
-                                          color: CustomFlowTheme.of(context).secondaryText,
-                                          size: 18,
-                                        ),
-                                      ),
-                                      style: CustomFlowTheme.of(context).bodyLarge.override(
-                                        fontWeight: FontWeight.w500,
-                                        lineHeight: 1,
-                                      ),
-                                      minLines: 1,
-                                      cursorColor: CustomFlowTheme.of(context).primary,
-                                      validator: editProfileModel.usernameTextControllerValidator?.asValidator(context),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
+                          child: Text(
+                            'Modifica Profilo',
+                            style: CustomFlowTheme.of(context).displaySmall,
                           ),
                         ),
                       ],
                     ),
-                    ////////////////
-                    //PASSWORD BUTTON
-                    /////////////////
-                    const TitleWithSubtitleWidget(
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsetsDirectional.fromSTEB(24, 42, 24, 24),
+                        child: Form(
+                          key: _formKey,
+                          autovalidateMode: AutovalidateMode.disabled,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ////////////////
+                              //FIRST FORM NAME
+                              /////////////////
+                              Padding(
+                                padding:const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                                child: Text(
+                                  'Nome',
+                                  style: CustomFlowTheme.of(context).bodyLarge,
+                                ),
+                              ),
+                              Padding(
+                                padding:const EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
+                                child: AuthUserStreamWidget(
+                                  builder: (context) => TextFormField(
+                                    controller: editProfileModel.nameTextController,
+                                    focusNode: editProfileModel.nameFocusNode,
+                                    onChanged: (_) {
+                                      EasyDebounce.debounce(
+                                        '_model.fullNameTextController',
+                                        const Duration(milliseconds: 2000),
+                                            () async {
+                                          logFirebaseEvent('EDIT_PROFILE_fullName_ON_TEXTFIELD_CHANG');
+                                          logFirebaseEvent('fullName_update_page_state');
+                                        },
+                                      );
+                                      editProfileModel.clearServerError('name');
+                                    },
+                                    autofocus: false,
+                                    autofillHints: const [AutofillHints.name],
+                                    textCapitalization: TextCapitalization.words,
+                                    textInputAction: TextInputAction.next,
+                                    obscureText: false,
+                                    decoration: standardInputDecoration(
+                                      context,
+                                      prefixIcon: Icon(
+                                        Icons.person,
+                                        color: CustomFlowTheme.of(context).secondaryText,
+                                        size: 18,
+                                      ),
+                                    ),
+                                    style: CustomFlowTheme.of(context).bodyLarge.override(
+                                      fontWeight: FontWeight.w500,
+                                      lineHeight: 1,
+                                    ),
+                                    minLines: 1,
+                                    cursorColor: CustomFlowTheme.of(context).primary,
+                                    validator: editProfileModel.nameTextControllerValidator?.asValidator(context),
+                                  ),
+                                ),
+                              ),
+                              ////////////////
+                              //FIRST FORM SURNAME
+                              /////////////////
+                              Padding(
+                                padding:const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                                child: Text(
+                                  'Cognome',
+                                  style: CustomFlowTheme.of(context).bodyLarge,
+                                ),
+                              ),
+                              Padding(
+                                padding:const EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
+                                child: AuthUserStreamWidget(
+                                  builder: (context) => TextFormField(
+                                    controller: editProfileModel.surnameTextController,
+                                    focusNode: editProfileModel.surnameFocusNode,
+                                    onChanged: (_) {
+                                      EasyDebounce.debounce(
+                                        '_model.surnameTextController',
+                                        const Duration(milliseconds: 2000),
+                                            () async {
+                                          logFirebaseEvent('EDIT_PROFILE_surname_ON_TEXTFIELD_CHANG');
+                                          logFirebaseEvent('surname_update_page_state');
+                                        },
+                                      );
+                                      editProfileModel.clearServerError('surname');
+                                    },
+                                    autofocus: false,
+                                    autofillHints: const [AutofillHints.familyName],
+                                    textCapitalization: TextCapitalization.words,
+                                    textInputAction: TextInputAction.next,
+                                    obscureText: false,
+                                    decoration: standardInputDecoration(
+                                      context,
+                                      prefixIcon: Icon(
+                                        Icons.person,
+                                        color: CustomFlowTheme.of(context).secondaryText,
+                                        size: 18,
+                                      ),
+                                    ),
+                                    style: CustomFlowTheme.of(context).bodyLarge.override(
+                                      fontWeight: FontWeight.w500,
+                                      lineHeight: 1,
+                                    ),
+                                    minLines: 1,
+                                    cursorColor: CustomFlowTheme.of(context).primary,
+                                    validator: editProfileModel.surnameTextControllerValidator?.asValidator(context),
+                                  ),
+                                ),
+                              ),
+                              ////////////////
+                              //FIRST FORM USERNAME
+                              /////////////////
+                              Padding(
+                                padding:const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                                child: Text(
+                                  'Username',
+                                  style: CustomFlowTheme.of(context).bodyLarge,
+                                ),
+                              ),
+                              Padding(
+                                padding:const EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
+                                child: AuthUserStreamWidget(
+                                  builder: (context) => TextFormField(
+                                    controller: editProfileModel.usernameTextController,
+                                    focusNode: editProfileModel.usernameFocusNode,
+                                    onChanged: (_) {
+                                      EasyDebounce.debounce(
+                                        '_model.usernameTextController',
+                                        const Duration(milliseconds: 2000),
+                                            () async {
+                                          logFirebaseEvent('EDIT_PROFILE_username_ON_TEXTFIELD_CHANG');
+                                          logFirebaseEvent('username_update_page_state');
+                                        },
+                                      );
+                                      editProfileModel.clearServerError('username');
+                                    },
+                                    autofocus: false,
+                                    autofillHints: const [AutofillHints.username],
+                                    textCapitalization: TextCapitalization.none,
+                                    textInputAction: TextInputAction.next,
+                                    obscureText: false,
+                                    decoration: standardInputDecoration(
+                                      context,
+                                      prefixIcon: Icon(
+                                        Icons.person,
+                                        color: CustomFlowTheme.of(context).secondaryText,
+                                        size: 18,
+                                      ),
+                                    ),
+                                    style: CustomFlowTheme.of(context).bodyLarge.override(
+                                      fontWeight: FontWeight.w500,
+                                      lineHeight: 1,
+                                    ),
+                                    minLines: 1,
+                                    cursorColor: CustomFlowTheme.of(context).primary,
+                                    validator: editProfileModel.usernameTextControllerValidator?.asValidator(context),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  ////////////////
+                  //PASSWORD BUTTON
+                  /////////////////
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(24,0,24,0),
+                    child: TitleWithSubtitleWidget(
                       title: 'Reset Password',
                       subtitle: 'Ricevi un link via email per resettare la tua password.',
                     ),
-                    Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
-                      child: AFButtonWidget(
-                        onPressed: () async {
-                          FocusScope.of(context).unfocus();
-                          logFirebaseEvent('EDIT_PROFILE_RESET_PASSWORD_BTN_ON_TAP');
-                          logFirebaseEvent('Button_auth');
-                          if (editProfileModel.emailAddressTextController.text.isEmpty) {
-                            editProfileModel.showIssueSnackBar();
-                          } else {
-                            context.goNamed(
-                                'DialogResetPassword',
-                                extra: {
-                                  'req' : editProfileModel.showResetPasswordAlertRequest(),
-                                }
-                            );
-                          }
-                        },
-                        text: 'Reset Password',
-                        options: AFButtonOptions(
-                          width: double.infinity,
-                          height: 50,
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                          iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                          color: CustomFlowTheme.of(context).primary,
-                          textStyle: CustomFlowTheme.of(context).bodyMedium.override(color: CustomFlowTheme.of(context).primaryBackground),
-                          elevation: 0,
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(25),
+                  ),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(24, 12, 24, 0),
+                    child: AFButtonWidget(
+                      onPressed: () async {
+                        FocusScope.of(context).unfocus();
+                        logFirebaseEvent('EDIT_PROFILE_RESET_PASSWORD_BTN_ON_TAP');
+                        logFirebaseEvent('Button_auth');
+                        if (editProfileModel.emailAddressTextController.text.isEmpty) {
+                          editProfileModel.showIssueSnackBar();
+                        } else {
+                          context.goNamed(
+                              'DialogResetPassword',
+                              extra: {
+                                'req' : editProfileModel.showResetPasswordAlertRequest(),
+                              }
+                          );
+                        }
+                      },
+                      text: 'Reset Password',
+                      options: AFButtonOptions(
+                        width: double.infinity,
+                        height: 50,
+                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                        iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                        color: CustomFlowTheme.of(context).primary,
+                        textStyle: CustomFlowTheme.of(context).bodyMedium.override(color: CustomFlowTheme.of(context).primaryBackground),
+                        elevation: 0,
+                        borderSide: const BorderSide(
+                          color: Colors.transparent,
+                          width: 1,
                         ),
+                        borderRadius: BorderRadius.circular(25),
                       ),
                     ),
-                    ////////////////
-                    //MAIL BUTTON
-                    /////////////////
-                    TitleWithSubtitleWidget(
+                  ),
+                  ////////////////
+                  //MAIL BUTTON
+                  /////////////////
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24,0,24,0),
+                    child: TitleWithSubtitleWidget(
                       title: 'Cambio Mail',
                       subtitle: 'Avvia la procedura di cambio mail: $currentUserEmail',
                     ),
-                    Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
-                      child: AFButtonWidget(
-                        onPressed: () async {
-                          FocusScope.of(context).unfocus();
-                          logFirebaseEvent('EDIT_PROFILE_CHANGE_MAIL_BTN_ON_TAP');
-                          logFirebaseEvent('Button_auth');
-                          if (editProfileModel.emailAddressTextController.text.isEmpty) {
-                            editProfileModel.showIssueSnackBar();
-                          } else {
-                            context.goNamed(
-                                'DialogChangeMail',
-                                extra: {
-                                  'req' : editProfileModel.showChangeMailAlertRequest(),
-                                }
-                            );
-                          }
-                        },
-                        text: 'Change Mail',
-                        options: AFButtonOptions(
-                          width: double.infinity,
-                          height: 50,
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                          iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                          color: CustomFlowTheme.of(context).primary,
-                          textStyle: CustomFlowTheme.of(context).bodyMedium.override(color: CustomFlowTheme.of(context).primaryBackground),
-                          elevation: 0,
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(25),
+                  ),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(24, 12, 24, 0),
+                    child: AFButtonWidget(
+                      onPressed: () async {
+                        FocusScope.of(context).unfocus();
+                        logFirebaseEvent('EDIT_PROFILE_CHANGE_MAIL_BTN_ON_TAP');
+                        logFirebaseEvent('Button_auth');
+                        if (editProfileModel.emailAddressTextController.text.isEmpty) {
+                          editProfileModel.showIssueSnackBar();
+                        } else {
+                          context.goNamed(
+                              'DialogChangeMail',
+                              extra: {
+                                'req' : editProfileModel.showChangeMailAlertRequest(),
+                              }
+                          );
+                        }
+                      },
+                      text: 'Change Mail',
+                      options: AFButtonOptions(
+                        width: double.infinity,
+                        height: 50,
+                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                        iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                        color: CustomFlowTheme.of(context).primary,
+                        textStyle: CustomFlowTheme.of(context).bodyMedium.override(color: CustomFlowTheme.of(context).primaryBackground),
+                        elevation: 0,
+                        borderSide: const BorderSide(
+                          color: Colors.transparent,
+                          width: 1,
                         ),
+                        borderRadius: BorderRadius.circular(25),
                       ),
                     ),
-                    ////////////////
-                    //DELETE ACCOUNT BUTTON
-                    /////////////////
-                    const TitleWithSubtitleWidget(
+                  ),
+                  ////////////////
+                  //DELETE ACCOUNT BUTTON
+                  /////////////////
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(24,0,24,0),
+                    child: TitleWithSubtitleWidget(
                       title: 'Cancella Account',
                       subtitle: 'I dati del tuo account saranno cancellati senza possibilità di ripristino.',
                     ),
-                    Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 48),
-                      child: AFButtonWidget(
-                        onPressed: () async {
-                          FocusScope.of(context).unfocus();
-                          logFirebaseEvent('EDIT_PROFILE_DELETE_ACCOUNT_BTN_ON_TAP');
-                          logFirebaseEvent('Button_auth');
-                          context.goNamed(
-                              'DialogDeleteAccount',
-                              extra: {
-                                'req' : editProfileModel.showConfirmDeletionAccountAlertRequest(),
-                              }
-                          );
-                        },
-                        text: 'Cancella Account',
-                        options: AFButtonOptions(
-                          width: double.infinity,
-                          height: 50,
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                          iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                          color: const Color(0xFFFFD4D4),
-                          textStyle: CustomFlowTheme.of(context).bodyMedium.override(color: const Color(0xFFB74D4D)),
-                          elevation: 0,
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(25),
+                  ),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(24, 12, 24, 48),
+                    child: AFButtonWidget(
+                      onPressed: () async {
+                        FocusScope.of(context).unfocus();
+                        logFirebaseEvent('EDIT_PROFILE_DELETE_ACCOUNT_BTN_ON_TAP');
+                        logFirebaseEvent('Button_auth');
+                        context.goNamed(
+                            'DialogDeleteAccount',
+                            extra: {
+                              'req' : editProfileModel.showConfirmDeletionAccountAlertRequest(),
+                            }
+                        );
+                      },
+                      text: 'Cancella Account',
+                      options: AFButtonOptions(
+                        width: double.infinity,
+                        height: 50,
+                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                        iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                        color: const Color(0xFFFFD4D4),
+                        textStyle: CustomFlowTheme.of(context).bodyMedium.override(color: const Color(0xFFB74D4D)),
+                        elevation: 0,
+                        borderSide: const BorderSide(
+                          color: Colors.transparent,
+                          width: 1,
                         ),
+                        borderRadius: BorderRadius.circular(25),
                       ),
                     ),
-                    TextFormField(
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24,0,24,0),
+                    child: TextFormField(
                       controller: editProfileModel.emailAddressTextController,
                       focusNode: editProfileModel.emailAddressFocusNode,
                       autofocus: false,
@@ -414,8 +431,8 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                       minLines: 1,
                       validator: editProfileModel.emailAddressTextControllerValidator.asValidator(context, ''),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

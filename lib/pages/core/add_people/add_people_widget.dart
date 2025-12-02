@@ -55,51 +55,62 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
       onTap: () => _unfocusNode.canRequestFocus
           ? FocusScope.of(context).requestFocus(_unfocusNode)
           : FocusScope.of(context).unfocus(),
-      child: Consumer2<TournamentPeopleModel, AddPeopleModel>(builder: (context, providerPeople, providerAddPeople, _) {
-        print("[BUILD IN CORSO] add_people_widget.dart");
-        if (providerPeople.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: CustomFlowTheme.of(context).primaryBackground,
+        body: SafeArea(
+          top: true,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: SingleChildScrollView(
+              child: Consumer2<TournamentPeopleModel, AddPeopleModel>(builder: (context, providerPeople, providerAddPeople, _) {
+                debugPrint("[BUILD IN CORSO] add_people_widget.dart");
+                if (providerPeople.isLoading) {
+                  return const Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
 
-        return Scaffold(
-          key: _scaffoldKey,
-          backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-          body: SafeArea(
-            top: true,
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      wrapWithModel(
-                        model: providerAddPeople.customAppbarModel,
-                        updateCallback: () => setState(() {}),
-                        child: CustomAppbarWidget(
-                          backButton: true,
-                          actionButton: false,
-                          actionButtonAction: () async {},
-                          optionsButtonAction: () async {},
-                        ),
+                return Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      color: CustomFlowTheme.of(context).secondary,
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        children: [
+                          wrapWithModel(
+                            model: providerAddPeople.customAppbarModel,
+                            updateCallback: () => setState(() {}),
+                            child: CustomAppbarWidget(
+                              backButton: true,
+                              actionButton: false,
+                              actionButtonAction: () async {},
+                              optionsButtonAction: () async {},
+                            ),
+                          ),
+                          ////////////////
+                          //PAGE TITLE
+                          /////////////////
+                          Padding(
+                            padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 30),
+                            child: Text(
+                              'Registra un giocatore',
+                              style: CustomFlowTheme.of(context).displaySmall,
+                            ),
+                          ),
+                        ],
                       ),
-                      ////////////////
-                      //PAGE TITLE
-                      /////////////////
-                      Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 30),
-                        child: Text(
-                          'Registra un giocatore',
-                          style: CustomFlowTheme.of(context).displaySmall,
-                        ),
-                      ),
-                      ////////////////
-                      //FORM
-                      /////////////////
-                      Form(
+                    ),
+                    ////////////////
+                    //FORM
+                    /////////////////
+                    Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Form(
                         key: _formKey,
                         autovalidateMode: AutovalidateMode.disabled,
                         child: Column(
@@ -247,54 +258,54 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
                           ],
                         ),
                       ),
-                      ////////////////
-                      //VALIDATION BUTTON
-                      /////////////////
-                      Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                        child: AFButtonWidget(
-                          onPressed: (!providerAddPeople.checked) ? null : () async {
-                            FocusScope.of(context).unfocus();
-                            logFirebaseEvent('ONBOARDING_ADD_USER_ADD_USER');
-                            logFirebaseEvent('Button_validate_form');
-                            if (_formKey.currentState == null ||
-                                !_formKey.currentState!.validate()) {
-                              return;
-                            }
+                    ),
+                    ////////////////
+                    //VALIDATION BUTTON
+                    /////////////////
+                    Padding(
+                      padding: const EdgeInsetsDirectional.all(24),
+                      child: AFButtonWidget(
+                        onPressed: (!providerAddPeople.checked) ? null : () async {
+                          FocusScope.of(context).unfocus();
+                          logFirebaseEvent('ONBOARDING_ADD_USER_ADD_USER');
+                          logFirebaseEvent('Button_validate_form');
+                          if (_formKey.currentState == null ||
+                              !_formKey.currentState!.validate()) {
+                            return;
+                          }
 
-                            bool flag = await providerPeople.promotePeople(providerAddPeople.fieldControllerIdUser.text, listType: providerPeople.listTypeReferral);
-                            if (flag && mounted){
-                              context.safePop();
-                            }
-                            logFirebaseEvent('Button_haptic_feedback');
-                            HapticFeedback.lightImpact();
-                          },
-                          text: 'Aggiungi',
-                          options: AFButtonOptions(
-                            width: double.infinity,
-                            height: 50,
-                            padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                            iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                            color: CustomFlowTheme.of(context).primary,
-                            disabledColor: CustomFlowTheme.of(context).disabled,
-                            textStyle: CustomFlowTheme.of(context).titleSmall,
-                            elevation: 0,
-                            borderSide: const BorderSide(
-                              color: Colors.transparent,
-                              width: 1,
-                            ),
-                            borderRadius: BorderRadius.circular(25),
+                          bool flag = await providerPeople.promotePeople(providerAddPeople.fieldControllerIdUser.text, listType: providerPeople.listTypeReferral);
+                          if (flag && mounted){
+                            context.safePop();
+                          }
+                          logFirebaseEvent('Button_haptic_feedback');
+                          HapticFeedback.lightImpact();
+                        },
+                        text: 'Aggiungi',
+                        options: AFButtonOptions(
+                          width: double.infinity,
+                          height: 50,
+                          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                          iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                          color: CustomFlowTheme.of(context).primary,
+                          disabledColor: CustomFlowTheme.of(context).disabled,
+                          textStyle: CustomFlowTheme.of(context).titleSmall,
+                          elevation: 0,
+                          borderSide: const BorderSide(
+                            color: Colors.transparent,
+                            width: 1,
                           ),
+                          borderRadius: BorderRadius.circular(25),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
+                  ],
+                );
+              }),
             ),
           ),
-        );
-      }),
+        ),
+      ),
     );
   }
 }
