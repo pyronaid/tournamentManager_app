@@ -1,7 +1,34 @@
 # tournamentmanager
 
-A new Flutter project.
+APP
+|---ROUTER 										(AppStateNotifier - stream user)
+	|---LOGIN PAGE								/ 
+	|---SIGNIN PAGE 							/	
+	|---FORGOT PASSWORD PAGE 					/
+	|---LOGGED BUT NOT VERIFIED PAGE 			/
+	|---MY TOURNAMENTS 							?
+	|---OWN TOURNAMENTS							?
+	|	|---TOURNAMENT DETAILS 					(TournamentModel - stream tournament)
+	|	|---TOURNAMENT ROUNDS 					(TournamentModel - stream tournament/roundedit)
+	|	|	|---ROUND PAIRINGS					(TournamentModel - stream tournament/roundedit)
+	|	|		|---ROUND RANKING				(TournamentModel - stream tournament/roundedit)
+	|	|---TOURNAMENT PEOPLE REGISTERED 		(TournamentModel - stream tournament/peopleedit)
+	|	|	|---REGISTER PAGE					(TournamentModel - stream tournament/peopleedit)
+	|	|---TOURNAMENT PEOPLE PRE-REGISTERED	(TournamentModel - stream tournament/peopleedit)
+	|	|	|---PREREGISTER PAGE				(TournamentModel - stream tournament/peopleedit)
+	|	|---TOURNAMENT PEOPLE WAITING			(TournamentModel - stream tournament/peopleedit)
+	|	|	|---ADD WAITING PAGE				(TournamentModel - stream tournament/peopleedit)
+	|	|---TOURNAMENT NEWS LIST PAGE			(TournamentModel - stream tournament/newsedit)
+	|		|---TOURNAMENT NEWS CREATE/EDIT		(TournamentNews - stream news)
+	|---FINDER 									/
+	|---PROFILE 								/
+		|---EDIT PROFILE 						/
+		|---LOGOUT 								/
+		|---ABOUT US 							/
+		|---CREATE NEW 							/
 
+
+    
 ## Getting Started
 
 This project is a starting point for a Flutter application.
