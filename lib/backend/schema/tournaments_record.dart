@@ -22,6 +22,7 @@ class TournamentsRecord extends PocketstoreRecord {
   static const String imageFieldName = 'image';
   static const String preRegistrationFieldName = 'preRegistrationEn';
   static const String waitingListFieldName = 'waitingListEn';
+  static const String isOnlineFieldName = 'isOnline';
   static const String addressFieldName = 'address';
   static const String latitudeFieldName = 'latitude';
   static const String longitudeFieldName = 'longitude';
@@ -115,6 +116,13 @@ class TournamentsRecord extends PocketstoreRecord {
     await updateField(pb, uid, waitingListFieldName, _waitingListEn);
   }
 
+  late bool _isOnlineEn = false;
+  bool get isOnlineEn => _isOnlineEn;
+  Future<void> switchIsOnlineEn(PocketBase pb) async {
+    _isOnlineEn = !_isOnlineEn;
+    await updateField(pb, uid, isOnlineFieldName, _isOnlineEn);
+  }
+
   late String? _image;
   String? get image => _image;
   Future<void> setImage(PocketBase pb, {required List<MultipartFile> files}) async {
@@ -196,6 +204,7 @@ class TournamentsRecord extends PocketstoreRecord {
     _image = getFileUrl(snapshotData[extFlag ? collectionIdSourceFieldName : collectionIdFieldName], snapshotData[idFieldName], snapshotData[imageFieldName]);
     _preRegistrationEn = snapshotData[preRegistrationFieldName] != null ? snapshotData[preRegistrationFieldName] == 1 : false;
     _waitingListEn = snapshotData[waitingListFieldName] != null ? snapshotData[waitingListFieldName] == 1 : false;
+    _isOnlineEn = snapshotData[isOnlineFieldName] != null ? snapshotData[isOnlineFieldName] == 1 : false;
     _address = snapshotData[addressFieldName];
     _lat = snapshotData[latitudeFieldName];
     _long = snapshotData[longitudeFieldName];
@@ -375,6 +384,7 @@ Map<String, dynamic> createTournamentsRecordData({
   int? capacity,
   required bool preRegistrationEn,
   required bool waitingListEn,
+  required bool isOnlineEn,
   StateTournament? state,
   required String? creatorUid,
 }) {
@@ -388,6 +398,7 @@ Map<String, dynamic> createTournamentsRecordData({
       TournamentsRecord.longitudeFieldName: longitude,
       TournamentsRecord.preRegistrationFieldName: preRegistrationEn ? 1 : 0,
       TournamentsRecord.waitingListFieldName: waitingListEn ? 1 : 0,
+      TournamentsRecord.isOnlineFieldName: isOnlineEn ? 1 : 0,
       TournamentsRecord.stateFieldName: state != null ? state.name : StateTournament.open.name,
       TournamentsRecord.capacityFieldName: capacity ?? 0,
       TournamentsRecord.idOwnerFieldName: creatorUid,
@@ -408,6 +419,7 @@ Map<String, dynamic> createTournamentsRecordDataFromObj(TournamentsRecord record
       TournamentsRecord.longitudeFieldName: record.longitude,
       TournamentsRecord.preRegistrationFieldName: record.preRegistrationEn,
       TournamentsRecord.waitingListFieldName: record.waitingListEn,
+      TournamentsRecord.isOnlineFieldName: record.isOnlineEn,
       TournamentsRecord.stateFieldName: record.state,
       TournamentsRecord.capacityFieldName: record.capacity,
       TournamentsRecord.idOwnerFieldName: record.ownerId,
@@ -432,6 +444,7 @@ class TournamentsRecordDocumentEquality implements Equality<TournamentsRecord> {
         e1?.image == e2?.image &&
         e1?.preRegistrationEn == e2?.preRegistrationEn &&
         e1?.waitingListEn == e2?.waitingListEn &&
+        e1?.isOnlineEn == e2?.isOnlineEn &&
         e1?.state == e2?.state &&
         e1?.ownerId == e2?.ownerId;
   }
@@ -448,6 +461,7 @@ class TournamentsRecordDocumentEquality implements Equality<TournamentsRecord> {
     e?.image,
     e?.preRegistrationEn,
     e?.waitingListEn,
+    e?.isOnlineEn,
     e?.state,
     e?.ownerId
   ]);
