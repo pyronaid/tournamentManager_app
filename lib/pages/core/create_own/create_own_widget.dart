@@ -277,6 +277,37 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
                             ),
                           ),
                           //////////////////////////////////////////
+                          // IS-ONLINE switch
+                          //////////////////////////////////////////
+                          Padding(
+                            padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                  child: Text(
+                                    'Torneo Online',
+                                    style: CustomFlowTheme.of(context).bodyMedium,
+                                  ),
+                                ),
+                                Selector<CreateOwnModel, bool>(
+                                  selector: (context, createOwnModel) => createOwnModel.isOnlineEnabledVar,
+                                  builder: (context, tournamentOnlineEnabled, child) {
+                                    return Switch(
+                                        value: tournamentOnlineEnabled,
+                                        onChanged: (value) {
+                                          createOwnModel.switchIsOnlineEn();
+                                        }
+                                    );
+                                  }
+                                ),
+                              ],
+                            ),
+                          ),
+                          //////////////////////////////////////////
                           // address tournament
                           //////////////////////////////////////////
                           Padding(
@@ -292,9 +323,9 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
                                     style: CustomFlowTheme.of(context).bodyMedium,
                                   ),
                                 ),
-                                Selector<CreateOwnModel, List<dynamic>>(
-                                  selector: (context, createOwnModel) => createOwnModel.placeList,
-                                  builder: (context, placeList, child) {
+                                Selector<CreateOwnModel, Tuple2<List<dynamic>>, bool>(
+                                  selector: (context, createOwnModel) => Tuple2(createOwnModel.placeList, createOwnModel.isOnlineEnabledVar),
+                                  builder: (context, tuple, child) {
                                     return TypeAheadField<dynamic>(
                                       controller: createOwnModel.tournamentAddressTextController,
                                       focusNode: createOwnModel.tournamentAddressFocusNode,
@@ -305,6 +336,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
                                         return TextFormField(
                                           controller: controller,
                                           focusNode: focusNode,
+                                          enabled : !tuple.item2,
                                           textInputAction: TextInputAction.next,
                                           obscureText: false,
                                           autofocus: false,
