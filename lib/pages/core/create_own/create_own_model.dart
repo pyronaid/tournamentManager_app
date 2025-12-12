@@ -99,6 +99,8 @@ class CreateOwnModel extends ChangeNotifier {
   late bool _preRegistrationEnabledVar;
   //////////////////////////////FORM WAITINIG-LIST switch
   late bool _waitingListEnabledVar;
+  //////////////////////////////FORM IS-ONLINE switch
+  late bool _isOnlineEnabledVar;
 
 
   /////////////////////////////CONSTRUCTOR
@@ -118,6 +120,7 @@ class CreateOwnModel extends ChangeNotifier {
     _pageViewController = PageController(initialPage: 0);
     _preRegistrationEnabledVar = false;
     _waitingListEnabledVar = false;
+    _isOnlineEnabledVar = false;
     placesApiManagerService = GetIt.instance.getAsync<PlacesApiManagerService>();
     _sessionToken = uuid.v4();
     snackBarService = GetIt.instance<SnackBarService>();
@@ -126,42 +129,19 @@ class CreateOwnModel extends ChangeNotifier {
 
 
   /////////////////////////////GETTER
-  PageController get pageViewController{
-    return _pageViewController;
-  }
-  TextEditingController get tournamentNameTextController{
-    return _tournamentNameTextController;
-  }
-  FocusNode? get tournamentNameFocusNode{
-    return _tournamentNameFocusNode;
-  }
-  TextEditingController get tournamentDateTextController{
-    return _tournamentDateTextController;
-  }
-  FocusNode? get tournamentDateFocusNode{
-    return _tournamentDateFocusNode;
-  }
-  TextEditingController get tournamentAddressTextController{
-    return _tournamentAddressTextController;
-  }
-  FocusNode? get tournamentAddressFocusNode{
-    return _tournamentAddressFocusNode;
-  }
-  TextEditingController get tournamentCapacityTextController{
-    return _tournamentCapacityTextController;
-  }
-  FocusNode? get tournamentCapacityFocusNode{
-    return _tournamentCapacityFocusNode;
-  }
-  bool get preRegistrationEnabledVar{
-    return _preRegistrationEnabledVar;
-  }
-  bool get waitingListEnabledVar{
-    return _waitingListEnabledVar;
-  }
-  List<dynamic> get placeList{
-    return _placeList;
-  }
+  PageController get pageViewController => _pageViewController;
+  TextEditingController get tournamentNameTextController => _tournamentNameTextController;
+  FocusNode? get tournamentNameFocusNode => _tournamentNameFocusNode;
+  TextEditingController get tournamentDateTextController => _tournamentDateTextController;
+  FocusNode? get tournamentDateFocusNode => _tournamentDateFocusNode;
+  TextEditingController get tournamentAddressTextController =>  _tournamentAddressTextController;
+  FocusNode? get tournamentAddressFocusNode => _tournamentAddressFocusNode;
+  TextEditingController get tournamentCapacityTextController => _tournamentCapacityTextController;
+  FocusNode? get tournamentCapacityFocusNode => _tournamentCapacityFocusNode;
+  bool get preRegistrationEnabledVar => _preRegistrationEnabledVar;
+  bool get waitingListEnabledVar => _waitingListEnabledVar;
+  bool get isOnlineEnabledVar => _isOnlineEnabledVar;
+  List<dynamic> get placeLis t=> _placeList;
 
 
   /////////////////////////////SETTER
@@ -174,6 +154,14 @@ class CreateOwnModel extends ChangeNotifier {
   }
   void switchWaitingListEn() {
     _waitingListEnabledVar = !_waitingListEnabledVar;
+    notifyListeners();
+  }
+  void switchIsOnlineEn() {
+    _isOnlineEnabledVar = !_isOnlineEnabledVar;
+    if(_isOnlineEnabledVar) {
+      _tournamentAddressTextController.text = "Torneo Online";
+      _selectedPlace = null;
+    }
     notifyListeners();
   }
   void jumpToPageAndNotify(int value) {
@@ -207,15 +195,16 @@ class CreateOwnModel extends ChangeNotifier {
     loaderService.showLoader(id: executionId);
     try {
       PlacesApiManagerService placesApiManagerServiceCompleted = await placesApiManagerService;
-      Map<String, dynamic>? placeDetail = await placesApiManagerServiceCompleted.getPlaceDetail(_selectedPlace['place_id']);
+      Map<String, dynamic>? placeDetail = _selectedPlace != null ? await placesApiManagerServiceCompleted.getPlaceDetail(_selectedPlace['place_id']) : null;
       Map<String, dynamic> ownTournament = createTournamentsRecordData(
         game: Game.values[pageViewController.page!.round()],
         name: tournamentNameTextController.text,
         address: tournamentAddressTextController.text,
-        latitude: placeDetail!['lat'],
-        longitude: placeDetail['lng'],
+        latitude: placeDetail?['lat'],
+        longitude: placeDetail?['lng'],
         preRegistrationEn: preRegistrationEnabledVar,
         waitingListEn : waitingListEnabledVar,
+	    isOnlineEn : isOnlineEnabledVar,
         date: DateFormat('dd/MM/yyyy').parse(tournamentDateTextController.text),
         capacity: int.tryParse(tournamentCapacityTextController.text),
         creatorUid: currentUser!.uid,
@@ -250,6 +239,7 @@ class CreateOwnModel extends ChangeNotifier {
     _tournamentDateTextController.clear();
     _preRegistrationEnabledVar = false;
     _waitingListEnabledVar = false;
+    _isOnlineEnabledVar = false;
     notifyListeners();
   }
 
@@ -275,6 +265,5 @@ class CreateOwnModel extends ChangeNotifier {
       animationsMap.putIfAbsent(game.index, () => standardAnimationInfo(context));
     }
   }
-
 
 }
