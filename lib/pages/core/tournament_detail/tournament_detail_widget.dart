@@ -10,8 +10,11 @@ import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/components/tournament_winner_card/tournament_winner_card_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_model.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
+import 'package:tuple/tuple.dart';
 
+import '../../../app_flow/app_flow_widgets.dart';
 import '../../../auth/pocketbase_auth/pocketbase_users_record.dart';
+import '../../../backend/schema/enrollments_record.dart';
 
 
 class TournamentDetailWidget extends StatefulWidget {
@@ -60,7 +63,7 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
           child:  SingleChildScrollView(
             child: Consumer<TournamentDetailModel>(
               builder: (context, providerTournamentDetail, _){
-                print("[BUILD IN CORSO] tournament_detail_widget.dart");
+                debugPrint("[BUILD IN CORSO] tournament_detail_widget.dart");
                 if(providerTournamentDetail.isLoading){
                   return const Center(child: CircularProgressIndicator());
                 }
@@ -677,6 +680,199 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
                           ),
                         )
                       )
+                    ],
+                    //REGISTER BUTTON AREA
+                    ////////////////
+                    /////////////////
+                    if(providerTournamentDetail.tournamentModel.tournamentState == StateTournament.ready && !providerTournamentDetail.tournamentModel.hasWinner)...[
+                      Padding(
+                        padding: const EdgeInsetsDirectional.all(20),
+                        child: FutureBuilder<Tuple2<int, List<EnrollmentsRecord>>>(
+                          future: providerTournamentDetail.currentUserEnrolledCheck,
+                          builder: (context, snapshot){
+                            if (!snapshot.hasData) {
+                              //loading
+                            }
+                            if (snapshot.data == null || snapshot.data?.item1 == 0) {
+                              //bottone
+                              //se preregistrazioni abilitate e < capacity allora mostra bottone
+                              //se preregistrazioni abilitate e = capacity e waiting list abilitata allora mostra bottone 2
+                              //se preregistrazioni abilitate e = capacity e waiting list non abilitata allora mostra messaggio custom
+                              //se preregistrazioni non abilitate indicare messaggio custom
+                              if (providerTournamentDetail.tournamentModel.tournamentPreRegistrationEn) {
+                                if (providerTournamentDetail.tournamentModel.tournamentCapacityInt == 0 || providerTournamentDetail.tournamentModel.tournamentCurrentSize < providerTournamentDetail.tournamentModel.tournamentCapacityInt) {
+                                  return AFButtonWidget(
+                                    onPressed: () async {
+                                      FocusScope.of(context).unfocus();
+                                      context.goNamed(
+                                          'DialogPreRegisterPlayer',
+                                          pathParameters: {
+                                            'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
+                                          }.withoutNulls,
+                                          extra: {
+                                            'req': tournamentDetailModel.showAddToPreRegisterListAlertRequest(),
+                                          }
+                                      );
+                                    },
+                                    text: 'Pre registrati!',
+                                    options: AFButtonOptions(
+                                      width: double.infinity,
+                                      height: 50,
+                                      padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                      iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                      color: CustomFlowTheme.of(context).secondary,
+                                      textStyle: CustomFlowTheme.of(context).bodyMedium,
+                                      elevation: 0,
+                                      borderSide: BorderSide(
+                                        color: CustomFlowTheme.of(context).primary,
+                                        width: 2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(25),
+                                    ),
+                                  );
+                                } else {
+                                  if (providerTournamentDetail.tournamentModel
+                                      .tournamentWaitingListEn) {
+                                    return AFButtonWidget(
+                                      onPressed: () async {
+                                        FocusScope.of(context).unfocus();
+                                        context.goNamed(
+                                            'DialogWaitingListPlayer',
+                                            pathParameters: {
+                                              'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
+                                            }.withoutNulls,
+                                            extra: {
+                                              'req': tournamentDetailModel.showAddToWaitingListAlertRequest(),
+                                            }
+                                        );
+                                      },
+                                      text: 'Aggiungiti alla waiting list!',
+                                      options: AFButtonOptions(
+                                        width: double.infinity,
+                                        height: 50,
+                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                        iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                        color: CustomFlowTheme.of(context).secondary,
+                                        textStyle: CustomFlowTheme.of(context).bodyMedium,
+                                        elevation: 0,
+                                        borderSide: BorderSide(
+                                          color: CustomFlowTheme.of(context).primary,
+                                          width: 2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(25),
+                                      ),
+                                    );
+                                  } else {
+                                    return Padding(
+                                      padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+                                      child: Container(
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          color: CustomFlowTheme.of(context).secondaryBackground,
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(
+                                            color: CustomFlowTheme.of(context).alternate,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsetsDirectional.fromSTEB(24, 16, 24, 20),
+                                          child: Text(
+                                            "Il torneo ha raggiunto il limite e non è stata abilitata una waiting list. Monitoralo per vedere se vengono aggiunti nuovi posti o se ne liberano alcuni.",
+                                            style: CustomFlowTheme.of(context).labelLarge,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }
+                              } else {
+                                return Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+                                  child: Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: CustomFlowTheme.of(context).secondaryBackground,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: CustomFlowTheme.of(context).alternate,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsetsDirectional.fromSTEB(24, 16, 24, 20),
+                                      child: Text(
+                                        "Non è possibile preregistrarsi. Recati il giorno stabilito presso la sede dell'evento o contatta l'organizzatore per avere le modalità di regìstrazione",
+                                        style: CustomFlowTheme.of(context).labelLarge,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                            } else {
+                              return Padding(
+                                padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: CustomFlowTheme.of(context).secondaryBackground,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: CustomFlowTheme.of(context).alternate,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(24, 16, 24, 20),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
+                                          child: Text(
+                                            "Sei già censito per questo torneo!",
+                                            style: CustomFlowTheme.of(context).labelLarge,
+                                          ),
+                                        ),
+                                        AFButtonWidget(
+                                          onPressed: () async {
+                                            FocusScope.of(context).unfocus();
+                                            context.goNamed(
+                                                'DialogDeEnrollPlayer',
+                                                pathParameters: {
+                                                  'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
+                                                }.withoutNulls,
+                                                extra: {
+                                                  'req': tournamentDetailModel.showDeEnrollPlayerAlertRequest(),
+                                                }
+                                            );
+                                          },
+                                          text: 'De-registrati',
+                                          options: AFButtonOptions(
+                                            width: double.infinity,
+                                            height: 50,
+                                            padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                            iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                            color: const Color(0xFFFFD4D4),
+                                            textStyle: CustomFlowTheme.of(context).bodyMedium.override(color: const Color(0xFFB74D4D)),
+                                            elevation: 0,
+                                            borderSide: BorderSide(
+                                              color: CustomFlowTheme.of(context).primary,
+                                              width: 2,
+                                            ),
+                                            borderRadius: BorderRadius.circular(25),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
                     ],
                     ////////////////
                     //TOOLTIP AREA

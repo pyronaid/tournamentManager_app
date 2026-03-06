@@ -1,102 +1,56 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
+import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_auth_util.dart';
+import 'package:tournamentmanager/backend/schema/enrollments_record.dart';
 
 class CustomAppState extends ChangeNotifier {
   static CustomAppState _instance = CustomAppState._internal();
+
+  StreamSubscription<List<EnrollmentsRecord>>? _enrollmentListSubscription;
+
+  late List<String>? tournamentsListRefObj;
+
+  bool _isLoading = true;
 
   factory CustomAppState() {
     return _instance;
   }
 
-  CustomAppState._internal();
+  CustomAppState._internal(){
+    debugPrint("[CREATE] CustomAppState");
+  }
 
   static void reset() {
     _instance = CustomAppState._internal();
   }
 
-  Future initializePersistedState() async {
-    //retrieve the tournament joined by the user
+  /////////////////////////////GETTER
+  bool get isLoading => _isLoading;
 
-    //retrieve the tournament owned by the user
-  }
-
-  void update(VoidCallback callback) {
-    callback();
-    notifyListeners();
-  }
-
-  String _userValueOne = '';
-  String get userValueOne => _userValueOne;
-  set userValueOne(String value) {
-    _userValueOne = value;
+  @override
+  void dispose() {
+    debugPrint("[DISPOSE] CustomAppState");
+    _enrollmentListSubscription?.cancel(); // Cancel the tournament subscription
+    super.dispose();
   }
 
 
-
-  /////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////
-  ////////// TournamentsOwned
-  /////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////
-
-  List<TournamentsRecord> _tournamentsOwned = [];
-  List<TournamentsRecord> get tournamentsOwned => _tournamentsOwned;
-  set tournamentsOwned(List<TournamentsRecord> value) {
-    _tournamentsOwned = value;
+  void fetchObjectUsingId() {
+    if(currentUserEmail.isNotEmpty){
+      debugPrint("[LOAD FROM POCKETBASE IN CORSO] app_state.dart");
+      _enrollmentListSubscription = EnrollmentsRecord.getDocuments(pb, false, "${EnrollmentsRecord.idUserFieldName} = $currentUserUid").listen((snapshot) async {
+        try {
+          tournamentsListRefObj = (await EnrollmentsRecord.getDocumentsOnce(pb, false, "${EnrollmentsRecord.idUserFieldName} = $currentUserUid")).item2.map((elem) => elem.userId).toList();
+          _isLoading = false;
+        } catch (e){
+          debugPrint("Errore nella subscription dello Stream Tournament");
+        }
+      });
+    } else{
+      tournamentsListRefObj = null;
+      _isLoading = false;
+    }
   }
-
-  void addToTournamentsOwned(TournamentsRecord value) {
-    _tournamentsOwned.add(value);
-  }
-
-  void removeFromTournamentsOwned(TournamentsRecord value) {
-    _tournamentsOwned.remove(value);
-  }
-
-  void removeAtIndexFromTournamentsOwned(int index) {
-    _tournamentsOwned.removeAt(index);
-  }
-
-  void updateTournamentsOwnedAtIndex(int index, TournamentsRecord Function(TournamentsRecord) updateFn,) {
-    _tournamentsOwned[index] = updateFn(_tournamentsOwned[index]);
-  }
-
-  void insertAtIndexInTournamentsOwned(int index, TournamentsRecord value) {
-    _tournamentsOwned.insert(index, value);
-  }
-
-
-  /////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////
-  ////////// TournamentsJoined
-  /////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////
-
-  List<TournamentsRecord> _tournamentsJoined = [];
-  List<TournamentsRecord> get tournamentsJoined => _tournamentsJoined;
-  set tournamentsJoined(List<TournamentsRecord> value) {
-    _tournamentsJoined = value;
-  }
-
-  void addToTournamentsJoined(TournamentsRecord value) {
-    _tournamentsJoined.add(value);
-  }
-
-  void removeFromTournamentsJoined(TournamentsRecord value) {
-    _tournamentsJoined.remove(value);
-  }
-
-  void removeAtIndexFromTournamentsJoined(int index) {
-    _tournamentsJoined.removeAt(index);
-  }
-
-  void updateTournamentsJoinedAtIndex(int index, TournamentsRecord Function(TournamentsRecord) updateFn,) {
-    _tournamentsJoined[index] = updateFn(_tournamentsJoined[index]);
-  }
-
-  void insertAtIndexInTournamentsJoined(int index, TournamentsRecord value) {
-    _tournamentsJoined.insert(index, value);
-  }
-
 
 }

@@ -27,7 +27,7 @@ class NewsModel extends ChangeNotifier {
   late LoaderService loaderService;
 
   NewsModel({required this.tournamentModel, required this.newsRef}){
-    print("[CREATE] NewsModel");
+    debugPrint("[CREATE] NewsModel");
     snackBarService = GetIt.instance<SnackBarService>();
     loaderService = GetIt.instance<LoaderService>();
   }
@@ -137,7 +137,7 @@ class NewsModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    print("[DISPOSE] NewsModel");
+    debugPrint("[DISPOSE] NewsModel");
     _newsSubscription?.cancel(); // Cancel the news subscription
     super.dispose();
   }
@@ -146,14 +146,14 @@ class NewsModel extends ChangeNotifier {
   Future<void> fetchObjectUsingId() async {
     await waitForTournamentLoading().isEmpty;
     if(tournamentsRef != null && (newsRef != null && newsRef != "NEW")) {
-      print("[LOAD FROM POCKETBASE IN CORSO] news_model.dart");
+      debugPrint("[LOAD FROM POCKETBASE IN CORSO] news_model.dart");
       _newsSubscription = NewsRecord.getDocument(pb, newsRef!, expand: NewsRecord.idTournamentFieldName).listen((snapshot) async {
         try {
           newsRefObj = await NewsRecord.getDocumentOnce(pb, newsRef!, expand: NewsRecord.idTournamentFieldName);
           _isLoading = false;
           notifyListeners();
         } catch (e){
-          print("Errore nella subscription dello Stream News");
+          debugPrint("Errore nella subscription dello Stream News");
         }
       });
     } else {

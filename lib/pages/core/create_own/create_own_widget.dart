@@ -12,6 +12,7 @@ import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/components/custom_appbar_widget.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 import 'package:tournamentmanager/pages/core/create_own/create_own_model.dart';
+import 'package:tuple/tuple.dart';
 
 class CreateOwnWidget extends StatefulWidget {
   const CreateOwnWidget({super.key});
@@ -323,7 +324,7 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
                                     style: CustomFlowTheme.of(context).bodyMedium,
                                   ),
                                 ),
-                                Selector<CreateOwnModel, Tuple2<List<dynamic>>, bool>(
+                                Selector<CreateOwnModel, Tuple2<List<dynamic>, bool>>(
                                   selector: (context, createOwnModel) => Tuple2(createOwnModel.placeList, createOwnModel.isOnlineEnabledVar),
                                   builder: (context, tuple, child) {
                                     return TypeAheadField<dynamic>(

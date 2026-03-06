@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
 import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_auth_util.dart';
+import 'package:tournamentmanager/backend/schema/enrollments_record.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
+import 'package:tuple/tuple.dart';
 
 class TournamentDetailModel extends ChangeNotifier {
 
@@ -57,6 +59,7 @@ class TournamentDetailModel extends ChangeNotifier {
   DateTime? get lastUpdated => _lastUpdated;
   bool get isTournamentEditable => tournamentModel.isTournamentEditable && tournamentModel.tournamentOwner == currentUserUid;
   bool get canInteractOn => tournamentModel.tournamentOwner == currentUserUid;
+  Future<Tuple2<int,List<EnrollmentsRecord>>>? get currentUserEnrolledCheck => EnrollmentsRecord.getDocumentsOnce(pb, false, "${EnrollmentsRecord.idTournamentFieldName} = '${tournamentModel.tournamentId}' && ${EnrollmentsRecord.idUserFieldName} = '$currentUserUid'");
 
 
   /////////////////////////////SETTER
@@ -87,6 +90,36 @@ class TournamentDetailModel extends ChangeNotifier {
       buttonTitleCancelled: "Annulla",
       buttonTitleConfirmed: "Continua",
       functionConfirmed: (List<dynamic>? formValues) => tournamentModel.switchTournamentPreIscrizioniEn(),
+    );
+    return req;
+  }
+  AlertRequest showAddToPreRegisterListAlertRequest() {
+    AlertRequest req = AlertRequest(
+      title: 'Pre registrazione',
+      description: "Confermando verrai aggiunto alla lista dei pre-iscritti",
+      buttonTitleCancelled: "Annulla",
+      buttonTitleConfirmed: "Continua",
+      functionConfirmed: (List<dynamic>? formValues) async => debugPrint("ciao"),
+    );
+    return req;
+  }
+  AlertRequest showAddToWaitingListAlertRequest() {
+    AlertRequest req = AlertRequest(
+      title: 'Waiting list',
+      description: "Confermando verrai aggiunto alla lista di attesa e se si libera un posto passerai automaticamente alla lista dei pre iscritti.",
+      buttonTitleCancelled: "Annulla",
+      buttonTitleConfirmed: "Continua",
+      functionConfirmed: (List<dynamic>? formValues) async => debugPrint("ciao"),
+    );
+    return req;
+  }
+  AlertRequest showDeEnrollPlayerAlertRequest() {
+    AlertRequest req = AlertRequest(
+      title: 'Disiscrizione',
+      description: "Confermando verrai rimosso dai players coinvolti in questo torneo.",
+      buttonTitleCancelled: "Annulla",
+      buttonTitleConfirmed: "Continua",
+      functionConfirmed: (List<dynamic>? formValues) async => debugPrint("ciao"),
     );
     return req;
   }

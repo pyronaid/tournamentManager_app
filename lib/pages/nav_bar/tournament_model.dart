@@ -32,7 +32,7 @@ class TournamentModel extends ChangeNotifier {
   DateTime? _updatedRounds;
 
   TournamentModel({required this.tournamentsRef}){
-    print("[CREATE] TournamentModel");
+    debugPrint("[CREATE] TournamentModel");
     imagePickerService = GetIt.instance<ImagePickerService>();
     snackBarService = GetIt.instance<SnackBarService>();
     loaderService = GetIt.instance<LoaderService>();
@@ -71,6 +71,7 @@ class TournamentModel extends ChangeNotifier {
   List<dynamic>? get winner => tournamentsRefObj?.winnerUserId!;
   bool get isTournamentOngoing => tournamentsRefObj != null ? tournamentsRefObj!.state == StateTournament.ongoing : false;
   bool get isTournamentEditable => tournamentsRefObj != null ? (tournamentsRefObj!.state == StateTournament.ready || tournamentsRefObj!.state == StateTournament.open) : false;
+  int get tournamentCurrentSize => tournamentPreRegisteredSize + tournamentRegisteredSize;
   int get tournamentPreRegisteredSize => tournamentsRefObj != null ? tournamentsRefObj!.preRegisteredCount : 0;
   int get tournamentWaitingSize => tournamentsRefObj != null ? tournamentsRefObj!.waitingCount : 0;
   int get tournamentRegisteredSize => tournamentsRefObj != null ? tournamentsRefObj!.registeredCount : 0;
@@ -176,7 +177,7 @@ class TournamentModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    print("[DISPOSE] TournamentModel");
+    debugPrint("[DISPOSE] TournamentModel");
     _tournamentSubscription?.cancel(); // Cancel the tournament subscription
     super.dispose();
   }
@@ -184,7 +185,7 @@ class TournamentModel extends ChangeNotifier {
 
   void fetchObjectUsingId() {
     if(tournamentsRef != null) {
-      print("[LOAD FROM POCKETBASE IN CORSO] tournament_model.dart");
+      debugPrint("[LOAD FROM POCKETBASE IN CORSO] tournament_model.dart");
       _tournamentSubscription = TournamentsRecord.getDocument(pb, false, tournamentsRef!).listen((snapshot) async {
         try {
           tournamentsRefObj = await TournamentsRecord.getDocumentOnce(pb, true, tournamentsRef!);
@@ -195,7 +196,7 @@ class TournamentModel extends ChangeNotifier {
           _updatedRounds = tournamentsRefObj?.lastUpdatedRounds;
           notifyListeners();
         } catch (e){
-          print("Errore nella subscription dello Stream Tournament");
+          debugPrint("Errore nella subscription dello Stream Tournament");
         }
       });
     } else {

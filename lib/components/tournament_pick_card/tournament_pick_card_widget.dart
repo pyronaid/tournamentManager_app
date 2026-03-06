@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/components/tournament_pick_card/tournament_pick_card_model.dart';
 
@@ -148,10 +150,27 @@ class _TournamentPickCardWidgetState extends State<TournamentPickCardWidget> {
                 if(widget.tournamentRef!.game.iconResource != null)...[
                   SizedBox(
                     width: 25.w,
-                    child: Image.asset(
-                      widget.tournamentRef!.game.iconResource!,
-                      width: 70,
-                      height: 70,
+                    child: InkWell(
+                      child: Image.asset(
+                        widget.tournamentRef!.game.iconResource!,
+                        width: 70,
+                        height: 70,
+                      ),
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        //////////////////////////////
+                        //////////// REDIRECT ON TAP
+                        //////////////////////////////
+                        context.pushNamedAuth(
+                          'TournamentDetails', context.mounted,
+                          pathParameters: {
+                            'tournamentId': widget.tournamentRef?.uid
+                          }.withoutNulls,
+                          extra: {
+                            'tournamentRef': widget.tournamentRef?.uid
+                          },
+                        );
+                      },
                     ),
                   ),
                 ]

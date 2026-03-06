@@ -141,7 +141,7 @@ class CreateOwnModel extends ChangeNotifier {
   bool get preRegistrationEnabledVar => _preRegistrationEnabledVar;
   bool get waitingListEnabledVar => _waitingListEnabledVar;
   bool get isOnlineEnabledVar => _isOnlineEnabledVar;
-  List<dynamic> get placeLis t=> _placeList;
+  List<dynamic> get placeList => _placeList;
 
 
   /////////////////////////////SETTER
@@ -153,15 +153,19 @@ class CreateOwnModel extends ChangeNotifier {
     notifyListeners();
   }
   void switchWaitingListEn() {
-    _waitingListEnabledVar = !_waitingListEnabledVar;
-    notifyListeners();
+    if(_preRegistrationEnabledVar) {
+      _waitingListEnabledVar = !_waitingListEnabledVar;
+      notifyListeners();
+    }
   }
   void switchIsOnlineEn() {
     _isOnlineEnabledVar = !_isOnlineEnabledVar;
     if(_isOnlineEnabledVar) {
       _tournamentAddressTextController.text = "Torneo Online";
-      _selectedPlace = null;
+    } else {
+      _tournamentAddressTextController.text = "";
     }
+    _selectedPlace = null;
     notifyListeners();
   }
   void jumpToPageAndNotify(int value) {

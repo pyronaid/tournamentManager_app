@@ -5,6 +5,90 @@ import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.d
 import '../backend/firebase_analytics/analytics.dart';
 import 'app_flow_util.dart';
 
+class DialogActionButtons extends StatelessWidget {
+  final String cancelButtonText;
+  final String confirmButtonText;
+  final VoidCallback onCancel;
+  final VoidCallback onConfirm;
+  final bool isLoading;
+  final bool isConfirmEnabled;
+
+  const DialogActionButtons({
+    super.key,
+    required this.cancelButtonText,
+    required this.confirmButtonText,
+    required this.onCancel,
+    required this.onConfirm,
+    this.isLoading = false,
+    this.isConfirmEnabled = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ElevatedButton(
+              onPressed: isLoading ? null : onCancel,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorScheme.surfaceContainerHighest,
+                foregroundColor: colorScheme.onSurface,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                cancelButtonText,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: ElevatedButton(
+              onPressed: (isLoading || !isConfirmEnabled) ? null : onConfirm,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorScheme.error,
+                foregroundColor: colorScheme.onError,
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: isLoading ? SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    colorScheme.onError,
+                  ),
+                ),
+              ) : Text(
+                confirmButtonText,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class DialogPage<T> extends Page<T> {
   final Offset? anchorPoint;
   final Color? barrierColor;
@@ -45,10 +129,17 @@ class DialogPage<T> extends Page<T> {
   }
 }
 
-class DialogWidget extends StatelessWidget {
+class DialogWidget extends StatefulWidget {
   final AlertRequest request;
 
   const DialogWidget({super.key, required this.request});
+
+  @override
+  State<DialogWidget> createState() => _DialogWidgetState();
+}
+
+class _DialogWidgetState extends State<DialogWidget> {
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -89,31 +180,64 @@ class DialogWidget extends StatelessWidget {
                   color: colorScheme.surface,
                   surfaceTintColor: colorScheme.surfaceTint,
                   borderRadius: BorderRadius.circular(16),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          request.title,
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onSurface,
-                          ),
-                          textAlign: TextAlign.center,
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              widget.request.title,
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onSurface,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              widget.request.description,
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: colorScheme.onSurface,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 32),
+                            _buildActionButtons(context, theme, colorScheme),
+                          ],
                         ),
-                        const SizedBox(height: 24),
-                        Text(
-                          request.description,
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: colorScheme.onSurface,
+                      ),
+                      if(_isLoading) ...[
+                        Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: colorScheme.surface.withValues(alpha: 0.8),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      colorScheme.primary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'Processing...',
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 32),
-                        _buildActionButtons(context, theme, colorScheme),
                       ],
-                    ),
+                    ],
                   ),
                 ),
               ),
@@ -125,75 +249,32 @@ class DialogWidget extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: ElevatedButton(
-              onPressed: () {
-                Router.neglect(context, () => context.safePop());
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.surfaceContainerHighest,
-                foregroundColor: colorScheme.onSurface,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+    return DialogActionButtons(
+      cancelButtonText: request.buttonTitleCancelled,
+      confirmButtonText: request.buttonTitleConfirmed,
+      onCancel: () {
+        Router.neglect(context, () => context.safePop());
+      },
+      onConfirm: () async {
+        if (request.functionConfirmed != null) {
+          await request.functionConfirmed!(null);
+        }
+        if (request.redirectConfirmed != null) {
+          logFirebaseEvent('Button_navigate_to');
+          context.goNamed(
+            request.redirectConfirmed!,
+            extra: <String, dynamic>{
+              kTransitionInfoKey: const TransitionInfo(
+                hasTransition: true,
+                transitionType: PageTransitionType.fade,
+                duration: Duration(milliseconds: 0),
               ),
-              child: Text(
-                request.buttonTitleCancelled,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 8),
-            child: ElevatedButton(
-              onPressed: () async {
-                if (request.functionConfirmed != null) {
-                  await request.functionConfirmed!(null);
-                }
-                if (request.redirectConfirmed != null) {
-                  logFirebaseEvent('Button_navigate_to');
-                  context.goNamed(
-                    request.redirectConfirmed!,
-                    extra: <String, dynamic>{
-                      kTransitionInfoKey: const TransitionInfo(
-                        hasTransition: true,
-                        transitionType: PageTransitionType.fade,
-                        duration: Duration(milliseconds: 0),
-                      ),
-                    },
-                  );
-                } else {
-                  Router.neglect(context, () => context.safePop());
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.error,
-                foregroundColor: colorScheme.onError,
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Text(
-                request.buttonTitleConfirmed,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+            },
+          );
+        } else {
+          Router.neglect(context, () => context.safePop());
+        }
+      },
     );
   }
 }
@@ -342,101 +423,63 @@ class _DialogFormWidgetState extends State<DialogFormWidget> {
   }
 
   Widget _buildActionButtons(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: ElevatedButton(
-              onPressed: () {
-                Router.neglect(context, () => context.safePop());
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.surfaceContainerHighest,
-                foregroundColor: colorScheme.onSurface,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Text(
-                widget.request.buttonTitleCancelled,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: FutureBuilder<List<FormInformation>>(
-            future: Future.wait(_formInformation),
-            builder: (context, snapshot){
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              // Error state
-              if (snapshot.hasError) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'Error loading form: ${snapshot.error}',
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
-                );
-              }
-              // Success state
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(
-                  child: Text('No form data available'),
-                );
-              }
-              return ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    List<dynamic> formValues = snapshot.data!.map((inf) => inf.result()).toList();
-                    if (widget.request.functionConfirmed != null) {
-                      await widget.request.functionConfirmed!(formValues);
-                    }
-                    if (widget.request.redirectConfirmed != null) {
-                      logFirebaseEvent('Button_navigate_to');
-                      context.goNamed(
-                        widget.request.redirectConfirmed!,
-                        extra: <String, dynamic>{
-                          kTransitionInfoKey: const TransitionInfo(
-                            hasTransition: true,
-                            transitionType: PageTransitionType.fade,
-                            duration: Duration(milliseconds: 0),
-                          ),
-                        },
-                      );
-                    } else {
-                      Router.neglect(context, () => context.safePop());
-                    }
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.error,
-                  foregroundColor: colorScheme.onError,
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Text(
-                  widget.request.buttonTitleConfirmed,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              );
+    return FutureBuilder<List<FormInformation>>(
+      future: Future.wait(_formInformation),
+      builder: (BuildContext context, AsyncSnapshot<List<FormInformation>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return DialogActionButtons(
+            cancelButtonText: widget.request.buttonTitleCancelled,
+            confirmButtonText: widget.request.buttonTitleConfirmed,
+            onCancel: () {
+              Router.neglect(context, () => context.safePop());
             },
-          ),
-        ),
-      ],
+            onConfirm: () {},
+            isLoading: true,
+          );
+        }
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+          return DialogActionButtons(
+            cancelButtonText: widget.request.buttonTitleCancelled,
+            confirmButtonText: widget.request.buttonTitleConfirmed,
+            onCancel: () {
+              Router.neglect(context, () => context.safePop());
+            },
+            onConfirm: () {},
+            isConfirmEnabled: false,
+          );
+        }
+
+        return DialogActionButtons(
+          cancelButtonText: widget.request.buttonTitleCancelled,
+          confirmButtonText: widget.request.buttonTitleConfirmed,
+          onCancel: () {
+            Router.neglect(context, () => context.safePop());
+          },
+          onConfirm: () async {
+            if (_formKey.currentState?.validate() ?? false) {
+              List<dynamic> formValues = snapshot.data!.map((inf) => inf.result()).toList();
+              if (widget.request.functionConfirmed != null) {
+                await widget.request.functionConfirmed!(formValues);
+              }
+              if (widget.request.redirectConfirmed != null) {
+                logFirebaseEvent('Button_navigate_to');
+                context.goNamed(
+                  widget.request.redirectConfirmed!,
+                  extra: <String, dynamic>{
+                    kTransitionInfoKey: const TransitionInfo(
+                      hasTransition: true,
+                      transitionType: PageTransitionType.fade,
+                      duration: Duration(milliseconds: 0),
+                    ),
+                  },
+                );
+              } else {
+                Router.neglect(context, () => context.safePop());
+              }
+            }
+          },
+        );
+      },
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -8,7 +7,6 @@ import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/internationalization.dart';
 import 'package:tournamentmanager/app_flow/nav/nav_basics.dart';
 import 'package:tournamentmanager/app_flow/services/locator.dart';
-import 'package:tournamentmanager/app_state.dart';
 import 'package:tournamentmanager/backend/firebase/firebase_config.dart';
 
 import 'app_flow/nav/navigation_keys.dart';
@@ -27,18 +25,10 @@ void main() async {
 
   await initFirebase();
 
-  await CustomFlowTheme.initialize();
-
-  final appState = CustomAppState();
-  await appState.initializePersistedState();
-
   //Service Locator
   serviceLocatorSetUp();
 
-  runApp(ChangeNotifierProvider(
-      create: (context) => appState,
-      child: const MyApp()
-  ));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {

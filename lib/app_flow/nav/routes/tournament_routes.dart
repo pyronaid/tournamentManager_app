@@ -47,14 +47,32 @@ class TournamentRoutes {
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
             GoRoute(
+              name: 'DialogWaitingListPlayer',
+              path: 'dialog-waitinglist-player',
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+            ),
+            GoRoute(
               name: 'DialogWaitingList',
               path: 'dialog-waiting-list',
               redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
             GoRoute(
+              name: 'DialogPreRegisterPlayer',
+              path: 'dialog-preregister-player',
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+            ),
+            GoRoute(
               name: 'DialogPreIscrizioni',
               path: 'dialog-pre-registration',
+              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+            ),
+            GoRoute(
+              name: 'DialogDeEnrollPlayer',
+              path: 'dialog-deenroll-player',
               redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),

@@ -1,15 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:math';
+
 import 'package:latlong2/latlong.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
-
-
-typedef RecordBuilder<T> = T Function(DocumentSnapshot snapshot);
-
-abstract class FirestoreRecord {
-  FirestoreRecord(this.reference, this.snapshotData);
-  Map<String, dynamic> snapshotData;
-  DocumentReference reference;
-}
 
 abstract class AFFirebaseStruct extends BaseStruct {
   AFFirebaseStruct(this.firestoreUtilData);
@@ -37,12 +29,12 @@ Map<String, dynamic> mapFromFirestore(Map<String, dynamic> data) =>
         .where((k, _) => k != FirestoreUtilData.name)
         .map((key, value) {
       // Handle Timestamp
-      if (value is Timestamp) {
-        value = value.toDate();
+      if (value is DateTime) {
+        value = value;
       }
       // Handle list of Timestamp
-      if (value is Iterable && value.isNotEmpty && value.first is Timestamp) {
-        value = value.map((v) => (v as Timestamp).toDate()).toList();
+      if (value is Iterable && value.isNotEmpty && value.first is DateTime) {
+        value = value.map((v) => (v as DateTime)).toList();
       }
       // Handle GeoPoint
       if (value is GeoPoint) {
@@ -100,14 +92,15 @@ List<GeoPoint>? convertToGeoPointList(List<LatLng>? list) =>
     list?.map((e) => e.toGeoPoint()).toList();
 
 extension GeoPointExtension on LatLng {
-  GeoPoint toGeoPoint() => GeoPoint(latitude, longitude);
+  GeoPoint toGeoPoint() => GeoPoint(
+    latitude: latitude,
+    longitude: longitude
+  );
 }
 
 extension LatLngExtension on GeoPoint {
   LatLng toLatLng() => LatLng(latitude, longitude);
 }
-
-DocumentReference toRef(String ref) => FirebaseFirestore.instance.doc(ref);
 
 T? safeGet<T>(T Function() func, [Function(dynamic)? reportError]) {
   try {
@@ -147,4 +140,69 @@ Map<String, dynamic> mergeNestedFields(Map<String, dynamic> data) {
 extension _WhereMapExtension<K, V> on Map<K, V> {
   Map<K, V> where(bool Function(K, V) test) =>
       Map.fromEntries(entries.where((e) => test(e.key, e.value)));
+}
+
+class GeoPoint {
+  final double latitude;
+  final double longitude;
+
+  const GeoPoint({
+    required this.latitude,
+    required this.longitude,
+  }) : assert(latitude >= -90 && latitude <= 90,
+  'Latitude must be between -90 and 90'),
+        assert(longitude >= -180 && longitude <= 180,
+        'Longitude must be between -180 and 180');
+
+  /// Create a GeoPoint from PocketBase JSON
+  factory GeoPoint.fromPocketBase(Map<String, dynamic> json) {
+    if (json['type'] != 'Point' || json['coordinates'] == null) {
+      throw const FormatException('Invalid PocketBase GeoJSON structure');
+    }
+
+    final coords = json['coordinates'];
+    if (coords is! List || coords.length != 2) {
+      throw const FormatException('Coordinates must be a list [lon, lat]');
+    }
+
+    return GeoPoint(
+      latitude: (coords[1] as num).toDouble(),
+      longitude: (coords[0] as num).toDouble(),
+    );
+  }
+
+  /// Convert to PocketBase GeoJSON structure
+  Map<String, dynamic> toPocketBase() {
+    return {
+      "type": "Point",
+      "coordinates": [longitude, latitude],
+    };
+  }
+
+  /// Convert to standard Map (if needed)
+  Map<String, dynamic> toJson() => {
+    "latitude": latitude,
+    "longitude": longitude,
+  };
+
+  @override
+  String toString() => 'GeoPoint(lat: $latitude, lon: $longitude)';
+
+  /// Optional helper: distance calculation
+  double distanceTo(GeoPoint other) {
+    const earthRadius = 6371000; // meters
+    final lat1 = _degToRad(latitude);
+    final lat2 = _degToRad(other.latitude);
+    final dLat = lat2 - lat1;
+    final dLon = _degToRad(other.longitude - longitude);
+
+    final a =
+        (sin(dLat / 2) * sin(dLat / 2)) +
+            cos(lat1) * cos(lat2) * (sin(dLon / 2) * sin(dLon / 2));
+
+    final c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    return earthRadius * c;
+  }
+
+  double _degToRad(double deg) => deg * (pi / 180);
 }

@@ -150,7 +150,7 @@ class TournamentsRecord extends PocketstoreRecord {
     _winnerId = winnerUserId;
     await updateField(pb, uid, idWinnerFieldName, winnerUserId);
   }
-  bool hasWinner() => _winnerId != null;
+  bool hasWinner() => _winnerId != null && _winnerId!.isNotEmpty;
 
   late int _preRegisteredCount;
   int get preRegisteredCount => _preRegisteredCount;
@@ -202,9 +202,9 @@ class TournamentsRecord extends PocketstoreRecord {
     _game = getGameEnum(snapshotData[gameFieldName]);
     _state = getStateEnum(snapshotData[stateFieldName])!;
     _image = getFileUrl(snapshotData[extFlag ? collectionIdSourceFieldName : collectionIdFieldName], snapshotData[idFieldName], snapshotData[imageFieldName]);
-    _preRegistrationEn = snapshotData[preRegistrationFieldName] != null ? snapshotData[preRegistrationFieldName] == 1 : false;
-    _waitingListEn = snapshotData[waitingListFieldName] != null ? snapshotData[waitingListFieldName] == 1 : false;
-    _isOnlineEn = snapshotData[isOnlineFieldName] != null ? snapshotData[isOnlineFieldName] == 1 : false;
+    _preRegistrationEn = snapshotData[preRegistrationFieldName] ?? false;
+    _waitingListEn = snapshotData[waitingListFieldName] ?? false;
+    _isOnlineEn = snapshotData[isOnlineFieldName] ?? false;
     _address = snapshotData[addressFieldName];
     _lat = snapshotData[latitudeFieldName];
     _long = snapshotData[longitudeFieldName];

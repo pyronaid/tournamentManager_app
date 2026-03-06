@@ -1,8 +1,6 @@
-
 import 'package:flutter/cupertino.dart';
 
 import '../../app_flow/app_flow_model.dart';
-import '../generic_loading/generic_loading_model.dart';
 import 'custom_expansion_panel_model.dart';
 
 class CustomExpansionPanelWidget extends StatefulWidget {

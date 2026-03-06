@@ -69,7 +69,7 @@ class _TournamentCardWidgetState extends State<TournamentCardWidget> {
             focusColor: Colors.transparent,
             hoverColor: Colors.transparent,
             highlightColor: Colors.transparent,
-            onTap: () async {
+            onTap: () {
               logFirebaseEvent('TOURN_CARD_COMP_Column_7nse8gf3_ON_TAP');
               logFirebaseEvent('Column_haptic_feedback');
               HapticFeedback.lightImpact();
