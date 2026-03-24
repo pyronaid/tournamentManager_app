@@ -250,34 +250,63 @@ class _DialogWidgetState extends State<DialogWidget> {
 
   Widget _buildActionButtons(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
     return DialogActionButtons(
-      cancelButtonText: request.buttonTitleCancelled,
-      confirmButtonText: request.buttonTitleConfirmed,
+      cancelButtonText: widget.request.buttonTitleCancelled,
+      confirmButtonText: widget.request.buttonTitleConfirmed,
+      isLoading: _isLoading,
       onCancel: () {
-        Router.neglect(context, () => context.safePop());
+        if (!_isLoading) {
+          Router.neglect(context, () => context.safePop());
+        }
       },
       onConfirm: () async {
-        if (request.functionConfirmed != null) {
-          await request.functionConfirmed!(null);
-        }
-        if (request.redirectConfirmed != null) {
-          logFirebaseEvent('Button_navigate_to');
-          context.goNamed(
-            request.redirectConfirmed!,
-            extra: <String, dynamic>{
-              kTransitionInfoKey: const TransitionInfo(
-                hasTransition: true,
-                transitionType: PageTransitionType.fade,
-                duration: Duration(milliseconds: 0),
-              ),
-            },
+        // Set loading state
+        setState(() {
+          _isLoading = true;
+        });
+
+        try {
+          // Execute the async function if provided
+          if (widget.request.functionConfirmed != null) {
+            await widget.request.functionConfirmed!(null);
+          }
+
+          // Navigate or pop after successful execution
+          if (!mounted) return;
+          
+          if (widget.request.redirectConfirmed != null) {
+            logFirebaseEvent('Button_navigate_to');
+            context.goNamed(
+              widget.request.redirectConfirmed!,
+              extra: <String, dynamic>{
+                kTransitionInfoKey: const TransitionInfo(
+                  hasTransition: true,
+                  transitionType: PageTransitionType.fade,
+                  duration: Duration(milliseconds: 0),
+                ),
+              },
+            );
+          } else {
+            Router.neglect(context, () => context.safePop());
+          }
+        } catch (e) {
+          // Handle errors gracefully
+          if (!mounted) return;
+          
+          setState(() {
+            _isLoading = false;
+          });
+          
+          // Show error snackbar or dialog
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('An error occurred: ${e.toString()}'),
+              backgroundColor: colorScheme.error,
+            ),
           );
-        } else {
-          Router.neglect(context, () => context.safePop());
         }
       },
     );
   }
-}
 
 class DialogFormWidget extends StatefulWidget {
   final AlertFormRequest request;
@@ -291,6 +320,7 @@ class DialogFormWidget extends StatefulWidget {
 class _DialogFormWidgetState extends State<DialogFormWidget> {
   late List<Future<FormInformation>> _formInformation;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -340,33 +370,66 @@ class _DialogFormWidgetState extends State<DialogFormWidget> {
                     color: colorScheme.surface,
                     surfaceTintColor: colorScheme.surfaceTint,
                     borderRadius: BorderRadius.circular(16),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            widget.request.title,
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: colorScheme.onSurface,
-                            ),
-                            textAlign: TextAlign.center,
+                    child: Stack(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                widget.request.title,
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onSurface,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 24),
+                              Text(
+                                widget.request.description,
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: colorScheme.onSurface,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 32),
+                              _buildFormSection(context, theme, colorScheme),
+                              const SizedBox(height: 32),
+                              _buildActionButtons(context, theme, colorScheme),
+                            ],
                           ),
-                          const SizedBox(height: 24),
-                          Text(
-                            widget.request.description,
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: colorScheme.onSurface,
+                        ),
+                        // Loading overlay
+                        if (_isLoading)
+                          Positioned.fill(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: colorScheme.surface.withValues(alpha: 0.8),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        colorScheme.primary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'Processing...',
+                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                        color: colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                            textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 32),
-                          _buildFormSection(context, theme, colorScheme),
-                          const SizedBox(height: 32),
-                          _buildActionButtons(context, theme, colorScheme),
-                        ],
-                      ),
+                      ],
                     ),
                   ),
                 ),
@@ -426,58 +489,74 @@ class _DialogFormWidgetState extends State<DialogFormWidget> {
     return FutureBuilder<List<FormInformation>>(
       future: Future.wait(_formInformation),
       builder: (BuildContext context, AsyncSnapshot<List<FormInformation>> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return DialogActionButtons(
-            cancelButtonText: widget.request.buttonTitleCancelled,
-            confirmButtonText: widget.request.buttonTitleConfirmed,
-            onCancel: () {
-              Router.neglect(context, () => context.safePop());
-            },
-            onConfirm: () {},
-            isLoading: true,
-          );
-        }
-        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-          return DialogActionButtons(
-            cancelButtonText: widget.request.buttonTitleCancelled,
-            confirmButtonText: widget.request.buttonTitleConfirmed,
-            onCancel: () {
-              Router.neglect(context, () => context.safePop());
-            },
-            onConfirm: () {},
-            isConfirmEnabled: false,
-          );
-        }
+        final bool isFormReady = snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData &&
+            snapshot.data!.isNotEmpty;
 
         return DialogActionButtons(
           cancelButtonText: widget.request.buttonTitleCancelled,
           confirmButtonText: widget.request.buttonTitleConfirmed,
+          isLoading: _isLoading,
+          isConfirmEnabled: isFormReady,
           onCancel: () {
-            Router.neglect(context, () => context.safePop());
-          },
-          onConfirm: () async {
-            if (_formKey.currentState?.validate() ?? false) {
-              List<dynamic> formValues = snapshot.data!.map((inf) => inf.result()).toList();
-              if (widget.request.functionConfirmed != null) {
-                await widget.request.functionConfirmed!(formValues);
-              }
-              if (widget.request.redirectConfirmed != null) {
-                logFirebaseEvent('Button_navigate_to');
-                context.goNamed(
-                  widget.request.redirectConfirmed!,
-                  extra: <String, dynamic>{
-                    kTransitionInfoKey: const TransitionInfo(
-                      hasTransition: true,
-                      transitionType: PageTransitionType.fade,
-                      duration: Duration(milliseconds: 0),
-                    ),
-                  },
-                );
-              } else {
-                Router.neglect(context, () => context.safePop());
-              }
+            if (!_isLoading) {
+              Router.neglect(context, () => context.safePop());
             }
           },
+          onConfirm: isFormReady
+              ? () async {
+                  if (_formKey.currentState?.validate() ?? false) {
+                    // Set loading state
+                    setState(() {
+                      _isLoading = true;
+                    });
+
+                    try {
+                      List<dynamic> formValues =
+                          snapshot.data!.map((inf) => inf.result()).toList();
+
+                      // Execute the async function if provided
+                      if (widget.request.functionConfirmed != null) {
+                        await widget.request.functionConfirmed!(formValues);
+                      }
+
+                      // Navigate or pop after successful execution
+                      if (!mounted) return;
+
+                      if (widget.request.redirectConfirmed != null) {
+                        logFirebaseEvent('Button_navigate_to');
+                        context.goNamed(
+                          widget.request.redirectConfirmed!,
+                          extra: <String, dynamic>{
+                            kTransitionInfoKey: const TransitionInfo(
+                              hasTransition: true,
+                              transitionType: PageTransitionType.fade,
+                              duration: Duration(milliseconds: 0),
+                            ),
+                          },
+                        );
+                      } else {
+                        Router.neglect(context, () => context.safePop());
+                      }
+                    } catch (e) {
+                      // Handle errors gracefully
+                      if (!mounted) return;
+
+                      setState(() {
+                        _isLoading = false;
+                      });
+
+                      // Show error snackbar
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('An error occurred: ${e.toString()}'),
+                          backgroundColor: colorScheme.error,
+                        ),
+                      );
+                    }
+                  }
+                }
+              : () {}, // Empty callback when form is not ready
         );
       },
     );
