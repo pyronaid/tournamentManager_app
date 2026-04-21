@@ -143,7 +143,9 @@ class _DialogWidgetState extends State<DialogWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final extra = GoRouterState.of(context).extra;
+    final extra = GoRouterState
+        .of(context)
+        .extra;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -248,7 +250,8 @@ class _DialogWidgetState extends State<DialogWidget> {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
+  Widget _buildActionButtons(BuildContext context, ThemeData theme,
+      ColorScheme colorScheme) {
     return DialogActionButtons(
       cancelButtonText: widget.request.buttonTitleCancelled,
       confirmButtonText: widget.request.buttonTitleConfirmed,
@@ -272,7 +275,7 @@ class _DialogWidgetState extends State<DialogWidget> {
 
           // Navigate or pop after successful execution
           if (!mounted) return;
-          
+
           if (widget.request.redirectConfirmed != null) {
             logFirebaseEvent('Button_navigate_to');
             context.goNamed(
@@ -291,11 +294,11 @@ class _DialogWidgetState extends State<DialogWidget> {
         } catch (e) {
           // Handle errors gracefully
           if (!mounted) return;
-          
+
           setState(() {
             _isLoading = false;
           });
-          
+
           // Show error snackbar or dialog
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -307,6 +310,7 @@ class _DialogWidgetState extends State<DialogWidget> {
       },
     );
   }
+}
 
 class DialogFormWidget extends StatefulWidget {
   final AlertFormRequest request;

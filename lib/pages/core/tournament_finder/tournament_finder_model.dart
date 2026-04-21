@@ -13,7 +13,22 @@ import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.d
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../app_flow/app_flow_widgets.dart';
 import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
+
+class ClusterGradientData {
+  const ClusterGradientData({
+    required this.colors,
+    required this.stops,
+  }) : assert(
+  colors.length == stops.length,
+  'colors and stops must have the same length',
+  );
+
+  final List<Color> colors;
+  final List<double> stops;
+}
+
 
 class TournamentFinderModel extends ChangeNotifier {
 
@@ -90,6 +105,7 @@ class TournamentFinderModel extends ChangeNotifier {
   //////////////////////////////PANEL AREA
   late PanelController _panelController;
   late ScrollController _scrollController;
+  late bool _mapInteractive;
 
 
   /////////////////////////////CONSTRUCTOR
@@ -113,29 +129,26 @@ class TournamentFinderModel extends ChangeNotifier {
 
     _panelController = PanelController();
     _scrollController = ScrollController();
+    _mapInteractive = true;
 
     fetchObjects();
   }
 
   /////////////////////////////GETTER
-  MapController get mapController{
-    return _mapController;
-  }
-  LatLng get initialLocation{
-    return _firstLocation;
-  }
-  String? get selectedMarkerId{
-    return _selectedMarkerId;
-  }
-  PanelController get panelController{
-    return _panelController;
-  }
-  ScrollController get scrollController{
-    return _scrollController;
-  }
+  MapController get mapController => _mapController;
+  LatLng get initialLocation => _firstLocation;
+  String? get selectedMarkerId => _selectedMarkerId;
+  PanelController get panelController => _panelController;
+  ScrollController get scrollController => _scrollController;
+  bool get isMapInteractive => _mapInteractive;
 
 
   /////////////////////////////SETTER
+  void setMapInteractive(bool value) {
+    if (_mapInteractive == value) return; // avoid unnecessary notifyListeners
+    _mapInteractive = value;
+    notifyListeners();
+  }
   Future<void> setLocation() async {
     _firstLocation = const LatLng(45.464664, 9.188540);
     final location = Location();
@@ -328,6 +341,45 @@ class TournamentFinderModel extends ChangeNotifier {
     tournamentsListRefObjToDetail = updateObjsToDetail();
     notifyListeners();
   }
+  ClusterGradientData buildClusterGradient(List<Marker> markers) {
+    final Map<Game, double> percentageMap = markers.map((m) => (m as CustomMarker).game).fold(
+      {},
+      (map, game) => map..update(
+        game,
+        (count) => count + 1,
+        ifAbsent: () => 1,
+      ),
+    );
+    final List<Color> colors = [];
+    final List<double> stops = [];
+    double cursor = 0.0;
+    final int total = markers.length;
+    final entries = percentageMap.entries.toList();
+
+    for (int i = 0; i < entries.length; i++) {
+      final Game game = entries[i].key;
+      final double sliceSize = entries[i].value / total;
+      final bool isLast = i == entries.length - 1;
+
+      // Start of this colour band
+      colors.add(game.color);
+      stops.add(cursor);
+      // End of this colour band
+      final double end = isLast ? 1.0 : cursor + sliceSize;
+      colors.add(game.color);
+      stops.add(end);
+      cursor = end;
+    }
+
+    assert(
+      colors.length == stops.length,
+      'buildClusterGradient: length mismatch — '
+      'colors=${colors.length}, stops=${stops.length}',
+    );
+
+    return ClusterGradientData(colors: colors, stops: stops);
+  }
+
 
   @override
   void dispose() {
