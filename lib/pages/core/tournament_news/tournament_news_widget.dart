@@ -11,6 +11,17 @@ import 'package:tournamentmanager/pages/core/tournament_news/tournament_news_mod
 import '../../../components/generic_loading/generic_loading_widget.dart';
 import '../../../components/no_tournament_news_card/no_tournament_news_card_widget.dart';
 
+// ---------------------------------------------------------------------------
+// DIMENSION CONSTANTS
+// ---------------------------------------------------------------------------
+abstract class _Dims {
+  /// Extra space at the bottom of the news list so the last card is not
+  /// hidden behind the FAB.
+  static const double listBottomSpacing = 100.0;
+
+  /// Top padding before the first news card.
+  static const double listTopPadding = 20.0;
+}
 
 class TournamentNewsWidget extends StatefulWidget {
   const TournamentNewsWidget({super.key});
@@ -19,134 +30,176 @@ class TournamentNewsWidget extends StatefulWidget {
   State<TournamentNewsWidget> createState() => _TournamentNewsWidgetState();
 }
 
-
 class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
-
-  late TournamentNewsModel tournamentNewsModel;
-
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _unfocusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-
-    //logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentDetail'});
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-
-    tournamentNewsModel = context.read<TournamentNewsModel>();
-  }
-
-  @override
-  void dispose() {
-    _unfocusNode.dispose();
-    super.dispose();
-  }
+  final _scaffoldKey  = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_unfocusNode)
-          : FocusScope.of(context).unfocus(),
-      child: Consumer<TournamentNewsModel>(
-        builder: (context, providerTournamentNews, _) {
-          print("[BUILD IN CORSO] tournament_news_widget.dart");
-          if (providerTournamentNews.isLoading) {
-            return Scaffold(
-              key: _scaffoldKey,
-              backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-              body: const SafeArea(
-                top: true,
-                child: SingleChildScrollView(
-                  child: Center(child: CircularProgressIndicator())
-                ),
-              ),
-            );
-          }
+      // FIX [warning]: unfocus via FocusScope directly — no FocusNode needed.
+      onTap: () => FocusScope.of(context).unfocus(),
+      // ── Single, stable Scaffold ────────────────────────────────────────────
+      // The Scaffold never rebuilds. Only the widgets inside it that are
+      // wrapped in Selector/Consumer rebuild when the model changes.
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: CustomFlowTheme.of(context).primaryBackground,
 
-          return Scaffold(
-            key: _scaffoldKey,
-            backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-            floatingActionButton: providerTournamentNews.canInteractOn ? FloatingActionButton(
-              heroTag: 'news_add',
-              backgroundColor: CustomFlowTheme.of(context).primary,
-              onPressed: (){
-                context.pushNamedAuth(
-                  'CreateEditNews', context.mounted,
-                  pathParameters: {
-                    'newsId': 'NEW',
-                    'tournamentId': providerTournamentNews.tournamentModel.tournamentsRef,
-                  }.withoutNulls,
-                  extra: {
-                    'createEditFlag': true,
-                    'provider': providerTournamentNews.tournamentModel,
-                  },
-                );
-              },
-              child: Icon(
-                Icons.add,
-                color: CustomFlowTheme.of(context).info,
-              ),
-            ) : null,
-            body: SafeArea(
-              top: true,
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  await providerTournamentNews.onRefresh();
-                },
-                child: CustomScrollView(
-                  slivers: [
-                    // use sliver padding if needed https://api.flutter.dev/flutter/widgets/SliverPadding-class.html
+        // ── FAB: rebuilds only when canInteractOn changes ──────────────────
+        floatingActionButton: Selector<TournamentNewsModel, bool>(
+          selector: (_, m) => m.canInteractOn,
+          builder: (context, canInteract, _) =>
+          canInteract ? _AddNewsFab() : const SizedBox.shrink(),
+        ),
 
-                    ////////////////
-                    //NEWS SECTION HEADER
-                    /////////////////
+        body: SafeArea(
+          top: true,
+          // ── Loading gate: rebuilds only when isLoading changes ────────────
+          child: Selector<TournamentNewsModel, bool>(
+            selector: (_, m) => m.isLoading,
+            builder: (context, isLoading, _) {
+              assert(() {
+                debugPrint('[BUILD] tournament_news_widget.dart');
+                return true;
+              }());
 
-
-                    ////////////////
-                    //NEWS SECTION INF LIST
-                    /////////////////
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                      sliver: PagedSliverList<int, NewsRecord>(
-                        pagingController: providerTournamentNews.pagingControllerNews,
-                        builderDelegate: PagedChildBuilderDelegate<NewsRecord>(
-                          itemBuilder: (context, item, index) => TournamentNewsCardWidget(
-                            key: Key('Keykia_${item.uid}_position_${index}_of_news'),
-                            //last: index == (providerMyTournaments.pagingControllerActive.itemList!.length - 1),
-                            newsRef: item,
-                            indexo: index,
-                            interactable: providerTournamentNews.canInteractOn,
-                            deleteFun: (newsId) => providerTournamentNews.deleteNews(newsId),
-                          ),
-                          firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-                          noItemsFoundIndicatorBuilder: (_) => const NoTournamentNewsCardWidget(
-                            active: true,
-                            phrase: "Nessuna notizia pubblicata",
-                          ),
-                          newPageProgressIndicatorBuilder: (_) => const Center(child: CircularProgressIndicator()),
-                        ),
-                        shrinkWrapFirstPageIndicators: true,
-                      ),
-                    ),
-
-                    ////////////////
-                    //NEWS SECTION END
-                    /////////////////
-                    SliverToBoxAdapter(
-                      child: SizedBox(
-                        height: 100,
-                        width: 100.w,
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );
-        }
+              if (isLoading) return const _LoadingBody();
+              return const _NewsBody();
+            },
+          ),
+        ),
       ),
+    );
+  }
+}
+
+
+// ---------------------------------------------------------------------------
+// FAB
+// Extracted so it can be tested and reused independently.
+// The model is read inside the widget to keep the parent Scaffold stable.
+// ---------------------------------------------------------------------------
+
+class _AddNewsFab extends StatelessWidget {
+  // ignore: prefer_const_constructors_in_immutables — parent Selector rebuilds
+  _AddNewsFab();
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.read<TournamentNewsModel>();
+
+    return FloatingActionButton(
+      // heroTag must be unique across the widget tree to avoid Hero conflicts
+      // when navigating between tabs that each have a FAB.
+      heroTag: 'news_add',
+      backgroundColor: CustomFlowTheme.of(context).primary,
+      onPressed: () {
+        // Guard: ensure the widget is still mounted before navigating.
+        if (!context.mounted) return;
+        context.pushNamedAuth(
+          'CreateEditNews',
+          // ignore: use_build_context_synchronously — guard above covers this
+          context.mounted,
+          pathParameters: {
+            'newsId': 'NEW',
+            'tournamentId': model.tournamentModel.tournamentsRef,
+          }.withoutNulls,
+          extra: {
+            'createEditFlag': true,
+            'provider': model.tournamentModel,
+          },
+        );
+      },
+      child: Icon(Icons.add, color: CustomFlowTheme.of(context).info),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// LOADING BODY
+// Simple centred indicator — no unnecessary scroll wrapper.
+// ---------------------------------------------------------------------------
+class _LoadingBody extends StatelessWidget {
+  const _LoadingBody();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: CircularProgressIndicator());
+  }
+}
+
+// ---------------------------------------------------------------------------
+// NEWS BODY
+// Owns the pull-to-refresh + infinite-scroll list.
+// The PagingController is owned by the model, so this widget is stateless.
+// ---------------------------------------------------------------------------
+
+class _NewsBody extends StatelessWidget {
+  const _NewsBody();
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.read<TournamentNewsModel>();
+
+    return RefreshIndicator(
+      onRefresh: model.onRefresh,
+      child: CustomScrollView(
+        slivers: [
+          // ── News list ────────────────────────────────────────────────────
+          SliverPadding(
+            padding: const EdgeInsets.only(top: _Dims.listTopPadding),
+            sliver: _NewsSliverList(model: model),
+          ),
+
+          // ── Bottom spacer (keeps last card above the FAB) ─────────────
+          const SliverToBoxAdapter(
+            child: SizedBox(
+              height: _Dims.listBottomSpacing,
+              width: double.infinity,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// NEWS SLIVER LIST
+// Encapsulates PagedSliverList and its delegate configuration.
+// Keeping this separate makes it easy to swap the pagination library later.
+// ---------------------------------------------------------------------------
+
+class _NewsSliverList extends StatelessWidget {
+  const _NewsSliverList({required this.model});
+
+  final TournamentNewsModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    return PagedSliverList<int, NewsRecord>(
+      pagingController: model.pagingControllerNews,
+      builderDelegate: PagedChildBuilderDelegate<NewsRecord>(
+        // ── Item builder ────────────────────────────────────────────────
+        itemBuilder: (context, item, index) => TournamentNewsCardWidget(
+          // ValueKey is more type-safe and readable than the raw Key ctor.
+          key: ValueKey('news_${item.uid}_$index'),
+          newsRef: item,
+          indexo: index,
+          interactable: model.canInteractOn,
+          deleteFun: model.deleteNews,
+        ),
+
+        // ── Placeholder states ──────────────────────────────────────────
+        firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
+        noItemsFoundIndicatorBuilder: (_) => const NoTournamentNewsCardWidget(
+          active: true,
+          phrase: 'Nessuna notizia pubblicata',
+        ),
+        newPageProgressIndicatorBuilder: (_) =>
+        const Center(child: CircularProgressIndicator()),
+      ),
+      shrinkWrapFirstPageIndicators: true,
     );
   }
 }
