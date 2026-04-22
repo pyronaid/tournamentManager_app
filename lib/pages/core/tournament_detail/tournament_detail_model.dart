@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
@@ -6,6 +7,61 @@ import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_auth_util.dart
 import 'package:tournamentmanager/backend/schema/enrollments_record.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 import 'package:tuple/tuple.dart';
+
+// ---------------------------------------------------------------------------
+// 1. DATA CLASS  –  EnrollmentCheckResult
+//
+// Named fields make call-sites self-documenting and safe to refactor.
+// ---------------------------------------------------------------------------
+
+/// Result returned by [TournamentDetailModel.currentUserEnrolledCheck].
+///
+/// - [count]       total number of enrollments found for the current user in
+///                 this tournament (0 = not enrolled).
+/// - [enrollments] the actual records, available for further inspection if
+///                 needed (e.g. to distinguish pre-reg from confirmed).
+class EnrollmentCheckResult {
+  const EnrollmentCheckResult({
+    required this.count,
+    required this.enrollments,
+  });
+
+  final int count;
+  final List<EnrollmentsRecord> enrollments;
+
+  /// Convenience getter – mirrors the previous `snapshot.data?.item1 == 0`
+  /// check that was scattered through the widget.
+  bool get isNotEnrolled => count == 0;
+}
+
+// ---------------------------------------------------------------------------
+// 2. ENUM  –  RegistrationStatus
+//
+// Every possible state the registration section can be in.
+// The widget performs a simple `switch` on this value; no business logic
+// leaks into the UI layer.
+// ---------------------------------------------------------------------------
+
+/// Drives the registration section of the tournament detail screen.
+enum RegistrationStatus {
+  /// User can pre-register (capacity not reached, pre-reg enabled).
+  canRegister,
+
+  /// Capacity is full but waiting list is enabled.
+  canJoinWaiting,
+
+  /// User is already enrolled (pre-reg or confirmed).
+  alreadyEnrolled,
+
+  /// Capacity full, waiting list disabled.
+  tournamentFull,
+
+  /// Pre-registration is not enabled for this tournament.
+  preRegDisabled,
+}
+
+
+
 
 class TournamentDetailModel extends ChangeNotifier {
 
@@ -59,10 +115,39 @@ class TournamentDetailModel extends ChangeNotifier {
   DateTime? get lastUpdated => _lastUpdated;
   bool get isTournamentEditable => tournamentModel.isTournamentEditable && tournamentModel.tournamentOwner == currentUserUid;
   bool get canInteractOn => tournamentModel.tournamentOwner == currentUserUid;
-  Future<Tuple2<int,List<EnrollmentsRecord>>>? get currentUserEnrolledCheck => EnrollmentsRecord.getDocumentsOnce(pb, false, "${EnrollmentsRecord.idTournamentFieldName} = '${tournamentModel.tournamentId}' && ${EnrollmentsRecord.idUserFieldName} = '$currentUserUid'");
+  Future<EnrollmentCheckResult>? get currentUserEnrolledCheck async {
+    Tuple2<int,List<EnrollmentsRecord>> check = await EnrollmentsRecord.getDocumentsOnce(pb, true, "${EnrollmentsRecord.idTournamentFieldName} = '${tournamentModel.tournamentId}' && ${EnrollmentsRecord.idUserFieldName} = '$currentUserUid'");
+    return EnrollmentCheckResult(count: check.item1, enrollments: check.item2);
+  }
 
 
   /////////////////////////////SETTER
+  RegistrationStatus resolveRegistrationStatus(EnrollmentCheckResult enrollmentCheckResult) {
+    final t = tournamentModel;
+
+    // ── Already enrolled? ────────────────────────────────────────────────────
+    if (!enrollmentCheckResult.isNotEnrolled) {
+      return RegistrationStatus.alreadyEnrolled;
+    }
+
+    // ── Pre-registration gate ────────────────────────────────────────────────
+    if (!t.tournamentPreRegistrationEn) {
+      return RegistrationStatus.preRegDisabled;
+    }
+
+    // ── Capacity check ───────────────────────────────────────────────────────
+    final capacityUnlimited = t.tournamentCapacityInt == 0;
+    final hasRoom = t.tournamentCurrentSize < t.tournamentCapacityInt;
+
+    if (capacityUnlimited || hasRoom) {
+      return RegistrationStatus.canRegister;
+    }
+
+    // ── Tournament is full ───────────────────────────────────────────────────
+    return t.tournamentWaitingListEn
+        ? RegistrationStatus.canJoinWaiting
+        : RegistrationStatus.tournamentFull;
+  }
   AlertRequest showChangeTournamentStateAlertRequest(String newState){
     AlertRequest req = AlertRequest(
       title: 'Cambia Stato del torneo',
@@ -181,4 +266,6 @@ class TournamentDetailModel extends ChangeNotifier {
   void dispose() {
     super.dispose();
   }
+
+
 }

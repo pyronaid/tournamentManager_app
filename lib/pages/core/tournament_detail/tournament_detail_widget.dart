@@ -10,11 +10,27 @@ import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/components/tournament_winner_card/tournament_winner_card_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_model.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
-import 'package:tuple/tuple.dart';
 
 import '../../../app_flow/app_flow_widgets.dart';
 import '../../../auth/pocketbase_auth/pocketbase_users_record.dart';
-import '../../../backend/schema/enrollments_record.dart';
+
+// ---------------------------------------------------------------------------
+// DIMENSION CONSTANTS
+// Centralise all magic numbers to make future adjustments trivial.
+// ---------------------------------------------------------------------------
+abstract class _Dims {
+  static const double avatarSize        = 130.0;
+  static const double avatarRadius      = 61.0;
+  static const double editBadgeRadius   = 15.0;
+  static const double editIconSize      = 18.0;
+  static const double nameBadgeRadius   = 10.0;
+  static const double nameBadgeIconSize = 10.0;
+  static const double blurSigma         = 10.0;
+  static const double borderWidth       = 4.0;
+  static const double settingsBorder    = 1.0;
+  static const double buttonHeight      = 50.0;
+  static const double buttonRadius      = 25.0;
+}
 
 
 class TournamentDetailWidget extends StatefulWidget {
@@ -24,906 +40,651 @@ class TournamentDetailWidget extends StatefulWidget {
   State<TournamentDetailWidget> createState() => _TournamentDetailWidgetState();
 }
 
-
 class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
+  final _scaffoldKey  = GlobalKey<ScaffoldState>();
 
-  late TournamentDetailModel tournamentDetailModel;
-
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _unfocusNode = FocusNode();
+  // Cache the future once so FutureBuilder never recreates it on rebuild.
+  // The future itself is owned by the model; we just grab a stable reference.
+  late Future<EnrollmentCheckResult> _enrollCheckFuture;
 
   @override
   void initState() {
     super.initState();
-
-    //logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentDetail'});
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-
-    tournamentDetailModel = context.read<TournamentDetailModel>();
-  }
-
-  @override
-  void dispose() {
-    _unfocusNode.dispose();
-    super.dispose();
+    // Read (not watch) – we only need the model reference, not a subscription.
+    _enrollCheckFuture = context.read<TournamentDetailModel>().currentUserEnrolledCheck!;
   }
 
   @override
   Widget build(BuildContext context) {
-
     return GestureDetector(
-      onTap: () => _unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_unfocusNode)
-          : FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-        body: SafeArea(
-          top: true,
-          child:  SingleChildScrollView(
-            child: Consumer<TournamentDetailModel>(
-              builder: (context, providerTournamentDetail, _){
-                debugPrint("[BUILD IN CORSO] tournament_detail_widget.dart");
-                if(providerTournamentDetail.isLoading){
-                  return const Center(child: CircularProgressIndicator());
-                }
+      // FIX [warning]: unfocus via FocusScope directly — no FocusNode needed.
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Consumer<TournamentDetailModel>(
+        builder: (context, model, _) {
+          // FIX [warning]: replaced print() with debugPrint(), gated on
+          //   kDebugMode so it is stripped in release builds.
+          assert(() {
+            debugPrint('[BUILD] tournament_detail_widget.dart');
+            return true;
+          }());
 
-                return Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ////////////////
-                    //TITLE AREA
-                    /////////////////
-                    Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 10),
-                      child: Container(
-                        constraints: BoxConstraints(
-                            minHeight: 35.h
-                        ),
-                        child: Stack(
-                          children: [
-                            // Background Image
-                            Positioned.fill(
-                              child: Image.asset(
-                                providerTournamentDetail.tournamentModel.tournamentGame.resource,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            // Blurred Effect
-                            Positioned.fill(
-                              child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                                child: Container(color: Colors.black.withValues(alpha: 0.1)), // Optional: Adds a color overlay
-                              ),
-                            ),
-                            // Content
-                            Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Column(
-                                    children: [
-                                      ////////////////
-                                      //TITLE AREA -- LOGO CIRCLE EDITABLE
-                                      /////////////////
-                                      Stack(
-                                        children: [
-                                          Container(
-                                            width: 130,
-                                            height: 130,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: CustomFlowTheme.of(context).primary, // Border color
-                                                width: 4.0, // Border width
-                                              ),
-                                            ),
-                                            child: CircleAvatar(
-                                              radius: 61,
-                                              backgroundImage: providerTournamentDetail.tournamentModel.tournamentImageUrl == null ? const AssetImage('assets/images/icons/default_tournament.png') : NetworkImage(providerTournamentDetail.tournamentModel.tournamentImageUrl!),
-                                            ),
-                                          ),
-                                          if(providerTournamentDetail.isTournamentEditable)
-                                            Positioned(
-                                              bottom: 5,
-                                              right: 0,
-                                              child: InkWell(
-                                                onTap: () async {
-                                                  // Add your image change logic here
-                                                  providerTournamentDetail.tournamentModel.setTournamentImage();
-                                                },
-                                                borderRadius: BorderRadius.circular(61), // Optional: To match the CircleAvatar shape
-                                                child: CircleAvatar(
-                                                  radius: 15,
-                                                  backgroundColor: CustomFlowTheme.of(context).primary,
-                                                  child: Icon(
-                                                    Icons.edit,
-                                                    size: 18,
-                                                    color: CustomFlowTheme.of(context).info,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                      ////////////////
-                                      //TITLE AREA -- NAME TOURNAMENT
-                                      /////////////////
-                                      Padding(
-                                          padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 5),
-                                          child: SizedBox(
-                                            width: 75.w,
-                                            child: Center(
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  Flexible(
-                                                    child: Text(
-                                                      providerTournamentDetail.tournamentModel.tournamentName,
-                                                      style: CustomFlowTheme.of(context).titleLarge,
-                                                      textAlign: TextAlign.center,
-                                                    ),
-                                                  ),
-                                                  if(providerTournamentDetail.isTournamentEditable)
-                                                    Padding(
-                                                      padding: const EdgeInsetsDirectional.fromSTEB(5, 0, 0, 20),
-                                                      child: InkWell(
-                                                        onTap: () {
-                                                          context.goNamed(
-                                                            'DialogChangeTournamentName',
-                                                            pathParameters: {
-                                                              'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
-                                                            }.withoutNulls,
-                                                            extra: {
-                                                              'req' : tournamentDetailModel.showChangeTournamentNameFormRequest(),
-                                                            }
-                                                          );
-                                                        },
-                                                        borderRadius: BorderRadius.circular(61), // Optional: To match the CircleAvatar shape
-                                                        child: CircleAvatar(
-                                                          radius: 10,
-                                                          backgroundColor: CustomFlowTheme.of(context).primary,
-                                                          child: Icon(
-                                                            Icons.edit,
-                                                            size: 10,
-                                                            color: CustomFlowTheme.of(context).info,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    )
-                                                ],
-                                              ),
-                                            ),
-                                          )
-                                      ),
-                                      ////////////////
-                                      //TITLE AREA -- GAME
-                                      /////////////////
-                                      Padding(
-                                          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 5),
-                                          child: SizedBox(
-                                            width: 75.w,
-                                            child: Center(
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  Flexible(
-                                                    child: Text(
-                                                      providerTournamentDetail.tournamentModel.tournamentGame.desc,
-                                                      style: CustomFlowTheme.of(context).titleSmall,
-                                                      textAlign: TextAlign.center,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          )
-                                      ),
-                                    ],
-                                  ),
-                                  ////////////////
-                                  //COUNTERS AREA
-                                  /////////////////
-                                  Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      ////////////////
-                                      //COUNTERS AREA -- SX
-                                      /////////////////
-                                      const Text("quattro"),
-                                      ////////////////
-                                      //COUNTERS AREA -- DX
-                                      /////////////////
-                                      Padding(
-                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 20, 0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.end,
-                                          children: [
-                                            if(providerTournamentDetail.tournamentModel.tournamentPreRegistrationEn)
-                                              Text.rich(
-                                                textAlign: TextAlign.right,
-                                                TextSpan(
-                                                    children: [
-                                                      TextSpan(
-                                                        text: providerTournamentDetail.tournamentModel.tournamentPreRegisteredSize.toString(),
-                                                        style: CustomFlowTheme.of(context).headlineSmall,
-                                                      ),
-                                                      TextSpan(
-                                                        text: ' Pre iscritti',
-                                                        style: CustomFlowTheme.of(context).bodySmall,
-                                                      ),
-                                                    ]
-                                                ),
-                                              ),
-                                            if(providerTournamentDetail.tournamentModel.tournamentWaitingListEn)
-                                              Text.rich(
-                                                textAlign: TextAlign.right,
-                                                TextSpan(
-                                                    children: [
-                                                      TextSpan(
-                                                        text: providerTournamentDetail.tournamentModel.tournamentWaitingSize.toString(),
-                                                        style: CustomFlowTheme.of(context).headlineSmall,
-                                                      ),
-                                                      TextSpan(
-                                                        text: ' Waiting list',
-                                                        style: CustomFlowTheme.of(context).bodySmall,
-                                                      ),
-                                                    ]
-                                                ),
-                                              ),
-                                            Text.rich(
-                                              textAlign: TextAlign.right,
-                                              TextSpan(
-                                                  children: [
-                                                    TextSpan(
-                                                      text: providerTournamentDetail.tournamentModel.tournamentRegisteredSize.toString(),
-                                                      style: CustomFlowTheme.of(context).headlineSmall,
-                                                    ),
-                                                    TextSpan(
-                                                      text: ' Iscritti',
-                                                      style: CustomFlowTheme.of(context).bodySmall,
-                                                    ),
-                                                  ]
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    ////////////////
-                    //SETTINGS AREA row 1
-                    /////////////////
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ////////////////
-                        //SETTINGS AREA -- State dropdown
-                        /////////////////
-                        Container(
-                          width: 33.w,
-                          height: 30.sp,
-                          decoration: BoxDecoration(
-                            color: CustomFlowTheme.of(context).info, // Background color
-                            border: Border.all(
-                              color: CustomFlowTheme.of(context).alternate,
-                              width: 1, // Border width
-                            ),
-                          ),
-                          child: DropdownButton<String>(
-                            alignment: Alignment.center,
-                            padding: const EdgeInsetsDirectional.fromSTEB(0, 5, 0, 5),
-                            value: providerTournamentDetail.tournamentModel.tournamentState.name,
-                            isExpanded: true,
-                            icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
-                            iconSize: 30,
-                            onChanged: providerTournamentDetail.canInteractOn ? (String? newValue){
-                              if (newValue != null) {
-                                context.goNamed(
-                                  'DialogState',
-                                  pathParameters: {
-                                    'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
-                                  }.withoutNulls,
-                                  extra: {
-                                    'req' : tournamentDetailModel.showChangeTournamentStateAlertRequest(newValue),
-                                  }
-                                );
-                              }
-                            } : null,
-                            underline: const SizedBox(), // Remove the default underline
-                            items: StateTournament.values
-                                .where((StateTournament state){
-                              if(state.indexState == 0 || state.indexState > (providerTournamentDetail.tournamentModel.tournamentState.indexState+1) || state.indexState < (providerTournamentDetail.tournamentModel.tournamentState.indexState-1)){
-                                return false;
-                              }
-                              return true;
-                            })
-                                .map((StateTournament state){
-                              return DropdownMenuItem<String>(
-                                value: state.name,
-                                child: Text(
-                                  state.desc,
-                                  style: TextStyle(
-                                    color: state.indexState == providerTournamentDetail.tournamentModel.tournamentState.indexState ? CustomFlowTheme.of(context).primary : CustomFlowTheme.of(context).info,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                            selectedItemBuilder: (BuildContext context) {
-                              return StateTournament.values
-                                  .where((StateTournament state){
-                                if(state.indexState == 0 || state.indexState > (providerTournamentDetail.tournamentModel.tournamentState.indexState+1) || state.indexState < (providerTournamentDetail.tournamentModel.tournamentState.indexState-1)){
-                                  return false;
-                                }
-                                return true;
-                              })
-                                  .map<Widget>((StateTournament value) {
-                                return Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'STATO',
-                                      style: CustomFlowTheme.of(context).titleMedium.override(color: Colors.black),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    const SizedBox(height: 1),
-                                    Text(
-                                      value.desc,
-                                      style: CustomFlowTheme.of(context).titleSmall.override(color: Colors.grey),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                );
-                              }).toList();
-                            },
-                          ),
-                        ),
-                        ////////////////
-                        //SETTINGS AREA -- Date dropdown like
-                        /////////////////
-                        InkWell(
-                          onTap: () {
-                            if(providerTournamentDetail.isTournamentEditable) {
-                              _showChangeTournamentDatePicker(context, providerTournamentDetail.tournamentModel);
-                            }
-                          },
-                          child: Container(
-                            width: 33.w,
-                            height: 30.sp,
-                            decoration: BoxDecoration(
-                              color: providerTournamentDetail.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
-                              border: Border.all(
-                                color: CustomFlowTheme.of(context).alternate,
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 5, 0, 5),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'DATA',
-                                        style: CustomFlowTheme.of(context).titleMedium.override(color: Colors.black),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      const SizedBox(height: 1),
-                                      Text(
-                                        DateFormat('dd/MM/yy').format(providerTournamentDetail.tournamentModel.tournamentDate!),
-                                        style: CustomFlowTheme.of(context).labelLarge.override(
-                                          color: providerTournamentDetail.isTournamentEditable ? Colors.grey : Colors.black,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.black,
-                                  size: 30,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        ////////////////
-                        //SETTINGS AREA -- Capacity dropdown like
-                        /////////////////
-                        InkWell(
-                          onTap: () {
-                            if(providerTournamentDetail.isTournamentEditable) {
-                              context.goNamed(
-                                'DialogChangeCapacity',
-                                pathParameters: {
-                                  'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
-                                }.withoutNulls,
-                                extra: {
-                                  'req' : tournamentDetailModel.showChangeTournamentCapacityAlertFormRequest(),
-                                }
-                              );
-                            }
-                          },
-                          child: Container(
-                            width: 33.w,
-                            height: 30.sp,
-                            decoration: BoxDecoration(
-                              color: providerTournamentDetail.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
-                              border: Border.all(
-                                color: CustomFlowTheme.of(context).alternate,
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 5, 0, 5),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'CAPIENZA',
-                                        style: CustomFlowTheme.of(context).titleMedium.override(color: Colors.black),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      const SizedBox(height: 1),
-                                      Text(
-                                        providerTournamentDetail.tournamentModel.tournamentCapacity,
-                                        style: CustomFlowTheme.of(context).labelLarge.override(
-                                          color: providerTournamentDetail.isTournamentEditable ? Colors.grey : Colors.black,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.black,
-                                  size: 30,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    ////////////////
-                    //SETTINGS AREA row 2
-                    /////////////////
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ////////////////
-                        //SETTINGS AREA -- Enable pre iscrizioni
-                        /////////////////
-                        InkWell(
-                          onTap: () {
-                            if(providerTournamentDetail.isTournamentEditable) {
-                              context.goNamed(
-                                'DialogPreIscrizioni',
-                                pathParameters: {
-                                  'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
-                                }.withoutNulls,
-                                extra: {
-                                  'req' : tournamentDetailModel.showSwitchPreIscrizioniAlertRequest(),
-                                }
-                              );
-                            }
-                          },
-                          child: Container(
-                            width: 50.w,
-                            height: 30.sp,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  providerTournamentDetail.isTournamentEditable ? CustomFlowTheme.of(context).info : Colors.grey,
-                                  providerTournamentDetail.tournamentModel.tournamentPreRegistrationEn ? CustomFlowTheme.of(context).success : CustomFlowTheme.of(context).warning,
-                                ],
-                              ),
-                              color: CustomFlowTheme.of(context).info,
-                              border: Border.all(
-                                color: CustomFlowTheme.of(context).alternate,
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 10),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          'PRE ISCRIZIONI',
-                                          style: CustomFlowTheme.of(context).titleSmall.override(color: Colors.black),
-                                          textAlign: TextAlign.center,
-                                          softWrap: true,
-                                          overflow: TextOverflow.visible,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 1),
-                                      Text(
-                                        providerTournamentDetail.tournamentModel.tournamentPreRegistrationEn.toString(),
-                                        style: CustomFlowTheme.of(context).labelLarge.override(color: Colors.grey.shade900),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        ////////////////
-                        //SETTINGS AREA -- Enable waiting list
-                        /////////////////
-                        InkWell(
-                          onTap: () {
-                            if(providerTournamentDetail.isTournamentEditable) {
-                              context.goNamed(
-                                  'DialogWaitingList',
-                                  pathParameters: {
-                                    'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
-                                  }.withoutNulls,
-                                  extra: {
-                                    'req' : tournamentDetailModel.showSwitchWaitingListAlertRequest(),
-                                  }
-                              );
-                            }
-                          },
-                          child: Container(
-                            width: 50.w,
-                            height: 30.sp,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  providerTournamentDetail.tournamentModel.tournamentWaitingListPossible ? CustomFlowTheme.of(context).info : Colors.grey,
-                                  providerTournamentDetail.tournamentModel.tournamentWaitingListEn ? CustomFlowTheme.of(context).success : CustomFlowTheme.of(context).warning,
-                                ],
-                              ),
-                              color: CustomFlowTheme.of(context).info,
-                              border: Border.all(
-                                color: CustomFlowTheme.of(context).alternate,
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 10),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          'WAITING LIST',
-                                          style: CustomFlowTheme.of(context).titleSmall.override(color: Colors.black),
-                                          textAlign: TextAlign.center,
-                                          softWrap: true,
-                                          overflow: TextOverflow.visible,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 1),
-                                      Text(
-                                        providerTournamentDetail.tournamentModel.tournamentWaitingListEn.toString(),
-                                        style: CustomFlowTheme.of(context).labelLarge.override(color: Colors.grey.shade900),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    ////////////////
-                    //WINNER AREA
-                    /////////////////
-                    if(providerTournamentDetail.tournamentModel.tournamentState == StateTournament.close && providerTournamentDetail.tournamentModel.hasWinner)...[
-                      Padding(
-                        padding: const EdgeInsetsDirectional.all(20),
-                        child: Column(
-                          children: List.generate(
-                            providerTournamentDetail.tournamentModel.winner?.length ?? 0,
-                            (index) {
-                              final item = providerTournamentDetail.tournamentModel.winner?[index];
-                              if(item[PocketbaseUser.idFieldName] != null) {
-                                return TournamentWinnerCardWidget(
-                                  name: item[PocketbaseUser.nameFieldName],
-                                  surname: item[PocketbaseUser.surnameFieldName],
-                                  username: item[PocketbaseUser.usernameFieldName],
-                                  userId: item[PocketbaseUser.idFieldName],
-                                );
-                              } else {
-                                return const SizedBox();
-                              }
-                            },
-                          ),
-                        )
-                      )
-                    ],
-                    //REGISTER BUTTON AREA
-                    ////////////////
-                    /////////////////
-                    if(providerTournamentDetail.tournamentModel.tournamentState == StateTournament.ready && !providerTournamentDetail.tournamentModel.hasWinner)...[
-                      Padding(
-                        padding: const EdgeInsetsDirectional.all(20),
-                        child: FutureBuilder<Tuple2<int, List<EnrollmentsRecord>>>(
-                          future: providerTournamentDetail.currentUserEnrolledCheck,
-                          builder: (context, snapshot){
-                            if (!snapshot.hasData) {
-                              //loading
-                            }
-                            if (snapshot.data == null || snapshot.data?.item1 == 0) {
-                              //bottone
-                              //se preregistrazioni abilitate e < capacity allora mostra bottone
-                              //se preregistrazioni abilitate e = capacity e waiting list abilitata allora mostra bottone 2
-                              //se preregistrazioni abilitate e = capacity e waiting list non abilitata allora mostra messaggio custom
-                              //se preregistrazioni non abilitate indicare messaggio custom
-                              if (providerTournamentDetail.tournamentModel.tournamentPreRegistrationEn) {
-                                if (providerTournamentDetail.tournamentModel.tournamentCapacityInt == 0 || providerTournamentDetail.tournamentModel.tournamentCurrentSize < providerTournamentDetail.tournamentModel.tournamentCapacityInt) {
-                                  return AFButtonWidget(
-                                    onPressed: () async {
-                                      FocusScope.of(context).unfocus();
-                                      context.goNamed(
-                                          'DialogPreRegisterPlayer',
-                                          pathParameters: {
-                                            'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
-                                          }.withoutNulls,
-                                          extra: {
-                                            'req': tournamentDetailModel.showAddToPreRegisterListAlertRequest(),
-                                          }
-                                      );
-                                    },
-                                    text: 'Pre registrati!',
-                                    options: AFButtonOptions(
-                                      width: double.infinity,
-                                      height: 50,
-                                      padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                      iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                      color: CustomFlowTheme.of(context).secondary,
-                                      textStyle: CustomFlowTheme.of(context).bodyMedium,
-                                      elevation: 0,
-                                      borderSide: BorderSide(
-                                        color: CustomFlowTheme.of(context).primary,
-                                        width: 2,
-                                      ),
-                                      borderRadius: BorderRadius.circular(25),
-                                    ),
-                                  );
-                                } else {
-                                  if (providerTournamentDetail.tournamentModel
-                                      .tournamentWaitingListEn) {
-                                    return AFButtonWidget(
-                                      onPressed: () async {
-                                        FocusScope.of(context).unfocus();
-                                        context.goNamed(
-                                            'DialogWaitingListPlayer',
-                                            pathParameters: {
-                                              'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
-                                            }.withoutNulls,
-                                            extra: {
-                                              'req': tournamentDetailModel.showAddToWaitingListAlertRequest(),
-                                            }
-                                        );
-                                      },
-                                      text: 'Aggiungiti alla waiting list!',
-                                      options: AFButtonOptions(
-                                        width: double.infinity,
-                                        height: 50,
-                                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                        iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                        color: CustomFlowTheme.of(context).secondary,
-                                        textStyle: CustomFlowTheme.of(context).bodyMedium,
-                                        elevation: 0,
-                                        borderSide: BorderSide(
-                                          color: CustomFlowTheme.of(context).primary,
-                                          width: 2,
-                                        ),
-                                        borderRadius: BorderRadius.circular(25),
-                                      ),
-                                    );
-                                  } else {
-                                    return Padding(
-                                      padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
-                                      child: Container(
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: CustomFlowTheme.of(context).secondaryBackground,
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(
-                                            color: CustomFlowTheme.of(context).alternate,
-                                            width: 1,
-                                          ),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsetsDirectional.fromSTEB(24, 16, 24, 20),
-                                          child: Text(
-                                            "Il torneo ha raggiunto il limite e non è stata abilitata una waiting list. Monitoralo per vedere se vengono aggiunti nuovi posti o se ne liberano alcuni.",
-                                            style: CustomFlowTheme.of(context).labelLarge,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                }
-                              } else {
-                                return Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
-                                  child: Container(
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                      color: CustomFlowTheme.of(context).secondaryBackground,
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: CustomFlowTheme.of(context).alternate,
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsetsDirectional.fromSTEB(24, 16, 24, 20),
-                                      child: Text(
-                                        "Non è possibile preregistrarsi. Recati il giorno stabilito presso la sede dell'evento o contatta l'organizzatore per avere le modalità di regìstrazione",
-                                        style: CustomFlowTheme.of(context).labelLarge,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-                            } else {
-                              return Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
-                                child: Container(
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    color: CustomFlowTheme.of(context).secondaryBackground,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: CustomFlowTheme.of(context).alternate,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsetsDirectional.fromSTEB(24, 16, 24, 20),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
-                                          child: Text(
-                                            "Sei già censito per questo torneo!",
-                                            style: CustomFlowTheme.of(context).labelLarge,
-                                          ),
-                                        ),
-                                        AFButtonWidget(
-                                          onPressed: () async {
-                                            FocusScope.of(context).unfocus();
-                                            context.goNamed(
-                                                'DialogDeEnrollPlayer',
-                                                pathParameters: {
-                                                  'tournamentId': providerTournamentDetail.tournamentModel.tournamentId,
-                                                }.withoutNulls,
-                                                extra: {
-                                                  'req': tournamentDetailModel.showDeEnrollPlayerAlertRequest(),
-                                                }
-                                            );
-                                          },
-                                          text: 'De-registrati',
-                                          options: AFButtonOptions(
-                                            width: double.infinity,
-                                            height: 50,
-                                            padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                            iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                            color: const Color(0xFFFFD4D4),
-                                            textStyle: CustomFlowTheme.of(context).bodyMedium.override(color: const Color(0xFFB74D4D)),
-                                            elevation: 0,
-                                            borderSide: BorderSide(
-                                              color: CustomFlowTheme.of(context).primary,
-                                              width: 2,
-                                            ),
-                                            borderRadius: BorderRadius.circular(25),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                    ////////////////
-                    //TOOLTIP AREA
-                    /////////////////
-                    Padding(
-                      padding: const EdgeInsetsDirectional.all(20),
-                      child: SimpleAccordion(
-                        children: [
-                          AccordionHeaderItem(
-                            title: "Legenda degli stati",
-                            children: [
-                              AccordionItem(
-                                title: "open: In questo stato il torneo non è visibile e non può essere trovato dagli altri utenti. In questa fase potrai finalizzare le configurazioni prima di farlo passare allo stato successivo.",
-                              ),
-                              AccordionItem(
-                                title: "ready: In questo stato il torneo è visibile a tutti gli utenti che possono preiscriversi o se possibile o aggiungerlo ai tornei interessati.",
-                              ),
-                              AccordionItem(
-                                title: "ongoing: In questo stato il torneo è in corso. Non sono possibili altre iscrizioni ma in questa fase si possono generare i vari turni e anche la top.",
-                              ),
-                              AccordionItem(
-                                title: "close: In questo stato il torneo è chiuso. Non possono essere modificati parametri o generati nuovi round. La classifica finale decreta il vincitore.",
-                              ),
-                            ],
-                          ),
-                          AccordionHeaderItem(
-                            title: "Pre-registrazione",
-                            children: [
-                              AccordionItem(
-                                title: "Questa configurazione permette agli utenti di pre-registrarsi. Se tale configurazione è abilitata, nel momento in cui ci sarà l'iscrizione ufficiale l'app segnalerà ogni qual volta si sta registrando un giocatore al di fuori di questa lista e chiederà conferma per procedere.",
-                              ),
-                            ],
-                          ),
-                          AccordionHeaderItem(
-                            title: "Waiting list",
-                            children: [
-                              AccordionItem(
-                                title: "Questa configurazione può essere abilitata solo se è stata definita una capienza massima del torneo e se le preiscrizioni sono state abilitate. Nel momento in cui i preiscritti avranno raggiunto la capienza del torneo, gli altri saranno posizionati in coda in questa nuova lista. L'app segnalerà ogni volta si sta iscrivendo un giocatore all'interno di questa lista.",
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    )
-                    ////////////////
-                    //other
-                    /////////////////
-                  ],
-                );
-              },
+          if (model.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return Scaffold(
+            key: _scaffoldKey,
+            backgroundColor: CustomFlowTheme.of(context).primaryBackground,
+            body: SafeArea(
+              top: true,
+              child: _TournamentDetailBody(
+                model: model,
+                enrollCheckFuture: _enrollCheckFuture,
+              ),
             ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// BODY
+// Assembles all sections. Each section is its own private StatelessWidget.
+// ---------------------------------------------------------------------------
+
+class _TournamentDetailBody extends StatelessWidget {
+  const _TournamentDetailBody({
+    required this.model,
+    required this.enrollCheckFuture,
+  });
+
+  final TournamentDetailModel model;
+  final Future<EnrollmentCheckResult> enrollCheckFuture;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = model.tournamentModel;
+
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── 1. Hero / Header ──────────────────────────────────────────────
+          _TournamentHeader(model: model),
+
+          // ── 2. Settings row 1 (state / date / capacity) ───────────────────
+          _SettingsRowOne(model: model),
+
+          // ── 3. Settings row 2 (pre-reg / waiting list) ────────────────────
+          _SettingsRowTwo(model: model),
+
+          // ── 4. Winner area (only when tournament is closed) ───────────────
+          if (t.tournamentState == StateTournament.close && t.hasWinner)
+            _WinnerArea(winners: t.winner ?? []),
+
+          // ── 5. Registration / enrolment area ──────────────────────────────
+          if (t.tournamentState == StateTournament.ready && !t.hasWinner)
+            _RegistrationArea(
+              model: model,
+              enrollCheckFuture: enrollCheckFuture,
+            ),
+
+          // ── 6. Tooltip / legend accordion ─────────────────────────────────
+          const _TooltipAccordion(),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SECTION 1 – HEADER
+// ---------------------------------------------------------------------------
+
+class _TournamentHeader extends StatelessWidget {
+  const _TournamentHeader({required this.model});
+
+  final TournamentDetailModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = model.tournamentModel;
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 10),
+      child: Container(
+        constraints: BoxConstraints(minHeight: 35.h),
+        child: Stack(
+          children: [
+            // Background game image
+            Positioned.fill(
+              child: Image.asset(t.tournamentGame.resource, fit: BoxFit.cover),
+            ),
+            // Blur overlay
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: _Dims.blurSigma,
+                  sigmaY: _Dims.blurSigma,
+                ),
+                child: Container(color: Colors.black.withValues(alpha: 0.1)),
+              ),
+            ),
+            // Foreground content
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _TournamentAvatar(model: model),
+                  _TournamentNameRow(model: model),
+                  _TournamentGameLabel(gameName: t.tournamentGame.desc),
+                  _TournamentCounters(model: model),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Avatar with optional edit badge ─────────────────────────────────────────
+class _TournamentAvatar extends StatelessWidget {
+  const _TournamentAvatar({required this.model});
+
+  final TournamentDetailModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = model.tournamentModel;
+
+    return Stack(
+      children: [
+        Container(
+          width: _Dims.avatarSize,
+          height: _Dims.avatarSize,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: CustomFlowTheme.of(context).primary,
+              width: _Dims.borderWidth,
+            ),
+          ),
+          child: CircleAvatar(
+            radius: _Dims.avatarRadius,
+            backgroundImage: t.tournamentImageUrl == null
+                ? const AssetImage('assets/images/icons/default_tournament.png')
+            as ImageProvider
+                : NetworkImage(t.tournamentImageUrl!),
+          ),
+        ),
+        if (model.isTournamentEditable)
+          Positioned(
+            bottom: 5,
+            right: 0,
+            child: _EditBadge(
+              onTap: t.setTournamentImage,
+              radius: _Dims.editBadgeRadius,
+              iconSize: _Dims.editIconSize,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ── Tournament name row with optional edit icon ──────────────────────────────
+class _TournamentNameRow extends StatelessWidget {
+  const _TournamentNameRow({required this.model});
+
+  final TournamentDetailModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = model.tournamentModel;
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 5),
+      child: SizedBox(
+        width: 75.w,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Text(
+                t.tournamentName,
+                style: CustomFlowTheme.of(context).titleLarge,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            if (model.isTournamentEditable)
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(5, 0, 0, 20),
+                child: _EditBadge(
+                  onTap: () {
+                    if (!context.mounted) return;
+                    context.goNamed(
+                      'DialogChangeTournamentName',
+                      pathParameters: {'tournamentId': t.tournamentId}
+                          .withoutNulls,
+                      extra: {
+                        'req': model.showChangeTournamentNameFormRequest(),
+                      },
+                    );
+                  },
+                  radius: _Dims.nameBadgeRadius,
+                  iconSize: _Dims.nameBadgeIconSize,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Game label ───────────────────────────────────────────────────────────────
+class _TournamentGameLabel extends StatelessWidget {
+  const _TournamentGameLabel({required this.gameName});
+
+  final String gameName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 5),
+      child: SizedBox(
+        width: 75.w,
+        child: Text(
+          gameName,
+          style: CustomFlowTheme.of(context).titleSmall,
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+}
+
+// ── Counters (pre-registered / waiting / registered) ────────────────────────
+class _TournamentCounters extends StatelessWidget {
+  const _TournamentCounters({required this.model});
+
+  final TournamentDetailModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = model.tournamentModel;
+
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Left placeholder – kept to preserve original layout intent.
+        const Text('quattro'),
+        // Right counters
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 20, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (t.tournamentPreRegistrationEn)
+                _CounterLabel(
+                  count: t.tournamentPreRegisteredSize,
+                  label: ' Pre iscritti',
+                  context: context,
+                ),
+              if (t.tournamentWaitingListEn)
+                _CounterLabel(
+                  count: t.tournamentWaitingSize,
+                  label: ' Waiting list',
+                  context: context,
+                ),
+              _CounterLabel(
+                count: t.tournamentRegisteredSize,
+                label: ' Iscritti',
+                context: context,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CounterLabel extends StatelessWidget {
+  const _CounterLabel({
+    required this.count,
+    required this.label,
+    required this.context,
+  });
+
+  final int count;
+  final String label;
+  // ignore: avoid_field_initializers_in_const_classes
+  final BuildContext context;
+
+  @override
+  Widget build(BuildContext ctx) {
+    return Text.rich(
+      textAlign: TextAlign.right,
+      TextSpan(children: [
+        TextSpan(
+          text: count.toString(),
+          style: CustomFlowTheme.of(context).headlineSmall,
+        ),
+        TextSpan(
+          text: label,
+          style: CustomFlowTheme.of(context).bodySmall,
+        ),
+      ]),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SECTION 2 – SETTINGS ROW 1  (state / date / capacity)
+// ---------------------------------------------------------------------------
+
+class _SettingsRowOne extends StatelessWidget {
+  const _SettingsRowOne({required this.model});
+
+  final TournamentDetailModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _StateDropdown(model: model),
+        _DateSelector(model: model),
+        _CapacitySelector(model: model),
+      ],
+    );
+  }
+}
+
+// ── State dropdown ───────────────────────────────────────────────────────────
+class _StateDropdown extends StatelessWidget {
+  const _StateDropdown({required this.model});
+
+  final TournamentDetailModel model;
+
+  List<StateTournament> get _visibleStates {
+    final current = model.tournamentModel.tournamentState.indexState;
+    return StateTournament.values.where((s) {
+      if (s.indexState == 0) return false;
+      if (s.indexState > current + 1) return false;
+      if (s.indexState < current - 1) return false;
+      return true;
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = model.tournamentModel;
+    final states = _visibleStates;
+
+    return _SettingsCell(
+      child: DropdownButton<String>(
+        alignment: Alignment.center,
+        value: t.tournamentState.name,
+        isExpanded: true,
+        icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
+        iconSize: 30,
+        underline: const SizedBox.shrink(),
+        onChanged: model.canInteractOn
+            ? (String? newValue) {
+          if (newValue == null || !context.mounted) return;
+          context.goNamed(
+            'DialogState',
+            pathParameters: {'tournamentId': t.tournamentId}.withoutNulls,
+            extra: {
+              'req': model
+                  .showChangeTournamentStateAlertRequest(newValue),
+            },
+          );
+        }
+            : null,
+        items: states.map((s) {
+          return DropdownMenuItem<String>(
+            value: s.name,
+            child: Text(
+              s.desc,
+              style: TextStyle(
+                color: s.indexState == t.tournamentState.indexState
+                    ? CustomFlowTheme.of(context).primary
+                    : CustomFlowTheme.of(context).info,
+              ),
+            ),
+          );
+        }).toList(),
+        selectedItemBuilder: (_) => states.map<Widget>((s) {
+          return _SettingsCellContent(
+            title: 'STATO',
+            subtitle: s.desc,
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+// ── Date selector ────────────────────────────────────────────────────────────
+class _DateSelector extends StatelessWidget {
+  const _DateSelector({required this.model});
+
+  final TournamentDetailModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = model.tournamentModel;
+    final editable = model.isTournamentEditable;
+
+    return InkWell(
+      onTap: () {
+        if (editable) _showDatePicker(context, t);
+      },
+      child: _SettingsCell(
+        color: editable
+            ? CustomFlowTheme.of(context).info
+            : Colors.grey,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _SettingsCellContent(
+              title: 'DATA',
+              subtitle: DateFormat('dd/MM/yy')
+                  .format(t.tournamentDate ?? DateTime.now()),
+              subtitleColor: editable ? Colors.grey : Colors.black,
+            ),
+            const Icon(Icons.arrow_drop_down, color: Colors.black, size: 30),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showDatePicker(
+      BuildContext context, TournamentModel t) async {
+    final now = DateTime.now();
+    final initial = t.tournamentDate ?? now;
+    final first = now.isBefore(initial) ? now : initial;
+
+    final picked = await showDatePicker(
+      locale: const Locale('it'),
+      context: context,
+      initialDate: initial,
+      firstDate: first,
+      lastDate: DateTime(2101),
+    );
+    if (picked != null) t.setTournamentData(picked);
+  }
+}
+
+// ── Capacity selector ────────────────────────────────────────────────────────
+
+class _CapacitySelector extends StatelessWidget {
+  const _CapacitySelector({required this.model});
+
+  final TournamentDetailModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = model.tournamentModel;
+    final editable = model.isTournamentEditable;
+
+    return InkWell(
+      onTap: () {
+        if (!editable || !context.mounted) return;
+        context.goNamed(
+          'DialogChangeCapacity',
+          pathParameters: {'tournamentId': t.tournamentId}.withoutNulls,
+          extra: {
+            'req': model.showChangeTournamentCapacityAlertFormRequest(),
+          },
+        );
+      },
+      child: _SettingsCell(
+        color: editable
+            ? CustomFlowTheme.of(context).info
+            : Colors.grey,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _SettingsCellContent(
+              title: 'CAPIENZA',
+              subtitle: t.tournamentCapacity,
+              subtitleColor: editable ? Colors.grey : Colors.black,
+            ),
+            const Icon(Icons.arrow_drop_down, color: Colors.black, size: 30),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SECTION 3 – SETTINGS ROW 2  (pre-registration / waiting list)
+// ---------------------------------------------------------------------------
+
+class _SettingsRowTwo extends StatelessWidget {
+  const _SettingsRowTwo({required this.model});
+
+  final TournamentDetailModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _ToggleCell(
+          model: model,
+          title: 'PRE ISCRIZIONI',
+          enabled: model.isTournamentEditable,
+          value: model.tournamentModel.tournamentPreRegistrationEn,
+          onTap: () {
+            if (!model.isTournamentEditable || !context.mounted) return;
+            context.goNamed(
+              'DialogPreIscrizioni',
+              pathParameters: {
+                'tournamentId': model.tournamentModel.tournamentId,
+              }.withoutNulls,
+              extra: {'req': model.showSwitchPreIscrizioniAlertRequest()},
+            );
+          },
+        ),
+        _ToggleCell(
+          model: model,
+          title: 'WAITING LIST',
+          enabled: model.tournamentModel.tournamentWaitingListPossible,
+          value: model.tournamentModel.tournamentWaitingListEn,
+          onTap: () {
+            if (!model.isTournamentEditable || !context.mounted) return;
+            context.goNamed(
+              'DialogWaitingList',
+              pathParameters: {
+                'tournamentId': model.tournamentModel.tournamentId,
+              }.withoutNulls,
+              extra: {'req': model.showSwitchWaitingListAlertRequest()},
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _ToggleCell extends StatelessWidget {
+  const _ToggleCell({
+    required this.model,
+    required this.title,
+    required this.enabled,
+    required this.value,
+    required this.onTap,
+  });
+
+  final TournamentDetailModel model;
+  final String title;
+  final bool enabled;
+  final bool value;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: 50.w,
+        height: 30.sp,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              enabled ? CustomFlowTheme.of(context).info : Colors.grey,
+              value
+                  ? CustomFlowTheme.of(context).success
+                  : CustomFlowTheme.of(context).warning,
+            ],
+          ),
+          border: Border.all(
+            color: CustomFlowTheme.of(context).alternate,
+            width: _Dims.settingsBorder,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: CustomFlowTheme.of(context)
+                      .titleSmall
+                      .override(color: Colors.black),
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.visible,
+                ),
+              ),
+              const SizedBox(height: 1),
+              Text(
+                value.toString(),
+                style: CustomFlowTheme.of(context)
+                    .labelLarge
+                    .override(color: Colors.grey.shade900),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
       ),
@@ -931,23 +692,416 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// SECTION 4 – WINNER AREA
+// ---------------------------------------------------------------------------
 
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
-//////////////////////////// FUNCTIONS
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
-Future<void> _showChangeTournamentDatePicker(BuildContext context, TournamentModel tournamentModel) async {
-  // show the dialog
-  DateTime? pickedDate = await showDatePicker(
-    locale: const Locale('it'),
-    context: context,
-    initialDate: tournamentModel.tournamentDate ?? DateTime.now(),
-    firstDate: DateTime.now().isBefore(tournamentModel.tournamentDate??DateTime.now()) ? DateTime.now() : tournamentModel.tournamentDate??DateTime.now(),
-    lastDate: DateTime(2101),
-  );
+class _WinnerArea extends StatelessWidget {
+  const _WinnerArea({required this.winners});
 
-  if(pickedDate != null) {
-    tournamentModel.setTournamentData(pickedDate);
+  final List<dynamic> winners;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.all(20),
+      child: Column(
+        children: winners.map((item) {
+          final userId = item[PocketbaseUser.idFieldName];
+          if (userId == null) return const SizedBox.shrink();
+          return TournamentWinnerCardWidget(
+            name: item[PocketbaseUser.nameFieldName],
+            surname: item[PocketbaseUser.surnameFieldName],
+            username: item[PocketbaseUser.usernameFieldName],
+            userId: userId,
+          );
+        }).toList(),
+      ),
+    );
   }
+}
+
+// ---------------------------------------------------------------------------
+// SECTION 5 – REGISTRATION AREA
+// Uses a stable Future reference to prevent flickering rebuilds.
+// The RegistrationStatus enum (computed in the model) drives the UI decision.
+// ---------------------------------------------------------------------------
+
+class _RegistrationArea extends StatelessWidget {
+  const _RegistrationArea({
+    required this.model,
+    required this.enrollCheckFuture,
+  });
+
+  final TournamentDetailModel model;
+  final Future<EnrollmentCheckResult> enrollCheckFuture;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.all(20),
+      child: FutureBuilder<EnrollmentCheckResult>(
+        future: enrollCheckFuture,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          // Delegate the decision to the model, keeping the view purely
+          // declarative. Each status maps to one widget below.
+          final status = model.resolveRegistrationStatus(snapshot.data!);
+
+          return switch (status) {
+            RegistrationStatus.canRegister       => _PreRegisterButton(model: model),
+            RegistrationStatus.canJoinWaiting    => _WaitingListButton(model: model),
+            RegistrationStatus.alreadyEnrolled   => _DeEnrollSection(model: model),
+            RegistrationStatus.tournamentFull    => _InfoBox(
+              message:
+              'Il torneo ha raggiunto il limite e non è stata abilitata una waiting list. '
+                  'Monitoralo per vedere se vengono aggiunti nuovi posti o se ne liberano alcuni.',
+              context: context,
+            ),
+            RegistrationStatus.preRegDisabled    => _InfoBox(
+              message:
+              'Non è possibile preregistrarsi. Recati il giorno stabilito presso la sede '
+                  'dell\'evento o contatta l\'organizzatore per avere le modalità di registrazione.',
+              context: context,
+            ),
+          };
+        },
+      ),
+    );
+  }
+}
+
+class _PreRegisterButton extends StatelessWidget {
+  const _PreRegisterButton({required this.model});
+  final TournamentDetailModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    return AFButtonWidget(
+      onPressed: () {
+        FocusScope.of(context).unfocus();
+        if (!context.mounted) return;
+        context.goNamed(
+          'DialogPreRegisterPlayer',
+          pathParameters: {
+            'tournamentId': model.tournamentModel.tournamentId,
+          }.withoutNulls,
+          extra: {'req': model.showAddToPreRegisterListAlertRequest()},
+        );
+      },
+      text: 'Pre registrati!',
+      options: _defaultButtonOptions(context),
+    );
+  }
+}
+
+class _WaitingListButton extends StatelessWidget {
+  const _WaitingListButton({required this.model});
+  final TournamentDetailModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    return AFButtonWidget(
+      onPressed: () {
+        FocusScope.of(context).unfocus();
+        if (!context.mounted) return;
+        context.goNamed(
+          'DialogWaitingListPlayer',
+          pathParameters: {
+            'tournamentId': model.tournamentModel.tournamentId,
+          }.withoutNulls,
+          extra: {'req': model.showAddToWaitingListAlertRequest()},
+        );
+      },
+      text: 'Aggiungiti alla waiting list!',
+      options: _defaultButtonOptions(context),
+    );
+  }
+}
+
+class _DeEnrollSection extends StatelessWidget {
+  const _DeEnrollSection({required this.model});
+  final TournamentDetailModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    return _InfoBox(
+      context: context,
+      message: 'Sei già censito per questo torneo!',
+      child: AFButtonWidget(
+        onPressed: () {
+          FocusScope.of(context).unfocus();
+          if (!context.mounted) return;
+          context.goNamed(
+            'DialogDeEnrollPlayer',
+            pathParameters: {
+              'tournamentId': model.tournamentModel.tournamentId,
+            }.withoutNulls,
+            extra: {'req': model.showDeEnrollPlayerAlertRequest()},
+          );
+        },
+        text: 'De-registrati',
+        options: AFButtonOptions(
+          width: double.infinity,
+          height: _Dims.buttonHeight,
+          padding: EdgeInsetsDirectional.zero,
+          iconPadding: EdgeInsetsDirectional.zero,
+          color: const Color(0xFFFFD4D4),
+          textStyle: CustomFlowTheme.of(context)
+              .bodyMedium
+              .override(color: const Color(0xFFB74D4D)),
+          elevation: 0,
+          borderSide: BorderSide(
+            color: CustomFlowTheme.of(context).primary,
+            width: 2,
+          ),
+          borderRadius: BorderRadius.circular(_Dims.buttonRadius),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SECTION 6 – TOOLTIP ACCORDION  (fully static)
+// ---------------------------------------------------------------------------
+
+class _TooltipAccordion extends StatelessWidget {
+  const _TooltipAccordion();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.all(20),
+      child: SimpleAccordion(
+        children: [
+          AccordionHeaderItem(
+            title: 'Legenda degli stati',
+            children: [
+              AccordionItem(
+                title:
+                'open: In questo stato il torneo non è visibile e non può essere trovato dagli altri utenti. '
+                    'In questa fase potrai finalizzare le configurazioni prima di farlo passare allo stato successivo.',
+              ),
+              AccordionItem(
+                title:
+                'ready: In questo stato il torneo è visibile a tutti gli utenti che possono preiscriversi '
+                    'o se possibile o aggiungerlo ai tornei interessati.',
+              ),
+              AccordionItem(
+                title:
+                'ongoing: In questo stato il torneo è in corso. Non sono possibili altre iscrizioni ma '
+                    'in questa fase si possono generare i vari turni e anche la top.',
+              ),
+              AccordionItem(
+                title:
+                'close: In questo stato il torneo è chiuso. Non possono essere modificati parametri o generati '
+                    'nuovi round. La classifica finale decreta il vincitore.',
+              ),
+            ],
+          ),
+          AccordionHeaderItem(
+            title: 'Pre-registrazione',
+            children: [
+              AccordionItem(
+                title:
+                'Questa configurazione permette agli utenti di pre-registrarsi. Se tale configurazione è abilitata, '
+                    'nel momento in cui ci sarà l\'iscrizione ufficiale l\'app segnalerà ogni qual volta si sta '
+                    'registrando un giocatore al di fuori di questa lista e chiederà conferma per procedere.',
+              ),
+            ],
+          ),
+          AccordionHeaderItem(
+            title: 'Waiting list',
+            children: [
+              AccordionItem(
+                title:
+                'Questa configurazione può essere abilitata solo se è stata definita una capienza massima del torneo '
+                    'e se le preiscrizioni sono state abilitate. Nel momento in cui i preiscritti avranno raggiunto la '
+                    'capienza del torneo, gli altri saranno posizionati in coda in questa nuova lista. '
+                    'L\'app segnalerà ogni volta si sta iscrivendo un giocatore all\'interno di questa lista.',
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SHARED HELPER WIDGETS
+// ---------------------------------------------------------------------------
+
+/// Generic bordered cell used in settings rows.
+class _SettingsCell extends StatelessWidget {
+  const _SettingsCell({required this.child, this.color});
+
+  final Widget child;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 33.w,
+      height: 30.sp,
+      decoration: BoxDecoration(
+        color: color ?? CustomFlowTheme.of(context).info,
+        border: Border.all(
+          color: CustomFlowTheme.of(context).alternate,
+          width: _Dims.settingsBorder,
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+/// Two-line label (title + subtitle) used inside settings cells.
+class _SettingsCellContent extends StatelessWidget {
+  const _SettingsCellContent({
+    required this.title,
+    required this.subtitle,
+    this.subtitleColor,
+  });
+
+  final String title;
+  final String subtitle;
+  final Color? subtitleColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: CustomFlowTheme.of(context)
+                .titleMedium
+                .override(color: Colors.black),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 1),
+          Text(
+            subtitle,
+            style: CustomFlowTheme.of(context)
+                .labelLarge
+                .override(color: subtitleColor ?? Colors.grey),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Small circular edit badge used in avatars and name rows.
+class _EditBadge extends StatelessWidget {
+  const _EditBadge({
+    required this.onTap,
+    required this.radius,
+    required this.iconSize,
+  });
+
+  final VoidCallback onTap;
+  final double radius;
+  final double iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(radius),
+      child: CircleAvatar(
+        radius: radius,
+        backgroundColor: CustomFlowTheme.of(context).primary,
+        child: Icon(
+          Icons.edit,
+          size: iconSize,
+          color: CustomFlowTheme.of(context).info,
+        ),
+      ),
+    );
+  }
+}
+
+/// Generic info / message box used in the registration area.
+class _InfoBox extends StatelessWidget {
+  const _InfoBox({
+    required this.message,
+    required this.context,
+    this.child,
+  });
+
+  final String message;
+  // ignore: avoid_field_initializers_in_const_classes
+  final BuildContext context;
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext ctx) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: CustomFlowTheme.of(context).secondaryBackground,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: CustomFlowTheme.of(context).alternate,
+            width: 1,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(24, 16, 24, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (child != null)
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
+                  child: Text(
+                    message,
+                    style: CustomFlowTheme.of(context).labelLarge,
+                  ),
+                )
+              else
+                Text(
+                  message,
+                  style: CustomFlowTheme.of(context).labelLarge,
+                ),
+              if (child != null) child!,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SHARED HELPER FUNCTION
+// ---------------------------------------------------------------------------
+AFButtonOptions _defaultButtonOptions(BuildContext context) {
+  return AFButtonOptions(
+    width: double.infinity,
+    height: _Dims.buttonHeight,
+    padding: EdgeInsetsDirectional.zero,
+    iconPadding: EdgeInsetsDirectional.zero,
+    color: CustomFlowTheme.of(context).secondary,
+    textStyle: CustomFlowTheme.of(context).bodyMedium,
+    elevation: 0,
+    borderSide: BorderSide(
+      color: CustomFlowTheme.of(context).primary,
+      width: 2,
+    ),
+    borderRadius: BorderRadius.circular(_Dims.buttonRadius),
+  );
 }
