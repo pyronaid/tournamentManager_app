@@ -159,6 +159,75 @@ class TournamentModel extends ChangeNotifier {
       loaderService.hideLoader(id: executionId);
     }
   }
+  Future<bool> saveEditNews(PocketBase pb, {
+    required bool isCreate,
+    NewsRecord? newsRef,
+    required String title,
+    required String subTitle,
+    required String description,
+    String? localImagePath,
+    required bool showTimestamp
+
+  }) async {
+    bool flag = false;
+    List<MultipartFile> files = [];
+    if(isCreate) {
+      try {
+        Map<String, dynamic> ownNews = createNewsRecordData(
+            tournamentId: tournamentsRef!,
+            title: title,
+            subTitle: subTitle,
+            description: description,
+            showTimestampEn: showTimestamp
+        );
+        if (localImagePath != null) {
+          XFile imageFile = XFile(localImagePath);
+          MultipartFile file = MultipartFile.fromBytes(
+            NewsRecord.imageFieldName, // field name in your PocketBase collection
+            await imageFile.readAsBytes(),
+            filename: 'newsImage',
+          );
+          files.add(file);
+        }
+        await NewsRecord.createNews(pb, ownNews, files: files);
+        flag = true;
+      } catch (e) {
+        flag = false;
+      }
+    } else {
+      Map<String, dynamic> updatedFields = {};
+      if (title.isNotEmpty && title != newsRef!.title) {
+        updatedFields[NewsRecord.titleFieldName] = title;
+      }
+      if (subTitle.isNotEmpty && subTitle != newsRef!.subTitle) {
+        updatedFields[NewsRecord.subTitleFieldName] = subTitle;
+      }
+      if (description.isNotEmpty && description != newsRef!.description) {
+        updatedFields[NewsRecord.descriptionFieldName] = description;
+      }
+      if (showTimestamp != newsRef!.showTimestampEn) {
+        updatedFields[NewsRecord.showTimestampFieldName] = showTimestamp;
+      }
+      try {
+        if (localImagePath != null && localImagePath != newsRef.imageNews) {
+          XFile imageFile = XFile(localImagePath);
+          MultipartFile file = MultipartFile.fromBytes(
+            NewsRecord.imageFieldName,
+            // field name in your PocketBase collection
+            await imageFile.readAsBytes(),
+            filename: 'newsImage',
+          );
+          files.add(file);
+        }
+        await NewsRecord.updateFields(
+            pb, newsRef.uid, updatedFields, files: files);
+        flag = true;
+      } catch (e) {
+        flag = false;
+      }
+    }
+    return flag;
+  }
   Future<void> deleteNews(PocketBase pb, String newsId) async {
     String executionId = const Uuid().v4();
     loaderService.showLoader(id: executionId);

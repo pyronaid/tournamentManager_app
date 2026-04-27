@@ -4,7 +4,7 @@ import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.d
 
 import '../backend/firebase_analytics/analytics.dart';
 import 'app_flow_util.dart';
-
+//to review
 class DialogActionButtons extends StatelessWidget {
   final String cancelButtonText;
   final String confirmButtonText;
@@ -167,11 +167,7 @@ class _DialogWidgetState extends State<DialogWidget> {
         child: Stack(
           children: [
             Positioned.fill(
-              child: GestureDetector(
-                onTap: () {},
-                behavior: HitTestBehavior.opaque,
-                child: Container(color: Colors.transparent),
-              ),
+              child: Container(color: Colors.transparent),
             ),
             Center(
               child: Container(
@@ -206,7 +202,7 @@ class _DialogWidgetState extends State<DialogWidget> {
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 32),
-                            _buildActionButtons(context, theme, colorScheme),
+                            _buildActionButtons(context),
                           ],
                         ),
                       ),
@@ -250,8 +246,9 @@ class _DialogWidgetState extends State<DialogWidget> {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, ThemeData theme,
-      ColorScheme colorScheme) {
+  Widget _buildActionButtons(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return DialogActionButtons(
       cancelButtonText: widget.request.buttonTitleCancelled,
       confirmButtonText: widget.request.buttonTitleConfirmed,
@@ -398,9 +395,9 @@ class _DialogFormWidgetState extends State<DialogFormWidget> {
                                 textAlign: TextAlign.center,
                               ),
                               const SizedBox(height: 32),
-                              _buildFormSection(context, theme, colorScheme),
+                              _buildFormSection(context),
                               const SizedBox(height: 32),
-                              _buildActionButtons(context, theme, colorScheme),
+                              _buildActionButtons(context),
                             ],
                           ),
                         ),
@@ -445,7 +442,9 @@ class _DialogFormWidgetState extends State<DialogFormWidget> {
     );
   }
 
-  Widget _buildFormSection(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
+  Widget _buildFormSection(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxHeight: 45.h,
@@ -489,7 +488,9 @@ class _DialogFormWidgetState extends State<DialogFormWidget> {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
+  Widget _buildActionButtons(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return FutureBuilder<List<FormInformation>>(
       future: Future.wait(_formInformation),
       builder: (BuildContext context, AsyncSnapshot<List<FormInformation>> snapshot) {

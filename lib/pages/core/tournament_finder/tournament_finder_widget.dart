@@ -31,30 +31,15 @@ class _MapConstants {
 // ---------------------------------------------------------------------------
 // Main widget
 // ---------------------------------------------------------------------------
-class TournamentFinderWidget extends StatefulWidget {
+class TournamentFinderWidget extends StatelessWidget  {
   const TournamentFinderWidget({super.key});
-
-  @override
-  State<TournamentFinderWidget> createState() => _TournamentFinderWidgetState();
-}
-
-class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  // FIX [warning]: removed the stale _unfocusNode FocusNode pattern.
-  // FIX [warning]: removed addPostFrameCallback empty setState.
-  // FIX [critical]: model is no longer cached in initState — it is always
-  //   accessed through Consumer/context.read at build time to avoid stale refs.
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      // FIX [warning]: unfocus via FocusScope directly — no FocusNode needed.
       onTap: () => FocusScope.of(context).unfocus(),
       child: Consumer<TournamentFinderModel>(
         builder: (context, model, _) {
-          // FIX [warning]: replaced print() with debugPrint(), gated on
-          //   kDebugMode so it is stripped in release builds.
           assert(() {
             debugPrint('[BUILD] tournament_finder_widget.dart');
             return true;
@@ -65,7 +50,6 @@ class _TournamentFinderWidgetState extends State<TournamentFinderWidget> {
           }
 
           return Scaffold(
-            key: _scaffoldKey,
             backgroundColor: CustomFlowTheme.of(context).primaryBackground,
             floatingActionButton: _FabColumn(model: model),
             floatingActionButtonLocation:

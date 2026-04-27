@@ -37,7 +37,6 @@ class TournamentFinderModel extends ChangeNotifier {
   late List<TournamentsRecord> tournamentsListRefObjToDetail;
 
   bool isLoading = true;
-  bool isLoadingFetch = false;
   Timer? _debounce;
 
   late Future<PlacesApiManagerService> placesApiManagerService;
@@ -47,14 +46,10 @@ class TournamentFinderModel extends ChangeNotifier {
 
   //////////////////////////////MAP
   late MapController _mapController;
-  late LatLng _firstLocation;
-  //FILTER PARAMETERS
-  late LatLng _lastLocation;
+  LatLng _firstLocation = const LatLng(45.464664, 9.188540);
+  LatLng _lastLocation = const LatLng(45.464664, 9.188540);
   final double minRadius = 5;
   final double maxRadius = 100;
-  final int zoom_constant = 125; //1000
-  final int zoom_exp = 1; //2
-  final double zoom_max = 18;
   String? _selectedMarkerId;
 
 
@@ -110,7 +105,10 @@ class TournamentFinderModel extends ChangeNotifier {
 
   /////////////////////////////CONSTRUCTOR
   TournamentFinderModel(){
-    print("[CREATE] TournamentFinderModel");
+    assert(() {
+      debugPrint('[CREATE] TournamentFinderModel');
+      return true;
+    }());
     tournamentNameTextControllerValidator = _tournamentNameTextControllerValidator;
     tournamentDateRangeTextControllerValidator = _tournamentDateRangeTextControllerValidator;
 
@@ -122,7 +120,7 @@ class TournamentFinderModel extends ChangeNotifier {
     _place= {};
     _dateStart = DateTime.now();
     _dateEnd = _dateStart.add(const Duration(days: 7));
-    _games = Game.values;
+    _games = List.of(Game.values);
     _mapController = MapController();
     tournamentsListRefObj = [];
     tournamentsListRefObjToDetail = [];
@@ -150,14 +148,13 @@ class TournamentFinderModel extends ChangeNotifier {
     notifyListeners();
   }
   Future<void> setLocation() async {
-    _firstLocation = const LatLng(45.464664, 9.188540);
     final location = Location();
     final hasPermission = await location.requestPermission() == PermissionStatus.granted;
     if (hasPermission) {
       final currentLocation = await location.getLocation();
       _firstLocation = LatLng(currentLocation.latitude!, currentLocation.longitude!);
-      _lastLocation = LatLng(currentLocation.latitude!, currentLocation.longitude!);
     }
+    _lastLocation = _firstLocation;
   }
   double computeZoomByRadius(double radius, double latitude, double longitude){
     const double earthCircumferenceKm = 40075.0;
@@ -170,7 +167,7 @@ class TournamentFinderModel extends ChangeNotifier {
     return zoomLevel.clamp(1.0, 18.0); // FlutterMap zoom range is 1-18
   }
   void refreshSearchByTap(MapCamera position) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () async {
       final LatLng center = position.center;
       final double zoom = position.zoom;

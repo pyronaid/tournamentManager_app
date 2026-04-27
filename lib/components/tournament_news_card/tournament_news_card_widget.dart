@@ -77,7 +77,6 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
                   }.withoutNulls,
                   extra: {
                     'createEditFlag': false,
-                    'provider': context.read<TournamentModel>()
                   },
                 );
               },

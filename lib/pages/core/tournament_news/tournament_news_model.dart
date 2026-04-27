@@ -8,33 +8,54 @@ import '../../nav_bar/tournament_model.dart';
 class TournamentNewsModel extends ChangeNotifier {
 
   final TournamentModel tournamentModel;
-
-  late PagingController<int, NewsRecord> _pagingController;
   static const _pageSize = 30;
-  late bool _isLoading;
-  late DateTime? _lastUpdatedNews;
-
+  late PagingController<int, NewsRecord> _pagingController;
+  bool _lastKnownLoading;
+  DateTime? _lastKnownUpdatedNews;
 
   /////////////////////////////CONSTRUCTOR
-  TournamentNewsModel({required this.tournamentModel}){
-    _isLoading = tournamentModel.isLoading;
-    _lastUpdatedNews = tournamentModel.updatedNews;
-    _pagingController = PagingController(firstPageKey: 1);
-    _pagingController.addPageRequestListener((pageKey) => _fetchPage(pageKey));
+  TournamentNewsModel({required this.tournamentModel}) :
+        _lastKnownLoading = tournamentModel.isLoading,
+        _lastKnownUpdatedNews = tournamentModel.updatedNews {
+    _pagingController = PagingController<int, NewsRecord>(firstPageKey: 1)
+      ..addPageRequestListener(_fetchPage);
+    tournamentModel.addListener(_onTournamentChanged);
   }
 
+  void _onTournamentChanged() {
+    final newLoading = tournamentModel.isLoading;
+    final newUpdatedNews = tournamentModel.updatedNews;
+    var shouldNotify = false;
+
+    if (_lastKnownUpdatedNews != newUpdatedNews) {
+      _lastKnownUpdatedNews = newUpdatedNews;
+      _pagingController.refresh();
+      shouldNotify = true;
+    }
+
+    if (_lastKnownLoading != newLoading) {
+      _lastKnownLoading = newLoading;
+      shouldNotify = true;
+    }
+
+    if (shouldNotify) notifyListeners();
+  }
+
+
   /////////////////////////////GETTER
-  bool get isLoading => _isLoading;
-  DateTime? get lastUpdatedNews => _lastUpdatedNews;
+  bool get isLoading => tournamentModel.isLoading;
+  DateTime? get lastUpdatedNews => tournamentModel.updatedNews;
   PagingController<int, NewsRecord> get pagingControllerNews => _pagingController;
   bool get canInteractOn => currentUserUid == tournamentModel.tournamentOwner;
 
 
   /////////////////////////////SETTER
+  Future<void> onRefresh() async => _pagingController.refresh();
+  Future<void> deleteNews(String newsId) async => tournamentModel.deleteNews(pb, newsId);
   Future<void> _fetchPage(int pageKey) async {
-    PagingController<int, NewsRecord> pagingController = _pagingController;
+    final controller = _pagingController;
     try {
-      final List<NewsRecord> newItems = await NewsRecord.getDocumentsOnce(
+      final newItems = await NewsRecord.getDocumentsOnce(
           pb,
           '${NewsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}"',
           expand: NewsRecord.idTournamentFieldName,
@@ -45,25 +66,19 @@ class TournamentNewsModel extends ChangeNotifier {
       final isLastPage = newItems.length < _pageSize;
 
       if (isLastPage) {
-        pagingController.appendLastPage(newItems);
+        controller.appendLastPage(newItems);
       } else {
-        final nextPageKey = pageKey+1; // Adjust as needed
-        pagingController.appendPage(newItems, nextPageKey);
+        controller.appendPage(newItems, pageKey + 1);
       }
     } catch (error) {
-      pagingController.error = error;
+      controller.error = error;
     }
-  }
-  Future<void> onRefresh() async {
-    _pagingController.refresh();
-  }
-  Future<void> deleteNews(String newsId) async {
-    await tournamentModel.deleteNews(pb, newsId);
   }
 
 
   @override
   void dispose() {
+    tournamentModel.removeListener(_onTournamentChanged);
     _pagingController.dispose();
     super.dispose();
   }

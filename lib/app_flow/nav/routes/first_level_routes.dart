@@ -4,6 +4,7 @@ import 'package:tournamentmanager/pages/core/own_tournaments/own_tournaments_con
 import 'package:tournamentmanager/pages/core/tournament_finder/tournament_finder_container.dart';
 import 'package:tournamentmanager/pages/profile/profile/profile_widget.dart';
 
+import '../../../backend/firebase_analytics/analytics.dart';
 import '../../../pages/core/create_own/create_own_container.dart';
 import '../../../pages/nav_bar/scaffold_levelone_nested_navigation.dart';
 import '../../../pages/profile/about_us/about_us_widget.dart';
@@ -51,12 +52,19 @@ class FirstLevelRoutes {
           name: 'TournamentFinder',
           path: 'tournament-finder',
           redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-          builder: (context, params) => const TournamentFinderContainer(),
+          builder: (context, params) {
+            logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentFinder'});
+            return const TournamentFinderContainer();
+          },
           routes: [
             GoRoute(
               name: 'DialogChangeTournamentFinderSettings',
               path: 'dialog-change-tournament-finder-settings',
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              parentNavigatorKey: NavigatorKeys.rootNavigator,
+              redirect: (context, state) {
+                if (state.extra == null) return '/';
+                return RouteGuard.authGuard(appStateNotifier, context, state);
+              },
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
           ],
@@ -83,19 +91,31 @@ class FirstLevelRoutes {
                 GoRoute(
                   name: 'DialogDeleteAccount',
                   path: 'dialog-delete-account',
-                  redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+                  parentNavigatorKey: NavigatorKeys.rootNavigator,
+                  redirect: (context, state) {
+                    if (state.extra == null) return '/';
+                    return RouteGuard.authGuard(appStateNotifier, context, state);
+                  },
                   pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
                 ),
                 GoRoute(
                   name: 'DialogResetPassword',
                   path: 'dialog-reset-password',
-                  redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+                  parentNavigatorKey: NavigatorKeys.rootNavigator,
+                  redirect: (context, state) {
+                    if (state.extra == null) return '/';
+                    return RouteGuard.authGuard(appStateNotifier, context, state);
+                  },
                   pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
                 ),
                 GoRoute(
                   name: 'DialogChangeMail',
                   path: 'dialog-change-mail',
-                  redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+                  parentNavigatorKey: NavigatorKeys.rootNavigator,
+                  redirect: (context, state) {
+                    if (state.extra == null) return '/';
+                    return RouteGuard.authGuard(appStateNotifier, context, state);
+                  },
                   pageBuilder: (context, state) => DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
                 ),
               ],

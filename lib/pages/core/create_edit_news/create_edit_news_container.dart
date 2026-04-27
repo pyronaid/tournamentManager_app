@@ -1,13 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/pages/core/create_edit_news/create_edit_news_model.dart';
 import 'package:tournamentmanager/pages/core/create_edit_news/create_edit_news_widget.dart';
 import 'package:tournamentmanager/pages/nav_bar/news_model.dart';
 
 import '../../nav_bar/tournament_model.dart';
 
-class CreateEditNewsContainer extends StatefulWidget {
+class CreateEditNewsContainer extends StatelessWidget  {
   const CreateEditNewsContainer({
     super.key,
     required this.newsRef,
@@ -18,53 +17,25 @@ class CreateEditNewsContainer extends StatefulWidget {
   final bool createEditFlag;
 
   @override
-  State<CreateEditNewsContainer> createState() => _CreateEditNewsContainerState();
-}
-
-class _CreateEditNewsContainerState extends State<CreateEditNewsContainer> {
-  @override
-  void initState() {
-    super.initState();
-
-    logFirebaseEvent('screen_view', parameters: {'screen_name': 'CreateEditNews'});
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // TournamentModel is already in the tree from the shell's builder —
+    // no need to re-inject it via extra/ChangeNotifierProvider.value.
+    final tournamentModel = context.read<TournamentModel>();
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProxyProvider<TournamentModel, NewsModel>(
-          create: (context) => NewsModel(
-            // Retrieve tournament provider from widget tree
-            tournamentModel: context.read<TournamentModel>(),
-            newsRef: widget.newsRef
+        ChangeNotifierProvider<NewsModel>(
+          create: (_) => NewsModel(
+            tournamentModel: tournamentModel,
+            newsRef: newsRef,
           )..fetchObjectUsingId(),
-          update: (context, tournamentModel, previousNewsModel) {
-            // Optional update method
-            if (previousNewsModel == null) {
-              return NewsModel(
-                tournamentModel: tournamentModel,
-                newsRef: widget.newsRef
-              )..fetchObjectUsingId();
-            }
-            return previousNewsModel;
-          },
         ),
-        ChangeNotifierProvider<CreateEditNewsModel>(
-          create: (context) => CreateEditNewsModel(saveWay: widget.createEditFlag),
+        ChangeNotifierProxyProvider<NewsModel, CreateEditNewsModel>(
+          create: (innerContext) => CreateEditNewsModel(saveWay: createEditFlag, newsModel: innerContext.read<NewsModel>(),),
+          update: (_, __, previous) => previous!,
         ),
       ],
-      builder: (context, child) {
-        return const CreateEditNewsWidget();
-      },
+      child: const CreateEditNewsWidget(),
     );
-
   }
 }

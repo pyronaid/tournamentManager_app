@@ -4,6 +4,7 @@ import 'package:tournamentmanager/backend/schema/rounds_record.dart';
 import 'package:tournamentmanager/pages/core/tournament_pairings/tournament_pairings_container.dart';
 import 'package:tournamentmanager/pages/core/tournament_rounds/tournament_rounds_container.dart';
 
+import '../../../backend/firebase_analytics/analytics.dart';
 import '../../../pages/core/add_people/add_people_container.dart';
 import '../../../pages/core/add_people/barcode_scanner_zoom.dart';
 import '../../../pages/core/create_edit_news/create_edit_news_container.dart';
@@ -43,49 +44,81 @@ class TournamentRoutes {
             GoRoute(
               name: 'DialogState',
               path: 'dialog-state',
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              parentNavigatorKey: NavigatorKeys.rootNavigator,
+              redirect: (context, state) {
+                if (state.extra == null) return '/';
+                return RouteGuard.authGuard(appStateNotifier, context, state);
+              },
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
             GoRoute(
               name: 'DialogWaitingListPlayer',
               path: 'dialog-waitinglist-player',
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              parentNavigatorKey: NavigatorKeys.rootNavigator,
+              redirect: (context, state) {
+                if (state.extra == null) return '/';
+                return RouteGuard.authGuard(appStateNotifier, context, state);
+              },
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
             GoRoute(
               name: 'DialogWaitingList',
               path: 'dialog-waiting-list',
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              parentNavigatorKey: NavigatorKeys.rootNavigator,
+              redirect: (context, state) {
+                if (state.extra == null) return '/';
+                return RouteGuard.authGuard(appStateNotifier, context, state);
+              },
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
             GoRoute(
               name: 'DialogPreRegisterPlayer',
               path: 'dialog-preregister-player',
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              parentNavigatorKey: NavigatorKeys.rootNavigator,
+              redirect: (context, state) {
+                if (state.extra == null) return '/';
+                return RouteGuard.authGuard(appStateNotifier, context, state);
+              },
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
             GoRoute(
               name: 'DialogPreIscrizioni',
               path: 'dialog-pre-registration',
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              parentNavigatorKey: NavigatorKeys.rootNavigator,
+              redirect: (context, state) {
+                if (state.extra == null) return '/';
+                return RouteGuard.authGuard(appStateNotifier, context, state);
+              },
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
             GoRoute(
               name: 'DialogDeEnrollPlayer',
               path: 'dialog-deenroll-player',
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              parentNavigatorKey: NavigatorKeys.rootNavigator,
+              redirect: (context, state) {
+                if (state.extra == null) return '/';
+                return RouteGuard.authGuard(appStateNotifier, context, state);
+              },
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
             GoRoute(
               name: 'DialogChangeCapacity',
               path: 'dialog-change-capacity',
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              parentNavigatorKey: NavigatorKeys.rootNavigator,
+              redirect: (context, state) {
+                if (state.extra == null) return '/';
+                return RouteGuard.authGuard(appStateNotifier, context, state);
+              },
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
             GoRoute(
               name: 'DialogChangeTournamentName',
               path: 'dialog-change-tournament-name',
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              parentNavigatorKey: NavigatorKeys.rootNavigator,
+              redirect: (context, state) {
+                if (state.extra == null) return '/';
+                return RouteGuard.authGuard(appStateNotifier, context, state);
+              },
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
           ]
@@ -138,7 +171,11 @@ class TournamentRoutes {
             GoRoute(
               name: 'DialogGenerateRound',
               path: 'dialog-generate-round',
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              parentNavigatorKey: NavigatorKeys.rootNavigator,
+              redirect: (context, state) {
+                if (state.extra == null) return '/';
+                return RouteGuard.authGuard(appStateNotifier, context, state);
+              },
               pageBuilder: (context, state) => DialogPage(builder: (_) =>
                 ((state.extra as Map<String, dynamic>)['pageType'] as RoundKind) == RoundKind.swiss ?
                   DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],) :
@@ -148,13 +185,21 @@ class TournamentRoutes {
             GoRoute(
               name: 'DialogDeleteRound',
               path: 'dialog-delete-round',
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              parentNavigatorKey: NavigatorKeys.rootNavigator,
+              redirect: (context, state) {
+                if (state.extra == null) return '/';
+                return RouteGuard.authGuard(appStateNotifier, context, state);
+              },
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
             GoRoute(
               name: 'DialogCloseTournament',
               path: 'dialog-close-tournament',
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              parentNavigatorKey: NavigatorKeys.rootNavigator,
+              redirect: (context, state) {
+                if (state.extra == null) return '/';
+                return RouteGuard.authGuard(appStateNotifier, context, state);
+              },
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
           ],
@@ -198,13 +243,21 @@ class TournamentRoutes {
             GoRoute(
               name: 'DialogDeletePerson',
               path: 'dialog-delete-person',
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              parentNavigatorKey: NavigatorKeys.rootNavigator,
+              redirect: (context, state) {
+                if (state.extra == null) return '/';
+                return RouteGuard.authGuard(appStateNotifier, context, state);
+              },
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
             GoRoute(
               name: 'DialogPromotePerson',
               path: 'dialog-promote-person',
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              parentNavigatorKey: NavigatorKeys.rootNavigator,
+              redirect: (context, state) {
+                if (state.extra == null) return '/';
+                return RouteGuard.authGuard(appStateNotifier, context, state);
+              },
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
           ],
@@ -218,29 +271,32 @@ class TournamentRoutes {
           name: 'TournamentNews',
           path: 'tournament-news',
           redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-          builder: (context, params) => const TournamentNewsContainer(),
+          builder: (context, params) {
+            logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentNews'});
+            return const TournamentNewsContainer();
+          },
           routes: [
             CustomRoute(
               name: 'CreateEditNews',
               path: 'create-edit-news/:newsId',
               parentNavigatorKey: NavigatorKeys.tournamentNewsKey,
               redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-              builder: (context, params) =>  MultiProvider(
-                providers: [
-                  ChangeNotifierProvider.value(
-                    value: (params.state.extra as Map<String, dynamic>)["provider"] as TournamentModel,
-                  ),
-                ],
-                child: CreateEditNewsContainer(
+              builder: (context, params) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'CreateEditNews'});
+                return  CreateEditNewsContainer(
                   newsRef: params.getParam('newsId', ParamType.String,),
                   createEditFlag: params.getParam('createEditFlag', ParamType.bool,),
-                ),
-              ),
+                );
+              },
             ).toRoute(appStateNotifier),
             GoRoute(
               name: 'DialogDeleteNews',
               path: 'dialog-delete-news',
-              redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+              parentNavigatorKey: NavigatorKeys.rootNavigator,
+              redirect: (context, state) {
+                if (state.extra == null) return '/';
+                return RouteGuard.authGuard(appStateNotifier, context, state);
+              },
               pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
             ),
           ]

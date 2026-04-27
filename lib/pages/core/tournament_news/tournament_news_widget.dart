@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/backend/schema/news_record.dart';
@@ -23,56 +22,34 @@ abstract class _Dims {
   static const double listTopPadding = 20.0;
 }
 
-class TournamentNewsWidget extends StatefulWidget {
+class TournamentNewsWidget extends StatelessWidget  {
   const TournamentNewsWidget({super.key});
-
-  @override
-  State<TournamentNewsWidget> createState() => _TournamentNewsWidgetState();
-}
-
-class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
-  final _scaffoldKey  = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      // FIX [warning]: unfocus via FocusScope directly — no FocusNode needed.
       onTap: () => FocusScope.of(context).unfocus(),
-      // ── Single, stable Scaffold ────────────────────────────────────────────
-      // The Scaffold never rebuilds. Only the widgets inside it that are
-      // wrapped in Selector/Consumer rebuild when the model changes.
       child: Scaffold(
-        key: _scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-
         // ── FAB: rebuilds only when canInteractOn changes ──────────────────
         floatingActionButton: Selector<TournamentNewsModel, bool>(
           selector: (_, m) => m.canInteractOn,
-          builder: (context, canInteract, _) =>
-          canInteract ? _AddNewsFab() : const SizedBox.shrink(),
+          builder: (_, canInteract, __) =>
+          canInteract ? const _AddNewsFab() : const SizedBox.shrink(),
         ),
-
+        // ── Body: rebuilds only when isLoading changes ─────────────────────
         body: SafeArea(
           top: true,
-          // ── Loading gate: rebuilds only when isLoading changes ────────────
           child: Selector<TournamentNewsModel, bool>(
             selector: (_, m) => m.isLoading,
-            builder: (context, isLoading, _) {
-              assert(() {
-                debugPrint('[BUILD] tournament_news_widget.dart');
-                return true;
-              }());
-
-              if (isLoading) return const _LoadingBody();
-              return const _NewsBody();
-            },
+            builder: (_, isLoading, __) =>
+            isLoading ? const _LoadingBody() : const _NewsBody(),
           ),
         ),
       ),
     );
   }
 }
-
 
 // ---------------------------------------------------------------------------
 // FAB
@@ -82,12 +59,10 @@ class _TournamentNewsWidgetState extends State<TournamentNewsWidget> {
 
 class _AddNewsFab extends StatelessWidget {
   // ignore: prefer_const_constructors_in_immutables — parent Selector rebuilds
-  _AddNewsFab();
+  const _AddNewsFab();
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<TournamentNewsModel>();
-
     return FloatingActionButton(
       // heroTag must be unique across the widget tree to avoid Hero conflicts
       // when navigating between tabs that each have a FAB.
@@ -96,9 +71,9 @@ class _AddNewsFab extends StatelessWidget {
       onPressed: () {
         // Guard: ensure the widget is still mounted before navigating.
         if (!context.mounted) return;
+        final model = context.read<TournamentNewsModel>();
         context.pushNamedAuth(
           'CreateEditNews',
-          // ignore: use_build_context_synchronously — guard above covers this
           context.mounted,
           pathParameters: {
             'newsId': 'NEW',
@@ -106,7 +81,6 @@ class _AddNewsFab extends StatelessWidget {
           }.withoutNulls,
           extra: {
             'createEditFlag': true,
-            'provider': model.tournamentModel,
           },
         );
       },
@@ -197,7 +171,7 @@ class _NewsSliverList extends StatelessWidget {
           phrase: 'Nessuna notizia pubblicata',
         ),
         newPageProgressIndicatorBuilder: (_) =>
-        const Center(child: CircularProgressIndicator()),
+          const Center(child: CircularProgressIndicator()),
       ),
       shrinkWrapFirstPageIndicators: true,
     );
