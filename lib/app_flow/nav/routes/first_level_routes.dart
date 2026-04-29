@@ -145,7 +145,10 @@ class FirstLevelRoutes {
               path: 'create-own',
               parentNavigatorKey: NavigatorKeys.profileKey,
               redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-              builder: (context, params) => const CreateOwnContainer(),
+              builder: (context, params) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'CreateOwn'});
+                return const CreateOwnContainer();
+              },
             ),
             CustomRoute(
               name: 'EditPreferences',

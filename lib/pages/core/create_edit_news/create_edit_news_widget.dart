@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
@@ -103,7 +102,6 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      // FIX [warning]: unfocus via FocusScope directly — no FocusNode needed.
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
