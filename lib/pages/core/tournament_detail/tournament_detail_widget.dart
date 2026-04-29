@@ -32,35 +32,36 @@ abstract class _Dims {
   static const double buttonRadius      = 25.0;
 }
 
+@immutable
+class _TournamentOutcomeState {
+  const _TournamentOutcomeState({
+    required this.state,
+    required this.hasWinner,
+  });
 
-class TournamentDetailWidget extends StatefulWidget {
-  const TournamentDetailWidget({super.key});
+  final StateTournament state;
+  final bool hasWinner;
 
   @override
-  State<TournamentDetailWidget> createState() => _TournamentDetailWidgetState();
+  bool operator ==(Object other) =>
+      other is _TournamentOutcomeState &&
+          other.state == state &&
+          other.hasWinner == hasWinner;
+
+  @override
+  int get hashCode => Object.hash(state, hasWinner);
 }
 
-class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
-  final _scaffoldKey  = GlobalKey<ScaffoldState>();
-
-  // Cache the future once so FutureBuilder never recreates it on rebuild.
-  // The future itself is owned by the model; we just grab a stable reference.
-  late Future<EnrollmentCheckResult> _enrollCheckFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    // Read (not watch) – we only need the model reference, not a subscription.
-    _enrollCheckFuture = context.read<TournamentDetailModel>().currentUserEnrolledCheck!;
-  }
+class TournamentDetailWidget extends StatelessWidget  {
+  const TournamentDetailWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      // FIX [warning]: unfocus via FocusScope directly — no FocusNode needed.
       onTap: () => FocusScope.of(context).unfocus(),
-      child: Consumer<TournamentDetailModel>(
-        builder: (context, model, _) {
+      child: Selector<TournamentDetailModel, bool>(
+        selector: (_, m) => m.isLoading,
+        builder: (_, isLoading, __) {
           // FIX [warning]: replaced print() with debugPrint(), gated on
           //   kDebugMode so it is stripped in release builds.
           assert(() {
@@ -68,18 +69,19 @@ class _TournamentDetailWidgetState extends State<TournamentDetailWidget> {
             return true;
           }());
 
-          if (model.isLoading) {
+          if (isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
+          final model = context.read<TournamentDetailModel>();
+
           return Scaffold(
-            key: _scaffoldKey,
             backgroundColor: CustomFlowTheme.of(context).primaryBackground,
             body: SafeArea(
               top: true,
               child: _TournamentDetailBody(
                 model: model,
-                enrollCheckFuture: _enrollCheckFuture,
+                enrollCheckFuture: model.enrollCheckFuture,
               ),
             ),
           );
@@ -122,15 +124,35 @@ class _TournamentDetailBody extends StatelessWidget {
           _SettingsRowTwo(model: model),
 
           // ── 4. Winner area (only when tournament is closed) ───────────────
-          if (t.tournamentState == StateTournament.close && t.hasWinner)
-            _WinnerArea(winners: t.winner ?? []),
+          Selector<TournamentDetailModel, _TournamentOutcomeState>(selector: (_, m) => _TournamentOutcomeState(
+            state: m.tournamentModel.tournamentState,
+            hasWinner: m.tournamentModel.hasWinner,
+          ),
+            builder: (_, outcomeState, ___) {
+              if (outcomeState.state == StateTournament.close && outcomeState.hasWinner) {
+                return _WinnerArea(winners: t.winner ?? []);
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
 
           // ── 5. Registration / enrolment area ──────────────────────────────
-          if (t.tournamentState == StateTournament.ready && !t.hasWinner)
-            _RegistrationArea(
-              model: model,
-              enrollCheckFuture: enrollCheckFuture,
-            ),
+          Selector<TournamentDetailModel, _TournamentOutcomeState>(selector: (_, m) => _TournamentOutcomeState(
+            state: m.tournamentModel.tournamentState,
+            hasWinner: m.tournamentModel.hasWinner,
+          ),
+            builder: (_, outcomeState, ___) {
+              if (outcomeState.state == StateTournament.ready && !outcomeState.hasWinner) {
+                return _RegistrationArea(
+                  model: model,
+                  enrollCheckFuture: enrollCheckFuture,
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
 
           // ── 6. Tooltip / legend accordion ─────────────────────────────────
           const _TooltipAccordion(),
@@ -204,37 +226,38 @@ class _TournamentAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = model.tournamentModel;
 
-    return Stack(
-      children: [
-        Container(
-          width: _Dims.avatarSize,
-          height: _Dims.avatarSize,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: CustomFlowTheme.of(context).primary,
-              width: _Dims.borderWidth,
+    return Selector<TournamentDetailModel, String?>(selector: (_, m) => m.tournamentModel.tournamentImageUrl,
+      builder: (_, image, ___) => Stack(
+        children: [
+          Container(
+            width: _Dims.avatarSize,
+            height: _Dims.avatarSize,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: CustomFlowTheme.of(context).primary,
+                width: _Dims.borderWidth,
+              ),
+            ),
+            child: CircleAvatar(
+              radius: _Dims.avatarRadius,
+              backgroundImage: image == null
+                  ? const AssetImage('assets/images/icons/default_tournament.png') as ImageProvider
+                  : NetworkImage(image),
             ),
           ),
-          child: CircleAvatar(
-            radius: _Dims.avatarRadius,
-            backgroundImage: t.tournamentImageUrl == null
-                ? const AssetImage('assets/images/icons/default_tournament.png')
-            as ImageProvider
-                : NetworkImage(t.tournamentImageUrl!),
-          ),
-        ),
-        if (model.isTournamentEditable)
-          Positioned(
-            bottom: 5,
-            right: 0,
-            child: _EditBadge(
-              onTap: t.setTournamentImage,
-              radius: _Dims.editBadgeRadius,
-              iconSize: _Dims.editIconSize,
+          if (model.isTournamentEditable)
+            Positioned(
+              bottom: 5,
+              right: 0,
+              child: _EditBadge(
+                onTap: t.setTournamentImage,
+                radius: _Dims.editBadgeRadius,
+                iconSize: _Dims.editIconSize,
+              ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -249,40 +272,42 @@ class _TournamentNameRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = model.tournamentModel;
 
-    return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 5),
-      child: SizedBox(
-        width: 75.w,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Flexible(
-              child: Text(
-                t.tournamentName,
-                style: CustomFlowTheme.of(context).titleLarge,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            if (model.isTournamentEditable)
-              Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(5, 0, 0, 20),
-                child: _EditBadge(
-                  onTap: () {
-                    if (!context.mounted) return;
-                    context.goNamed(
-                      'DialogChangeTournamentName',
-                      pathParameters: {'tournamentId': t.tournamentId}
-                          .withoutNulls,
-                      extra: {
-                        'req': model.showChangeTournamentNameFormRequest(),
-                      },
-                    );
-                  },
-                  radius: _Dims.nameBadgeRadius,
-                  iconSize: _Dims.nameBadgeIconSize,
+    return Selector<TournamentDetailModel, String>(selector: (_, m) => m.tournamentModel.tournamentName,
+      builder: (_, name, ___) => Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 5),
+        child: SizedBox(
+          width: 75.w,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  name,
+                  style: CustomFlowTheme.of(context).titleLarge,
+                  textAlign: TextAlign.center,
                 ),
               ),
-          ],
+              if (model.isTournamentEditable)
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(5, 0, 0, 20),
+                  child: _EditBadge(
+                    onTap: () {
+                      if (!context.mounted) return;
+                      context.goNamed(
+                        'DialogChangeTournamentName',
+                        pathParameters: {'tournamentId': t.tournamentId}
+                            .withoutNulls,
+                        extra: {
+                          'req': model.showChangeTournamentNameFormRequest(),
+                        },
+                      );
+                    },
+                    radius: _Dims.nameBadgeRadius,
+                    iconSize: _Dims.nameBadgeIconSize,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -334,21 +359,24 @@ class _TournamentCounters extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               if (t.tournamentPreRegistrationEn)
-                _CounterLabel(
-                  count: t.tournamentPreRegisteredSize,
-                  label: ' Pre iscritti',
-                  context: context,
+                Selector<TournamentDetailModel, int>(selector: (_, m) => m.tournamentModel.tournamentPreRegisteredSize,
+                  builder: (_, size, ___) => _CounterLabel(
+                    count: size,
+                    label: ' Pre iscritti',
+                  ),
                 ),
               if (t.tournamentWaitingListEn)
-                _CounterLabel(
-                  count: t.tournamentWaitingSize,
-                  label: ' Waiting list',
-                  context: context,
+                Selector<TournamentDetailModel, int>(selector: (_, m) => m.tournamentModel.tournamentWaitingSize,
+                  builder: (_, size, ___) => _CounterLabel(
+                    count: size,
+                    label: ' Waiting list',
+                  ),
                 ),
-              _CounterLabel(
-                count: t.tournamentRegisteredSize,
-                label: ' Iscritti',
-                context: context,
+              Selector<TournamentDetailModel, int>(selector: (_, m) => m.tournamentModel.tournamentRegisteredSize,
+                builder: (_, size, ___) => _CounterLabel(
+                  count: size,
+                  label: ' Iscritti',
+                ),
               ),
             ],
           ),
@@ -362,13 +390,10 @@ class _CounterLabel extends StatelessWidget {
   const _CounterLabel({
     required this.count,
     required this.label,
-    required this.context,
   });
 
   final int count;
   final String label;
-  // ignore: avoid_field_initializers_in_const_classes
-  final BuildContext context;
 
   @override
   Widget build(BuildContext ctx) {
@@ -377,11 +402,11 @@ class _CounterLabel extends StatelessWidget {
       TextSpan(children: [
         TextSpan(
           text: count.toString(),
-          style: CustomFlowTheme.of(context).headlineSmall,
+          style: CustomFlowTheme.of(ctx).headlineSmall,
         ),
         TextSpan(
           text: label,
-          style: CustomFlowTheme.of(context).bodySmall,
+          style: CustomFlowTheme.of(ctx).bodySmall,
         ),
       ]),
     );
@@ -431,46 +456,48 @@ class _StateDropdown extends StatelessWidget {
     final t = model.tournamentModel;
     final states = _visibleStates;
 
-    return _SettingsCell(
-      child: DropdownButton<String>(
-        alignment: Alignment.center,
-        value: t.tournamentState.name,
-        isExpanded: true,
-        icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
-        iconSize: 30,
-        underline: const SizedBox.shrink(),
-        onChanged: model.canInteractOn
-            ? (String? newValue) {
-          if (newValue == null || !context.mounted) return;
-          context.goNamed(
-            'DialogState',
-            pathParameters: {'tournamentId': t.tournamentId}.withoutNulls,
-            extra: {
-              'req': model
-                  .showChangeTournamentStateAlertRequest(newValue),
-            },
-          );
-        }
-            : null,
-        items: states.map((s) {
-          return DropdownMenuItem<String>(
-            value: s.name,
-            child: Text(
-              s.desc,
-              style: TextStyle(
-                color: s.indexState == t.tournamentState.indexState
-                    ? CustomFlowTheme.of(context).primary
-                    : CustomFlowTheme.of(context).info,
+    return Selector<TournamentDetailModel, StateTournament>(selector: (_, m) => m.tournamentModel.tournamentState,
+      builder: (_, state, ___) => _SettingsCell(
+        child: DropdownButton<String>(
+          alignment: Alignment.center,
+          value: state.name,
+          isExpanded: true,
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
+          iconSize: 30,
+          underline: const SizedBox.shrink(),
+          onChanged: model.canInteractOn
+              ? (String? newValue) {
+            if (newValue == null || !context.mounted) return;
+            context.goNamed(
+              'DialogState',
+              pathParameters: {'tournamentId': t.tournamentId}.withoutNulls,
+              extra: {
+                'req': model
+                    .showChangeTournamentStateAlertRequest(newValue),
+              },
+            );
+          }
+              : null,
+          items: states.map((s) {
+            return DropdownMenuItem<String>(
+              value: s.name,
+              child: Text(
+                s.desc,
+                style: TextStyle(
+                  color: s.indexState == state.indexState
+                      ? CustomFlowTheme.of(context).primary
+                      : CustomFlowTheme.of(context).info,
+                ),
               ),
-            ),
-          );
-        }).toList(),
-        selectedItemBuilder: (_) => states.map<Widget>((s) {
-          return _SettingsCellContent(
-            title: 'STATO',
-            subtitle: s.desc,
-          );
-        }).toList(),
+            );
+          }).toList(),
+          selectedItemBuilder: (_) => states.map<Widget>((s) {
+            return _SettingsCellContent(
+              title: 'STATO',
+              subtitle: s.desc,
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -491,21 +518,23 @@ class _DateSelector extends StatelessWidget {
       onTap: () {
         if (editable) _showDatePicker(context, t);
       },
-      child: _SettingsCell(
-        color: editable
-            ? CustomFlowTheme.of(context).info
-            : Colors.grey,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _SettingsCellContent(
-              title: 'DATA',
-              subtitle: DateFormat('dd/MM/yy')
-                  .format(t.tournamentDate ?? DateTime.now()),
-              subtitleColor: editable ? Colors.grey : Colors.black,
-            ),
-            const Icon(Icons.arrow_drop_down, color: Colors.black, size: 30),
-          ],
+      child: Selector<TournamentDetailModel, DateTime?>(selector: (_, m) => m.tournamentModel.tournamentDate,
+        builder: (_, date, ___) => _SettingsCell(
+          color: editable
+              ? CustomFlowTheme.of(context).info
+              : Colors.grey,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _SettingsCellContent(
+                title: 'DATA',
+                subtitle: DateFormat('dd/MM/yy')
+                    .format(date ?? DateTime.now()),
+                subtitleColor: editable ? Colors.grey : Colors.black,
+              ),
+              const Icon(Icons.arrow_drop_down, color: Colors.black, size: 30),
+            ],
+          ),
         ),
       ),
     );
@@ -551,20 +580,22 @@ class _CapacitySelector extends StatelessWidget {
           },
         );
       },
-      child: _SettingsCell(
-        color: editable
-            ? CustomFlowTheme.of(context).info
-            : Colors.grey,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _SettingsCellContent(
-              title: 'CAPIENZA',
-              subtitle: t.tournamentCapacity,
-              subtitleColor: editable ? Colors.grey : Colors.black,
-            ),
-            const Icon(Icons.arrow_drop_down, color: Colors.black, size: 30),
-          ],
+      child: Selector<TournamentDetailModel, String>(selector: (_, m) => m.tournamentModel.tournamentCapacity,
+        builder: (_, cap, ___) => _SettingsCell(
+          color: editable
+              ? CustomFlowTheme.of(context).info
+              : Colors.grey,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _SettingsCellContent(
+                title: 'CAPIENZA',
+                subtitle: cap,
+                subtitleColor: editable ? Colors.grey : Colors.black,
+              ),
+              const Icon(Icons.arrow_drop_down, color: Colors.black, size: 30),
+            ],
+          ),
         ),
       ),
     );
@@ -585,37 +616,41 @@ class _SettingsRowTwo extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _ToggleCell(
-          model: model,
-          title: 'PRE ISCRIZIONI',
-          enabled: model.isTournamentEditable,
-          value: model.tournamentModel.tournamentPreRegistrationEn,
-          onTap: () {
-            if (!model.isTournamentEditable || !context.mounted) return;
-            context.goNamed(
-              'DialogPreIscrizioni',
-              pathParameters: {
-                'tournamentId': model.tournamentModel.tournamentId,
-              }.withoutNulls,
-              extra: {'req': model.showSwitchPreIscrizioniAlertRequest()},
-            );
-          },
+      Selector<TournamentDetailModel, bool>(selector: (_, m) => m.tournamentModel.tournamentPreRegistrationEn,
+        builder: (_, flag, ___) => _ToggleCell(
+            model: model,
+            title: 'PRE ISCRIZIONI',
+            enabled: model.isTournamentEditable,
+            value: flag,
+            onTap: () {
+              if (!model.isTournamentEditable || !context.mounted) return;
+              context.goNamed(
+                'DialogPreIscrizioni',
+                pathParameters: {
+                  'tournamentId': model.tournamentModel.tournamentId,
+                }.withoutNulls,
+                extra: {'req': model.showSwitchPreIscrizioniAlertRequest()},
+              );
+            },
+          ),
         ),
-        _ToggleCell(
-          model: model,
-          title: 'WAITING LIST',
-          enabled: model.tournamentModel.tournamentWaitingListPossible,
-          value: model.tournamentModel.tournamentWaitingListEn,
-          onTap: () {
-            if (!model.isTournamentEditable || !context.mounted) return;
-            context.goNamed(
-              'DialogWaitingList',
-              pathParameters: {
-                'tournamentId': model.tournamentModel.tournamentId,
-              }.withoutNulls,
-              extra: {'req': model.showSwitchWaitingListAlertRequest()},
-            );
-          },
+        Selector<TournamentDetailModel, bool>(selector: (_, m) => m.tournamentModel.tournamentWaitingListEn,
+          builder: (_, flag, ___) => _ToggleCell(
+            model: model,
+            title: 'WAITING LIST',
+            enabled: model.tournamentModel.tournamentWaitingListPossible,
+            value: flag,
+            onTap: () {
+              if (!model.isTournamentEditable || !context.mounted) return;
+              context.goNamed(
+                'DialogWaitingList',
+                pathParameters: {
+                  'tournamentId': model.tournamentModel.tournamentId,
+                }.withoutNulls,
+                extra: {'req': model.showSwitchWaitingListAlertRequest()},
+              );
+            },
+          ),
         ),
       ],
     );

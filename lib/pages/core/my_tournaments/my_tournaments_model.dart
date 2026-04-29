@@ -10,8 +10,8 @@ class MyTournamentsModel extends ChangeNotifier {
   bool _isLoading = false;
   late PagingController<int, TournamentsRecord> _pagingControllerActive;
   late PagingController<int, TournamentsRecord> _pagingControllerClosed;
-  bool showActiveTournaments = true;
-  bool showClosedTournaments = true;
+  bool _showActiveTournaments = true;
+  bool _showClosedTournaments = true;
   static const _pageSize = 10;
 
 
@@ -27,15 +27,17 @@ class MyTournamentsModel extends ChangeNotifier {
   PagingController<int, TournamentsRecord> get pagingControllerActive => _pagingControllerActive;
   PagingController<int, TournamentsRecord> get pagingControllerClosed => _pagingControllerClosed;
   bool get isLoading => _isLoading;
-  int get pageSize => pageSize;
+  int get pageSize => _pageSize;
+  bool get showActiveTournaments => _showActiveTournaments;
+  bool get showClosedTournaments => _showClosedTournaments;
 
   /////////////////////////////SETTER
   void switchShowActiveTournaments() {
-    showActiveTournaments = !showActiveTournaments;
+    _showActiveTournaments = !_showActiveTournaments;
     notifyListeners();
   }
   void switchShowClosedTournaments() {
-    showClosedTournaments = !showClosedTournaments;
+    _showClosedTournaments = !_showClosedTournaments;
     notifyListeners();
   }
   Future<void> _fetchPage(int pageKey, bool active) async {

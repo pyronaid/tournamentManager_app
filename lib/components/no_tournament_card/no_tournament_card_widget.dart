@@ -46,7 +46,7 @@ class _NoTournamentCardWidgetState extends State<NoTournamentCardWidget> {
   @override
   Widget build(BuildContext context) {
     return  Container(
-      color: widget.active ? CustomFlowTheme.of(context).primaryBackground : CustomFlowTheme.of(context).secondary,
+      color: widget.active ? CustomFlowTheme.of(context).secondary : CustomFlowTheme.of(context).primaryBackground,
       child: Padding(
         padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
         child: Container(
@@ -55,7 +55,7 @@ class _NoTournamentCardWidgetState extends State<NoTournamentCardWidget> {
             color: widget.active ? CustomFlowTheme.of(context).secondary : CustomFlowTheme.of(context).primaryBackground,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: CustomFlowTheme.of(context).alternate,
+              color: widget.active ? CustomFlowTheme.of(context).secondary : CustomFlowTheme.of(context).primaryBackground,
               width: 1,
             ),
           ),

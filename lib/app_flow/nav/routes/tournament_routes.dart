@@ -39,7 +39,10 @@ class TournamentRoutes {
           name: 'TournamentDetails',
           path: 'tournament-dets',
           redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-          builder: (context, params) => const TournamentDetailContainer(),
+          builder: (context, params) {
+            logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentDetail'});
+            return const TournamentDetailContainer();
+          },
           routes: [
             GoRoute(
               name: 'DialogState',

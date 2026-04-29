@@ -15,6 +15,8 @@ class AlertRequest {
   final String buttonTitleConfirmed;
   final String buttonTitleCancelled;
   final String? redirectConfirmed;
+  final bool isDestructive;
+  final String? processingLabel;
   final Future<void> Function(List<dynamic>?)? functionConfirmed;
 
   AlertRequest({
@@ -22,6 +24,8 @@ class AlertRequest {
     required this.description,
     required this.buttonTitleConfirmed,
     required this.buttonTitleCancelled,
+    this.isDestructive = false,
+    this.processingLabel,
     this.redirectConfirmed,
     this.functionConfirmed,
   });

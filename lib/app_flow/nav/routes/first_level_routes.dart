@@ -30,7 +30,10 @@ class FirstLevelRoutes {
           name: 'Dashboard',
           path: 'dashboard',
           redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-          builder: (context, params) => const MyTournamentsContainer(),
+          builder: (context, params) {
+            logFirebaseEvent('screen_view', parameters: {'screen_name': 'My_Tournaments'});
+            return const MyTournamentsContainer();
+          },
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     ),
@@ -41,7 +44,10 @@ class FirstLevelRoutes {
           name: 'OwnTournaments',
           path: 'own-tournaments',
           redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-          builder: (context, params) => const OwnTournamentsContainer(),
+          builder: (context, params) {
+            logFirebaseEvent('screen_view', parameters: {'screen_name': 'Own_Tournaments'});
+            return const OwnTournamentsContainer();
+          },
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     ),

@@ -83,7 +83,7 @@ class TournamentModel extends ChangeNotifier {
       String executionId = const Uuid().v4();
       loaderService.showLoader(id: executionId);
       await tournamentsRefObj?.setName(pb, newTournamentName);
-      notifyListeners();
+      //notifyListeners();
       loaderService.hideLoader(id: executionId);
     }
   }
@@ -100,7 +100,7 @@ class TournamentModel extends ChangeNotifier {
         await tournamentsRefObj?.switchWaitingListEn(pb);
       }
       await tournamentsRefObj?.setCapacity(pb, newTournamentCapacityInt);
-      notifyListeners();
+      //notifyListeners();
       loaderService.hideLoader(id: executionId);
     }
   }
@@ -109,7 +109,7 @@ class TournamentModel extends ChangeNotifier {
       String executionId = const Uuid().v4();
       loaderService.showLoader(id: executionId);
       await tournamentsRefObj?.setDate(pb, newTournamentData);
-      notifyListeners();
+      //notifyListeners();
       loaderService.hideLoader(id: executionId);
     }
   }
@@ -118,7 +118,7 @@ class TournamentModel extends ChangeNotifier {
       String executionId = const Uuid().v4();
       loaderService.showLoader(id: executionId);
       await tournamentsRefObj?.setState(pb, newTournamentState);
-      notifyListeners();
+      //notifyListeners();
       loaderService.hideLoader(id: executionId);
     }
   }
@@ -129,14 +129,14 @@ class TournamentModel extends ChangeNotifier {
     if(!tournamentWaitingListPossible && tournamentWaitingListEn){
       switchTournamentWaitingListEn();
     }
-    notifyListeners();
+    //notifyListeners();
     loaderService.hideLoader(id: executionId);
   }
   Future<void> switchTournamentWaitingListEn() async {
     String executionId = const Uuid().v4();
     loaderService.showLoader(id: executionId);
     await tournamentsRefObj?.switchWaitingListEn(pb);
-    notifyListeners();
+    //notifyListeners();
     loaderService.hideLoader(id: executionId);
   }
   Future<void> setTournamentImage() async{
@@ -155,7 +155,7 @@ class TournamentModel extends ChangeNotifier {
         filename: 'tournamentImage',
       );
       await tournamentsRefObj?.setImage(pb, files: [file]);
-      notifyListeners();
+      //notifyListeners();
       loaderService.hideLoader(id: executionId);
     }
   }
@@ -232,7 +232,7 @@ class TournamentModel extends ChangeNotifier {
     String executionId = const Uuid().v4();
     loaderService.showLoader(id: executionId);
     await NewsRecord.deleteNews(pb, newsId);
-    notifyListeners();
+    //notifyListeners();
     loaderService.hideLoader(id: executionId);
   }
   Future<void> deleteRound(PocketBase pb, String roundId) async {
@@ -240,7 +240,7 @@ class TournamentModel extends ChangeNotifier {
     loaderService.showLoader(id: executionId);
     //TODO call API function to delete exhaustive round and other tables records
     //await RoundsRecord.deleteRound(tournamentsRef!, roundId);
-    notifyListeners();
+    //notifyListeners();
     loaderService.hideLoader(id: executionId);
   }
 

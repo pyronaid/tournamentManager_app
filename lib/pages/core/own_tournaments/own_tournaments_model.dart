@@ -8,13 +8,11 @@ import '../../../backend/schema/tournaments_record.dart';
 
 class OwnTournamentsModel extends ChangeNotifier {
 
-  final _unfocusNode = FocusNode();
-
   bool _isLoading = false;
   late PagingController<int, TournamentsRecord> _pagingControllerActive;
   late PagingController<int, TournamentsRecord> _pagingControllerClosed;
-  bool showActiveTournaments = true;
-  bool showClosedTournaments = true;
+  bool _showActiveTournaments = true;
+  bool _showClosedTournaments = true;
   static const _pageSize = 10;
 
 
@@ -27,19 +25,20 @@ class OwnTournamentsModel extends ChangeNotifier {
   }
 
   /////////////////////////////GETTER
-  FocusNode get unfocusNode => _unfocusNode;
   PagingController<int, TournamentsRecord> get pagingControllerActive => _pagingControllerActive;
   PagingController<int, TournamentsRecord> get pagingControllerClosed => _pagingControllerClosed;
   bool get isLoading => _isLoading;
   int get pageSize => _pageSize;
+  bool get showActiveTournaments => _showActiveTournaments;
+  bool get showClosedTournaments => _showClosedTournaments;
 
   /////////////////////////////SETTER
   void switchShowActiveTournaments() {
-    showActiveTournaments = !showActiveTournaments;
+    _showActiveTournaments = !_showActiveTournaments;
     notifyListeners();
   }
   void switchShowClosedTournaments() {
-    showClosedTournaments = !showClosedTournaments;
+    _showClosedTournaments = !_showClosedTournaments;
     notifyListeners();
   }
   Future<void> _fetchPage(int pageKey, bool active) async {
@@ -47,12 +46,12 @@ class OwnTournamentsModel extends ChangeNotifier {
     String filter = active ? 'state != "close"' : 'state = "close"';
     try {
       final List<TournamentsRecord> newItems = await TournamentsRecord.getDocumentsOnce(
-        pb,
-        false,
-        'id_owner = "$currentUserUid" && $filter',
-        sorting: 'date',
-        page: pageKey,
-        perPage: _pageSize
+          pb,
+          false,
+          'id_owner = "$currentUserUid" && $filter',
+          sorting: 'date',
+          page: pageKey,
+          perPage: _pageSize
       );
       final isLastPage = newItems.length < _pageSize;
 
@@ -76,8 +75,6 @@ class OwnTournamentsModel extends ChangeNotifier {
   void dispose() {
     _pagingControllerActive.dispose();
     _pagingControllerClosed.dispose();
-    unfocusNode.dispose();
     super.dispose();
   }
-
 }
