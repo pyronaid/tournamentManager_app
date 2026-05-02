@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/components/custom_expansion_panel/custom_expansion_panel_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_pairings/tournament_pairings_model.dart';
 
-import '../../../app_flow/app_flow_model.dart';
 import '../../../backend/schema/pairings_record.dart';
 import '../../../components/custom_appbar_widget.dart';
 import '../../../components/generic_loading/generic_loading_widget.dart';
@@ -16,213 +16,264 @@ import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 import '../../../components/tournament_pairing_card/tournament_pairing_card_widget.dart';
 import '../../../components/tournament_pairing_card_expand/tournament_pairing_card_expand_widget.dart';
 
+// ---------------------------------------------------------------------------
+// DIMENSION CONSTANTS
+// ---------------------------------------------------------------------------
+abstract class _Dims {
+  static const double appBarHeight      = 250.0;
+  static const double appBarPaddingH    = 15.0;
+  static const double appBarPaddingV    = 15.0;
+  static const double titlePaddingTop   = 24.0;
+  static const double titlePaddingBot   = 30.0;
+  static const double searchBoxPercent  = 65.0; // percentage via responsive_sizer
+  static const double searchBoxPaddingH = 5.0;
+  static const double searchIconSize    = 18.0;
+  static const double listTopPadding    = 20.0;
+  static const double listBottomSpacing = 100.0;
+}
 
-class TournamentPairingsWidget extends StatefulWidget {
+class TournamentPairingsWidget extends StatelessWidget {
   const TournamentPairingsWidget({super.key});
 
   @override
-  State<TournamentPairingsWidget> createState() => _TournamentPairingsWidgetState();
+  Widget build(BuildContext context) {
+    // initContextVars is idempotent — safe to call on every build.
+    context.read<TournamentPairingsModel>().initContextVars(context);
+
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: CustomFlowTheme.of(context).primaryBackground,
+        // ── Body: rebuilds only when isLoading changes ─────────────────────
+        body: SafeArea(
+          top: true,
+          child: Selector<TournamentPairingsModel, bool>(
+            selector: (_, m) => m.isLoading,
+            builder: (_, isLoading, __) {
+              assert(() {
+                debugPrint('[BUILD] tournament_pairings_widget.dart');
+                return true;
+              }());
+
+              if (isLoading) return const _LoadingBody();
+              return const _PairingsBody();
+            },
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-
-class _TournamentPairingsWidgetState extends State<TournamentPairingsWidget> {
-
-  late TournamentPairingsModel tournamentPairingsModel;
-
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _unfocusNode = FocusNode();
+// ---------------------------------------------------------------------------
+// LOADING BODY
+// ---------------------------------------------------------------------------
+class _LoadingBody extends StatelessWidget {
+  const _LoadingBody();
 
   @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context) =>
+      const Center(child: CircularProgressIndicator());
+}
 
-    //logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentDetail'});
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-
-    tournamentPairingsModel = context.read<TournamentPairingsModel>();
-    tournamentPairingsModel.initContextVars(context);
-  }
-
-  @override
-  void dispose() {
-    _unfocusNode.dispose();
-    super.dispose();
-  }
+// ---------------------------------------------------------------------------
+// PAIRINGS BODY
+// Owns the pull-to-refresh and CustomScrollView.
+// context.read is correct: _PairingsBody only rebuilds when isLoading flips.
+// ---------------------------------------------------------------------------
+class _PairingsBody extends StatelessWidget {
+  const _PairingsBody();
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_unfocusNode)
-          : FocusScope.of(context).unfocus(),
-      child: Consumer<TournamentPairingsModel>(
-          builder: (context, providerTournamentPairings, _) {
-            debugPrint("[BUILD IN CORSO] tournament_pairings_widget.dart");
-            if (providerTournamentPairings.isLoading) {
-              return Scaffold(
-                key: _scaffoldKey,
-                backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-                body: const SafeArea(
-                  top: true,
-                  child: SingleChildScrollView(
-                      child: Center(child: CircularProgressIndicator())
-                  ),
-                ),
-              );
-            }
+    final model = context.read<TournamentPairingsModel>();
 
-            return Scaffold(
-              key: _scaffoldKey,
-              backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-              body: SafeArea(
-                top: true,
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    await providerTournamentPairings.onRefresh();
-                  },
-                  child: CustomScrollView(
-                    slivers: [
-                      // use sliver padding if needed https://api.flutter.dev/flutter/widgets/SliverPadding-class.html
+    return RefreshIndicator(
+      onRefresh: model.onRefresh,
+      child: CustomScrollView(
+        slivers: [
+          // ── Pinned header + search ──────────────────────────────────────
+          _PairingsAppBar(model: model),
 
-                      ////////////////
-                      //Pairings SECTION HEADER
-                      /////////////////
-                      SliverAppBar(
-                        automaticallyImplyLeading: false,
-                        pinned: true,
-                        snap: false,
-                        floating: false,
-                        expandedHeight: 250.0,
-                        collapsedHeight: 250.0,
-                        backgroundColor: CustomFlowTheme.of(context).secondary,
-                        flexibleSpace: Padding(
-                          padding: const EdgeInsetsDirectional.symmetric(horizontal: 15, vertical: 15),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              wrapWithModel(
-                                model: providerTournamentPairings.customAppbarModel,
-                                updateCallback: () => setState(() {}),
-                                child: CustomAppbarWidget(
-                                  backButton: true,
-                                  actionButton: true,
-                                  actionButtonText: 'Rankings',
-                                  actionButtonAction: () async {
-                                    context.pushNamedAuth(
-                                      'TournamentRankings', context.mounted,
-                                      pathParameters: {
-                                        'tournamentId': providerTournamentPairings.tournamentModel.tournamentsRef,
-                                      }.withoutNulls,
-                                      extra: {
-                                        'roundId': providerTournamentPairings.roundId,
-                                        'provider': providerTournamentPairings.tournamentModel,
-                                      },
-                                    );
-                                  },
-                                  optionsButtonAction: () async {},
-                                ),
-                              ),
-                              ////////////////
-                              //PAGE TITLE
-                              /////////////////
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 30),
-                                child: Text(
-                                  'Dettaglio Pairings',
-                                  style: CustomFlowTheme.of(context).displaySmall,
-                                ),
-                              ),
-                              ////////////////
-                              //research box
-                              /////////////////
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: 65.w,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                                      child: TextField(
-                                        controller: providerTournamentPairings.playerNameTextController,
-                                        focusNode: providerTournamentPairings.playerNameFocusNode,
-                                        autofocus: false,
-                                        obscureText: false,
-                                        decoration: standardInputDecoration(
-                                          context,
-                                          prefixIcon: Icon(
-                                            Icons.person,
-                                            color: CustomFlowTheme.of(context).secondaryText,
-                                            size: 18,
-                                          ),
-                                        ),
-                                        style: CustomFlowTheme.of(context).bodyLarge.override(
-                                          fontWeight: FontWeight.w500,
-                                          lineHeight: 1,
-                                        ),
-                                        minLines: 1,
-                                        cursorColor: CustomFlowTheme.of(context).primary,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+          // ── Paged list ──────────────────────────────────────────────────
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(0, _Dims.listTopPadding, 0, 0),
+            sliver: _PairingsListSliver(model: model),
+          ),
 
-                      ////////////////
-                      //Pairings SECTION INF LIST
-                      /////////////////
-                      SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                        sliver: PagedSliverList<int, PairingsRecord>(
-                          pagingController: providerTournamentPairings.pagingControllerPairings,
-                          builderDelegate: PagedChildBuilderDelegate<PairingsRecord>(
-                            itemBuilder: (context, item, index) => CustomExpansionPanelWidget(
-                              isExpandable: !item.isBye && providerTournamentPairings.isTournamentEditable(item),
-                              expandedContentBuilder: (context){
-                                return TournamentPairingCardExpandWidget(
-                                  pairingRef: item,
-                                  updateFun: (pairingsId, dataToUpdate) => providerTournamentPairings.updatePairing(pairingsId, dataToUpdate),
-                                );
-                              },
-                              child: TournamentPairingsCardWidget(
-                                key: Key('Keykia_${item.uid}_position_${index}_of_pairings'),
-                                //last: index == (providerMyTournaments.pagingControllerActive.itemList!.length - 1),
-                                pairingRef: item,
-                                indexo: index,
-                                deleteFun: (pairingsId) => providerTournamentPairings.deletePairing(pairingsId),
-                              ),
-                            ),
-                            firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-                            noItemsFoundIndicatorBuilder: (_) => const NoTournamentPairingsCardWidget(
-                              active: true,
-                              phrase: "Nessun pairing pubblicato",
-                            ),
-                            newPageProgressIndicatorBuilder: (_) => const Center(child: CircularProgressIndicator()),
-                          ),
-                          shrinkWrapFirstPageIndicators: true,
-                        ),
-                      ),
+          // ── Bottom spacer (keeps last card above any FAB) ───────────────
+          const SliverToBoxAdapter(
+            child: SizedBox(
+              height: _Dims.listBottomSpacing,
+              width: double.infinity,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-                      ////////////////
-                      //Pairings SECTION END
-                      /////////////////
-                      SliverToBoxAdapter(
-                        child: SizedBox(
-                          height: 100,
-                          width: 100.w,
-                        ),
-                      )
-                    ],
-                  ),
+// ---------------------------------------------------------------------------
+// PAIRINGS APP BAR
+// Pinned SliverAppBar containing navigation controls and the search field.
+// wrapWithModel provides CustomAppbarModel to the subtree and marks it as
+// not-widget-disposable (the page model owns its lifecycle).
+// The updateCallback no-op is intentional: the appbar content is static for
+// this page, so triggering a parent rebuild on appbar changes is not needed.
+// ---------------------------------------------------------------------------
+class _PairingsAppBar extends StatelessWidget {
+  const _PairingsAppBar({required this.model});
+
+  final TournamentPairingsModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverAppBar(
+      automaticallyImplyLeading: false,
+      pinned: true,
+      snap: false,
+      floating: false,
+      expandedHeight: _Dims.appBarHeight,
+      collapsedHeight: _Dims.appBarHeight,
+      backgroundColor: CustomFlowTheme.of(context).secondary,
+      flexibleSpace: Padding(
+        padding: const EdgeInsetsDirectional.symmetric(
+          horizontal: _Dims.appBarPaddingH,
+          vertical: _Dims.appBarPaddingV,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            // ── Navigation bar ──────────────────────────────────────────
+            wrapWithModel(
+              model: model.customAppbarModel,
+              updateCallback: () {},
+              child: CustomAppbarWidget(
+                backButton: true,
+                actionButton: true,
+                actionButtonText: 'Rankings',
+                actionButtonAction: () async {
+                  if (!context.mounted) return;
+                  context.pushNamedAuth(
+                    'TournamentRankings', context.mounted,
+                    pathParameters: {
+                      'tournamentId': model.tournamentModel.tournamentsRef,
+                      'roundId': model.roundId,
+                    }.withoutNulls,
+                  );
+                },
+                optionsButtonAction: () async {},
+              ),
+            ),
+
+            // ── Page title ──────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                0, _Dims.titlePaddingTop, 0, _Dims.titlePaddingBot,
+              ),
+              child: Text(
+                'Dettaglio Pairings',
+                style: CustomFlowTheme.of(context).displaySmall,
+              ),
+            ),
+
+            // ── Player search field ─────────────────────────────────────
+            _SearchBox(model: model),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SEARCH BOX
+// ---------------------------------------------------------------------------
+class _SearchBox extends StatelessWidget {
+  const _SearchBox({required this.model});
+
+  final TournamentPairingsModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: _Dims.searchBoxPercent.w,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: _Dims.searchBoxPaddingH,
+            ),
+            child: TextField(
+              controller: model.playerNameTextController,
+              focusNode: model.playerNameFocusNode,
+              autofocus: false,
+              obscureText: false,
+              decoration: standardInputDecoration(
+                context,
+                prefixIcon: Icon(
+                  Icons.person,
+                  color: CustomFlowTheme.of(context).secondaryText,
+                  size: _Dims.searchIconSize,
                 ),
               ),
-            );
-          }
+              style: CustomFlowTheme.of(context).bodyLarge.override(
+                fontWeight: FontWeight.w500,
+                lineHeight: 1,
+              ),
+              minLines: 1,
+              cursorColor: CustomFlowTheme.of(context).primary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// PAIRINGS SLIVER LIST
+// Encapsulates PagedSliverList and its delegate configuration.
+// Keeping this separate makes it easy to swap the pagination library later.
+// ---------------------------------------------------------------------------
+class _PairingsListSliver extends StatelessWidget {
+  const _PairingsListSliver({required this.model});
+
+  final TournamentPairingsModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    return PagedSliverList<int, PairingsRecord>(
+      pagingController: model.pagingControllerPairings,
+      builderDelegate: PagedChildBuilderDelegate<PairingsRecord>(
+        // ── Item builder ───────────────────────────────────────────────
+        itemBuilder: (context, item, index) => CustomExpansionPanelWidget(
+          isExpandable: !item.isBye && model.isTournamentEditable(item),
+          expandedContentBuilder: (context) => TournamentPairingCardExpandWidget(
+            pairingRef: item,
+            updateFun: model.updatePairing,
+          ),
+          child: TournamentPairingsCardWidget(
+            key: ValueKey('pairing_${item.uid}_$index'),
+            pairingRef: item,
+            indexo: index,
+            deleteFun: model.deletePairing,
+          ),
+        ),
+
+        // ── Placeholder states ─────────────────────────────────────────
+        firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
+        noItemsFoundIndicatorBuilder: (_) => const NoTournamentPairingsCardWidget(
+          active: true,
+          phrase: 'Nessun pairing pubblicato',
+        ),
+        newPageProgressIndicatorBuilder: (_) =>
+            const Center(child: CircularProgressIndicator()),
       ),
+      shrinkWrapFirstPageIndicators: true,
     );
   }
 }

@@ -12,137 +12,161 @@ import '../../../components/generic_loading/generic_loading_widget.dart';
 import '../../../components/no_tournament_round_card/no_tournament_rounds_card_widget.dart';
 import '../../../components/tournament_round_card/tournament_rounds_card_widget.dart';
 
-
-class TournamentRoundsWidget extends StatefulWidget {
-  const TournamentRoundsWidget({super.key});
-
-  @override
-  State<TournamentRoundsWidget> createState() => _TournamentRoundsWidgetState();
+// ---------------------------------------------------------------------------
+// DIMENSION CONSTANTS
+// ---------------------------------------------------------------------------
+abstract class _Dims {
+  static const double listTopPadding    = 20.0;
+  static const double listBottomSpacing = 100.0;
+  static const double fabDistance       = 60.0;
 }
 
-
-class _TournamentRoundsWidgetState extends State<TournamentRoundsWidget> {
-
-  late TournamentRoundsModel tournamentRoundsModel;
-
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _unfocusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-
-    //logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentDetail'});
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-
-    tournamentRoundsModel = context.read<TournamentRoundsModel>();
-  }
-
-  @override
-  void dispose() {
-    _unfocusNode.dispose();
-    super.dispose();
-  }
+class TournamentRoundsWidget extends StatelessWidget {
+  const TournamentRoundsWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_unfocusNode)
-          : FocusScope.of(context).unfocus(),
-      child: Consumer<TournamentRoundsModel>(
-          builder: (context, providerTournamentRounds, _) {
-            print("[BUILD IN CORSO] tournament_rounds_widget.dart");
-            if (providerTournamentRounds.isLoading) {
-              return Scaffold(
-                key: _scaffoldKey,
-                backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-                body: const SafeArea(
-                  top: true,
-                  child: SingleChildScrollView(
-                      child: Center(child: CircularProgressIndicator())
-                  ),
-                ),
-              );
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: CustomFlowTheme.of(context).primaryBackground,
+
+        // ── FAB: rebuilds only when isTournamentOngoing or canInteractOn
+        // changes — not on every model notification.
+        floatingActionButton: Selector<TournamentRoundsModel,
+            ({bool ongoing, bool canInteract})>(
+          selector: (_, m) => (
+          ongoing: m.isTournamentOngoing,
+          canInteract: m.canInteractOn,
+          ),
+          builder: (context, state, __) {
+            if (!state.ongoing || !state.canInteract) {
+              return const SizedBox.shrink();
             }
-
-            return Scaffold(
-              key: _scaffoldKey,
-              backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-              floatingActionButton: (providerTournamentRounds.isTournamentOngoing && providerTournamentRounds.canInteractOn) ? FabExpandableWidget(
-                distance: 60,
-                children: providerTournamentRounds.buildFabActions(context),
-              ) : null,
-              body: SafeArea(
-                top: true,
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    await providerTournamentRounds.onRefresh();
-                  },
-                  child: CustomScrollView(
-                    slivers: [
-                      // use sliver padding if needed https://api.flutter.dev/flutter/widgets/SliverPadding-class.html
-
-                      ////////////////
-                      //ROUNDS SECTION HEADER
-                      /////////////////
-
-
-                      ////////////////
-                      //ROUNDS SECTION INF LIST
-                      /////////////////
-                      SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                        sliver: PagedSliverList<int, RoundsRecord>(
-                          pagingController: providerTournamentRounds.pagingControllerRounds,
-                          builderDelegate: PagedChildBuilderDelegate<RoundsRecord>(
-                            itemBuilder: (context, item, index) => TournamentRoundsCardWidget(
-                              key: Key('Keykia_${item.uid}_position_${index}_of_rounds'),
-                              roundRef: item,
-                              indexo: index,
-                              deleteFun: (item) => providerTournamentRounds.deleteRound(item),
-                              closeFun: index == (providerTournamentRounds.pagingControllerRounds.itemList!.length - 1) ? (item) => providerTournamentRounds.closeTournament(item) : null,
-                              deepFun: (roundId) {
-                                context.pushNamedAuth(
-                                  'TournamentPairings', context.mounted,
-                                  pathParameters: {
-                                    'tournamentId': providerTournamentRounds.tournamentModel.tournamentId,
-                                  }.withoutNulls,
-                                  extra: {
-                                    'roundId' : roundId,
-                                    'provider' : providerTournamentRounds.tournamentModel
-                                  },
-                                );
-                              },
-                              editable: providerTournamentRounds.isTournamentEditable,
-                            ),
-                            firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-                            noItemsFoundIndicatorBuilder: (_) => const NoTournamentRoundsCardWidget(
-                              active: true,
-                              phrase: "Nessun round pubblicato",
-                            ),
-                            newPageProgressIndicatorBuilder: (_) => const Center(child: CircularProgressIndicator()),
-                          ),
-                          shrinkWrapFirstPageIndicators: true,
-                        ),
-                      ),
-
-                      ////////////////
-                      //ROUNDS SECTION END
-                      /////////////////
-                      SliverToBoxAdapter(
-                        child: SizedBox(
-                          height: 100,
-                          width: 100.w,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
+            final model = context.read<TournamentRoundsModel>();
+            return FabExpandableWidget(
+              distance: _Dims.fabDistance,
+              children: model.buildFabActions(context),
             );
-          }
+          },
+        ),
+
+        // ── Body: loading gate rebuilds only when isLoading changes.
+        body: SafeArea(
+          top: true,
+          child: Selector<TournamentRoundsModel, bool>(
+            selector: (_, m) => m.isLoading,
+            builder: (_, isLoading, __) {
+              assert(() {
+                debugPrint('[BUILD] tournament_rounds_widget.dart');
+                return true;
+              }());
+
+              if (isLoading) return const _LoadingBody();
+              return const _RoundsBody();
+            },
+          ),
+        ),
       ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// LOADING BODY
+// ---------------------------------------------------------------------------
+class _LoadingBody extends StatelessWidget {
+  const _LoadingBody();
+
+  @override
+  Widget build(BuildContext context) =>
+      const Center(child: CircularProgressIndicator());
+}
+
+// ---------------------------------------------------------------------------
+// ROUNDS BODY
+// Owns the RefreshIndicator and the CustomScrollView.
+// context.read is correct here: _RoundsBody only rebuilds when isLoading
+// flips (Selector above), so there is no stale-reference risk on the model.
+// ---------------------------------------------------------------------------
+class _RoundsBody extends StatelessWidget {
+  const _RoundsBody();
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.read<TournamentRoundsModel>();
+
+    return RefreshIndicator(
+      // FIX: method tear-off — no anonymous async lambda needed.
+      onRefresh: model.onRefresh,
+      child: CustomScrollView(
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(0, _Dims.listTopPadding, 0, 0),
+            sliver: _RoundsSliverList(model: model),
+          ),
+
+          // Bottom spacer so the last card is not hidden behind the FAB.
+          const SliverToBoxAdapter(
+            child: SizedBox(height: _Dims.listBottomSpacing),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// ROUNDS SLIVER LIST
+// Encapsulates PagedSliverList and its delegate configuration.
+// Extracted to keep _RoundsBody readable and to make the pagination
+// delegate easy to swap independently.
+// ---------------------------------------------------------------------------
+class _RoundsSliverList extends StatelessWidget {
+  const _RoundsSliverList({required this.model});
+
+  final TournamentRoundsModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    return PagedSliverList<int, RoundsRecord>(
+      pagingController: model.pagingControllerRounds,
+      builderDelegate: PagedChildBuilderDelegate<RoundsRecord>(
+        itemBuilder: (context, item, index) {
+          final itemList = model.pagingControllerRounds.itemList;
+          final isLast =
+              itemList != null && index == itemList.length - 1;
+
+          return TournamentRoundsCardWidget(
+            // ValueKey is more type-safe and readable than the raw Key ctor.
+            key: ValueKey('round_${item.uid}_$index'),
+            roundRef: item,
+            indexo: index,
+            deleteFun: model.deleteRound,
+            // FIX: closeFun uses a safe null check on itemList instead of
+            // force-unwrapping itemList! which would throw if the list is null.
+            closeFun: isLast ? model.closeTournament : null,
+            deepFun: (roundId) {
+              context.pushNamedAuth(
+                'TournamentPairings', context.mounted,
+                pathParameters: {
+                  'tournamentId': model.tournamentModel.tournamentId,
+                  'roundId': roundId,
+                }.withoutNulls,
+              );
+            },
+            editable: model.isTournamentEditable,
+          );
+        },
+        firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
+        noItemsFoundIndicatorBuilder: (_) => const NoTournamentRoundsCardWidget(
+          active: true,
+          phrase: 'Nessun round pubblicato',
+        ),
+        newPageProgressIndicatorBuilder: (_) =>
+        const Center(child: CircularProgressIndicator()),
+      ),
+      shrinkWrapFirstPageIndicators: true,
     );
   }
 }

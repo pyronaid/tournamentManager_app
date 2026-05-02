@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/pages/core/tournament_pairings/tournament_pairings_model.dart';
 import 'package:tournamentmanager/pages/core/tournament_pairings/tournament_pairings_widget.dart';
 
 import '../../nav_bar/tournament_model.dart';
 
-class TournamentPairingsContainer extends StatefulWidget {
+class TournamentPairingsContainer extends StatelessWidget {
   const TournamentPairingsContainer({
     super.key,
     required this.roundIndex,
@@ -15,52 +14,13 @@ class TournamentPairingsContainer extends StatefulWidget {
   final String roundIndex;
 
   @override
-  State<TournamentPairingsContainer> createState() => _TournamentPairingsContainerState();
-}
-
-class _TournamentPairingsContainerState extends State<TournamentPairingsContainer> {
-
-  @override
-  void initState() {
-    super.initState();
-
-    logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentPairings'});
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-        providers: [
-          ChangeNotifierProxyProvider<TournamentModel, TournamentPairingsModel>(
-            create: (context) => TournamentPairingsModel(
-              // Retrieve tournament provider from widget tree
-                tournamentModel: context.read<TournamentModel>(),
-                roundId: widget.roundIndex
-            ),
-            update: (context, tournamentModel, previousPairingsModel) {
-              // Optional update method to edit if you only want to catch some
-              if (previousPairingsModel == null ||
-                  previousPairingsModel.isLoading != tournamentModel.isLoading ||
-                  previousPairingsModel.lastUpdatedRounds != tournamentModel.updatedRounds
-              ) {
-                return TournamentPairingsModel(
-                    tournamentModel: tournamentModel,
-                    roundId: widget.roundIndex
-                );
-              }
-              return previousPairingsModel;
-            },
-          ),
-        ],
-        builder: (context, child) {
-          return const TournamentPairingsWidget();
-        }
+    return ChangeNotifierProvider<TournamentPairingsModel>(
+      create: (context) => TournamentPairingsModel(
+        tournamentModel: context.read<TournamentModel>(),
+        roundId: roundIndex,
+      ),
+      child: const TournamentPairingsWidget(),
     );
   }
 }

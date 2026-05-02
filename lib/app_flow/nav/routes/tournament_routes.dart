@@ -135,39 +135,34 @@ class TournamentRoutes {
           name: 'TournamentRounds',
           path: 'tournament-rounds',
           redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-          builder: (context, params) => const TournamentRoundsContainer(),
+          builder: (context, params) {
+            logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentRounds'});
+            return const TournamentRoundsContainer();
+          },
           routes: [
             CustomRoute(
                 name: 'TournamentPairings',
-                path: 'tournament-pairings',
+                path: 'tournament-pairings/:roundId',
                 parentNavigatorKey: NavigatorKeys.tournamentRoundKey,
                 redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-                builder: (context, params) => MultiProvider(
-                  providers: [
-                    ChangeNotifierProvider.value(
-                      value: (params.state.extra as Map<String, dynamic>)["provider"] as TournamentModel,
-                    ),
-                  ],
-                  child: TournamentPairingsContainer(
-                    roundIndex: params.getParam('roundId', ParamType.String,),
-                  ),
-                ),
+                builder: (context, params) {
+                  logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentPairings'});
+                  return TournamentPairingsContainer(
+                    roundIndex: params.getParam('roundId', ParamType.String),
+                  );
+                },
               routes: [
                 CustomRoute(
                   name: 'TournamentRankings',
                   path: 'tournament-rankings',
                   parentNavigatorKey: NavigatorKeys.tournamentRoundKey,
                   redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-                  builder: (context, params) =>  MultiProvider(
-                    providers: [
-                      ChangeNotifierProvider.value(
-                        value: (params.state.extra as Map<String, dynamic>)["provider"] as TournamentModel,
-                      ),
-                    ],
-                    child: TournamentRankingsContainer(
-                      roundId: params.getParam('roundId', ParamType.String,),
-                    ),
-                  ),
+                  builder: (context, params) {
+                    logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentRankings'});
+                    return TournamentRankingsContainer(
+                      roundIndex: params.getParam('roundId', ParamType.String,),
+                    );
+                  },
                 ).toRoute(appStateNotifier),
               ],
             ).toRoute(appStateNotifier),

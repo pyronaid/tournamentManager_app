@@ -14,97 +14,160 @@ class TournamentRankingsModel extends ChangeNotifier {
   final TournamentModel tournamentModel;
   final String roundId;
 
+  // ---------------------------------------------------------------------------
+  // PAGING
+  // ---------------------------------------------------------------------------
+  static const int _pageSize = 30;
   late PagingController<int, RankingsRecord> _pagingController;
-  static const _pageSize = 30;
-  late bool _isLoading;
-  late DateTime? _lastUpdatedRounds;
 
-  late TextEditingController _playerNameTextController;
-  late FocusNode _playerNameFocusNode;
-  Timer? debounce;
-  String oldValueToCompare = '';
-  String currentFilter = '';
+  // ---------------------------------------------------------------------------
+  // SHADOW STATE
+  // Guards the expensive _pagingController.refresh() call.
+  // isLoading is forwarded unconditionally — see _onTournamentChanged.
+  // ---------------------------------------------------------------------------
+  DateTime? _lastKnownUpdatedRounds;
 
-  late CustomAppbarModel customAppbarModel;
+  // ---------------------------------------------------------------------------
+  // SEARCH
+  // ---------------------------------------------------------------------------
+  late final TextEditingController _playerNameTextController;
+  late final FocusNode _playerNameFocusNode;
+  Timer? _debounce;
+  String _oldValueToCompare = '';
+  String _currentFilter = '';
 
+  // ---------------------------------------------------------------------------
+  // APPBAR MODEL
+  // Nullable backing field so initContextVars is idempotent: the widget is
+  // now a StatelessWidget whose build() can be called multiple times, and
+  // a plain late field would throw on a second assignment.
+  // ---------------------------------------------------------------------------
+  CustomAppbarModel? _customAppbarModel;
+  CustomAppbarModel get customAppbarModel => _customAppbarModel!;
 
   /////////////////////////////CONSTRUCTOR
-  TournamentRankingsModel({required this.tournamentModel, required this.roundId}){
-    _isLoading = tournamentModel.isLoading;
-    _lastUpdatedRounds = tournamentModel.updatedRounds;
-    _pagingController = PagingController(firstPageKey: 1);
-    _pagingController.addPageRequestListener((pageKey) => _fetchPage(pageKey));
-    currentFilter = '';
+  TournamentRankingsModel({required this.tournamentModel, required this.roundId}) {
+    _lastKnownUpdatedRounds = tournamentModel.updatedRounds;
+
+    _pagingController = PagingController<int, RankingsRecord>(firstPageKey: 1)
+      ..addPageRequestListener(_fetchPage);
+
     _playerNameTextController = TextEditingController();
     _playerNameFocusNode = FocusNode();
-    /////////////////////////////LISTENERS
-    _playerNameTextController.addListener(() {
-      final currentText = _playerNameTextController.text;
-      if((_playerNameTextController.text.isNotEmpty || _playerNameTextController.text.length > 2) && oldValueToCompare != currentText){
-        oldValueToCompare = currentText;
+    _currentFilter = '';
 
-        if (debounce?.isActive ?? false) debounce!.cancel();
-        debounce = Timer(const Duration(milliseconds: 800), () async {
-          currentFilter = currentText;
-          _pagingController.refresh();
-        });
-      }
-    });
+    _playerNameTextController.addListener(_onSearchChanged);
+
+    // Subscribe to TournamentModel directly.
+    // Unsubscribed in dispose() to prevent callbacks on a dead object.
+    tournamentModel.addListener(_onTournamentChanged);
+  }
+
+  // ---------------------------------------------------------------------------
+  // TOURNAMENT MODEL LISTENER
+  // FIX: rankings model was not listening to tournamentModel at all — the page
+  // never refreshed when rounds or tournament state changed, and isLoading was
+  // a stale snapshot from the constructor. Now delegated + listener added.
+  // ---------------------------------------------------------------------------
+  void _onTournamentChanged() {
+    // Forward unconditionally — cheap and correct for local mutations.
+    notifyListeners();
+
+    // Guard the expensive paging refresh behind the updatedRounds timestamp.
+    final newUpdatedRounds = tournamentModel.updatedRounds;
+    if (_lastKnownUpdatedRounds != newUpdatedRounds) {
+      _lastKnownUpdatedRounds = newUpdatedRounds;
+      _pagingController.refresh();
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // SEARCH LISTENER
+  // FIX: debounce cancel simplified — Timer.cancel() is idempotent,
+  // the isActive check and force-unwrap were unnecessary.
+  // ---------------------------------------------------------------------------
+  void _onSearchChanged() {
+    final currentText = _playerNameTextController.text;
+    final hasEnoughChars = currentText.isNotEmpty || currentText.length > 2;
+
+    if (hasEnoughChars && _oldValueToCompare != currentText) {
+      _oldValueToCompare = currentText;
+      _debounce?.cancel();
+      _debounce = Timer(const Duration(milliseconds: 800), () {
+        _currentFilter = currentText;
+        _pagingController.refresh();
+      });
+    }
   }
 
   /////////////////////////////GETTER
-  bool get isLoading => _isLoading;
-  DateTime? get lastUpdatedRounds => _lastUpdatedRounds;
-  PagingController<int, RankingsRecord> get pagingControllerRankings => _pagingController;
+  bool get isLoading => tournamentModel.isLoading;
   bool get isTournamentOngoing => tournamentModel.isTournamentOngoing;
+  PagingController<int, RankingsRecord> get pagingControllerRankings => _pagingController;
   TextEditingController get playerNameTextController => _playerNameTextController;
   FocusNode get playerNameFocusNode => _playerNameFocusNode;
 
-
   /////////////////////////////SETTER
+  Future<void> onRefresh() async => _pagingController.refresh();
   Future<void> _fetchPage(int pageKey) async {
-    PagingController<int, RankingsRecord> pagingController = _pagingController;
+    final controller = _pagingController;
     try {
-      String filterComposed = '${RankingsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}" && ${RankingsRecord.idRoundFieldName} = "$roundId"';
-      if(currentFilter.isNotEmpty){
-        filterComposed = '$filterComposed && '
-            '(${RankingsRecord.userNameFieldName} ~ "$currentFilter" || '
-            '${RankingsRecord.userSurnameFieldName} ~ "$currentFilter" || '
-            '${RankingsRecord.userUsernameFieldName} ~ "$currentFilter")';
-      }
-      final List<RankingsRecord> newItems = await RankingsRecord.getDocumentsOnce(
-          pb,
-          filterComposed,
-          expand: RankingsRecord.idTournamentFieldName,
-          sorting: '-${RankingsRecord.pointsFieldName},-${RankingsRecord.t1FieldName},-${RankingsRecord.t2FieldName},-${RankingsRecord.t3FieldName}',
-          page: pageKey,
-          perPage: _pageSize
-      );
-      final isLastPage = newItems.length < _pageSize;
+      var filter =
+          '${RankingsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}" '
+          '&& ${RankingsRecord.idRoundFieldName} = "$roundId"';
 
+      if (_currentFilter.isNotEmpty) {
+        filter = '$filter && '
+            '(${RankingsRecord.userNameFieldName} ~ "$_currentFilter" || '
+            '${RankingsRecord.userSurnameFieldName} ~ "$_currentFilter" || '
+            '${RankingsRecord.userUsernameFieldName} ~ "$_currentFilter")';
+      }
+
+      final newItems = await RankingsRecord.getDocumentsOnce(
+        pb,
+        filter,
+        expand: RankingsRecord.idTournamentFieldName,
+        sorting: '-${RankingsRecord.pointsFieldName},'
+            '-${RankingsRecord.t1FieldName},'
+            '-${RankingsRecord.t2FieldName},'
+            '-${RankingsRecord.t3FieldName}',
+        page: pageKey,
+        perPage: _pageSize,
+      );
+
+      final isLastPage = newItems.length < _pageSize;
       if (isLastPage) {
-        pagingController.appendLastPage(newItems);
+        controller.appendLastPage(newItems);
       } else {
-        final nextPageKey = pageKey+1; // Adjust as needed
-        pagingController.appendPage(newItems, nextPageKey);
+        controller.appendPage(newItems, pageKey + 1);
       }
     } catch (error) {
-      pagingController.error = error;
+      controller.error = error;
     }
   }
-  Future<void> onRefresh() async {
-    _pagingController.refresh();
+
+  // ---------------------------------------------------------------------------
+  // INIT CONTEXT VARS
+  // Called from the widget's build method; ??= prevents double-initialisation
+  // across rebuilds, making this safe to call in a StatelessWidget's build().
+  // ---------------------------------------------------------------------------
+  void initContextVars(BuildContext context) {
+    _customAppbarModel ??= createModel(context, () => CustomAppbarModel());
   }
 
+  // ---------------------------------------------------------------------------
+  // DISPOSE
+  // Remove listeners FIRST so no callback fires on a partially-disposed object.
+  // ---------------------------------------------------------------------------
   @override
   void dispose() {
+    tournamentModel.removeListener(_onTournamentChanged);
+    _playerNameTextController.removeListener(_onSearchChanged);
+    _debounce?.cancel();
     _pagingController.dispose();
-    customAppbarModel.dispose();
+    _playerNameTextController.dispose();
+    _playerNameFocusNode.dispose();
+    _customAppbarModel?.dispose();
     super.dispose();
   }
-
-  void initContextVars(BuildContext context) {
-    customAppbarModel = createModel(context, () => CustomAppbarModel());
-  }
-
 }

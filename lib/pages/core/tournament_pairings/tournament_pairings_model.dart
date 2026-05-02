@@ -19,133 +19,196 @@ class TournamentPairingsModel extends ChangeNotifier {
   final TournamentModel tournamentModel;
   final String roundId;
 
-  late LoaderService loaderService;
-  late SnackBarService snackBarService;
+  late final LoaderService loaderService;
+  late final SnackBarService snackBarService;
 
+  // ---------------------------------------------------------------------------
+  // PAGING
+  // ---------------------------------------------------------------------------
+  static const int _pageSize = 30;
   late PagingController<int, PairingsRecord> _pagingController;
-  static const _pageSize = 30;
-  late bool _isLoading;
-  late DateTime? _lastUpdatedRounds;
 
-  late TextEditingController _playerNameTextController;
-  late FocusNode _playerNameFocusNode;
-  Timer? debounce;
-  String oldValueToCompare = '';
-  String currentFilter = '';
+  // ---------------------------------------------------------------------------
+  // SHADOW STATE
+  // Guards the expensive _pagingController.refresh() call.
+  // isLoading is forwarded unconditionally — see _onTournamentChanged.
+  // ---------------------------------------------------------------------------
+  DateTime? _lastKnownUpdatedRounds;
 
-  late CustomAppbarModel customAppbarModel;
+
+  late final TextEditingController _playerNameTextController;
+  late final FocusNode _playerNameFocusNode;
+  Timer? _debounce;
+  String _oldValueToCompare = '';
+  String _currentFilter = '';
+
+  // ---------------------------------------------------------------------------
+  // APPBAR MODEL
+  // Nullable backing field so initContextVars is idempotent: the widget is
+  // now a StatelessWidget whose build() can be called multiple times, and
+  // a late final field would throw on a second assignment.
+  // ---------------------------------------------------------------------------
+  CustomAppbarModel? _customAppbarModel;
+  CustomAppbarModel get customAppbarModel => _customAppbarModel!;
 
 
   /////////////////////////////CONSTRUCTOR
   TournamentPairingsModel({required this.tournamentModel, required this.roundId}){
-    _isLoading = tournamentModel.isLoading;
-    _lastUpdatedRounds = tournamentModel.updatedRounds;
     loaderService = GetIt.instance<LoaderService>();
     snackBarService = GetIt.instance<SnackBarService>();
-    _pagingController = PagingController(firstPageKey: 1);
-    _pagingController.addPageRequestListener((pageKey) => _fetchPage(pageKey));
-    currentFilter = '';
+
+    _lastKnownUpdatedRounds = tournamentModel.updatedRounds;
+
+    _pagingController = PagingController<int, PairingsRecord>(firstPageKey: 1)
+      ..addPageRequestListener(_fetchPage);
+
     _playerNameTextController = TextEditingController();
     _playerNameFocusNode = FocusNode();
-    /////////////////////////////LISTENERS
-    _playerNameTextController.addListener(() {
-      final currentText = _playerNameTextController.text;
-      if((_playerNameTextController.text.isNotEmpty || _playerNameTextController.text.length > 2) && oldValueToCompare != currentText){
-        oldValueToCompare = currentText;
+    _currentFilter = '';
 
-        if (debounce?.isActive ?? false) debounce!.cancel();
-        debounce = Timer(const Duration(milliseconds: 800), () async {
-          currentFilter = currentText;
-          _pagingController.refresh();
-        });
-      }
-    });
+    _playerNameTextController.addListener(_onSearchChanged);
+
+    // Subscribe to TournamentModel directly.
+    // Unsubscribed in dispose() to prevent callbacks on a dead object.
+    tournamentModel.addListener(_onTournamentChanged);
+  }
+
+  // ---------------------------------------------------------------------------
+  // TOURNAMENT MODEL LISTENER
+  // ---------------------------------------------------------------------------
+  void _onTournamentChanged() {
+    // Forward unconditionally — cheap and correct for local mutations.
+    notifyListeners();
+
+    // Guard the expensive paging refresh behind the updatedRounds timestamp.
+    final newUpdatedRounds = tournamentModel.updatedRounds;
+    if (_lastKnownUpdatedRounds != newUpdatedRounds) {
+      _lastKnownUpdatedRounds = newUpdatedRounds;
+      _pagingController.refresh();
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // SEARCH LISTENER
+  // FIX: debounce cancel simplified — Timer.cancel() is idempotent,
+  // the isActive check and force-unwrap were unnecessary.
+  // ---------------------------------------------------------------------------
+  void _onSearchChanged() {
+    final currentText = _playerNameTextController.text;
+    final hasEnoughChars = currentText.isNotEmpty || currentText.length > 2;
+
+    if (hasEnoughChars && _oldValueToCompare != currentText) {
+      _oldValueToCompare = currentText;
+      _debounce?.cancel();
+      _debounce = Timer(const Duration(milliseconds: 800), () {
+        _currentFilter = currentText;
+        _pagingController.refresh();
+      });
+    }
   }
 
   /////////////////////////////GETTER
-  bool get isLoading => _isLoading;
-  DateTime? get lastUpdatedRounds => _lastUpdatedRounds;
-  PagingController<int, PairingsRecord> get pagingControllerPairings => _pagingController;
+  bool get isLoading => tournamentModel.isLoading;
   bool get isTournamentOngoing => tournamentModel.isTournamentOngoing;
+  PagingController<int, PairingsRecord> get pagingControllerPairings => _pagingController;
   TextEditingController get playerNameTextController => _playerNameTextController;
   FocusNode get playerNameFocusNode => _playerNameFocusNode;
   bool isTournamentEditable(PairingsRecord rec) => tournamentModel.isTournamentEditable && [tournamentModel.tournamentOwner, rec.playerA, rec.playerB].contains(currentUserUid);
 
+  // ---------------------------------------------------------------------------
+  // INIT CONTEXT VARS
+  // Called once from the container's build method so the widget can remain
+  // a StatelessWidget. Safe to call in build because createModel is
+  // idempotent — it only registers the model once.
+  // ---------------------------------------------------------------------------
+  void initContextVars(BuildContext context) {
+    _customAppbarModel ??= createModel(context, () => CustomAppbarModel());
+  }
 
   /////////////////////////////SETTER
-  Future<void> _fetchPage(int pageKey) async {
-    PagingController<int, PairingsRecord> pagingController = _pagingController;
-    try {
-      String filterComposed = '${PairingsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}" && ${PairingsRecord.idRoundFieldName} = "$roundId"';
-      if(currentFilter.isNotEmpty){
-        filterComposed = '$filterComposed && '
-            '(${PairingsRecord.namePlayerAFieldName} ~ "$currentFilter" || '
-            '${PairingsRecord.surnamePlayerAFieldName} ~ "$currentFilter" || '
-            '${PairingsRecord.usernamePlayerAFieldName} ~ "$currentFilter" || '
-            '${PairingsRecord.namePlayerBFieldName} ~ "$currentFilter" || '
-            '${PairingsRecord.surnamePlayerBFieldName} ~ "$currentFilter" || '
-            '${PairingsRecord.usernamePlayerBFieldName} ~ "$currentFilter" || '
-            '${PairingsRecord.playerAFieldName} ~ "$currentFilter" || '
-            '${PairingsRecord.playerBFieldName} ~ "$currentFilter")';
-      }
-      final List<PairingsRecord> newItems = await PairingsRecord.getDocumentsOnce(
-          pb,
-          filterComposed,
-          expand: PairingsRecord.idRoundFieldName,
-          sorting: PairingsRecord.tableIndexFieldName,
-          page: pageKey,
-          perPage: _pageSize
-      );
-      final isLastPage = newItems.length < _pageSize;
-
-      if (isLastPage) {
-        pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey+1; // Adjust as needed
-        pagingController.appendPage(newItems, nextPageKey);
-      }
-    } catch (error) {
-      pagingController.error = error;
-    }
-  }
-  Future<void> onRefresh() async {
-    _pagingController.refresh();
-  }
+  Future<void> onRefresh() async => _pagingController.refresh();
   Future<void> deletePairing(String pairingsId) async {
-    print("deletePairingsFunction");
+    debugPrint('[TournamentPairingsModel] deletePairing called: $pairingsId');
   }
-  Future<void> updatePairing(String pairingsId, Map<String, dynamic> dataToUpdate) async {
-    String executionId = const Uuid().v4();
+  Future<void> updatePairing(String pairingsId, Map<String, dynamic> dataToUpdate,) async {
+    final executionId = const Uuid().v4();
     loaderService.showLoader(id: executionId);
     try {
       await PairingsRecord.updateFields(pb, pairingsId, dataToUpdate);
-      onRefresh();
+      await onRefresh();
       snackBarService.showSnackBar(
-          message: "Aggiornamento completato con successo",
-          title: 'Aggiornamento pairing',
-          style: SnackbarStyle.success
+        message: 'Aggiornamento completato con successo',
+        title: 'Aggiornamento pairing',
+        style: SnackbarStyle.success,
       );
-    } catch (e){
+    } catch (e, stack) {
+      debugPrint('[TournamentPairingsModel] updatePairing error: $e');
+      debugPrint('[TournamentPairingsModel] stack: $stack');
       snackBarService.showSnackBar(
-          message: e.toString(),
-          title: 'Errore aggiornamento pairing',
-          style: SnackbarStyle.error
+        message: e.toString(),
+        title: 'Errore aggiornamento pairing',
+        style: SnackbarStyle.error,
       );
+    } finally {
+      loaderService.hideLoader(id: executionId);
+      notifyListeners();
     }
-    loaderService.hideLoader(id: executionId);
-    notifyListeners();
+  }
+  Future<void> _fetchPage(int pageKey) async {
+    final controller = _pagingController;
+    try {
+      var filter =
+          '${PairingsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}" '
+          '&& ${PairingsRecord.idRoundFieldName} = "$roundId"';
+
+      if (_currentFilter.isNotEmpty) {
+        filter = '$filter && '
+            '(${PairingsRecord.namePlayerAFieldName} ~ "$_currentFilter" || '
+            '${PairingsRecord.surnamePlayerAFieldName} ~ "$_currentFilter" || '
+            '${PairingsRecord.usernamePlayerAFieldName} ~ "$_currentFilter" || '
+            '${PairingsRecord.namePlayerBFieldName} ~ "$_currentFilter" || '
+            '${PairingsRecord.surnamePlayerBFieldName} ~ "$_currentFilter" || '
+            '${PairingsRecord.usernamePlayerBFieldName} ~ "$_currentFilter" || '
+            '${PairingsRecord.playerAFieldName} ~ "$_currentFilter" || '
+            '${PairingsRecord.playerBFieldName} ~ "$_currentFilter")';
+      }
+
+      final newItems = await PairingsRecord.getDocumentsOnce(
+        pb,
+        filter,
+        expand: PairingsRecord.idRoundFieldName,
+        sorting: PairingsRecord.tableIndexFieldName,
+        page: pageKey,
+        perPage: _pageSize,
+      );
+
+      final isLastPage = newItems.length < _pageSize;
+      if (isLastPage) {
+        controller.appendLastPage(newItems);
+      } else {
+        controller.appendPage(newItems, pageKey + 1);
+      }
+    } catch (error) {
+      controller.error = error;
+    }
   }
 
 
+  // ---------------------------------------------------------------------------
+  // DISPOSE
+  // Remove listeners FIRST so no callback fires on a partially-disposed object.
+  // ---------------------------------------------------------------------------
   @override
   void dispose() {
+    tournamentModel.removeListener(_onTournamentChanged);
+    _playerNameTextController.removeListener(_onSearchChanged);
+    _debounce?.cancel();
     _pagingController.dispose();
-    customAppbarModel.dispose();
+    _playerNameTextController.dispose();
+    _playerNameFocusNode.dispose();
+    _customAppbarModel?.dispose();
     super.dispose();
   }
 
-  void initContextVars(BuildContext context) {
-    customAppbarModel = createModel(context, () => CustomAppbarModel());
-  }
 
 }
