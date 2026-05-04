@@ -52,7 +52,10 @@ class TournamentRoutes {
                 if (state.extra == null) return '/';
                 return RouteGuard.authGuard(appStateNotifier, context, state);
               },
-              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+              pageBuilder: (context, state) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogState'});
+                return DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+              },
             ),
             GoRoute(
               name: 'DialogWaitingListPlayer',
@@ -62,7 +65,10 @@ class TournamentRoutes {
                 if (state.extra == null) return '/';
                 return RouteGuard.authGuard(appStateNotifier, context, state);
               },
-              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+              pageBuilder: (context, state) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogWaitingListPlayer'});
+                return DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+              },
             ),
             GoRoute(
               name: 'DialogWaitingList',
@@ -72,7 +78,10 @@ class TournamentRoutes {
                 if (state.extra == null) return '/';
                 return RouteGuard.authGuard(appStateNotifier, context, state);
               },
-              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+              pageBuilder: (context, state) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogWaitingList'});
+                return DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+              },
             ),
             GoRoute(
               name: 'DialogPreRegisterPlayer',
@@ -82,7 +91,10 @@ class TournamentRoutes {
                 if (state.extra == null) return '/';
                 return RouteGuard.authGuard(appStateNotifier, context, state);
               },
-              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+              pageBuilder: (context, state) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogPreRegisterPlayer'});
+                return DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+              },
             ),
             GoRoute(
               name: 'DialogPreIscrizioni',
@@ -92,7 +104,10 @@ class TournamentRoutes {
                 if (state.extra == null) return '/';
                 return RouteGuard.authGuard(appStateNotifier, context, state);
               },
-              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+              pageBuilder: (context, state) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogPreIscrizioni'});
+                return DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+              },
             ),
             GoRoute(
               name: 'DialogDeEnrollPlayer',
@@ -102,7 +117,10 @@ class TournamentRoutes {
                 if (state.extra == null) return '/';
                 return RouteGuard.authGuard(appStateNotifier, context, state);
               },
-              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+              pageBuilder: (context, state) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogDeEnrollPlayer'});
+                return DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+              },
             ),
             GoRoute(
               name: 'DialogChangeCapacity',
@@ -112,7 +130,10 @@ class TournamentRoutes {
                 if (state.extra == null) return '/';
                 return RouteGuard.authGuard(appStateNotifier, context, state);
               },
-              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+              pageBuilder: (context, state) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogChangeCapacity'});
+                return DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+              },
             ),
             GoRoute(
               name: 'DialogChangeTournamentName',
@@ -122,7 +143,10 @@ class TournamentRoutes {
                 if (state.extra == null) return '/';
                 return RouteGuard.authGuard(appStateNotifier, context, state);
               },
-              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+              pageBuilder: (context, state) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogChangeTournamentName'});
+                return DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+              },
             ),
           ]
         ),
@@ -174,11 +198,13 @@ class TournamentRoutes {
                 if (state.extra == null) return '/';
                 return RouteGuard.authGuard(appStateNotifier, context, state);
               },
-              pageBuilder: (context, state) => DialogPage(builder: (_) =>
-                ((state.extra as Map<String, dynamic>)['pageType'] as RoundKind) == RoundKind.swiss ?
+              pageBuilder: (context, state) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogGenerateRound'});
+                return DialogPage(builder: (_) =>
+                  ((state.extra as Map<String, dynamic>)['pageType'] as RoundKind) == RoundKind.swiss ?
                   DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],) :
-                  DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],),
-              ),
+                  DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],),);
+              },
             ),
             GoRoute(
               name: 'DialogDeleteRound',
@@ -188,7 +214,10 @@ class TournamentRoutes {
                 if (state.extra == null) return '/';
                 return RouteGuard.authGuard(appStateNotifier, context, state);
               },
-              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+              pageBuilder: (context, state) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogDeleteRound'});
+                return DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+              },
             ),
             GoRoute(
               name: 'DialogCloseTournament',
@@ -198,7 +227,10 @@ class TournamentRoutes {
                 if (state.extra == null) return '/';
                 return RouteGuard.authGuard(appStateNotifier, context, state);
               },
-              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+              pageBuilder: (context, state) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogCloseTournament'});
+                return DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+              },
             ),
           ],
         ),
@@ -211,30 +243,32 @@ class TournamentRoutes {
           name: 'TournamentPeople',
           path: 'tournament-people',
           redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-          builder: (context, params) => const TournamentPeopleContainer(),
+          builder: (context, params) {
+            logFirebaseEvent('screen_view', parameters: {'screen_name': 'Tournament People'});
+            return const TournamentPeopleContainer();
+          },
           routes: [
             CustomRoute(
               name: 'AddPeople',
               path: 'add-people',
               parentNavigatorKey: NavigatorKeys.tournamentPeopleKey,
               redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-              builder: (context, params) => MultiProvider(
-                providers: [
-                  ChangeNotifierProvider.value(
-                    value: (params.state.extra as Map<String, dynamic>)["provider"] as TournamentPeopleModel,
-                  ),
-                ],
-                child: AddPeopleContainer(
+              builder: (context, params) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'AddPeople'});
+                return  AddPeopleContainer(
                   listType: params.getParam('listType', ParamType.String,),
-                ),
-              ),
+                );
+              },
               routes: [
                 CustomRoute(
                   name: 'ScannerCode',
                   path: 'scanner',
                   parentNavigatorKey: NavigatorKeys.rootNavigator,
                   redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-                  builder: (context, params) => const BarcodeScannerWithZoom(),
+                  builder: (context, params) {
+                    logFirebaseEvent('screen_view', parameters: {'screen_name': 'BarcodeScannerWithZoom'});
+                    return const BarcodeScannerWithZoom();
+                  },
                 ).toRoute(appStateNotifier),
               ]
             ).toRoute(appStateNotifier),
@@ -246,7 +280,10 @@ class TournamentRoutes {
                 if (state.extra == null) return '/';
                 return RouteGuard.authGuard(appStateNotifier, context, state);
               },
-              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+              pageBuilder: (context, state) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogDeletePerson'});
+                return DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+              },
             ),
             GoRoute(
               name: 'DialogPromotePerson',
@@ -256,7 +293,10 @@ class TournamentRoutes {
                 if (state.extra == null) return '/';
                 return RouteGuard.authGuard(appStateNotifier, context, state);
               },
-              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+              pageBuilder: (context, state) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogPromotePerson'});
+                return DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+              },
             ),
           ],
         ),
@@ -295,7 +335,10 @@ class TournamentRoutes {
                 if (state.extra == null) return '/';
                 return RouteGuard.authGuard(appStateNotifier, context, state);
               },
-              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+              pageBuilder: (context, state) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogDeleteNews'});
+                return DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+              },
             ),
           ]
         ),

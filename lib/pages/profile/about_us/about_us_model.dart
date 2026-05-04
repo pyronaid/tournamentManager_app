@@ -1,21 +1,23 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
+import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_auth_util.dart';
+import 'package:tournamentmanager/backend/schema/company_information_record.dart';
 import 'package:tournamentmanager/components/custom_appbar_model.dart';
-import 'package:tournamentmanager/pages/profile/about_us/about_us_widget.dart';
 
-class AboutUsModel extends CustomFlowModel<AboutUsWidget> {
-  ///  State fields for stateful widgets in this page.
-
-  // Model for customAppbar component.
+class AboutUsModel extends ChangeNotifier {
   late CustomAppbarModel customAppbarModel;
 
-  @override
-  void initState(BuildContext context) {
+  // Fetched once on construction; re-used across rebuilds via FutureBuilder.
+  final Future<CompanyInformationRecord?> companyInfoFuture =
+      CompanyInformationRecord.getFirstDocumentByFilterOnce(pb, '', true);
+
+  void initContextVars(BuildContext context) {
     customAppbarModel = createModel(context, () => CustomAppbarModel());
   }
 
   @override
   void dispose() {
     customAppbarModel.dispose();
+    super.dispose();
   }
 }

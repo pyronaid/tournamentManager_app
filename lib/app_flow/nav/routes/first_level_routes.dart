@@ -2,15 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:tournamentmanager/pages/core/my_tournaments/my_tournaments_container.dart';
 import 'package:tournamentmanager/pages/core/own_tournaments/own_tournaments_container.dart';
 import 'package:tournamentmanager/pages/core/tournament_finder/tournament_finder_container.dart';
-import 'package:tournamentmanager/pages/profile/profile/profile_widget.dart';
+import 'package:tournamentmanager/pages/profile/profile/profile_container.dart';
 
 import '../../../backend/firebase_analytics/analytics.dart';
 import '../../../pages/core/create_own/create_own_container.dart';
 import '../../../pages/nav_bar/scaffold_levelone_nested_navigation.dart';
-import '../../../pages/profile/about_us/about_us_widget.dart';
-import '../../../pages/profile/edit_preferences/edit_preferences_widget.dart';
+import '../../../pages/profile/about_us/about_us_container.dart';
+import '../../../pages/profile/edit_preferences/edit_preferences_container.dart';
 import '../../../pages/profile/edit_profile/edit_profile_container.dart';
-import '../../../pages/profile/support_center/support_center_widget.dart';
+import '../../../pages/profile/support_center/support_center_container.dart';
 import '../../app_flow_util.dart';
 import '../../dialog_page.dart';
 import '../navigation_keys.dart';
@@ -71,7 +71,10 @@ class FirstLevelRoutes {
                 if (state.extra == null) return '/';
                 return RouteGuard.authGuard(appStateNotifier, context, state);
               },
-              pageBuilder: (context, state) => DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+              pageBuilder: (context, state) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogChangeTournamentFinderSettings'});
+                return DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+              },
             ),
           ],
         ),
@@ -85,7 +88,10 @@ class FirstLevelRoutes {
           path: 'profile',
           parentNavigatorKey: NavigatorKeys.profileKey,
           redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-          builder: (context, params) => const ProfileWidget(),
+          builder: (context, params) {
+            logFirebaseEvent('screen_view', parameters: {'screen_name': 'Profile'});
+            return const ProfileContainer();
+          },
           routes: [
             CustomRoute(
               name: 'EditProfile',
@@ -131,14 +137,20 @@ class FirstLevelRoutes {
               path: 'about-us',
               parentNavigatorKey: NavigatorKeys.profileKey,
               redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-              builder: (context, params) => const AboutUsWidget(),
+              builder: (context, params) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'AboutUs'});
+                return const AboutUsContainer();
+              },
             ),
             CustomRoute(
               name: 'SupportCenter',
               path: 'support-center',
               parentNavigatorKey: NavigatorKeys.profileKey,
               redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-              builder: (context, params) => const SupportCenterWidget(),
+              builder: (context, params) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'SupportCenter'});
+                return const SupportCenterContainer();
+              },
             ),
             CustomRoute(
               name: 'CreateOwn',
@@ -155,12 +167,12 @@ class FirstLevelRoutes {
               path: 'edit-preferences',
               parentNavigatorKey: NavigatorKeys.profileKey,
               redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-              builder: (context, params) => EditPreferencesWidget(
-                page: params.getParam(
-                  'page',
-                  ParamType.int,
-                ),
-              ),
+              builder: (context, params) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'EditPreferences'});
+                return EditPreferencesContainer(
+                  page: params.getParam('page', ParamType.int),
+                );
+              },
             ),
           ].map((r) => r.toRoute(appStateNotifier)).toList(),
         ),

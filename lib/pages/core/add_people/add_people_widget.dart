@@ -10,8 +10,32 @@ import 'package:tournamentmanager/components/standard_graphics/standard_graphics
 import 'package:tournamentmanager/pages/core/add_people/add_people_model.dart';
 import '../tournament_people/tournament_people_model.dart';
 
+// ---------------------------------------------------------------------------
+// DIMENSION CONSTANTS
+// ---------------------------------------------------------------------------
+abstract class _Dims {
+  static const double headerPaddingAll = 24.0;
+  static const double titlePaddingTop  = 24.0;
+  static const double titlePaddingBtm  = 30.0;
+  static const double formPaddingAll   = 24.0;
+  static const double fieldPaddingBtm  = 30.0;
+  static const double labelPaddingBtm  = 4.0;
+  static const double msgPaddingBtm    = 30.0;
+  static const double msgRowPadding    = 8.0;
+  static const double msgIconSize      = 30.0;
+  static const double msgIconInner     = 20.0;
+  static const double msgIconGap       = 20.0;
+  static const double prefixIconSize   = 18.0;
+  static const double suffixIconSize   = 20.0;
+  static const double submitHeight     = 50.0;
+  static const double submitRadius     = 25.0;
+  static const double submitPaddingAll = 24.0;
+}
 
-
+// ---------------------------------------------------------------------------
+// WIDGET
+// Kept as StatefulWidget because _formKey (GlobalKey) must survive rebuilds.
+// ---------------------------------------------------------------------------
 class AddPeopleWidget extends StatefulWidget {
   const AddPeopleWidget({super.key});
 
@@ -19,291 +43,359 @@ class AddPeopleWidget extends StatefulWidget {
   State<AddPeopleWidget> createState() => _AddPeopleWidgetState();
 }
 
-
 class _AddPeopleWidgetState extends State<AddPeopleWidget> {
-
-  late AddPeopleModel addPeopleModel;
-  late ChangeNotifier tournamentPeopleModel;
-
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  final _unfocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-
-    //logFirebaseEvent('screen_view', parameters: {'screen_name': 'CreateNews'});
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-
-    addPeopleModel = context.read<AddPeopleModel>();
-    addPeopleModel.initContextVars(context);
-    tournamentPeopleModel = context.read<TournamentPeopleModel>();
+    context.read<AddPeopleModel>().initContextVars(context);
   }
-
-
-  @override
-  void dispose() {
-    _unfocusNode.dispose();
-    super.dispose();
-  }
-
 
   @override
   Widget build(BuildContext context) {
+    assert(() {
+      debugPrint('[BUILD] add_people_widget.dart');
+      return true;
+    }());
+
     return GestureDetector(
-      onTap: () => _unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_unfocusNode)
-          : FocusScope.of(context).unfocus(),
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        key: _scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: SingleChildScrollView(
-              child: Consumer2<TournamentPeopleModel, AddPeopleModel>(builder: (context, providerPeople, providerAddPeople, _) {
-                debugPrint("[BUILD IN CORSO] add_people_widget.dart");
-                if (providerPeople.isLoading) {
-                  return const Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
+          child: Selector<TournamentPeopleModel, bool>(
+            selector: (_, m) => m.isLoading,
+            builder: (_, isLoading, __) {
+              if (isLoading) return const _LoadingBody();
+              return _AddPeopleBody(formKey: _formKey);
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-                return Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      color: CustomFlowTheme.of(context).secondary,
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        children: [
-                          wrapWithModel(
-                            model: providerAddPeople.customAppbarModel,
-                            updateCallback: () => setState(() {}),
-                            child: CustomAppbarWidget(
-                              backButton: true,
-                              actionButton: false,
-                              actionButtonAction: () async {},
-                              optionsButtonAction: () async {},
-                            ),
-                          ),
-                          ////////////////
-                          //PAGE TITLE
-                          /////////////////
-                          Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 30),
-                            child: Text(
-                              'Registra un giocatore',
-                              style: CustomFlowTheme.of(context).displaySmall,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    ////////////////
-                    //FORM
-                    /////////////////
-                    Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Form(
-                        key: _formKey,
-                        autovalidateMode: AutovalidateMode.disabled,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            //////////////////////////////////////////
-                            // Input area
-                            //////////////////////////////////////////
-                            Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                                    child: Text(
-                                      'Id utente',
-                                      style: CustomFlowTheme.of(context).bodyMedium,
-                                    ),
-                                  ),
-                                  TextFormField(
-                                    controller: providerAddPeople.fieldControllerIdUser,
-                                    focusNode: providerAddPeople.idUserFocusNode,
-                                    autofocus: false,
-                                    autofillHints: const [AutofillHints.name],
-                                    textCapitalization: TextCapitalization.none,
-                                    textInputAction: TextInputAction.next,
-                                    obscureText: false,
-                                    decoration: standardInputDecoration(
-                                      context,
-                                      prefixIcon: Icon(
-                                        Icons.badge,
-                                        color: CustomFlowTheme.of(context).secondaryText,
-                                        size: 18,
-                                      ),
-                                      suffixIcons: [
-                                        IconButton(
-                                          onPressed: () async {
-                                            if(providerAddPeople.fieldControllerIdUser.text.isNotEmpty) {
-                                              // Handle the scanned barcode value.
-                                              Map<String, dynamic> respMap = await providerPeople.getUserInfoForEnrollment(providerAddPeople.fieldControllerIdUser.text, listType: providerPeople.listTypeReferral);
-                                              addPeopleModel.composeOutputForRequest(respMap, listType: providerPeople.listTypeReferral);
-                                            }
-                                          },
-                                          icon: const Icon(
-                                            Icons.refresh,
-                                            size: 20,
-                                          ),
-                                          color: CustomFlowTheme.of(context).secondaryText,
-                                        ),
-                                        IconButton(
-                                          onPressed: () async {
-                                            final result = await context.pushNamedAuth(
-                                              'ScannerCode', context.mounted,
-                                              pathParameters: {
-                                                'tournamentId': providerPeople.tournamentModel.tournamentId,
-                                              }.withoutNulls,
-                                            );
+// ---------------------------------------------------------------------------
+// LOADING BODY
+// ---------------------------------------------------------------------------
+class _LoadingBody extends StatelessWidget {
+  const _LoadingBody();
 
-                                            if (result != null) {
-                                              print('Scanned Barcode: $result');
-                                              providerAddPeople.setFieldControllerIdUser(result);
-                                              if(providerAddPeople.fieldControllerIdUser.text.isNotEmpty) {
-                                                // Handle the scanned barcode value.
-                                                Map<String, dynamic> respMap = await providerPeople.getUserInfoForEnrollment(providerAddPeople.fieldControllerIdUser.text, listType: providerPeople.listTypeReferral);
-                                                addPeopleModel.composeOutputForRequest(respMap, listType: providerPeople.listTypeReferral);
-                                              }
+  @override
+  Widget build(BuildContext context) => const Padding(
+    padding: EdgeInsets.all(24),
+    child: Center(child: CircularProgressIndicator()),
+  );
+}
 
-                                            }
-                                          },
-                                          icon: const Icon(
-                                            Icons.qr_code,
-                                            size: 20,
-                                          ),
-                                          color: CustomFlowTheme.of(context).secondaryText,
-                                        )
-                                      ],
-                                    ),
-                                    style: CustomFlowTheme.of(context).bodyLarge.override(
-                                      fontWeight: FontWeight.w500,
-                                      lineHeight: 1,
-                                    ),
-                                    minLines: 1,
-                                    cursorColor: CustomFlowTheme.of(context).primary,
-                                    validator: providerAddPeople.idUserTextControllerValidator.asValidator(context),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            //////////////////////////////////////////
-                            // Checks area
-                            //////////////////////////////////////////
-                            Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
-                              child: Column(
-                                children: [
-                                  if(providerAddPeople.messageObjList.isNotEmpty)...[
-                                    for (MessagePeople message in providerAddPeople.messageObjList)...[
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            Center(
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: message.messageLevel.color, // Green background
-                                                  shape: BoxShape.circle, // Makes the container circular
-                                                ),
-                                                width: 30, // Width of the circle
-                                                height: 30, // Height of the circle
-                                                child: Icon(
-                                                  message.messageLevel.icon,
-                                                  color: Colors.white, // Icon color
-                                                  size: 20, // Icon size
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 20,),
-                                            Expanded(
-                                              child: Column(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    message.message,
-                                                    style: CustomFlowTheme.of(context).titleSmall,
-                                                  ),
-                                                ],
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    ////////////////
-                    //VALIDATION BUTTON
-                    /////////////////
-                    Padding(
-                      padding: const EdgeInsetsDirectional.all(24),
-                      child: AFButtonWidget(
-                        onPressed: (!providerAddPeople.checked) ? null : () async {
-                          FocusScope.of(context).unfocus();
-                          logFirebaseEvent('ONBOARDING_ADD_USER_ADD_USER');
-                          logFirebaseEvent('Button_validate_form');
-                          if (_formKey.currentState == null ||
-                              !_formKey.currentState!.validate()) {
-                            return;
-                          }
+// ---------------------------------------------------------------------------
+// MAIN BODY
+// Consumer<AddPeopleModel> rebuilds only when composeOutputForRequest /
+// setFieldControllerIdUser fires notifyListeners — not on every keystroke.
+// ---------------------------------------------------------------------------
+class _AddPeopleBody extends StatelessWidget {
+  const _AddPeopleBody({required this.formKey});
 
-                          bool flag = await providerPeople.promotePeople(providerAddPeople.fieldControllerIdUser.text, listType: providerPeople.listTypeReferral);
-                          if (flag && mounted){
-                            context.safePop();
-                          }
-                          logFirebaseEvent('Button_haptic_feedback');
-                          HapticFeedback.lightImpact();
-                        },
-                        text: 'Aggiungi',
-                        options: AFButtonOptions(
-                          width: double.infinity,
-                          height: 50,
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                          iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                          color: CustomFlowTheme.of(context).primary,
-                          disabledColor: CustomFlowTheme.of(context).disabled,
-                          textStyle: CustomFlowTheme.of(context).titleSmall,
-                          elevation: 0,
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              }),
+  final GlobalKey<FormState> formKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SingleChildScrollView(
+        child: Consumer<AddPeopleModel>(
+          builder: (context, model, _) {
+            return Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _HeaderSection(model: model),
+                _FormSection(model: model, formKey: formKey),
+                _SubmitButton(model: model, formKey: formKey),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// HEADER SECTION
+// ---------------------------------------------------------------------------
+class _HeaderSection extends StatelessWidget {
+  const _HeaderSection({required this.model});
+
+  final AddPeopleModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: CustomFlowTheme.of(context).secondary,
+      padding: const EdgeInsets.all(_Dims.headerPaddingAll),
+      child: Column(
+        children: [
+          wrapWithModel(
+            model: model.customAppbarModel,
+            updateCallback: () {},
+            child: CustomAppbarWidget(
+              backButton: true,
+              actionButton: false,
+              actionButtonAction: () async {},
+              optionsButtonAction: () async {},
             ),
           ),
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(
+              0, _Dims.titlePaddingTop, 0, _Dims.titlePaddingBtm,
+            ),
+            child: Text(
+              'Registra un giocatore',
+              style: CustomFlowTheme.of(context).displaySmall,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// FORM SECTION
+// ---------------------------------------------------------------------------
+class _FormSection extends StatelessWidget {
+  const _FormSection({required this.model, required this.formKey});
+
+  final AddPeopleModel model;
+  final GlobalKey<FormState> formKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(_Dims.formPaddingAll),
+      child: Form(
+        key: formKey,
+        autovalidateMode: AutovalidateMode.disabled,
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _UserIdField(model: model),
+            _MessageList(messages: model.messageObjList),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// USER ID FIELD
+// ---------------------------------------------------------------------------
+class _UserIdField extends StatelessWidget {
+  const _UserIdField({required this.model});
+
+  final AddPeopleModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    final peopleModel = context.read<TournamentPeopleModel>();
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, _Dims.fieldPaddingBtm),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, _Dims.labelPaddingBtm),
+            child: Text('Id utente', style: CustomFlowTheme.of(context).bodyMedium),
+          ),
+          TextFormField(
+            controller: model.fieldControllerIdUser,
+            focusNode: model.idUserFocusNode,
+            autofocus: false,
+            autofillHints: const [AutofillHints.name],
+            textCapitalization: TextCapitalization.none,
+            textInputAction: TextInputAction.next,
+            obscureText: false,
+            decoration: standardInputDecoration(
+              context,
+              prefixIcon: Icon(
+                Icons.badge,
+                color: CustomFlowTheme.of(context).secondaryText,
+                size: _Dims.prefixIconSize,
+              ),
+              suffixIcons: [
+                IconButton(
+                  onPressed: () async {
+                    if (model.fieldControllerIdUser.text.isNotEmpty) {
+                      final respMap = await peopleModel.getUserInfoForEnrollment(
+                        model.fieldControllerIdUser.text,
+                        listType: peopleModel.listTypeReferral,
+                      );
+                      model.composeOutputForRequest(respMap, listType: peopleModel.listTypeReferral);
+                    }
+                  },
+                  icon: Icon(Icons.refresh, size: _Dims.suffixIconSize),
+                  color: CustomFlowTheme.of(context).secondaryText,
+                ),
+                IconButton(
+                  onPressed: () async {
+                    final result = await context.pushNamedAuth(
+                      'ScannerCode', context.mounted,
+                      pathParameters: {
+                        'tournamentId': peopleModel.tournamentModel.tournamentId,
+                      }.withoutNulls,
+                    );
+                    if (result != null) {
+                      model.setFieldControllerIdUser(result);
+                      if (model.fieldControllerIdUser.text.isNotEmpty) {
+                        final respMap = await peopleModel.getUserInfoForEnrollment(
+                          model.fieldControllerIdUser.text,
+                          listType: peopleModel.listTypeReferral,
+                        );
+                        model.composeOutputForRequest(respMap, listType: peopleModel.listTypeReferral);
+                      }
+                    }
+                  },
+                  icon: Icon(Icons.qr_code, size: _Dims.suffixIconSize),
+                  color: CustomFlowTheme.of(context).secondaryText,
+                ),
+              ],
+            ),
+            style: CustomFlowTheme.of(context).bodyLarge.override(
+              fontWeight: FontWeight.w500,
+              lineHeight: 1,
+            ),
+            minLines: 1,
+            cursorColor: CustomFlowTheme.of(context).primary,
+            validator: model.idUserTextControllerValidator.asValidator(context),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// MESSAGE LIST
+// ---------------------------------------------------------------------------
+class _MessageList extends StatelessWidget {
+  const _MessageList({required this.messages});
+
+  final List<MessagePeople> messages;
+
+  @override
+  Widget build(BuildContext context) {
+    if (messages.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, _Dims.msgPaddingBtm),
+      child: Column(
+        children: [
+          for (final msg in messages) _MessageRow(message: msg),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// MESSAGE ROW
+// ---------------------------------------------------------------------------
+class _MessageRow extends StatelessWidget {
+  const _MessageRow({required this.message});
+
+  final MessagePeople message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(_Dims.msgRowPadding),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: _Dims.msgIconSize,
+            height: _Dims.msgIconSize,
+            decoration: BoxDecoration(
+              color: message.messageLevel.color,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              message.messageLevel.icon,
+              color: Colors.white,
+              size: _Dims.msgIconInner,
+            ),
+          ),
+          const SizedBox(width: _Dims.msgIconGap),
+          Expanded(
+            child: Text(
+              message.message,
+              style: CustomFlowTheme.of(context).titleSmall,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SUBMIT BUTTON
+// ---------------------------------------------------------------------------
+class _SubmitButton extends StatelessWidget {
+  const _SubmitButton({required this.model, required this.formKey});
+
+  final AddPeopleModel model;
+  final GlobalKey<FormState> formKey;
+
+  @override
+  Widget build(BuildContext context) {
+    final peopleModel = context.read<TournamentPeopleModel>();
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.all(_Dims.submitPaddingAll),
+      child: AFButtonWidget(
+        onPressed: (!model.checked)
+            ? null
+            : () async {
+                FocusScope.of(context).unfocus();
+                logFirebaseEvent('ONBOARDING_ADD_USER_ADD_USER');
+                logFirebaseEvent('Button_validate_form');
+                if (formKey.currentState == null ||
+                    !formKey.currentState!.validate()) {
+                  return;
+                }
+                final flag = await peopleModel.promotePeople(
+                  model.fieldControllerIdUser.text,
+                  listType: peopleModel.listTypeReferral,
+                );
+                if (flag && context.mounted) context.safePop();
+                logFirebaseEvent('Button_haptic_feedback');
+                HapticFeedback.lightImpact();
+              },
+        text: 'Aggiungi',
+        options: AFButtonOptions(
+          width: double.infinity,
+          height: _Dims.submitHeight,
+          padding: EdgeInsetsDirectional.zero,
+          iconPadding: EdgeInsetsDirectional.zero,
+          color: CustomFlowTheme.of(context).primary,
+          disabledColor: CustomFlowTheme.of(context).disabled,
+          textStyle: CustomFlowTheme.of(context).titleSmall,
+          elevation: 0,
+          borderSide: const BorderSide(color: Colors.transparent, width: 1),
+          borderRadius: BorderRadius.circular(_Dims.submitRadius),
         ),
       ),
     );

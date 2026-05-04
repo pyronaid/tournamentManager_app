@@ -1,5 +1,4 @@
-import 'dart:async';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_model.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
@@ -8,52 +7,38 @@ import '../../../../backend/schema/enrollments_record.dart';
 
 class TournamentRegisteredPeopleModel extends TournamentPeopleModel {
 
-  late TextEditingController _registeredPeopleNameTextController;
-  late FocusNode _registeredPeopleNameFocusNode;
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
 
-
-  TournamentRegisteredPeopleModel({required TournamentModel tournamentModel}) : super() {
-    print("[CREATE] TournamentRegisteredPeopleModel");
-    super.tournamentModel = tournamentModel;
-    isLoadingFlag = tournamentModel.isLoading;
-    pagingControllerVar = PagingController<int,EnrollmentsRecord>(firstPageKey: 1);
-    pagingControllerVar.addPageRequestListener((pageKey) => fetchPage(pageKey, listType: ListType.registered));
+  TournamentRegisteredPeopleModel({required super.tournamentModel}) {
+    pagingControllerVar = PagingController<int, EnrollmentsRecord>(firstPageKey: 1)
+      ..addPageRequestListener(
+        (pageKey) => fetchPage(pageKey, listType: ListType.registered),
+      );
     countElementsVar = 0;
-    currentFilter = '';
-    _registeredPeopleNameTextController = TextEditingController();
-    _registeredPeopleNameFocusNode = FocusNode();
-    /////////////////////////////LISTENERS
-    _registeredPeopleNameTextController.addListener(() {
-      final currentText = _registeredPeopleNameTextController.text;
-      if((_registeredPeopleNameTextController.text.isEmpty || _registeredPeopleNameTextController.text.length > 2) && oldValueToCompare != currentText){
-        oldValueToCompare = currentText;
-
-        if (debounce?.isActive ?? false) debounce!.cancel();
-        debounce = Timer(const Duration(milliseconds: 800), () async {
-          currentFilter = currentText;
-          pagingControllerVar.refresh();
-        });
-      }
-    });
+    _controller = TextEditingController();
+    _focusNode = FocusNode();
+    initSearchListener(_controller);
   }
 
+  @override
+  TextEditingController get peopleNameTextController => _controller;
 
-  /////////////////////////////GETTER
   @override
-  TextEditingController get peopleNameTextController => _registeredPeopleNameTextController;
-  @override
-  FocusNode get peopleNameFocusNode => _registeredPeopleNameFocusNode;
+  FocusNode get peopleNameFocusNode => _focusNode;
+
   @override
   ListType get listTypeReferral => ListType.registered;
 
-
-  /////////////////////////////SETTER
-
+  // ---------------------------------------------------------------------------
+  // DISPOSE
+  // Remove listener FIRST (super.dispose does it), then clean up owned resources.
+  // ---------------------------------------------------------------------------
   @override
   void dispose() {
-    _registeredPeopleNameTextController.dispose();
-    _registeredPeopleNameFocusNode.dispose();
     pagingControllerVar.dispose();
+    _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 }

@@ -106,30 +106,14 @@ class EditProfileModel extends ChangeNotifier {
 
 
   /////////////////////////////GETTER
-  TextEditingController get nameTextController{
-    return _nameTextController;
-  }
-  FocusNode? get nameFocusNode{
-    return _nameFocusNode;
-  }
-  TextEditingController get surnameTextController{
-    return _surnameTextController;
-  }
-  FocusNode? get surnameFocusNode{
-    return _surnameFocusNode;
-  }
-  TextEditingController get usernameTextController{
-    return _usernameTextController;
-  }
-  FocusNode? get usernameFocusNode{
-    return _usernameFocusNode;
-  }
-  TextEditingController get emailAddressTextController{
-    return _emailAddressTextController;
-  }
-  FocusNode? get emailAddressFocusNode{
-    return _emailAddressFocusNode;
-  }
+  TextEditingController get nameTextController => _nameTextController;
+  FocusNode? get nameFocusNode => _nameFocusNode;
+  TextEditingController get surnameTextController => _surnameTextController;
+  FocusNode? get surnameFocusNode => _surnameFocusNode;
+  TextEditingController get usernameTextController => _usernameTextController;
+  FocusNode? get usernameFocusNode => _usernameFocusNode;
+  TextEditingController get emailAddressTextController => _emailAddressTextController;
+  FocusNode? get emailAddressFocusNode => _emailAddressFocusNode;
 
 
   /////////////////////////////SETTER
@@ -149,25 +133,6 @@ class EditProfileModel extends ChangeNotifier {
         surname: surnameTextController.text,
         username: usernameTextController.text,
       ));
-
-      //TODO ALL MANAGEMENT
-      print("TODO ALL MANAGEMENT");
-      /*
-      if(response not 200)
-        if(username duplicate key currentUserReference.username != usernameTextController.text){
-          //check if new username is already taken
-          //it's already managed at database level, manage result in a better way TODO
-          //check pocketbase call response!!! TODO
-          _serverErrors['username'] = "Stringa presa da response"
-          _formKey.currentState!.validate();
-        } else {
-          //show snackbar with generic error
-        }
-      else {
-        notifyListeners();
-      }
-
-       */
     }
   }
   void showIssueSnackBar() {

@@ -1,5 +1,4 @@
-import 'dart:async';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_model.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
@@ -8,57 +7,34 @@ import '../../../../backend/schema/enrollments_record.dart';
 
 class TournamentWaitingPeopleModel extends TournamentPeopleModel {
 
-  late TextEditingController _waitingPeopleNameTextController;
-  late FocusNode _waitingPeopleNameFocusNode;
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
 
-
-
-  TournamentWaitingPeopleModel({required TournamentModel tournamentModel}) : super() {
-    print("[CREATE] TournamentwaitingPeopleModel");
-    super.tournamentModel = tournamentModel;
-    isLoadingFlag = tournamentModel.isLoading;
-    pagingControllerVar = PagingController(firstPageKey: 1);
-    pagingControllerVar.addPageRequestListener((pageKey) => fetchPage(pageKey, listType: ListType.waiting));
+  TournamentWaitingPeopleModel({required super.tournamentModel}) {
+    pagingControllerVar = PagingController<int, EnrollmentsRecord>(firstPageKey: 1)
+      ..addPageRequestListener(
+        (pageKey) => fetchPage(pageKey, listType: ListType.waiting),
+      );
     countElementsVar = 0;
-    currentFilter = '';
-    _waitingPeopleNameTextController = TextEditingController();
-    _waitingPeopleNameFocusNode = FocusNode();
-    /////////////////////////////LISTENERS
-    _waitingPeopleNameTextController.addListener(() {
-      final currentText = _waitingPeopleNameTextController.text;
-      if((_waitingPeopleNameTextController.text.isNotEmpty || _waitingPeopleNameTextController.text.length > 2) && oldValueToCompare != currentText){
-        oldValueToCompare = currentText;
-
-        if (debounce?.isActive ?? false) debounce!.cancel();
-        debounce = Timer(const Duration(milliseconds: 800), () async {
-          currentFilter = currentText;
-          pagingControllerVar.refresh();
-        });
-      }
-    });
+    _controller = TextEditingController();
+    _focusNode = FocusNode();
+    initSearchListener(_controller);
   }
 
-
-
-
-
-  /////////////////////////////GETTER
   @override
-  TextEditingController get peopleNameTextController => _waitingPeopleNameTextController;
+  TextEditingController get peopleNameTextController => _controller;
+
   @override
-  FocusNode get peopleNameFocusNode => _waitingPeopleNameFocusNode;
+  FocusNode get peopleNameFocusNode => _focusNode;
+
   @override
   ListType get listTypeReferral => ListType.waiting;
 
-
-  /////////////////////////////SETTER
-
   @override
   void dispose() {
-    _waitingPeopleNameTextController.dispose();
-    _waitingPeopleNameFocusNode.dispose();
     pagingControllerVar.dispose();
+    _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
-
 }

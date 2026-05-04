@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
@@ -11,7 +12,35 @@ import 'package:tournamentmanager/backend/schema/company_information_record.dart
 import 'package:tournamentmanager/pages/profile/profile/profile_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+// ---------------------------------------------------------------------------
+// DIMENSION CONSTANTS
+// ---------------------------------------------------------------------------
+abstract class _Dims {
+  static const double pagePaddingH          = 24.0;
+  static const double pagePaddingTop        = 24.0;
+  static const double greetingPaddingTop    = 24.0;
+  static const double greetingPaddingBtm    = 6.0;
+  static const double bannerPaddingTop      = 24.0;
+  static const double bannerPaddingAll      = 18.0;
+  static const double bannerRadius          = 8.0;
+  static const double bannerDescPaddingTop  = 6.0;
+  static const double qrPaddingV            = 20.0;
+  static const double qrSize               = 200.0;
+  static const double tileIconContainerSize = 40.0;
+  static const double tileIconPadding       = 4.0;
+  static const double tileIconSize          = 20.0;
+  static const double tileRowPaddingV       = 12.0;
+  static const double tileLabelPaddingL     = 18.0;
+  static const double loadingSize           = 25.0;
+  static const double endSpacerHeight       = 44.0;
+}
 
+// ---------------------------------------------------------------------------
+// WIDGET
+// Kept as StatefulWidget: SchedulerBinding post-frame haptic feedback requires
+// a mounted widget at call time. companyInfoFuture lives in ProfileModel so
+// it is not recreated on every build.
+// ---------------------------------------------------------------------------
 class ProfileWidget extends StatefulWidget {
   const ProfileWidget({super.key});
 
@@ -20,448 +49,379 @@ class ProfileWidget extends StatefulWidget {
 }
 
 class _ProfileWidgetState extends State<ProfileWidget> {
-  late ProfileModel _model;
-
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _unfocusNode = FocusNode();
-
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => ProfileModel());
-
-    logFirebaseEvent('screen_view', parameters: {'screen_name': 'Profile'});
-    // On page load action.
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       logFirebaseEvent('PROFILE_PAGE_Profile_ON_INIT_STATE');
-      logFirebaseEvent('Profile_haptic_feedback');
       HapticFeedback.mediumImpact();
     });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-  }
-
-  @override
-  void dispose() {
-    _model.dispose();
-
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    assert(() {
+      debugPrint('[BUILD] profile_widget.dart');
+      return true;
+    }());
+
     return GestureDetector(
-      onTap: () => _unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_unfocusNode)
-          : FocusScope.of(context).unfocus(),
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: CustomFlowTheme
-            .of(context)
-            .primaryBackground,
-        body: SafeArea(
+        backgroundColor: CustomFlowTheme.of(context).primaryBackground,
+        body: const SafeArea(
           top: true,
           child: SingleChildScrollView(
-            child: Column(
+            child: Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(
+                _Dims.pagePaddingH, _Dims.pagePaddingTop,
+                _Dims.pagePaddingH, 0,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _GreetingSection(),
+                  _SupportBanner(),
+                  _QrSection(),
+                  _CompanyInfoSection(),
+                  SizedBox(height: _Dims.endSpacerHeight),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// GREETING SECTION
+// ---------------------------------------------------------------------------
+class _GreetingSection extends StatelessWidget {
+  const _GreetingSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(
+            0, _Dims.greetingPaddingTop, 0, _Dims.greetingPaddingBtm,
+          ),
+          child: Text(
+            valueOrDefault<String>(
+              functions.returnProfileGreeting(getCurrentTimestamp),
+              'Ciao,',
+            ),
+            style: CustomFlowTheme.of(context).labelLarge,
+          ),
+        ),
+        AuthUserStreamWidget(
+          builder: (context) => Text(
+            currentUserName,
+            style: CustomFlowTheme.of(context).displaySmall,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SUPPORT BANNER
+// TODO: wire up an onTap action — the banner text says "Clicca qui se vuoi
+// supportarci!" but no tap handler was ever implemented.
+// ---------------------------------------------------------------------------
+class _SupportBanner extends StatelessWidget {
+  const _SupportBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(0, _Dims.bannerPaddingTop, 0, 0),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: CustomFlowTheme.of(context).primary,
+          borderRadius: BorderRadius.circular(_Dims.bannerRadius),
+          border: Border.all(color: CustomFlowTheme.of(context).accent1),
+        ),
+        padding: const EdgeInsets.all(_Dims.bannerPaddingAll),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Clicca qui se vuoi supportarci!',
+              style: CustomFlowTheme.of(context).titleMedium,
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                0, _Dims.bannerDescPaddingTop, 0, 0,
+              ),
+              child: Text(
+                'Da parte del team ti ringraziamo del tuo supporto e speriamo '
+                "che l'app possa esserti utile",
+                style: CustomFlowTheme.of(context)
+                    .labelLarge
+                    .override(color: CustomFlowTheme.of(context).info),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// QR SECTION
+// ---------------------------------------------------------------------------
+class _QrSection extends StatelessWidget {
+  const _QrSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(0, _Dims.qrPaddingV, 0, _Dims.qrPaddingV),
+      child: Center(
+        child: QrImageView(
+          data: currentUserUid,
+          version: QrVersions.auto,
+          size: _Dims.qrSize,
+          eyeStyle: QrEyeStyle(
+            eyeShape: QrEyeShape.square,
+            color: CustomFlowTheme.of(context).primaryText,
+          ),
+          dataModuleStyle: QrDataModuleStyle(
+            dataModuleShape: QrDataModuleShape.square,
+            color: CustomFlowTheme.of(context).primaryText,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// COMPANY INFO SECTION (FutureBuilder)
+// FIX: future is read from ProfileModel (created once) instead of being
+// constructed inline in build() which caused it to re-fire on every rebuild.
+// FIX: uses connectionState for the loading gate so a null result doesn't
+// leave the spinner spinning forever.
+// ---------------------------------------------------------------------------
+class _CompanyInfoSection extends StatelessWidget {
+  const _CompanyInfoSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<CompanyInformationRecord?>(
+      future: context.read<ProfileModel>().companyInfoFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: SizedBox(
+              width: _Dims.loadingSize,
+              height: _Dims.loadingSize,
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  CustomFlowTheme.of(context).primary,
+                ),
+              ),
+            ),
+          );
+        }
+        if (snapshot.hasError || snapshot.data == null) {
+          return const SizedBox.shrink();
+        }
+        return _ActionList(record: snapshot.data!);
+      },
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// ACTION LIST
+// ---------------------------------------------------------------------------
+class _ActionList extends StatelessWidget {
+  const _ActionList({required this.record});
+
+  final CompanyInformationRecord record;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        _ActionTile(
+          icon: Icons.person_outline_rounded,
+          label: 'Edit Profile',
+          onTap: () {
+            logFirebaseEvent('PROFILE_PAGE_EditProfileTile_ON_TAP');
+            logFirebaseEvent('EditProfileTile_navigate_to');
+            context.pushNamedAuth('EditProfile', context.mounted);
+          },
+        ),
+        if (record.name != '' && record.companyBio != '')
+          _ActionTile(
+            icon: Icons.info_outlined,
+            label: 'About Us',
+            onTap: () {
+              logFirebaseEvent('PROFILE_PAGE_AboutUsTile_ON_TAP');
+              logFirebaseEvent('AboutUsTile_navigate_to');
+              context.pushNamedAuth('AboutUs', context.mounted);
+            },
+          ),
+        if (record.email != '' || record.phone != '')
+          _ActionTile(
+            icon: Icons.mail_outlined,
+            label: 'Contact Us',
+            onTap: () async {
+              logFirebaseEvent('PROFILE_PAGE_ContactUsTile_ON_TAP');
+              if (record.email != '') {
+                logFirebaseEvent('ContactUsTile_send_email');
+                await launchUrl(Uri(scheme: 'mailto', path: record.email));
+              } else {
+                logFirebaseEvent('ContactUsTile_call_number');
+                await launchUrl(Uri(scheme: 'tel', path: record.phone));
+              }
+            },
+          ),
+        // FIX: was using Icons.person_outline_rounded (same as Edit Profile)
+        // Changed to Icons.emoji_events_outlined to reflect tournament creation.
+        _ActionTile(
+          icon: Icons.emoji_events_outlined,
+          label: 'Create Own',
+          onTap: () {
+            logFirebaseEvent('PROFILE_PAGE_CreateOwnTile_ON_TAP');
+            logFirebaseEvent('CreateOwnTile_navigate_to');
+            context.pushNamedAuth('CreateOwn', context.mounted);
+          },
+        ),
+        const _LogoutTile(),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// ACTION TILE  (icon + label row + divider)
+// ---------------------------------------------------------------------------
+class _ActionTile extends StatelessWidget {
+  const _ActionTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      splashColor: Colors.transparent,
+      focusColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(
+              0, _Dims.tileRowPaddingV, 0, _Dims.tileRowPaddingV,
+            ),
+            child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
-                Align(
-                  alignment: const AlignmentDirectional(0, 0),
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(24, 24, 24, 0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 6),
-                          child: Text(
-                            valueOrDefault<String>(functions.returnProfileGreeting(getCurrentTimestamp),'Ciao,',),
-                            style: CustomFlowTheme.of(context).labelLarge,
-                          ),
-                        ),
-                        AuthUserStreamWidget(
-                          builder: (context) => Text(
-                            currentUserName,
-                            style: CustomFlowTheme.of(context).displaySmall,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                          child: Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: CustomFlowTheme.of(context).primary,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: CustomFlowTheme.of(context).accent1,
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(18),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Clicca qui se vuoi supportarci!',
-                                    style: CustomFlowTheme.of(context).titleMedium,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 6, 0, 0),
-                                    child: Text(
-                                      'Da parte del team ti ringraziamo del tuo supporto e speriamo che l\'app possa esserti utile',
-                                      style: CustomFlowTheme.of(context).labelLarge.override(color: CustomFlowTheme.of(context).info),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        //////////////////////////////
-                        ///////// QR CODE SPACE
-                        //////////////////////////////
-                        Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 20.0),
-                          child: Center(
-                              child: QrImageView(
-                                data: currentUserUid,
-                                version: QrVersions.auto,
-                                size: 200.0,
-                                eyeStyle: QrEyeStyle(
-                                  eyeShape: QrEyeShape.square,
-                                  color: CustomFlowTheme.of(context).primaryText,
-                                ),
-                                dataModuleStyle: QrDataModuleStyle(
-                                  dataModuleShape: QrDataModuleShape.square,
-                                  color: CustomFlowTheme.of(context).primaryText,
-                                ),
-                              )
-                          ),
-                        ),
-                        //////////////////////////////
-                        /////////LISTA AZIONI
-                        //////////////////////////////
-                        Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                          child: FutureBuilder<CompanyInformationRecord?>(
-                            future: CompanyInformationRecord.getFirstDocumentByFilterOnce(pb, '', false),
-                            builder: (context, snapshot) {
-                              // Customize what your widget looks like when it's loading.
-                              if (!snapshot.hasData) {
-                                return Center(
-                                  child: SizedBox(
-                                    width: 25,
-                                    height: 25,
-                                    child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        CustomFlowTheme.of(context).primary,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-                              // Return an empty Container when the item does not exist.
-                              if (snapshot.data == null) {
-                                return Container();
-                              }
-                              CompanyInformationRecord? columnCompanyInformationRecord = snapshot.data!;
-                              return Column(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  ///////////////////////////////////////
-                                  /////////////////////////////////////// EDIT PROFILE + DIVIDER
-                                  ///////////////////////////////////////
-                                  InkWell(
-                                    splashColor: Colors.transparent,
-                                    focusColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    onTap: () async {
-                                      logFirebaseEvent('PROFILE_PAGE_EditProfileTile_ON_TAP');
-                                      logFirebaseEvent('EditProfileTile_navigate_to');
-
-                                      context.pushNamedAuth('EditProfile', context.mounted);
-                                    },
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: [
-                                        Padding(
-                                          padding:const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.max,
-                                            children: [
-                                              Container(
-                                                width: 40,
-                                                height: 40,
-                                                decoration: BoxDecoration(
-                                                  color: CustomFlowTheme.of(context).accent1,
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(4),
-                                                  child: Icon(
-                                                    Icons.person_outline_rounded,
-                                                    color:CustomFlowTheme.of(context).primary,
-                                                    size: 20,
-                                                  ),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 0, 0),
-                                                child: Text(
-                                                  'Edit Profile',
-                                                  style: CustomFlowTheme.of(context).bodyLarge,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Divider(
-                                          thickness: 1,
-                                          color: CustomFlowTheme.of(context).primary,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  ///////////////////////////////////////
-                                  /////////////////////////////////////// ABOUT US + DIVIDER
-                                  ///////////////////////////////////////
-                                  if (columnCompanyInformationRecord.name != '' && columnCompanyInformationRecord.companyBio !='')
-                                    InkWell(
-                                      splashColor: Colors.transparent,
-                                      focusColor: Colors.transparent,
-                                      hoverColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      onTap: () async {
-                                        logFirebaseEvent('PROFILE_PAGE_AboutUsTile_ON_TAP');
-                                        logFirebaseEvent('AboutUsTile_navigate_to');
-
-                                        context.pushNamedAuth('AboutUs', context.mounted);
-                                      },
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              children: [
-                                                Container(
-                                                  width: 40,
-                                                  height: 40,
-                                                  decoration: BoxDecoration(
-                                                    color: CustomFlowTheme.of(context).accent1,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(4),
-                                                    child: Icon(
-                                                      Icons.info_outlined,
-                                                      color: CustomFlowTheme.of(context).primary,
-                                                      size: 20,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 0, 0),
-                                                  child: Text(
-                                                    'About Us',
-                                                    style: CustomFlowTheme.of(context).bodyLarge,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Divider(
-                                            thickness: 1,
-                                            color: CustomFlowTheme.of(context).primary,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ///////////////////////////////////////
-                                  /////////////////////////////////////// CONTACT US + DIVIDER
-                                  ///////////////////////////////////////
-                                  if (columnCompanyInformationRecord.email != '' || columnCompanyInformationRecord.phone != '')
-                                    InkWell(
-                                      splashColor: Colors.transparent,
-                                      focusColor: Colors.transparent,
-                                      hoverColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      onTap: () async {
-                                        logFirebaseEvent('PROFILE_PAGE_ContactUsTile_ON_TAP');
-                                        if (columnCompanyInformationRecord.email != '') {
-                                          logFirebaseEvent('ContactUsTile_send_email');
-                                          await launchUrl(Uri(
-                                            scheme: 'mailto',
-                                            path: columnCompanyInformationRecord.email,
-                                          ));
-                                        } else {
-                                          logFirebaseEvent('ContactUsTile_call_number');
-                                          await launchUrl(Uri(
-                                            scheme: 'tel',
-                                            path: columnCompanyInformationRecord.phone,
-                                          ));
-                                        }
-                                      },
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              children: [
-                                                Container(
-                                                  width: 40,
-                                                  height: 40,
-                                                  decoration: BoxDecoration(
-                                                    color: CustomFlowTheme.of(context).accent1,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(4),
-                                                    child: Icon(
-                                                      Icons.mail_outlined,
-                                                      color:CustomFlowTheme.of(context).primary,
-                                                      size: 20,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 0, 0),
-                                                  child: Text(
-                                                    'Contact Us',
-                                                    style: CustomFlowTheme.of(context).bodyLarge,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Divider(
-                                            thickness: 1,
-                                            color: CustomFlowTheme.of(context).primary,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ///////////////////////////////////////
-                                  /////////////////////////////////////// CREATE OWN + DIVIDER
-                                  ///////////////////////////////////////
-                                  InkWell(
-                                    splashColor: Colors.transparent,
-                                    focusColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    onTap: () async {
-                                      logFirebaseEvent('PROFILE_PAGE_CreateOwnTile_ON_TAP');
-                                      logFirebaseEvent('CreateOwnTile_navigate_to');
-
-                                      context.pushNamedAuth('CreateOwn', context.mounted);
-                                    },
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: [
-                                        Padding(
-                                          padding:const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.max,
-                                            children: [
-                                              Container(
-                                                width: 40,
-                                                height: 40,
-                                                decoration: BoxDecoration(
-                                                  color: CustomFlowTheme.of(context).accent1,
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(4),
-                                                  child: Icon(
-                                                    Icons.person_outline_rounded,
-                                                    color:CustomFlowTheme.of(context).primary,
-                                                    size: 20,
-                                                  ),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 0, 0),
-                                                child: Text(
-                                                  'Create Own',
-                                                  style: CustomFlowTheme.of(context).bodyLarge,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Divider(
-                                          thickness: 1,
-                                          color: CustomFlowTheme.of(context).primary,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  ///////////////////////////////////////
-                                  /////////////////////////////////////// LOGOUT
-                                  ///////////////////////////////////////
-                                  Padding(
-                                    padding: const EdgeInsetsDirectional.fromSTEB(0.0, 12.0, 0.0, 12.0),
-                                    child: InkWell(
-                                      splashColor: Colors.transparent,
-                                      focusColor: Colors.transparent,
-                                      hoverColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      onTap: () async {
-                                        logFirebaseEvent('PROFILE_PAGE_LogoutTile_ON_TAP');
-                                        logFirebaseEvent('LogoutTile_auth');
-                                        GoRouter.of(context).prepareAuthEvent();
-                                        await pocketAuthManager.signOut();
-                                        context.goNamedAuth('Splash', context.mounted);
-                                      },
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          Container(
-                                            width: 40.0,
-                                            height: 40.0,
-                                            decoration: BoxDecoration(
-                                              color: CustomFlowTheme.of(context).accent1,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(4.0),
-                                              child: Icon(
-                                                Icons.logout,
-                                                color: CustomFlowTheme.of(context).primary,
-                                                size: 18.0,
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:const EdgeInsetsDirectional.fromSTEB(18.0, 0.0, 0.0, 0.0),
-                                            child: Text(
-                                              'Log out',
-                                              style: CustomFlowTheme.of(context).bodyLarge,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                      ].addToEnd(const SizedBox(height: 44.0)),
-                    ),
+                _TileIcon(icon: icon),
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(
+                    _Dims.tileLabelPaddingL, 0, 0, 0,
                   ),
+                  child: Text(label, style: CustomFlowTheme.of(context).bodyLarge),
                 ),
               ],
             ),
           ),
+          Divider(thickness: 1, color: CustomFlowTheme.of(context).primary),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// LOGOUT TILE  (no divider)
+// ---------------------------------------------------------------------------
+class _LogoutTile extends StatelessWidget {
+  const _LogoutTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        0, _Dims.tileRowPaddingV, 0, _Dims.tileRowPaddingV,
+      ),
+      child: InkWell(
+        splashColor: Colors.transparent,
+        focusColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        onTap: () async {
+          logFirebaseEvent('PROFILE_PAGE_LogoutTile_ON_TAP');
+          logFirebaseEvent('LogoutTile_auth');
+          GoRouter.of(context).prepareAuthEvent();
+          await pocketAuthManager.signOut();
+          context.goNamedAuth('Splash', context.mounted);
+        },
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            _TileIcon(icon: Icons.logout),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                _Dims.tileLabelPaddingL, 0, 0, 0,
+              ),
+              child: Text('Log out', style: CustomFlowTheme.of(context).bodyLarge),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// TILE ICON  (circle container shared by all tiles)
+// ---------------------------------------------------------------------------
+class _TileIcon extends StatelessWidget {
+  const _TileIcon({required this.icon});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: _Dims.tileIconContainerSize,
+      height: _Dims.tileIconContainerSize,
+      decoration: BoxDecoration(
+        color: CustomFlowTheme.of(context).accent1,
+        shape: BoxShape.circle,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(_Dims.tileIconPadding),
+        child: Icon(
+          icon,
+          color: CustomFlowTheme.of(context).primary,
+          size: _Dims.tileIconSize,
         ),
       ),
     );

@@ -8,6 +8,20 @@ import 'package:tournamentmanager/pages/core/tournament_people/tournament_genera
 
 import '../../../components/fab_expandable/fab_expandable_widget.dart';
 
+// ---------------------------------------------------------------------------
+// DIMENSION CONSTANTS
+// ---------------------------------------------------------------------------
+abstract class _Dims {
+  static const double fabDistance = 60.0;
+}
+
+// ---------------------------------------------------------------------------
+// TournamentPeopleWidget
+// Kept as StatefulWidget because AutomaticKeepAliveClientMixin requires State.
+// All side-effect logic (page reset on available-pages change) has been moved
+// into TournamentGeneralPeopleModel._onTournamentChanged so the build method
+// is free of mutations.
+// ---------------------------------------------------------------------------
 class TournamentPeopleWidget extends StatefulWidget {
   const TournamentPeopleWidget({super.key});
 
@@ -15,68 +29,52 @@ class TournamentPeopleWidget extends StatefulWidget {
   State<TournamentPeopleWidget> createState() => _TournamentPeopleWidgetState();
 }
 
-
-class _TournamentPeopleWidgetState extends State<TournamentPeopleWidget> with AutomaticKeepAliveClientMixin {
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
+class _TournamentPeopleWidgetState extends State<TournamentPeopleWidget>
+    with AutomaticKeepAliveClientMixin {
 
   @override
   bool get wantKeepAlive {
-    final provider = context.read<TournamentGeneralPeopleModel>();
-    //Only keep alive if we have a small dataset
-    return provider.getTotalPartecipants() < 100;
+    return context.read<TournamentGeneralPeopleModel>().getTotalPartecipants() < 100;
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
-    return Consumer<TournamentGeneralPeopleModel>(builder: (context, providerGeneralPeopleTournament, _) {
-      if (providerGeneralPeopleTournament.isLoading) {
-        return const Center(child: CircularProgressIndicator());
-      }
+    return Selector<TournamentGeneralPeopleModel, bool>(
+      selector: (_, m) => m.isLoading,
+      builder: (_, isLoading, __) {
+        assert(() {
+          debugPrint('[BUILD] tournament_people_widget.dart');
+          return true;
+        }());
 
-      final bool needsPageReset = providerGeneralPeopleTournament.updateAvailablePagesAndCurrentPage();
-      if(needsPageReset){
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          providerGeneralPeopleTournament.resetToFirstPage();
-        });
-      }
+        if (isLoading) return const Center(child: CircularProgressIndicator());
 
-      return Scaffold(
-        floatingActionButton: FabExpandableWidget(
-          distance: 60,
-          children: providerGeneralPeopleTournament.buildFabActions(),
-        ),
-        body: PageView.builder(
-          controller: providerGeneralPeopleTournament.pageController,
-          itemCount: providerGeneralPeopleTournament.availablePages.length,
-          onPageChanged: providerGeneralPeopleTournament.onPageChanged,
-          itemBuilder: (context, index) {
-            return _createWidget(providerGeneralPeopleTournament.availablePages[index]);
-          },
-        ),
-      );
-    });
+        final model = context.read<TournamentGeneralPeopleModel>();
+
+        return Scaffold(
+          floatingActionButton: FabExpandableWidget(
+            distance: _Dims.fabDistance,
+            children: model.buildFabActions(),
+          ),
+          body: PageView.builder(
+            controller: model.pageController,
+            itemCount: model.availablePages.length,
+            onPageChanged: model.onPageChanged,
+            itemBuilder: (context, index) =>
+                _pageForType(model.availablePages[index]),
+          ),
+        );
+      },
+    );
   }
 
-
-  Widget _createWidget(ListType pageType){
-    switch (pageType){
-      case ListType.registered:
-        return const TournamentRegisteredPeopleContainer();
-      case ListType.preregistered:
-        return const TournamentPreregisteredPeopleContainer();
-      case ListType.waiting:
-        return const TournamentWaitingPeopleContainer();
-    }
+  Widget _pageForType(ListType pageType) {
+    return switch (pageType) {
+      ListType.registered    => const TournamentRegisteredPeopleContainer(),
+      ListType.preregistered => const TournamentPreregisteredPeopleContainer(),
+      ListType.waiting       => const TournamentWaitingPeopleContainer(),
+    };
   }
 }

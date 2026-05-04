@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class EditPreferencesWidget extends StatelessWidget {
-  const EditPreferencesWidget({super.key, required page});
+  const EditPreferencesWidget({super.key, required this.page});
+
+  final int? page;
 
   @override
   Widget build(BuildContext context) {
