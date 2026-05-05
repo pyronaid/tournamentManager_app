@@ -1,114 +1,86 @@
+// components/tournament_news_card/tournament_news_card_widget.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:provider/provider.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
+import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
 import 'package:tournamentmanager/backend/schema/news_record.dart';
-import 'package:tournamentmanager/components/tournament_news_card/tournament_news_card_model.dart';
 
-import '../../pages/nav_bar/tournament_model.dart';
-
-class TournamentNewsCardWidget extends StatefulWidget {
-
+/// Displays a news item with optional edit/delete slide actions.
+/// [deleteFun] is owned by the parent — this widget never decides
+/// what "delete" means, it only triggers the confirmation dialog.
+class TournamentNewsCardWidget extends StatelessWidget {
   const TournamentNewsCardWidget({
     super.key,
     required this.newsRef,
-    required this.indexo,
+    required this.index,
     required this.deleteFun,
     required this.interactable,
   });
 
-
-  final NewsRecord? newsRef;
-  final int indexo;
+  final NewsRecord newsRef;           // non-nullable: guard at call site
+  final int index;
   final Future<void> Function(String newsId) deleteFun;
   final bool interactable;
 
-  @override
-  State<TournamentNewsCardWidget> createState() => _TournamentNewsCardWidgetState();
-}
-
-class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
-  late TournamentNewsCardModel _model;
-
-  @override
-  void setState(VoidCallback callback) {
-    super.setState(callback);
-    _model.onUpdate();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _model = createModel(context, () => TournamentNewsCardModel(
-      widget.deleteFun,
-      widget.newsRef!.uid,
-      widget.interactable
-    ));
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-  }
-
-  @override
-  void dispose() {
-    _model.maybeDispose();
-
-    super.dispose();
-  }
+  // ── AlertRequest builder (was TournamentNewsCardModel.showDeleteNewsAlertRequest)
+  AlertRequest _deleteRequest() => AlertRequest(
+        title: 'ATTENZIONE: Cancellazione della nota in corso...',
+        description: 'Sei sicuro di voler eliminare questa Nota?',
+        buttonTitleCancelled: 'Annulla',
+        buttonTitleConfirmed: 'Continua',
+        functionConfirmed: (_) => deleteFun(newsRef.uid),
+      );
 
   @override
   Widget build(BuildContext context) {
+    final theme = CustomFlowTheme.of(context);
+
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(10, 15, 10, 0),
       child: Slidable(
-        // Specify a key if the Slidable is dismissible.
-        key: ValueKey("news${widget.indexo}"),
-        // The end action pane is the one at the right or the bottom side.
-        endActionPane: widget.interactable ? ActionPane(
-          motion: const ScrollMotion(),
-          children: [
-            SlidableAction(
-              onPressed: (context){
-                context.pushNamedAuth(
-                  'CreateEditNews', context.mounted,
-                  pathParameters: {
-                    'newsId': widget.newsRef!.uid,
-                    'tournamentId': widget.newsRef!.tournamentId,
-                  }.withoutNulls,
-                  extra: {
-                    'createEditFlag': false,
-                  },
-                );
-              },
-              backgroundColor: CustomFlowTheme.of(context).accent1,
-              foregroundColor: CustomFlowTheme.of(context).info,
-              icon: Icons.edit,
-              label: 'Edit',
-            ),
-            SlidableAction(
-              onPressed: (context){
-                context.goNamed(
-                  'DialogDeleteNews',
-                  pathParameters: {
-                    'tournamentId': widget.newsRef!.tournamentId,
-                  }.withoutNulls,
-                  extra: {
-                    'req' : _model.showDeleteNewsAlertRequest(widget.newsRef!.uid),
-                  }
-                );
-              },
-              backgroundColor: CustomFlowTheme.of(context).error,
-              foregroundColor: CustomFlowTheme.of(context).info,
-              icon: Icons.delete,
-              label: 'Delete',
-            ),
-          ],
-        ) : null,
+        key: ValueKey('news$index'),
+        endActionPane: interactable
+            ? ActionPane(
+                motion: const ScrollMotion(),
+                children: [
+                  SlidableAction(
+                    onPressed: (_) => context.pushNamedAuth(
+                      'CreateEditNews',
+                      context.mounted,
+                      pathParameters: {
+                        'newsId': newsRef.uid,
+                        'tournamentId': newsRef.tournamentId,
+                      }.withoutNulls,
+                      extra: {'createEditFlag': false},
+                    ),
+                    backgroundColor: theme.accent1,
+                    foregroundColor: theme.info,
+                    icon: Icons.edit,
+                    label: 'Edit',
+                  ),
+                  SlidableAction(
+                    onPressed: (_) => context.goNamed(
+                      'DialogDeleteNews',
+                      pathParameters: {
+                        'tournamentId': newsRef.tournamentId,
+                      }.withoutNulls,
+                      extra: {'req': _deleteRequest()},
+                    ),
+                    backgroundColor: theme.error,
+                    foregroundColor: theme.info,
+                    icon: Icons.delete,
+                    label: 'Delete',
+                  ),
+                ],
+              )
+            : null,
         child: Container(
-          width: 1000,
+          width: double.infinity,
           decoration: BoxDecoration(
-            color: CustomFlowTheme.of(context).tertiary,
-            borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+            color: theme.tertiary,
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
           ),
           child: Padding(
             padding: const EdgeInsetsDirectional.all(15),
@@ -116,60 +88,64 @@ class _TournamentNewsCardWidgetState extends State<TournamentNewsCardWidget> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if(widget.newsRef!.showTimestampEn) ...[
+                if (newsRef.showTimestampEn) ...[
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      DateFormat('dd/MM/yyyy HH:mm:ss').format(widget.newsRef!.createdTime),
-                      style: CustomFlowTheme.of(context).bodyMicro.override(color: CustomFlowTheme.of(context).cardDetail),
-                    )
+                      DateFormat('dd/MM/yyyy HH:mm:ss')
+                          .format(newsRef.createdTime),
+                      style: theme.bodyMicro
+                          .override(color: theme.cardDetail),
+                    ),
                   ),
                   const SizedBox(height: 10),
                 ],
-
-                Text(
-                  widget.newsRef!.title,
-                  style: CustomFlowTheme.of(context).titleLarge.override(color: CustomFlowTheme.of(context).cardMain),
-                ),
-                Text(
-                  widget.newsRef!.subTitle,
-                  style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardSecond),
-                ),
-
-                if(widget.newsRef!.imageNews != null) ...[
+                Text(newsRef.title,
+                    style: theme.titleLarge.override(color: theme.cardMain)),
+                Text(newsRef.subTitle,
+                    style:
+                        theme.titleMedium.override(color: theme.cardSecond)),
+                if (newsRef.imageNews != null) ...[
                   const SizedBox(height: 10),
-                  Image.network(
-                    widget.newsRef!.imageNews!,
-                    loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                      if (loadingProgress == null) {
-                        return child; // Image has fully loaded
-                      } else {
-                        return CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                            : null, // Shows a progress indicator if the loading size is known
-                        );
-                      }
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Icon(
-                        Icons.error,
-                        color: CustomFlowTheme.of(context).error,
-                        size: 18,
-                      ); // Display an error icon if the image fails to load
-                    },
-                  ),
+                  _NewsImage(url: newsRef.imageNews!, theme: theme),
                   const SizedBox(height: 10),
                 ],
-
-                Text(
-                  widget.newsRef!.description,
-                  style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
-                ),
+                Text(newsRef.description,
+                    style: theme.bodySmall.override(color: theme.cardMain)),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ── Network image with loading + error states ────────────────────────────────
+// Extracted so the parent build method stays readable.
+class _NewsImage extends StatelessWidget {
+  const _NewsImage({required this.url, required this.theme});
+
+  final String url;
+  final CustomFlowTheme theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.network(
+      url,
+      loadingBuilder: (_, child, progress) {
+        if (progress == null) return child;
+        return CircularProgressIndicator(
+          value: progress.expectedTotalBytes != null
+              ? progress.cumulativeBytesLoaded /
+                  progress.expectedTotalBytes!
+              : null,
+        );
+      },
+      errorBuilder: (_, __, ___) => Icon(
+        Icons.error,
+        color: CustomFlowTheme.of(context).error,
+        size: 18,
       ),
     );
   }
