@@ -1,4 +1,25 @@
 // no_content_card.dart
+/*
+// BEFORE — 7 different widgets
+NoTournamentCardWidget(active: true, phrase: 'Nessun torneo trovato')
+NoTournamentNewsCardWidget(active: false, phrase: 'Nessun aggiornamento')
+NoTournamentPairingsCardWidget(active: true, phrase: 'Nessun abbinamento')
+NoTournamentPeopleCardWidget(active: true, phrase: 'Nessuna persona')
+NoTournamentPickCardWidget(phrase: 'Seleziona un torneo')
+NoTournamentRankingsCardWidget(active: false, phrase: 'Nessuna classifica')
+NoTournamentRoundsCardWidget(active: true, phrase: 'Nessun round')
+
+// AFTER — one widget, self-documenting via enum
+NoContentCard(type: NoContentType.tournament, phrase: 'Nessun torneo trovato', active: true)
+NoContentCard(type: NoContentType.news,       phrase: 'Nessun aggiornamento',  active: false)
+NoContentCard(type: NoContentType.pairings,   phrase: 'Nessun abbinamento',    active: true)
+NoContentCard(type: NoContentType.people,     phrase: 'Nessuna persona',       active: true)
+NoContentCard(type: NoContentType.pick,       phrase: 'Seleziona un torneo',   variant: NoContentVariant.pill)
+NoContentCard(type: NoContentType.rankings,   phrase: 'Nessuna classifica',    active: false)
+NoContentCard(type: NoContentType.rounds,     phrase: 'Nessun round',          active: true)
+
+*/
+
 
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
