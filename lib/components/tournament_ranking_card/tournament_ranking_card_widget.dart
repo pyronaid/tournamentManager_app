@@ -1,156 +1,123 @@
+// components/tournament_ranking_card/tournament_ranking_card_widget.dart
+
 import 'package:flutter/material.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/backend/schema/rankings_record.dart';
-import 'package:tournamentmanager/components/tournament_ranking_card/tournament_ranking_card_model.dart';
 
-import '../../app_flow/app_flow_model.dart';
-import '../../app_flow/app_flow_theme.dart';
-
-class TournamentRankingsCardWidget extends StatefulWidget {
-
+/// Displays a single ranking row: position, player name/username, and scores.
+class TournamentRankingsCardWidget extends StatelessWidget {
   const TournamentRankingsCardWidget({
     super.key,
     required this.rankingRef,
-    required this.indexo,
+    required this.index,
   });
 
-  final RankingsRecord? rankingRef;
-  final int indexo;
-
-  @override
-  State<TournamentRankingsCardWidget> createState() => _TournamentRankingsCardWidgetState();
-}
-
-class _TournamentRankingsCardWidgetState extends State<TournamentRankingsCardWidget> {
-  late TournamentRankingsCardModel _model;
-
-  @override
-  void setState(VoidCallback callback) {
-    super.setState(callback);
-    _model.onUpdate();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _model = createModel(context, () => TournamentRankingsCardModel());
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-  }
-
-  @override
-  void dispose() {
-    _model.maybeDispose();
-
-    super.dispose();
-  }
+  final RankingsRecord rankingRef; // non-nullable: guard at call site
+  final int index;
 
   @override
   Widget build(BuildContext context) {
+    final theme = CustomFlowTheme.of(context);
+    final cardStyle = theme.bodySmall.override(color: theme.cardMain);
+
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(10, 5, 10, 0),
-      child: ClipRRect(
-        child: Container(
-          width: 1000,
-          color: CustomFlowTheme.of(context).tertiary,
-          child: Container(
-            constraints: const BoxConstraints(
-              minHeight: 100,
+      child: Container(
+        width: double.infinity,
+        color: theme.tertiary,
+        constraints: const BoxConstraints(minHeight: 100),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // ── Position ──────────────────────────────────────────────────
+            Flexible(
+              flex: 1,
+              fit: FlexFit.tight,
+              child: _CenteredText(
+                text: '${index + 1}',
+                style: theme.titleMedium.override(color: theme.cardMain),
+              ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Flexible(
-                  flex: 1,
-                  fit: FlexFit.tight,
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Text(
-                      (widget.indexo + 1).toString(),
-                      style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
-                      softWrap: true,
-                    ),
-                  ),
-                ),
-                Flexible(
-                  flex: 5,
-                  fit: FlexFit.tight,
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(0, 15, 0, 15),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${widget.rankingRef!.userName} ${widget.rankingRef!.userSurname}',
-                            style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardMain),
-                            softWrap: true,
-                          ),
-                          Text(
-                            widget.rankingRef!.userUsername,
-                            style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
-                            softWrap: true,
-                          ),
-                        ],
+
+            // ── Name + username ───────────────────────────────────────────
+            Flexible(
+              flex: 5,
+              fit: FlexFit.tight,
+              child: Container(
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(0, 15, 0, 15),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${rankingRef.userName} ${rankingRef.userSurname}',
+                        style: theme.titleMedium.override(color: theme.cardMain),
+                        softWrap: true,
                       ),
-                    ),
+                      Text(
+                        rankingRef.userUsername,
+                        style: cardStyle,
+                        softWrap: true,
+                      ),
+                    ],
                   ),
                 ),
-                Flexible(
-                  flex: 2,
-                  fit: FlexFit.loose,
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Text(
-                      (widget.rankingRef!.points).toString(),
-                      style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
-                      softWrap: true,
-                    ),
-                  ),
-                ),
-                Flexible(
-                  flex: 3,
-                  fit: FlexFit.loose,
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Text(
-                      (widget.rankingRef!.t1).toString(),
-                      style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
-                      softWrap: true,
-                    ),
-                  ),
-                ),
-                Flexible(
-                  flex: 3,
-                  fit: FlexFit.loose,
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Text(
-                      (widget.rankingRef!.t2).toString(),
-                      style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
-                      softWrap: true,
-                    ),
-                  ),
-                ),
-                Flexible(
-                  flex: 2,
-                  fit: FlexFit.loose,
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Text(
-                      (widget.rankingRef!.t3).toString(),
-                      style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
-                      softWrap: true,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+
+            // ── Points ────────────────────────────────────────────────────
+            Flexible(
+              flex: 2,
+              fit: FlexFit.loose,
+              child: _CenteredText(
+                  text: '${rankingRef.points}', style: cardStyle),
+            ),
+
+            // ── T1 ────────────────────────────────────────────────────────
+            Flexible(
+              flex: 3,
+              fit: FlexFit.loose,
+              child:
+                  _CenteredText(text: '${rankingRef.t1}', style: cardStyle),
+            ),
+
+            // ── T2 ────────────────────────────────────────────────────────
+            Flexible(
+              flex: 3,
+              fit: FlexFit.loose,
+              child:
+                  _CenteredText(text: '${rankingRef.t2}', style: cardStyle),
+            ),
+
+            // ── T3 ────────────────────────────────────────────────────────
+            Flexible(
+              flex: 2,
+              fit: FlexFit.loose,
+              child:
+                  _CenteredText(text: '${rankingRef.t3}', style: cardStyle),
+            ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+// Repeated pattern in the original — extracted once.
+class _CenteredText extends StatelessWidget {
+  const _CenteredText({required this.text, required this.style});
+
+  final String text;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      child: Text(text, style: style, softWrap: true),
     );
   }
 }
