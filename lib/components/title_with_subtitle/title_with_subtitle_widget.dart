@@ -1,71 +1,41 @@
-import 'package:flutter/cupertino.dart';
+// components/title_with_subtitle/title_with_subtitle_widget.dart
+
+import 'package:flutter/material.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
-import 'package:tournamentmanager/components/title_with_subtitle/title_with_subtitle_model.dart';
 
-
-class TitleWithSubtitleWidget extends StatefulWidget {
+/// Displays a two-line header: a bold title and a muted subtitle.
+/// Purely presentational — no state, no model needed.
+class TitleWithSubtitleWidget extends StatelessWidget {
   const TitleWithSubtitleWidget({
     super.key,
-    required this.title,
-    required this.subtitle,
+    this.title,
+    this.subtitle,
   });
 
   final String? title;
   final String? subtitle;
 
   @override
-  State<TitleWithSubtitleWidget> createState() => _TitleWithSubtitleWidgetState();
-}
-
-class _TitleWithSubtitleWidgetState extends State<TitleWithSubtitleWidget> {
-  late TitleWithSubtitleModel _model;
-
-  @override
-  void setState(VoidCallback callback) {
-    super.setState(callback);
-    _model.onUpdate();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _model = createModel(context, () => TitleWithSubtitleModel());
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-  }
-
-  @override
-  void dispose() {
-    _model.maybeDispose();
-
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final theme = CustomFlowTheme.of(context);
+
     return Column(
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(0.0, 32.0, 0.0, 4.0),
+          padding: const EdgeInsetsDirectional.fromSTEB(0, 32, 0, 4),
           child: Text(
-            valueOrDefault<String>(
-              widget.title,
-              'Test title',
-            ),
-            style: CustomFlowTheme.of(context).bodyMedium.override(fontSize: 16.0),
+            valueOrDefault<String>(title, 'Test title'),
+            style: theme.bodyMedium.override(fontSize: 16),
           ),
         ),
         Text(
-          valueOrDefault<String>(
-            widget.subtitle,
-            'Test subtitle',
-          ),
-          style: CustomFlowTheme.of(context).labelMedium,
+          valueOrDefault<String>(subtitle, 'Test subtitle'),
+          style: theme.labelMedium,
         ),
-      ].divide(const SizedBox(height: 4.0)),
+      ].divide(const SizedBox(height: 4)),
     );
   }
 }
