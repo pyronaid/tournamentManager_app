@@ -1,48 +1,75 @@
-import 'package:flutter/material.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
-import 'package:tournamentmanager/components/fab_expandable/fab_expandable_model.dart';
-import 'dart:math' as math;
+// components/fab_expandable/fab_expandable_widget.dart
 
-import '../../app_flow/app_flow_theme.dart';
+import 'dart:math' as math;
+import 'package:flutter/material.dart';
+import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+
+// ---------------------------------------------------------------------------
+// PUBLIC API SURFACE
+// FabExpandableWidget + ActionButton are the only public symbols.
+// Everything else is private to this file.
+// ---------------------------------------------------------------------------
 
 class FabExpandableWidget extends StatefulWidget {
-  final bool? initialOpen;
-  final double distance;
-  final List<Widget> children;
-
   const FabExpandableWidget({
     super.key,
-    this.initialOpen,
+    this.initialOpen = false,
     required this.distance,
     required this.children,
-
   });
+
+  final bool initialOpen;
+  final double distance;
+  final List<Widget> children;
 
   @override
   State<FabExpandableWidget> createState() => _FabExpandableWidgetState();
 }
 
-class _FabExpandableWidgetState extends State<FabExpandableWidget> with SingleTickerProviderStateMixin{
-  late FabExpandableModel _model;
+class _FabExpandableWidgetState extends State<FabExpandableWidget>
+    with SingleTickerProviderStateMixin {
+
+  // ── Animation state (was FabExpandableModel) ────────────────────────────
+  late final AnimationController _controller;
+  late final Animation<double> _expandAnimation;
+  bool _open = false;
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => FabExpandableModel(this).setOnUpdate(
-      updateOnChange: true,
-      onUpdate: () {
-        setState(() {});
-      },
-    ) as FabExpandableModel);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
+    _open = widget.initialOpen;
+
+    // `this` satisfies TickerProvider via SingleTickerProviderStateMixin —
+    // no need to pass the vsync externally through a model.
+    _controller = AnimationController(
+      value: _open ? 1.0 : 0.0,
+      duration: const Duration(milliseconds: 250),
+      vsync: this,
+    );
+
+    _expandAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.fastOutSlowIn,
+      reverseCurve: Curves.easeOutQuad,
+    );
   }
 
   @override
   void dispose() {
-    _model.maybeDispose();
+    _controller.dispose(); // always dispose controllers
     super.dispose();
   }
+
+  // ── toggle (was FabExpandableModel.toggle) ───────────────────────────────
+  void _toggle() {
+    setState(() {
+      _open = !_open;
+      _open ? _controller.forward() : _controller.reverse();
+    });
+  }
+
+  // ── Build ────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +96,7 @@ class _FabExpandableWidgetState extends State<FabExpandableWidget> with SingleTi
           clipBehavior: Clip.antiAlias,
           elevation: 4,
           child: InkWell(
-            onTap: _model.toggle,
+            onTap: _toggle,
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: Icon(
@@ -82,49 +109,51 @@ class _FabExpandableWidgetState extends State<FabExpandableWidget> with SingleTi
       ),
     );
   }
+
   List<Widget> _buildExpandingActionButtons() {
-    final children = <Widget>[];
+    final result = <Widget>[];
     final count = widget.children.length;
-    final step = 90.0 / (count - 1);
-    for (var i = 0, angleInDegrees = 0.0, distance = 60.0;
-            i < count;
-            i++, angleInDegrees += step, distance += widget.distance) {
-      children.add(
+
+    // Guard: a single child would cause division by zero in step calculation.
+    if (count == 0) return result;
+
+    final step = count > 1 ? 90.0 / (count - 1) : 0.0;
+
+    for (var i = 0; i < count; i++) {
+      result.add(
         _ExpandingActionButton(
           directionInDegrees: 90,
-          maxDistance: distance,
-          progress: _model.expandAnimation,
+          maxDistance: 60.0 + i * widget.distance,
+          progress: _expandAnimation,
           child: widget.children[i],
         ),
       );
     }
-    return children;
+    return result;
   }
+
   Widget _buildTapToOpenFab() {
     final theme = CustomFlowTheme.of(context);
     return IgnorePointer(
-      ignoring: _model.open,
+      ignoring: _open,
       child: AnimatedContainer(
         transformAlignment: Alignment.center,
         transform: Matrix4.diagonal3Values(
-          _model.open ? 0.7 : 1.0,
-          _model.open ? 0.7 : 1.0,
+          _open ? 0.7 : 1.0,
+          _open ? 0.7 : 1.0,
           1.0,
         ),
         duration: const Duration(milliseconds: 250),
         curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
         child: AnimatedOpacity(
-          opacity: _model.open ? 0.0 : 1.0,
+          opacity: _open ? 0.0 : 1.0,
           curve: const Interval(0.25, 1.0, curve: Curves.easeInOut),
           duration: const Duration(milliseconds: 250),
           child: FloatingActionButton(
-            heroTag: 'expandable_people',
+            heroTag: 'expandable_fab',
             backgroundColor: theme.primary,
-            onPressed: _model.toggle,
-            child: Icon(
-              Icons.list,
-              color: CustomFlowTheme.of(context).info,
-            ),
+            onPressed: _toggle,
+            child: Icon(Icons.list, color: theme.info),
           ),
         ),
       ),
@@ -132,7 +161,10 @@ class _FabExpandableWidgetState extends State<FabExpandableWidget> with SingleTi
   }
 }
 
-
+// ---------------------------------------------------------------------------
+// PRIVATE — EXPANDING BUTTON POSITIONER
+// Reads the animation value to offset its child radially.
+// ---------------------------------------------------------------------------
 @immutable
 class _ExpandingActionButton extends StatelessWidget {
   const _ExpandingActionButton({
@@ -160,20 +192,17 @@ class _ExpandingActionButton extends StatelessWidget {
           right: 4.0 + offset.dx,
           bottom: 4.0 + offset.dy,
           child: child!,
-          /*child: Transform.rotate(
-            angle: (1.0 - progress.value) * math.pi / 2,
-            child: child!,
-          ),*/
         );
       },
-      child: FadeTransition(
-        opacity: progress,
-        child: child,
-      ),
+      child: FadeTransition(opacity: progress, child: child),
     );
   }
 }
 
+// ---------------------------------------------------------------------------
+// PUBLIC — ACTION BUTTON
+// Reusable FAB child: icon + optional label pill.
+// ---------------------------------------------------------------------------
 @immutable
 class ActionButton extends StatelessWidget {
   const ActionButton({
@@ -193,20 +222,21 @@ class ActionButton extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          if(title != null) ...[
+          if (title != null) ...[
             Container(
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
-                color: theme.primary, // Background color
-                borderRadius: BorderRadius.circular(12), // Rounded edges
+                color: theme.primary,
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 title!,
                 style: theme.titleMedium.override(color: theme.info),
               ),
             ),
-            const SizedBox(width: 10,),
+            const SizedBox(width: 10),
           ],
           Material(
             shape: const CircleBorder(),
@@ -215,13 +245,9 @@ class ActionButton extends StatelessWidget {
             elevation: 4,
             child: Padding(
               padding: const EdgeInsets.all(7),
-              child: Icon(
-                icon,
-                color: theme.info,
-                size: 32,
-              )
+              child: Icon(icon, color: theme.info, size: 32),
             ),
-          )
+          ),
         ],
       ),
     );
