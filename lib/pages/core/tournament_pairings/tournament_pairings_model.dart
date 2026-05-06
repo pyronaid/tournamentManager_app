@@ -47,8 +47,15 @@ class TournamentPairingsModel extends ChangeNotifier {
 
     _lastKnownUpdatedRounds = tournamentModel.updatedRounds;
 
-    _pagingController = PagingController<int, PairingsRecord>(firstPageKey: 1)
-      ..addPageRequestListener(_fetchPage);
+    _pagingController = PagingController(
+      getNextPageKey: (state) {
+        if (state.pages == null) return state.nextIntPageKey;
+        final lastPageSize = state.pages!.lastOrNull?.length ?? 0;
+        final isLastPage = state.lastPageIsEmpty || lastPageSize < _pageSize;
+        return isLastPage ? null : state.nextIntPageKey;
+      },
+      fetchPage: (pageKey) => _fetchPage(pageKey),
+    );
 
     _playerNameTextController = TextEditingController();
     _playerNameFocusNode = FocusNode();
@@ -132,43 +139,31 @@ class TournamentPairingsModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-  Future<void> _fetchPage(int pageKey) async {
-    final controller = _pagingController;
-    try {
-      var filter =
-          '${PairingsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}" '
-          '&& ${PairingsRecord.idRoundFieldName} = "$roundId"';
+  Future<List<PairingsRecord>> _fetchPage(int pageKey) async {
+    var filter =
+        '${PairingsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}" '
+        '&& ${PairingsRecord.idRoundFieldName} = "$roundId"';
 
-      if (_currentFilter.isNotEmpty) {
-        filter = '$filter && '
-            '(${PairingsRecord.namePlayerAFieldName} ~ "$_currentFilter" || '
-            '${PairingsRecord.surnamePlayerAFieldName} ~ "$_currentFilter" || '
-            '${PairingsRecord.usernamePlayerAFieldName} ~ "$_currentFilter" || '
-            '${PairingsRecord.namePlayerBFieldName} ~ "$_currentFilter" || '
-            '${PairingsRecord.surnamePlayerBFieldName} ~ "$_currentFilter" || '
-            '${PairingsRecord.usernamePlayerBFieldName} ~ "$_currentFilter" || '
-            '${PairingsRecord.playerAFieldName} ~ "$_currentFilter" || '
-            '${PairingsRecord.playerBFieldName} ~ "$_currentFilter")';
-      }
-
-      final newItems = await PairingsRecord.getDocumentsOnce(
-        pb,
-        filter,
-        expand: PairingsRecord.idRoundFieldName,
-        sorting: PairingsRecord.tableIndexFieldName,
-        page: pageKey,
-        perPage: _pageSize,
-      );
-
-      final isLastPage = newItems.length < _pageSize;
-      if (isLastPage) {
-        controller.appendLastPage(newItems);
-      } else {
-        controller.appendPage(newItems, pageKey + 1);
-      }
-    } catch (error) {
-      controller.error = error;
+    if (_currentFilter.isNotEmpty) {
+      filter = '$filter && '
+          '(${PairingsRecord.namePlayerAFieldName} ~ "$_currentFilter" || '
+          '${PairingsRecord.surnamePlayerAFieldName} ~ "$_currentFilter" || '
+          '${PairingsRecord.usernamePlayerAFieldName} ~ "$_currentFilter" || '
+          '${PairingsRecord.namePlayerBFieldName} ~ "$_currentFilter" || '
+          '${PairingsRecord.surnamePlayerBFieldName} ~ "$_currentFilter" || '
+          '${PairingsRecord.usernamePlayerBFieldName} ~ "$_currentFilter" || '
+          '${PairingsRecord.playerAFieldName} ~ "$_currentFilter" || '
+          '${PairingsRecord.playerBFieldName} ~ "$_currentFilter")';
     }
+
+    return PairingsRecord.getDocumentsOnce(
+      pb,
+      filter,
+      expand: PairingsRecord.idRoundFieldName,
+      sorting: PairingsRecord.tableIndexFieldName,
+      page: pageKey,
+      perPage: _pageSize,
+    );
   }
 
 

@@ -128,45 +128,49 @@ class _RoundsSliverList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PagedSliverList<int, RoundsRecord>(
-      pagingController: model.pagingControllerRounds,
-      builderDelegate: PagedChildBuilderDelegate<RoundsRecord>(
-        itemBuilder: (context, item, index) {
-          final itemList = model.pagingControllerRounds.itemList;
-          final isLast =
-              itemList != null && index == itemList.length - 1;
+    return PagingListener(
+      controller: model.pagingControllerRounds,
+      builder: (context, state, fetchNextPage) => PagedSliverList<int, RoundsRecord>(
+        state: state,
+        fetchNextPage: fetchNextPage,
+        builderDelegate: PagedChildBuilderDelegate<RoundsRecord>(
+          itemBuilder: (context, item, index) {
+            final itemList = model.pagingControllerRounds.items;
+            final isLast =
+                itemList != null && index == itemList.length - 1;
 
-          return TournamentRoundsCardWidget(
-            // ValueKey is more type-safe and readable than the raw Key ctor.
-            key: ValueKey('round_${item.uid}_$index'),
-            roundRef: item,
-            index: index,
-            deleteFun: model.deleteRound,
-            // FIX: closeFun uses a safe null check on itemList instead of
-            // force-unwrapping itemList! which would throw if the list is null.
-            closeFun: isLast ? model.closeTournament : null,
-            deepFun: (roundId) {
-              context.pushNamedAuth(
-                'TournamentPairings', context.mounted,
-                pathParameters: {
-                  'tournamentId': model.tournamentModel.tournamentId,
-                  'roundId': roundId,
-                }.withoutNulls,
-              );
-            },
-            editable: model.isTournamentEditable,
-          );
-        },
-        firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-        noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
-          type: NoContentType.rounds,
-          active: true,
-          phrase: 'Nessun round pubblicato',
+            return TournamentRoundsCardWidget(
+              // ValueKey is more type-safe and readable than the raw Key ctor.
+              key: ValueKey('round_${item.uid}_$index'),
+              roundRef: item,
+              index: index,
+              deleteFun: model.deleteRound,
+              // FIX: closeFun uses a safe null check on itemList instead of
+              // force-unwrapping itemList! which would throw if the list is null.
+              closeFun: isLast ? model.closeTournament : null,
+              deepFun: (roundId) {
+                context.pushNamedAuth(
+                  'TournamentPairings', context.mounted,
+                  pathParameters: {
+                    'tournamentId': model.tournamentModel.tournamentId,
+                    'roundId': roundId,
+                  }.withoutNulls,
+                );
+              },
+              editable: model.isTournamentEditable,
+            );
+          },
+          firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
+          noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
+            type: NoContentType.rounds,
+            active: true,
+            phrase: 'Nessun round pubblicato',
+          ),
+          newPageProgressIndicatorBuilder: (_) =>
+          const Center(child: CircularProgressIndicator()),
         ),
-        newPageProgressIndicatorBuilder: (_) =>
-        const Center(child: CircularProgressIndicator()),
+        shrinkWrapFirstPageIndicators: true,
       ),
-      shrinkWrapFirstPageIndicators: true,
     );
   }
 }

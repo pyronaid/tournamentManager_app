@@ -10,10 +10,15 @@ class TournamentRegisteredPeopleModel extends TournamentPeopleModel {
   late final FocusNode _focusNode;
 
   TournamentRegisteredPeopleModel({required super.tournamentModel}) {
-    pagingControllerVar = PagingController<int, EnrollmentsRecord>(firstPageKey: 1)
-      ..addPageRequestListener(
-        (pageKey) => fetchPage(pageKey, listType: ListType.registered),
-      );
+    pagingControllerVar = PagingController(
+      getNextPageKey: (state) {
+        if (state.pages == null) return state.nextIntPageKey;
+        final lastPageSize = state.pages!.lastOrNull?.length ?? 0;
+        final isLastPage = state.lastPageIsEmpty || lastPageSize < TournamentPeopleModel.pageSize;
+        return isLastPage ? null : state.nextIntPageKey;
+      },
+      fetchPage: (pageKey) => fetchPage(pageKey, listType: ListType.registered),
+    );
     countElementsVar = 0;
     _controller = TextEditingController();
     _focusNode = FocusNode();

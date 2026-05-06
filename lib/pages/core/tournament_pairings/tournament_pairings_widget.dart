@@ -234,35 +234,39 @@ class _PairingsListSliver extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PagedSliverList<int, PairingsRecord>(
-      pagingController: model.pagingControllerPairings,
-      builderDelegate: PagedChildBuilderDelegate<PairingsRecord>(
-        // ── Item builder ───────────────────────────────────────────────
-        itemBuilder: (context, item, index) => CustomExpansionPanelWidget(
-          isExpandable: !item.isBye && model.isTournamentEditable(item),
-          expandedContentBuilder: (context) => TournamentPairingCardExpandWidget(
-            pairingRef: item,
-            updateFun: model.updatePairing,
+    return PagingListener(
+      controller: model.pagingControllerPairings,
+      builder: (context, state, fetchNextPage) => PagedSliverList<int, PairingsRecord>(
+        state: state,
+        fetchNextPage: fetchNextPage,
+        builderDelegate: PagedChildBuilderDelegate<PairingsRecord>(
+          // ── Item builder ───────────────────────────────────────────────
+          itemBuilder: (context, item, index) => CustomExpansionPanelWidget(
+            isExpandable: !item.isBye && model.isTournamentEditable(item),
+            expandedContentBuilder: (context) => TournamentPairingCardExpandWidget(
+              pairingRef: item,
+              updateFun: model.updatePairing,
+            ),
+            child: TournamentPairingsCardWidget(
+              key: ValueKey('pairing_${item.uid}_$index'),
+              pairingRef: item,
+              index: index,
+              deleteFun: model.deletePairing,
+            ),
           ),
-          child: TournamentPairingsCardWidget(
-            key: ValueKey('pairing_${item.uid}_$index'),
-            pairingRef: item,
-            index: index,
-            deleteFun: model.deletePairing,
-          ),
-        ),
 
-        // ── Placeholder states ─────────────────────────────────────────
-        firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-        noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
-          type: NoContentType.pairings,
-          active: true,
-          phrase: 'Nessun pairing pubblicato',
+          // ── Placeholder states ─────────────────────────────────────────
+          firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
+          noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
+            type: NoContentType.pairings,
+            active: true,
+            phrase: 'Nessun pairing pubblicato',
+          ),
+          newPageProgressIndicatorBuilder: (_) =>
+              const Center(child: CircularProgressIndicator()),
         ),
-        newPageProgressIndicatorBuilder: (_) =>
-            const Center(child: CircularProgressIndicator()),
+        shrinkWrapFirstPageIndicators: true,
       ),
-      shrinkWrapFirstPageIndicators: true,
     );
   }
 }

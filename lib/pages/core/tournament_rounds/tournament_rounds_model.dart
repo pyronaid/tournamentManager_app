@@ -40,7 +40,15 @@ class TournamentRoundsModel extends ChangeNotifier {
     _availablePages = _calculateAvailablePages();
     _lastKnownUpdatedRounds = tournamentModel.updatedRounds;
 
-    _pagingController = PagingController<int, RoundsRecord>(firstPageKey: 1)..addPageRequestListener(_fetchPage);
+    _pagingController = PagingController(
+      getNextPageKey: (state) {
+        if (state.pages == null) return state.nextIntPageKey;
+        final lastPageSize = state.pages!.lastOrNull?.length ?? 0;
+        final isLastPage = state.lastPageIsEmpty || lastPageSize < _pageSize;
+        return isLastPage ? null : state.nextIntPageKey;
+      },
+      fetchPage: (pageKey) => _fetchPage(pageKey),
+    );
     tournamentModel.addListener(_onTournamentChanged);
   }
 
@@ -283,27 +291,15 @@ class TournamentRoundsModel extends ChangeNotifier {
   // PRIVATE
   // ---------------------------------------------------------------------------
 
-  Future<void> _fetchPage(int pageKey) async {
-    // Capture local reference — defensive against controller replacement.
-    final controller = _pagingController;
-    try {
-      final newItems = await RoundsRecord.getDocumentsOnce(
-        pb,
-        '${RoundsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}"',
-        expand: RoundsRecord.idTournamentFieldName,
-        sorting: RoundsRecord.createdFieldName,
-        page: pageKey,
-        perPage: _pageSize,
-      );
-      final isLastPage = newItems.length < _pageSize;
-      if (isLastPage) {
-        controller.appendLastPage(newItems);
-      } else {
-        controller.appendPage(newItems, pageKey + 1);
-      }
-    } catch (error) {
-      controller.error = error;
-    }
+  Future<List<RoundsRecord>> _fetchPage(int pageKey) async {
+    return RoundsRecord.getDocumentsOnce(
+      pb,
+      '${RoundsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}"',
+      expand: RoundsRecord.idTournamentFieldName,
+      sorting: RoundsRecord.createdFieldName,
+      page: pageKey,
+      perPage: _pageSize,
+    );
   }
 
   // FIX: _calculateAvailablePages now returns the list in the correct order.

@@ -5,7 +5,6 @@ import 'package:get_it/get_it.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
 import 'package:tournamentmanager/backend/schema/enrollments_record.dart';
-import 'package:tuple/tuple.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../app_flow/services/LoaderService.dart';
@@ -34,7 +33,7 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
 
   late int countElementsVar;
   late PagingController<int, EnrollmentsRecord> pagingControllerVar;
-  static const _pageSize = 10;
+  static const pageSize = 10;
 
   TournamentPeopleModel({required this.tournamentModel}) {
     loaderService = GetIt.instance<LoaderService>();
@@ -85,44 +84,25 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
   PagingController<int, EnrollmentsRecord> get pagingController => pagingControllerVar;
   int get countElements => countElementsVar;
 
-  Future<void> fetchPage(int pageKey, {required ListType listType}) async {
-    final controller = pagingControllerVar;
-    try {
-      var filter =
-          '${EnrollmentsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}" '
-          '&& ${EnrollmentsRecord.listKindFieldName} = "${listType.name}"';
+  Future<List<EnrollmentsRecord>> fetchPage(int pageKey, {required ListType listType}) async {
+    var filter =
+        '${EnrollmentsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}" '
+        '&& ${EnrollmentsRecord.listKindFieldName} = "${listType.name}"';
 
-      if (_currentFilter.isNotEmpty) {
-        filter = '$filter && '
-            '(${EnrollmentsRecord.nameFieldName} ~ "$_currentFilter" || '
-            '${EnrollmentsRecord.surnameFieldName} ~ "$_currentFilter" || '
-            '${EnrollmentsRecord.usernameFieldName} ~ "$_currentFilter" || '
-            '${EnrollmentsRecord.idUserFieldName} ~ "$_currentFilter")';
-      }
-
-      final Tuple2<int, List<EnrollmentsRecord>> result =
-          await EnrollmentsRecord.getDocumentsOnce(
-        pb, true, filter,
-        sorting: EnrollmentsRecord.createdFieldName,
-        page: pageKey,
-        perPage: _pageSize,
-      );
-
-      if (pageKey == 1) {
-        countElementsVar = result.item1;
-        notifyListeners();
-      }
-
-      final items = result.item2;
-      final isLastPage = items.length < _pageSize;
-      if (isLastPage) {
-        controller.appendLastPage(items);
-      } else {
-        controller.appendPage(items, pageKey + 1);
-      }
-    } catch (error) {
-      controller.error = error;
+    if (_currentFilter.isNotEmpty) {
+      filter = '$filter && '
+          '(${EnrollmentsRecord.nameFieldName} ~ "$_currentFilter" || '
+          '${EnrollmentsRecord.surnameFieldName} ~ "$_currentFilter" || '
+          '${EnrollmentsRecord.usernameFieldName} ~ "$_currentFilter" || '
+          '${EnrollmentsRecord.idUserFieldName} ~ "$_currentFilter")';
     }
+
+    return EnrollmentsRecord.getDocumentsOncePlain(
+      pb, true, filter,
+      sorting: EnrollmentsRecord.createdFieldName,
+      page: pageKey,
+      perPage: pageSize,
+    );
   }
   Future<void> onRefresh() async => pagingControllerVar.refresh();
 

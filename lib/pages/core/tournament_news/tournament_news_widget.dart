@@ -151,30 +151,34 @@ class _NewsSliverList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PagedSliverList<int, NewsRecord>(
-      pagingController: model.pagingControllerNews,
-      builderDelegate: PagedChildBuilderDelegate<NewsRecord>(
-        // ── Item builder ────────────────────────────────────────────────
-        itemBuilder: (context, item, index) => TournamentNewsCardWidget(
-          // ValueKey is more type-safe and readable than the raw Key ctor.
-          key: ValueKey('news_${item.uid}_$index'),
-          newsRef: item,
-          index: index,
-          interactable: model.canInteractOn,
-          deleteFun: model.deleteNews,
-        ),
+    return PagingListener(
+      controller: model.pagingControllerNews,
+      builder: (context, state, fetchNextPage) => PagedSliverList<int, NewsRecord>(
+        state: state,
+        fetchNextPage: fetchNextPage,
+        builderDelegate: PagedChildBuilderDelegate<NewsRecord>(
+          // ── Item builder ────────────────────────────────────────────────
+          itemBuilder: (context, item, index) => TournamentNewsCardWidget(
+            // ValueKey is more type-safe and readable than the raw Key ctor.
+            key: ValueKey('news_${item.uid}_$index'),
+            newsRef: item,
+            index: index,
+            interactable: model.canInteractOn,
+            deleteFun: model.deleteNews,
+          ),
 
-        // ── Placeholder states ──────────────────────────────────────────
-        firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-        noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
-          type: NoContentType.news,
-          active: true,
-          phrase: 'Nessuna notizia pubblicata',
+          // ── Placeholder states ──────────────────────────────────────────
+          firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
+          noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
+            type: NoContentType.news,
+            active: true,
+            phrase: 'Nessuna notizia pubblicata',
+          ),
+          newPageProgressIndicatorBuilder: (_) =>
+            const Center(child: CircularProgressIndicator()),
         ),
-        newPageProgressIndicatorBuilder: (_) =>
-          const Center(child: CircularProgressIndicator()),
+        shrinkWrapFirstPageIndicators: true,
       ),
-      shrinkWrapFirstPageIndicators: true,
     );
   }
 }

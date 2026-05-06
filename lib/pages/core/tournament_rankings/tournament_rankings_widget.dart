@@ -318,27 +318,31 @@ class _RankingsListSliver extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PagedSliverList<int, RankingsRecord>(
-      pagingController: model.pagingControllerRankings,
-      builderDelegate: PagedChildBuilderDelegate<RankingsRecord>(
-        // ── Item builder ───────────────────────────────────────────────
-        itemBuilder: (context, item, index) => TournamentRankingsCardWidget(
-          key: ValueKey('ranking_${item.uid}_$index'),
-          rankingRef: item,
-          index: index,
-        ),
+    return PagingListener(
+      controller: model.pagingControllerRankings,
+      builder: (context, state, fetchNextPage) => PagedSliverList<int, RankingsRecord>(
+        state: state,
+        fetchNextPage: fetchNextPage,
+        builderDelegate: PagedChildBuilderDelegate<RankingsRecord>(
+          // ── Item builder ───────────────────────────────────────────────
+          itemBuilder: (context, item, index) => TournamentRankingsCardWidget(
+            key: ValueKey('ranking_${item.uid}_$index'),
+            rankingRef: item,
+            index: index,
+          ),
 
-        // ── Placeholder states ─────────────────────────────────────────
-        firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-        noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
-          type: NoContentType.rankings,
-          active: true,
-          phrase: 'Nessun player in classifica',
+          // ── Placeholder states ─────────────────────────────────────────
+          firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
+          noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
+            type: NoContentType.rankings,
+            active: true,
+            phrase: 'Nessun player in classifica',
+          ),
+          newPageProgressIndicatorBuilder: (_) =>
+              const Center(child: CircularProgressIndicator()),
         ),
-        newPageProgressIndicatorBuilder: (_) =>
-            const Center(child: CircularProgressIndicator()),
+        shrinkWrapFirstPageIndicators: true,
       ),
-      shrinkWrapFirstPageIndicators: true,
     );
   }
 }

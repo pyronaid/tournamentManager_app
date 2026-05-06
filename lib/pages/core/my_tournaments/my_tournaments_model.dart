@@ -7,7 +7,7 @@ import '../../../backend/schema/tournaments_record.dart';
 
 class MyTournamentsModel extends ChangeNotifier {
 
-  bool _isLoading = false;
+  final bool _isLoading = false;
   late PagingController<int, TournamentsRecord> _pagingControllerActive;
   late PagingController<int, TournamentsRecord> _pagingControllerClosed;
   bool _showActiveTournaments = true;
@@ -17,10 +17,24 @@ class MyTournamentsModel extends ChangeNotifier {
 
   /////////////////////////////CONSTRUCTOR
   MyTournamentsModel(){
-    _pagingControllerActive = PagingController(firstPageKey: 1);
-    _pagingControllerClosed = PagingController(firstPageKey: 1);
-    _pagingControllerActive.addPageRequestListener((pageKey) => _fetchPage(pageKey, true));
-    _pagingControllerClosed.addPageRequestListener((pageKey) => _fetchPage(pageKey, false));
+    _pagingControllerActive = PagingController(
+      getNextPageKey: (state) {
+        if (state.pages == null) return state.nextIntPageKey;
+        final lastPageSize = state.pages!.lastOrNull?.length ?? 0;
+        final isLastPage = state.lastPageIsEmpty || lastPageSize < _pageSize;
+        return isLastPage ? null : state.nextIntPageKey;
+      },
+      fetchPage: (pageKey) => _fetchPage(pageKey, true),
+    );
+    _pagingControllerClosed = PagingController(
+      getNextPageKey: (state) {
+        if (state.pages == null) return state.nextIntPageKey;
+        final lastPageSize = state.pages!.lastOrNull?.length ?? 0;
+        final isLastPage = state.lastPageIsEmpty || lastPageSize < _pageSize;
+        return isLastPage ? null : state.nextIntPageKey;
+      },
+      fetchPage: (pageKey) => _fetchPage(pageKey, false),
+    );
   }
 
   /////////////////////////////GETTER
@@ -40,29 +54,16 @@ class MyTournamentsModel extends ChangeNotifier {
     _showClosedTournaments = !_showClosedTournaments;
     notifyListeners();
   }
-  Future<void> _fetchPage(int pageKey, bool active) async {
-    PagingController<int, TournamentsRecord> pagingController = active ? _pagingControllerActive : _pagingControllerClosed;
+  FutureOr<List<TournamentsRecord>> _fetchPage(int pageKey, bool active) async {
     String filter = active ? 'state != "close"' : 'state = "close"';
-    try {
-      final List<TournamentsRecord> newItems = await TournamentsRecord.getDocumentsOnce(
-        pb,
-        false,
-        'enrollments_via_id_tournament.id_user.id ?= "$currentUserUid" && $filter',
-        sorting: 'date',
-        page: pageKey,
-        perPage: _pageSize
-      );
-      final isLastPage = newItems.length < _pageSize;
-
-      if (isLastPage) {
-        pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey+1; // Adjust as needed
-        pagingController.appendPage(newItems, nextPageKey);
-      }
-    } catch (error) {
-      pagingController.error = error;
-    }
+    return TournamentsRecord.getDocumentsOnce(
+      pb,
+      false,
+      'enrollments_via_id_tournament.id_user.id ?= "$currentUserUid" && $filter',
+      sorting: 'date',
+      page: pageKey,
+      perPage: _pageSize
+    );
   }
   Future<void> onRefresh() async {
     _pagingControllerActive.refresh();

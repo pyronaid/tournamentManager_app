@@ -342,43 +342,47 @@ class _PeopleListSliver extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PagedSliverList<int, EnrollmentsRecord>(
-      pagingController: model.pagingController,
-      builderDelegate: PagedChildBuilderDelegate<EnrollmentsRecord>(
-        itemBuilder: (context, item, index) => TournamentPeopleCardWidget(
-          key: ValueKey('people_${item.uid}_$index'),
-          index: index,
-          listType: config.listType,
-          promote: config.canPromote,
-          editable: model.isTournamentEditable,
-          enrollment: item,
-          tournamentId: model.tournamentId,
-          onDelete: () => context.goNamed(
-            'DialogDeletePerson',
-            pathParameters: {'tournamentId': model.tournamentId}.withoutNulls,
-            extra: {
-              'req': _buildDeleteRequest(model, item, config.listType),
-            },
+    return PagingListener(
+      controller: model.pagingController,
+      builder: (context, state, fetchNextPage) => PagedSliverList<int, EnrollmentsRecord>(
+        state: state,
+        fetchNextPage: fetchNextPage,
+        builderDelegate: PagedChildBuilderDelegate<EnrollmentsRecord>(
+          itemBuilder: (context, item, index) => TournamentPeopleCardWidget(
+            key: ValueKey('people_${item.uid}_$index'),
+            index: index,
+            listType: config.listType,
+            promote: config.canPromote,
+            editable: model.isTournamentEditable,
+            enrollment: item,
+            tournamentId: model.tournamentId,
+            onDelete: () => context.goNamed(
+              'DialogDeletePerson',
+              pathParameters: {'tournamentId': model.tournamentId}.withoutNulls,
+              extra: {
+                'req': _buildDeleteRequest(model, item, config.listType),
+              },
+            ),
+            onPromote: () => context.goNamed(
+              'DialogPromotePerson',
+              pathParameters: {'tournamentId': model.tournamentId}.withoutNulls,
+              extra: {
+                'req': _buildPromoteRequest(model, item),
+              },
+            ),
           ),
-          onPromote: () => context.goNamed(
-            'DialogPromotePerson',
-            pathParameters: {'tournamentId': model.tournamentId}.withoutNulls,
-            extra: {
-              'req': _buildPromoteRequest(model, item),
-            },
+          firstPageProgressIndicatorBuilder: (_) =>
+          const GenericLoadingWidget(),
+          noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
+            type: NoContentType.people,
+            active: true,
+            phrase: 'Nessun iscritto in questa lista',
           ),
+          newPageProgressIndicatorBuilder: (_) =>
+          const Center(child: CircularProgressIndicator()),
         ),
-        firstPageProgressIndicatorBuilder: (_) =>
-        const GenericLoadingWidget(),
-        noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
-          type: NoContentType.people,
-          active: true,
-          phrase: 'Nessun iscritto in questa lista',
-        ),
-        newPageProgressIndicatorBuilder: (_) =>
-        const Center(child: CircularProgressIndicator()),
+        shrinkWrapFirstPageIndicators: true,
       ),
-      shrinkWrapFirstPageIndicators: true,
     );
   }
 }

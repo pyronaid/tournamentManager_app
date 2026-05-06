@@ -18,10 +18,24 @@ class OwnTournamentsModel extends ChangeNotifier {
 
   /////////////////////////////CONSTRUCTOR
   OwnTournamentsModel(){
-    _pagingControllerActive = PagingController(firstPageKey: 1);
-    _pagingControllerClosed = PagingController(firstPageKey: 1);
-    _pagingControllerActive.addPageRequestListener((pageKey) => _fetchPage(pageKey, true));
-    _pagingControllerClosed.addPageRequestListener((pageKey) => _fetchPage(pageKey, false));
+    _pagingControllerActive = PagingController(
+      getNextPageKey: (state) {
+        if (state.pages == null) return state.nextIntPageKey;
+        final lastPageSize = state.pages!.lastOrNull?.length ?? 0;
+        final isLastPage = state.lastPageIsEmpty || lastPageSize < _pageSize;
+        return isLastPage ? null : state.nextIntPageKey;
+      },
+      fetchPage: (pageKey) => _fetchPage(pageKey, true),
+    );
+    _pagingControllerClosed = PagingController(
+      getNextPageKey: (state) {
+        if (state.pages == null) return state.nextIntPageKey;
+        final lastPageSize = state.pages!.lastOrNull?.length ?? 0;
+        final isLastPage = state.lastPageIsEmpty || lastPageSize < _pageSize;
+        return isLastPage ? null : state.nextIntPageKey;
+      },
+      fetchPage: (pageKey) => _fetchPage(pageKey, false),
+    );
   }
 
   /////////////////////////////GETTER
@@ -41,29 +55,16 @@ class OwnTournamentsModel extends ChangeNotifier {
     _showClosedTournaments = !_showClosedTournaments;
     notifyListeners();
   }
-  Future<void> _fetchPage(int pageKey, bool active) async {
-    PagingController<int, TournamentsRecord> pagingController = active ? _pagingControllerActive : _pagingControllerClosed;
+  Future<List<TournamentsRecord>> _fetchPage(int pageKey, bool active) async {
     String filter = active ? 'state != "close"' : 'state = "close"';
-    try {
-      final List<TournamentsRecord> newItems = await TournamentsRecord.getDocumentsOnce(
-          pb,
-          false,
-          'id_owner = "$currentUserUid" && $filter',
-          sorting: 'date',
-          page: pageKey,
-          perPage: _pageSize
-      );
-      final isLastPage = newItems.length < _pageSize;
-
-      if (isLastPage) {
-        pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey+1; // Adjust as needed
-        pagingController.appendPage(newItems, nextPageKey);
-      }
-    } catch (error) {
-      pagingController.error = error;
-    }
+    return TournamentsRecord.getDocumentsOnce(
+      pb,
+      false,
+      'id_owner = "$currentUserUid" && $filter',
+      sorting: 'date',
+      page: pageKey,
+      perPage: _pageSize
+    );
   }
   Future<void> onRefresh() async {
     _pagingControllerActive.refresh();

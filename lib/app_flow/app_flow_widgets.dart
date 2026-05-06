@@ -188,7 +188,7 @@ class _AFButtonWidgetState extends State<AFButtonWidget> {
     if ((widget.icon != null || widget.iconData != null) && !loading) {
       Widget icon = widget.icon ??
           FaIcon(
-            widget.iconData!,
+            widget.iconData! as FaIconData,
             size: widget.options.iconSize,
             color: widget.options.iconColor,
           );

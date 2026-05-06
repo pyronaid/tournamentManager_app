@@ -17,8 +17,15 @@ class TournamentNewsModel extends ChangeNotifier {
   TournamentNewsModel({required this.tournamentModel}) :
         _lastKnownLoading = tournamentModel.isLoading,
         _lastKnownUpdatedNews = tournamentModel.updatedNews {
-    _pagingController = PagingController<int, NewsRecord>(firstPageKey: 1)
-      ..addPageRequestListener(_fetchPage);
+    _pagingController = PagingController(
+      getNextPageKey: (state) {
+        if (state.pages == null) return state.nextIntPageKey;
+        final lastPageSize = state.pages!.lastOrNull?.length ?? 0;
+        final isLastPage = state.lastPageIsEmpty || lastPageSize < _pageSize;
+        return isLastPage ? null : state.nextIntPageKey;
+      },
+      fetchPage: (pageKey) => _fetchPage(pageKey),
+    );
     tournamentModel.addListener(_onTournamentChanged);
   }
 
@@ -52,27 +59,15 @@ class TournamentNewsModel extends ChangeNotifier {
   /////////////////////////////SETTER
   Future<void> onRefresh() async => _pagingController.refresh();
   Future<void> deleteNews(String newsId) async => tournamentModel.deleteNews(pb, newsId);
-  Future<void> _fetchPage(int pageKey) async {
-    final controller = _pagingController;
-    try {
-      final newItems = await NewsRecord.getDocumentsOnce(
-          pb,
-          '${NewsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}"',
-          expand: NewsRecord.idTournamentFieldName,
-          sorting: NewsRecord.createdFieldName,
-          page: pageKey,
-          perPage: _pageSize
-      );
-      final isLastPage = newItems.length < _pageSize;
-
-      if (isLastPage) {
-        controller.appendLastPage(newItems);
-      } else {
-        controller.appendPage(newItems, pageKey + 1);
-      }
-    } catch (error) {
-      controller.error = error;
-    }
+  Future<List<NewsRecord>> _fetchPage(int pageKey) async {
+    return NewsRecord.getDocumentsOnce(
+      pb,
+      '${NewsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}"',
+      expand: NewsRecord.idTournamentFieldName,
+      sorting: NewsRecord.createdFieldName,
+      page: pageKey,
+      perPage: _pageSize
+    );
   }
 
 

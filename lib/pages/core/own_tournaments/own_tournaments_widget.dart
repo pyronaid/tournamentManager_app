@@ -234,31 +234,35 @@ class _TournamentSliverList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PagedSliverList<int, TournamentsRecord>(
-      pagingController: pagingController,
-      builderDelegate: PagedChildBuilderDelegate<TournamentsRecord>(
-        itemBuilder: (context, item, index) {
-          final itemList = pagingController.itemList;
-          final isLast =
-              itemList != null && index == itemList.length - 1;
-          return TournamentCardWidget(
-            // ValueKey is type-safe and disambiguates between the two lists.
-            key: ValueKey('tournament_${item.uid}_${listKey}_$index'),
-            last: isLast,
-            tournamentRef: item,
-            active: isActive,
-          );
-        },
-        firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-        noItemsFoundIndicatorBuilder: (_) => NoContentCard(
-          type: NoContentType.tournament,
-          active: true,
-          phrase: emptyPhrase,
+    return PagingListener(
+      controller: pagingController,
+      builder: (context, state, fetchNextPage) => PagedSliverList<int, TournamentsRecord>(
+        state: state,
+        fetchNextPage: fetchNextPage,
+        builderDelegate: PagedChildBuilderDelegate<TournamentsRecord>(
+          itemBuilder: (context, item, index) {
+            final itemList = pagingController.items;
+            final isLast =
+                itemList != null && index == itemList.length - 1;
+            return TournamentCardWidget(
+              // ValueKey is type-safe and disambiguates between the two lists.
+              key: ValueKey('tournament_${item.uid}_${listKey}_$index'),
+              last: isLast,
+              tournamentRef: item,
+              active: isActive,
+            );
+          },
+          firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
+          noItemsFoundIndicatorBuilder: (_) => NoContentCard(
+            type: NoContentType.tournament,
+            active: true,
+            phrase: emptyPhrase,
+          ),
+          newPageProgressIndicatorBuilder: (_) =>
+          const Center(child: CircularProgressIndicator()),
         ),
-        newPageProgressIndicatorBuilder: (_) =>
-        const Center(child: CircularProgressIndicator()),
+        shrinkWrapFirstPageIndicators: true,
       ),
-      shrinkWrapFirstPageIndicators: true,
     );
   }
 }

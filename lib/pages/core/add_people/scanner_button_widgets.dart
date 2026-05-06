@@ -108,6 +108,8 @@ class SwitchCameraButton extends StatelessWidget {
           case CameraFacing.front:
             icon = const Icon(Icons.camera_front);
           case CameraFacing.back:
+          case CameraFacing.external:
+          case CameraFacing.unknown:
             icon = const Icon(Icons.camera_rear);
         }
 

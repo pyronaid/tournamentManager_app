@@ -38,8 +38,15 @@ class TournamentRankingsModel extends ChangeNotifier {
   TournamentRankingsModel({required this.tournamentModel, required this.roundId}) {
     _lastKnownUpdatedRounds = tournamentModel.updatedRounds;
 
-    _pagingController = PagingController<int, RankingsRecord>(firstPageKey: 1)
-      ..addPageRequestListener(_fetchPage);
+    _pagingController = PagingController(
+      getNextPageKey: (state) {
+        if (state.pages == null) return state.nextIntPageKey;
+        final lastPageSize = state.pages!.lastOrNull?.length ?? 0;
+        final isLastPage = state.lastPageIsEmpty || lastPageSize < _pageSize;
+        return isLastPage ? null : state.nextIntPageKey;
+      },
+      fetchPage: (pageKey) => _fetchPage(pageKey),
+    );
 
     _playerNameTextController = TextEditingController();
     _playerNameFocusNode = FocusNode();
@@ -98,41 +105,29 @@ class TournamentRankingsModel extends ChangeNotifier {
 
   /////////////////////////////SETTER
   Future<void> onRefresh() async => _pagingController.refresh();
-  Future<void> _fetchPage(int pageKey) async {
-    final controller = _pagingController;
-    try {
-      var filter =
-          '${RankingsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}" '
-          '&& ${RankingsRecord.idRoundFieldName} = "$roundId"';
+  Future<List<RankingsRecord>> _fetchPage(int pageKey) async {
+    var filter =
+        '${RankingsRecord.idTournamentFieldName} = "${tournamentModel.tournamentsRef}" '
+        '&& ${RankingsRecord.idRoundFieldName} = "$roundId"';
 
-      if (_currentFilter.isNotEmpty) {
-        filter = '$filter && '
-            '(${RankingsRecord.userNameFieldName} ~ "$_currentFilter" || '
-            '${RankingsRecord.userSurnameFieldName} ~ "$_currentFilter" || '
-            '${RankingsRecord.userUsernameFieldName} ~ "$_currentFilter")';
-      }
-
-      final newItems = await RankingsRecord.getDocumentsOnce(
-        pb,
-        filter,
-        expand: RankingsRecord.idTournamentFieldName,
-        sorting: '-${RankingsRecord.pointsFieldName},'
-            '-${RankingsRecord.t1FieldName},'
-            '-${RankingsRecord.t2FieldName},'
-            '-${RankingsRecord.t3FieldName}',
-        page: pageKey,
-        perPage: _pageSize,
-      );
-
-      final isLastPage = newItems.length < _pageSize;
-      if (isLastPage) {
-        controller.appendLastPage(newItems);
-      } else {
-        controller.appendPage(newItems, pageKey + 1);
-      }
-    } catch (error) {
-      controller.error = error;
+    if (_currentFilter.isNotEmpty) {
+      filter = '$filter && '
+          '(${RankingsRecord.userNameFieldName} ~ "$_currentFilter" || '
+          '${RankingsRecord.userSurnameFieldName} ~ "$_currentFilter" || '
+          '${RankingsRecord.userUsernameFieldName} ~ "$_currentFilter")';
     }
+
+    return RankingsRecord.getDocumentsOnce(
+      pb,
+      filter,
+      expand: RankingsRecord.idTournamentFieldName,
+      sorting: '-${RankingsRecord.pointsFieldName},'
+          '-${RankingsRecord.t1FieldName},'
+          '-${RankingsRecord.t2FieldName},'
+          '-${RankingsRecord.t3FieldName}',
+      page: pageKey,
+      perPage: _pageSize,
+    );
   }
 
   // ---------------------------------------------------------------------------

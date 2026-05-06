@@ -190,6 +190,17 @@ class EnrollmentsRecord extends PocketstoreRecord {
                   s.totalItems,
                   s.items.map((record) => EnrollmentsRecord.fromSnapshot(record)).toList())
               );
+  static Future<List<EnrollmentsRecord>> getDocumentsOncePlain(PocketBase pb, bool ext, String filter, {String? expand, String? sorting, int page=1, int perPage = 30, Map<String, dynamic> queryMap = const {}}) =>
+      pb.collection(ext ? collectionNameExt : collectionName).getList(
+          filter: filter,
+          sort: sorting,
+          page: page,
+          perPage: perPage,
+          expand: expand,
+          query: queryMap
+      ).then(
+        (s) =>  s.items.map((record) => EnrollmentsRecord.fromSnapshot(record)).toList()
+      );
   static Future<void> deleteEnrollments(pb, String idE) async {
     pb.collection(collectionName).delete(idE);
   }
