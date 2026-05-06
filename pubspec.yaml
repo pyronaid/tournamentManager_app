@@ -58,9 +58,11 @@ dependencies:
   flutter_animate: ^4.5.0
   #flutter_html: ^3.0.0   -- before it needs an upgrade
   #flutter_cache_manager: ^3.4.0   #ADDED_NOT_DEMANDED
+  flutter_launcher_icons: ^0.14.3
   flutter_local_notifications: ^19.5.0
   flutter_map: ^7.0.2
   flutter_map_marker_cluster: ^1.4.0
+  flutter_native_splash: ^2.4.5
   flutter_keyboard_visibility: ^6.0.0
   flutter_secure_storage: ^9.2.4
   flutter_slidable: ^3.1.1
@@ -210,3 +212,18 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+#dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/images/logo.png"
+  min_sdk_android: 21
+
+#dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#FFFFFF"          # background color behind the logo
+  image: assets/images/logo.png
+  android_12:
+    color: "#FFFFFF"
+    image: assets/images/logo.png

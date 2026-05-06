@@ -144,11 +144,10 @@ class CreateEditNewsModel extends ChangeNotifier {
   void setNewsShowTimestampEnVar(bool boolValue) {
     _newsShowTimestampEnVar = boolValue;
   }
-  Future<void> setNewsImage(bool saveWayEn) async{
-    bool? isCamera = true; //TO FIX WITH DIALOG FUNCTION
+  Future<void> setNewsImage(bool saveWayEn, ImageSource source) async {
     XFile? imageFile = await imagePickerService.pickCropImage(
         cropAspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
-        imageSource: ImageSource.camera
+        imageSource: source,
     );
     if(imageFile != null) {
       _newsImageUrlTemp = imageFile.path;

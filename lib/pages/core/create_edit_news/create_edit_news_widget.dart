@@ -11,6 +11,7 @@ import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/components/custom_appbar_widget.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:tournamentmanager/pages/core/create_edit_news/create_edit_news_model.dart';
 import 'package:tournamentmanager/pages/nav_bar/news_model.dart';
 
@@ -452,12 +453,20 @@ class _ImageActionButtons extends StatelessWidget {
   final CreateEditNewsModel model;
   final bool showDelete;
 
-  void _onUpload(BuildContext context) {
+  void _onUpload(BuildContext context) async {
     FocusScope.of(context).unfocus();
     logFirebaseEvent('Button_load_pic');
-    model.setNewsImage(model.saveWay);
-    logFirebaseEvent('Button_haptic_feedback');
     HapticFeedback.lightImpact();
+
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (_) => const _ImageSourceSheet(),
+    );
+    if (source == null) return;
+    if (!context.mounted) return;
+
+    model.setNewsImage(model.saveWay, source);
+    logFirebaseEvent('Button_haptic_feedback');
   }
 
   void _onDelete(BuildContext context) {
@@ -514,6 +523,31 @@ class _ImageButton extends StatelessWidget {
           width: _Dims.sectionBorderWidth,
         ),
         borderRadius: BorderRadius.circular(0),
+      ),
+    );
+  }
+}
+
+class _ImageSourceSheet extends StatelessWidget {
+  const _ImageSourceSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.camera_alt),
+            title: const Text('Fotocamera'),
+            onTap: () => Navigator.pop(context, ImageSource.camera),
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_library),
+            title: const Text('Galleria / File'),
+            onTap: () => Navigator.pop(context, ImageSource.gallery),
+          ),
+        ],
       ),
     );
   }
