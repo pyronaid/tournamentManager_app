@@ -51,7 +51,6 @@ Future initFirebase() async {
   );
 
   await notificationsPlugin.initialize(
-    initializationSettings,
     onDidReceiveNotificationResponse: (NotificationResponse response){
       if (response.payload != null) {
         // ===== HANDLE FOREGROUND TAP =====
@@ -60,7 +59,7 @@ Future initFirebase() async {
         debugPrint("Payload: ${response.data}");
         //what happen when user tap on notification while app is in foreground
       }
-    },
+    }, settings: initializationSettings,
   );
 
   // ADD THIS: Create the Android notification channel
@@ -121,10 +120,10 @@ Future<void> handlerForegroundMessage(RemoteMessage message, FlutterLocalNotific
     debugPrint(" handlerForegroundMessage payload: ${message.data}");
 
     await plugin.show(
-      message.hashCode,
-      message.notification!.title,
-      message.notification!.body,
-      const NotificationDetails(
+      id: message.hashCode,
+      title: message.notification!.title,
+      body: message.notification!.body,
+      notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           'instant_notification_channel_id',
           'Instant Notification',
@@ -140,7 +139,7 @@ Future<void> handlerForegroundMessage(RemoteMessage message, FlutterLocalNotific
           presentSound: true,
         )
       ),
-      payload: message.data.toString()
+      payload: message.data.toString(),
     );
   }
 }
