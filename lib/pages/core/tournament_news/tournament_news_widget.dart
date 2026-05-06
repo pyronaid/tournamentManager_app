@@ -8,7 +8,7 @@ import 'package:tournamentmanager/components/tournament_news_card/tournament_new
 import 'package:tournamentmanager/pages/core/tournament_news/tournament_news_model.dart';
 
 import '../../../components/generic_loading/generic_loading_widget.dart';
-import '../../../components/no_tournament_news_card/no_tournament_news_card_widget.dart';
+import '../../../components/no_content_card/no_content_card_widget.dart';
 
 // ---------------------------------------------------------------------------
 // DIMENSION CONSTANTS
@@ -159,14 +159,15 @@ class _NewsSliverList extends StatelessWidget {
           // ValueKey is more type-safe and readable than the raw Key ctor.
           key: ValueKey('news_${item.uid}_$index'),
           newsRef: item,
-          indexo: index,
+          index: index,
           interactable: model.canInteractOn,
           deleteFun: model.deleteNews,
         ),
 
         // ── Placeholder states ──────────────────────────────────────────
         firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-        noItemsFoundIndicatorBuilder: (_) => const NoTournamentNewsCardWidget(
+        noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
+          type: NoContentType.news,
           active: true,
           phrase: 'Nessuna notizia pubblicata',
         ),

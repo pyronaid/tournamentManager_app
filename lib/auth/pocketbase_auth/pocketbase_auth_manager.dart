@@ -33,6 +33,7 @@ class PocketbaseAuthManager {
   //#####################################################
   Future<Tuple2<bool,String?>> signInWithEmail(String email, String password) async {
     try {
+      // ignore: unused_local_variable
       final authData = await _pb.collection(userColl).authWithPassword(email, password,);
       await _secureStorage.write(key: _tokenKey, value: _pb.authStore.token);
       await _deviceTokenService.saveDeviceToken();
@@ -50,7 +51,7 @@ class PocketbaseAuthManager {
         }
       }
       return Tuple2(false,convertedMessage);
-    } on Exception catch (_, e) {
+    } on Exception catch (_, __) {
       return const Tuple2(false,'Errore generico in fase di login');
     }
   }
@@ -98,6 +99,7 @@ class PocketbaseAuthManager {
   }
   Future<bool> signInWithOtp(String email, String otpId, String otpCode) async {
     try {
+      // ignore: unused_local_variable
       final authData = await _pb.collection(userColl).authWithOTP(otpId, otpCode,);
       await _secureStorage.write(key: _tokenKey, value: _pb.authStore.token);
       await _deviceTokenService.saveDeviceToken();

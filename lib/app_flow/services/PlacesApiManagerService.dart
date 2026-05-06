@@ -32,6 +32,7 @@ class PlacesApiManagerService {
       String baseURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
       String request = '$baseURL?input=$input&key=$placeApiKey&language=it&sessiontoken=$sessionToken';
       var response = await http.get(Uri.parse(request));
+      // ignore: unused_local_variable
       var data = json.decode(response.body);
       if (response.statusCode == 200) {
         placeList = json.decode(response.body)['predictions'];

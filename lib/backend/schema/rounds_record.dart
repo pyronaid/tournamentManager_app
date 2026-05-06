@@ -69,7 +69,9 @@ class RoundsRecord extends PocketstoreRecord {
   late DateTime _updatedTime;
   DateTime get updatedTime => _updatedTime;
 
+  // ignore: unused_field
   late String _collectionId;
+  // ignore: unused_field
   late String _collectionName;
 
 

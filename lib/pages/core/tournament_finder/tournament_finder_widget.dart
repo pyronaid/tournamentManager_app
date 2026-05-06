@@ -6,10 +6,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/components/no_content_card/no_content_card_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_finder/tournament_finder_model.dart';
 
 import '../../../app_flow/app_flow_widgets.dart';
-import '../../../components/no_tournament_pick_card/no_tournament_pick_card_widget.dart';
 import '../../../components/tournament_pick_card/tournament_pick_card_widget.dart';
 
 // ---------------------------------------------------------------------------
@@ -167,8 +167,10 @@ class _PanelContent extends StatelessWidget {
     if (model.tournamentsListRefObjToDetail.isEmpty) {
       return const Padding(
         padding: EdgeInsets.only(top: 60),
-        child: NoTournamentPickCardWidget(
+        child: NoContentCard(
           phrase: 'Non risultano tornei in questa zona.',
+          type: NoContentType.pick,
+          variant: NoContentVariant.pill,
         ),
       );
     }

@@ -164,12 +164,12 @@ T? _getDefaultValue<T>() {
 }
 
 extension TextValidationExtensions on String? Function(BuildContext, String?)? {
-  String? Function(String?)? asValidator(BuildContext context) =>
+  FormFieldValidator<String>? asValidator(BuildContext context) =>
       this != null ? (val) => this!(context, val) : null;
 }
 
 extension TextCheckOldValidationExtensions on String? Function(BuildContext, String?, String?)? {
-  String? Function(String?)? asValidator(BuildContext context, String? valOld) =>
+  FormFieldValidator<String>? asValidator(BuildContext context, String? valOld) =>
       this != null ? (val) => this!(context, val, valOld) : null;
 }
 

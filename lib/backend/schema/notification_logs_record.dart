@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:http/http.dart';
 import 'package:pocketbase/pocketbase.dart';
-import 'package:tournamentmanager/backend/schema/rounds_record.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 import 'package:tournamentmanager/backend/schema/util/pocketbase_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
@@ -57,7 +56,9 @@ class NotificationLogsRecord extends PocketstoreRecord {
   late DateTime _updatedTime;
   DateTime get updatedTime => _updatedTime;
 
+  // ignore: unused_field
   late String _collectionId;
+  // ignore: unused_field
   late String _collectionName;
 
 

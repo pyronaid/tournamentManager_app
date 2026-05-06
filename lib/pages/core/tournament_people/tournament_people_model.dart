@@ -78,6 +78,7 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
   bool get isTournamentEditable =>
       tournamentModel.isTournamentEditable &&
       tournamentModel.tournamentOwner == currentUserUid;
+  String get tournamentId => tournamentModel.tournamentId!;
   TextEditingController get peopleNameTextController;
   FocusNode get peopleNameFocusNode;
   ListType get listTypeReferral;
@@ -123,7 +124,6 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
       controller.error = error;
     }
   }
-
   Future<void> onRefresh() async => pagingControllerVar.refresh();
 
   /////////////////////////////SETTER
@@ -158,7 +158,6 @@ abstract class TournamentPeopleModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-
   Future<bool> promotePeople(String userId, {required ListType listType}) async {
     final executionId = const Uuid().v4();
     loaderService.showLoader(id: executionId);

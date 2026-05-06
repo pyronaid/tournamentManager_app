@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:tournamentmanager/pages/core/tournament_people/tournament_people_model.dart';
-import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
 import '../../../../backend/schema/enrollments_record.dart';
 

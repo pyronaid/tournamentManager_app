@@ -1,4 +1,9 @@
-// tournament_people_card_widget.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+
+import '../../app_flow/app_flow_theme.dart';
+import '../../backend/schema/enrollments_record.dart';
+
 class TournamentPeopleCardWidget extends StatelessWidget {
   const TournamentPeopleCardWidget({
     super.key,

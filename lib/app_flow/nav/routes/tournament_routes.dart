@@ -11,7 +11,6 @@ import '../../../pages/core/create_edit_news/create_edit_news_container.dart';
 import '../../../pages/core/tournament_detail/tournament_detail_container.dart';
 import '../../../pages/core/tournament_news/tournament_news_container.dart';
 import '../../../pages/core/tournament_people/tournament_people_container.dart';
-import '../../../pages/core/tournament_people/tournament_people_model.dart';
 import '../../../pages/core/tournament_rankings/tournament_rankings_container.dart';
 import '../../../pages/nav_bar/scaffold_leveltwo_nested_navigation.dart';
 import '../../../pages/nav_bar/tournament_model.dart';

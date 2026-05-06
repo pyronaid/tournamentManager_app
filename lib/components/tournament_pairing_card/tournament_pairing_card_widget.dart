@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
-import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
 import 'package:tournamentmanager/backend/schema/pairings_record.dart';
 
 class TournamentPairingsCardWidget extends StatelessWidget {
@@ -17,13 +16,6 @@ class TournamentPairingsCardWidget extends StatelessWidget {
   final int index;
   final Future<void> Function(String pairingId) deleteFun;
 
-  AlertRequest _deleteRequest() => AlertRequest(
-        title: 'ATTENZIONE: Cancellazione del pairing in corso...',
-        description: 'Sei sicuro di voler eliminare questo Pairing?',
-        buttonTitleCancelled: 'Annulla',
-        buttonTitleConfirmed: 'Continua',
-        functionConfirmed: (_) => deleteFun(pairingRef.uid),
-      );
 
   @override
   Widget build(BuildContext context) {

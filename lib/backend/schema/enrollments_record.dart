@@ -55,7 +55,9 @@ class EnrollmentsRecord extends PocketstoreRecord {
   DateTime get updatedTime => _updatedTime;
   bool hasUpdatedTime() => true;
 
+  // ignore: unused_field
   late String _collectionId;
+  // ignore: unused_field
   late String _collectionName;
 
   late String _ownerId;

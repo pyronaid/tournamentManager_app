@@ -354,7 +354,7 @@ class _NameField extends StatelessWidget {
         minLines: 1,
         cursorColor: CustomFlowTheme.of(context).primary,
         validator: model.tournamentNameTextControllerValidator
-            ?.asValidator(context),
+            .asValidator(context),
       ),
     );
   }
@@ -643,6 +643,7 @@ class _LabelledField extends StatelessWidget {
   const _LabelledField({
     required this.label,
     required this.child,
+    // ignore: unused_element_parameter
     this.topPadding = _Dims.fieldSpacing,
   });
 

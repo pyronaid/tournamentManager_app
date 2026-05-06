@@ -1,6 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
@@ -11,6 +12,11 @@ import 'package:tournamentmanager/pages/onboarding/forgot_password/forgot_passwo
 
 import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 
+abstract class _Dims {
+  static const double buttonHeight = 50.0;
+  static const double buttonRadius = 25.0;
+}
+
 class ForgotPasswordWidget extends StatefulWidget {
   const ForgotPasswordWidget({super.key});
 
@@ -19,40 +25,20 @@ class ForgotPasswordWidget extends StatefulWidget {
 }
 
 class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
-  late ForgotPasswordModel _model;
-
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => ForgotPasswordModel());
-
-    logFirebaseEvent('screen_view', parameters: {'screen_name': 'ForgotPassword'});
-    _model.emailAddressTextController ??= TextEditingController();
-    _model.emailAddressFocusNode ??= FocusNode();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-  }
-
-  @override
-  void dispose() {
-    _model.dispose();
-
-    super.dispose();
+    context.read<ForgotPasswordModel>().initContextVars(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () =>
-      _model.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_model.unfocusNode)
-          : FocusScope.of(context).unfocus(),
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        key: _scaffoldKey,
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
@@ -69,123 +55,8 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        wrapWithModel(
-                          model: _model.customAppbarModel,
-                          updateCallback: () => setState(() {}),
-                          child: CustomAppbarWidget(
-                            backButton: true,
-                            actionButton: false,
-                            actionButtonAction: () async {},
-                            optionsButtonAction: () async {},
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                          child: Text(
-                            'Password dimenticata',
-                            style: CustomFlowTheme.of(context).displaySmall,
-                          ),
-                        ),
-                        Form(
-                          key: _formKey,
-                          autovalidateMode: AutovalidateMode.disabled,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Padding(
-                                padding:const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Ti manderemo una mail per il reset della password.',
-                                      textAlign: TextAlign.start,
-                                      style: CustomFlowTheme.of(context).labelLarge,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsetsDirectional.fromSTEB(0, 15, 0, 0),
-                                      child: Text(
-                                        'Email',
-                                        textAlign: TextAlign.start,
-                                        style: CustomFlowTheme.of(context).bodyLarge,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
-                                      child: TextFormField(
-                                        controller: _model.emailAddressTextController,
-                                        focusNode: _model.emailAddressFocusNode,
-                                        autofocus: false,
-                                        autofillHints: const [AutofillHints.name],
-                                        textCapitalization: TextCapitalization.none,
-                                        textInputAction: TextInputAction.next,
-                                        obscureText: false,
-                                        decoration: standardInputDecoration(
-                                          context,
-                                          prefixIcon: Icon(
-                                            Icons.email,
-                                            color: CustomFlowTheme.of(context).secondaryText,
-                                            size: 18,
-                                          ),
-                                        ),
-                                        style: CustomFlowTheme.of(context).titleSmall.override(
-                                          fontWeight: FontWeight.w500,
-                                          lineHeight: 1,
-                                        ),
-                                        minLines: 1,
-                                        keyboardType: TextInputType.emailAddress,
-                                        cursorColor: CustomFlowTheme.of(context).primary,
-                                        validator: _model
-                                            .emailAddressTextControllerValidator
-                                            .asValidator(context),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                          child: AFButtonWidget(
-                            onPressed: () async {
-                              FocusScope.of(context).unfocus();
-                              logFirebaseEvent('FORGOT_PASSWORD_RESET_PASSWORD_BTN_ON_TA');
-                              logFirebaseEvent('Button_validate_form');
-                              if (_formKey.currentState == null ||
-                                  !_formKey.currentState!.validate()) {
-                                return;
-                              }
-                              logFirebaseEvent('Button_haptic_feedback');
-                              HapticFeedback.lightImpact();
-                              logFirebaseEvent('Button_auth');
-                              if (_model.emailAddressTextController!.text.isEmpty) {
-                                _model.showResetPasswordIssueSnackBar();
-                              } else {
-                                await pocketAuthManager.resetPassword(_model.emailAddressTextController!.text);
-                                logFirebaseEvent('Button_navigate_back');
-                                context.safePop();
-                              }
-                            },
-                            text: 'Reset Password',
-                            options: AFButtonOptions(
-                              width: double.infinity,
-                              height: 50,
-                              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                              iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                              color: CustomFlowTheme.of(context).primary,
-                              textStyle: CustomFlowTheme.of(context).titleSmall,
-                              elevation: 0,
-                              borderSide: const BorderSide(
-                                color: Colors.transparent,
-                                width: 1,
-                              ),
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                          ),
-                        ),
+                        _Header(onUpdate: () => setState(() {})),
+                        _FormSection(formKey: _formKey),
                       ],
                     ),
                   ),
@@ -195,6 +66,143 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _Header extends StatelessWidget {
+  const _Header({required this.onUpdate});
+  final VoidCallback onUpdate;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        wrapWithModel(
+          model: context.read<ForgotPasswordModel>().customAppbarModel,
+          updateCallback: onUpdate,
+          child: CustomAppbarWidget(
+            backButton: true,
+            actionButton: false,
+            actionButtonAction: () async {},
+            optionsButtonAction: () async {},
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
+          child: Text(
+            'Password dimenticata',
+            style: CustomFlowTheme.of(context).displaySmall,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FormSection extends StatelessWidget {
+  const _FormSection({required this.formKey});
+  final GlobalKey<FormState> formKey;
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.read<ForgotPasswordModel>();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Form(
+          key: formKey,
+          autovalidateMode: AutovalidateMode.disabled,
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Ti manderemo una mail per il reset della password.',
+                  textAlign: TextAlign.start,
+                  style: CustomFlowTheme.of(context).labelLarge,
+                ),
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(0, 15, 0, 0),
+                  child: Text(
+                    'Email',
+                    textAlign: TextAlign.start,
+                    style: CustomFlowTheme.of(context).bodyLarge,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
+                  child: TextFormField(
+                    controller: model.emailAddressTextController,
+                    focusNode: model.emailAddressFocusNode,
+                    autofocus: false,
+                    autofillHints: const [AutofillHints.name],
+                    textCapitalization: TextCapitalization.none,
+                    textInputAction: TextInputAction.next,
+                    obscureText: false,
+                    decoration: standardInputDecoration(
+                      context,
+                      prefixIcon: Icon(
+                        Icons.email,
+                        color: CustomFlowTheme.of(context).secondaryText,
+                        size: 18,
+                      ),
+                    ),
+                    style: CustomFlowTheme.of(context).titleSmall.override(
+                          fontWeight: FontWeight.w500,
+                          lineHeight: 1,
+                        ),
+                    minLines: 1,
+                    keyboardType: TextInputType.emailAddress,
+                    cursorColor: CustomFlowTheme.of(context).primary,
+                    validator: model.emailAddressTextControllerValidator
+                        .asValidator(context),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
+          child: AFButtonWidget(
+            onPressed: () async {
+              FocusScope.of(context).unfocus();
+              logFirebaseEvent('FORGOT_PASSWORD_RESET_PASSWORD_BTN_ON_TA');
+              logFirebaseEvent('Button_validate_form');
+              if (formKey.currentState == null ||
+                  !formKey.currentState!.validate()) return;
+              logFirebaseEvent('Button_haptic_feedback');
+              HapticFeedback.lightImpact();
+              logFirebaseEvent('Button_auth');
+              final m = context.read<ForgotPasswordModel>();
+              if (m.emailAddressTextController.text.isEmpty) {
+                m.showResetPasswordIssueSnackBar();
+              } else {
+                await pocketAuthManager
+                    .resetPassword(m.emailAddressTextController.text);
+                logFirebaseEvent('Button_navigate_back');
+                if (context.mounted) context.safePop();
+              }
+            },
+            text: 'Reset Password',
+            options: AFButtonOptions(
+              width: double.infinity,
+              height: _Dims.buttonHeight,
+              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+              iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+              color: CustomFlowTheme.of(context).primary,
+              textStyle: CustomFlowTheme.of(context).titleSmall,
+              elevation: 0,
+              borderSide: const BorderSide(color: Colors.transparent, width: 1),
+              borderRadius: BorderRadius.circular(_Dims.buttonRadius),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

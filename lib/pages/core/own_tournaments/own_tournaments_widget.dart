@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/components/generic_loading/generic_loading_widget.dart';
-import 'package:tournamentmanager/components/no_tournament_card/no_tournament_card_widget.dart';
 import 'package:tournamentmanager/components/tournament_card/tournament_card_widget.dart';
 import 'package:tournamentmanager/pages/core/own_tournaments/own_tournaments_model.dart';
+
+import '../../../components/no_content_card/no_content_card_widget.dart';
 
 // ---------------------------------------------------------------------------
 // DIMENSION CONSTANTS
@@ -250,10 +250,9 @@ class _TournamentSliverList extends StatelessWidget {
           );
         },
         firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-        noItemsFoundIndicatorBuilder: (_) => NoTournamentCardWidget(
-          // FIX [minor]: active flag was inverted on the closed section
-          // in the original — corrected here.
-          active: isActive,
+        noItemsFoundIndicatorBuilder: (_) => NoContentCard(
+          type: NoContentType.tournament,
+          active: true,
           phrase: emptyPhrase,
         ),
         newPageProgressIndicatorBuilder: (_) =>

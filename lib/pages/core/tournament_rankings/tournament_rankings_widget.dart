@@ -9,7 +9,7 @@ import 'package:tournamentmanager/pages/core/tournament_rankings/tournament_rank
 import '../../../backend/schema/rankings_record.dart';
 import '../../../components/custom_appbar_widget.dart';
 import '../../../components/generic_loading/generic_loading_widget.dart';
-import '../../../components/no_tournament_ranking_card/no_tournament_rankings_card_widget.dart';
+import '../../../components/no_content_card/no_content_card_widget.dart';
 import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 import '../../../components/tournament_ranking_card/tournament_ranking_card_widget.dart';
 
@@ -336,12 +336,13 @@ class _RankingsListSliver extends StatelessWidget {
         itemBuilder: (context, item, index) => TournamentRankingsCardWidget(
           key: ValueKey('ranking_${item.uid}_$index'),
           rankingRef: item,
-          indexo: index,
+          index: index,
         ),
 
         // ── Placeholder states ─────────────────────────────────────────
         firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-        noItemsFoundIndicatorBuilder: (_) => const NoTournamentRankingsCardWidget(
+        noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
+          type: NoContentType.rankings,
           active: true,
           phrase: 'Nessun player in classifica',
         ),

@@ -1,23 +1,17 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/components/custom_appbar_model.dart';
 
-import 'onboarding_verify_mail_success_widget.dart';
-
-class OnboardingVerifyMailSuccessModel extends CustomFlowModel<OnboardingVerifyMailSuccessWidget> {
-  ///  State fields for stateful widgets in this page.
-
-  // Model for customAppbar component.
+class OnboardingVerifyMailSuccessModel extends ChangeNotifier {
   late CustomAppbarModel customAppbarModel;
-  
 
-  @override
-  void initState(BuildContext context) {
+  void initContextVars(BuildContext context) {
     customAppbarModel = createModel(context, () => CustomAppbarModel());
   }
 
   @override
   void dispose() {
     customAppbarModel.dispose();
+    super.dispose();
   }
 }

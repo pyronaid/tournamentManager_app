@@ -113,7 +113,9 @@ class PairingsRecord extends PocketstoreRecord {
   bool get playerAWon => winner == playerA;
   bool get playerBWon => winner == playerB;
 
+  // ignore: unused_field
   late String _collectionId;
+  // ignore: unused_field
   late String _collectionName;
 
 

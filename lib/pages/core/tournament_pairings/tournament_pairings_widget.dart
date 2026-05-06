@@ -11,7 +11,7 @@ import 'package:tournamentmanager/pages/core/tournament_pairings/tournament_pair
 import '../../../backend/schema/pairings_record.dart';
 import '../../../components/custom_appbar_widget.dart';
 import '../../../components/generic_loading/generic_loading_widget.dart';
-import '../../../components/no_tournament_pairing_card/no_tournament_pairings_card_widget.dart';
+import '../../../components/no_content_card/no_content_card_widget.dart';
 import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 import '../../../components/tournament_pairing_card/tournament_pairing_card_widget.dart';
 import '../../../components/tournament_pairing_card_expand/tournament_pairing_card_expand_widget.dart';
@@ -259,14 +259,15 @@ class _PairingsListSliver extends StatelessWidget {
           child: TournamentPairingsCardWidget(
             key: ValueKey('pairing_${item.uid}_$index'),
             pairingRef: item,
-            indexo: index,
+            index: index,
             deleteFun: model.deletePairing,
           ),
         ),
 
         // ── Placeholder states ─────────────────────────────────────────
         firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-        noItemsFoundIndicatorBuilder: (_) => const NoTournamentPairingsCardWidget(
+        noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
+          type: NoContentType.pairings,
           active: true,
           phrase: 'Nessun pairing pubblicato',
         ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/pages/core/tournament_rounds/tournament_rounds_model.dart';
@@ -9,7 +8,7 @@ import 'package:tournamentmanager/pages/core/tournament_rounds/tournament_rounds
 import '../../../backend/schema/rounds_record.dart';
 import '../../../components/fab_expandable/fab_expandable_widget.dart';
 import '../../../components/generic_loading/generic_loading_widget.dart';
-import '../../../components/no_tournament_round_card/no_tournament_rounds_card_widget.dart';
+import '../../../components/no_content_card/no_content_card_widget.dart';
 import '../../../components/tournament_round_card/tournament_rounds_card_widget.dart';
 
 // ---------------------------------------------------------------------------
@@ -159,7 +158,8 @@ class _RoundsSliverList extends StatelessWidget {
           );
         },
         firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-        noItemsFoundIndicatorBuilder: (_) => const NoTournamentRoundsCardWidget(
+        noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
+          type: NoContentType.rounds,
           active: true,
           phrase: 'Nessun round pubblicato',
         ),
