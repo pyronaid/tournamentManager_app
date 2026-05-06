@@ -9,6 +9,7 @@ import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 import 'package:tournamentmanager/components/tournament_winner_card/tournament_winner_card_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_detail/tournament_detail_model.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
 import '../../../app_flow/app_flow_widgets.dart';
@@ -251,7 +252,15 @@ class _TournamentAvatar extends StatelessWidget {
               bottom: 5,
               right: 0,
               child: _EditBadge(
-                onTap: t.setTournamentImage,
+                onTap: () async {
+                  final source = await showModalBottomSheet<ImageSource>(
+                    context: context,
+                    builder: (_) => const _ImageSourceSheet(),
+                  );
+                  if (source == null) return;
+                  if (!context.mounted) return;
+                  t.setTournamentImage(source);
+                },
                 radius: _Dims.editBadgeRadius,
                 iconSize: _Dims.editIconSize,
               ),
@@ -1116,6 +1125,31 @@ class _InfoBox extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ImageSourceSheet extends StatelessWidget {
+  const _ImageSourceSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.camera_alt),
+            title: const Text('Fotocamera'),
+            onTap: () => Navigator.pop(context, ImageSource.camera),
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_library),
+            title: const Text('Galleria / File'),
+            onTap: () => Navigator.pop(context, ImageSource.gallery),
+          ),
+        ],
       ),
     );
   }

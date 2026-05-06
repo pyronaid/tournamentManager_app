@@ -139,11 +139,10 @@ class TournamentModel extends ChangeNotifier {
     //notifyListeners();
     loaderService.hideLoader(id: executionId);
   }
-  Future<void> setTournamentImage() async{
-    bool? isCamera = true; //TO FIX WITH DIALOG FUNCTION
+  Future<void> setTournamentImage(ImageSource source) async {
     XFile? imageFile = await imagePickerService.pickCropImage(
       cropAspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-      imageSource: ImageSource.camera
+      imageSource: source,
     );
 
     if(imageFile != null) {

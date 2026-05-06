@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
-import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_animations.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
@@ -10,7 +9,6 @@ import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
 import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_auth_util.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 import 'package:tournamentmanager/components/custom_appbar_widget.dart';
-import 'package:tournamentmanager/pages/onboarding/onboarding_verify_mail_success/onboarding_verify_mail_success_model.dart';
 
 import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 
