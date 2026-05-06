@@ -4,6 +4,7 @@ import 'package:tournamentmanager/app_flow/nav/routes/first_level_routes.dart';
 import 'package:tournamentmanager/app_flow/nav/routes/tournament_routes.dart';
 import 'package:tournamentmanager/pages/onboarding/loading/loading_container.dart';
 
+import '../../backend/firebase_analytics/analytics.dart';
 import '../../pages/onboarding/splash/splash_container.dart';
 import 'nav_basics.dart';
 import 'navigation_keys.dart';
@@ -44,20 +45,29 @@ class RouteConfig {
           name: '_initialize',
           path: '/',
           parentNavigatorKey: NavigatorKeys.rootNavigator,
-          builder: (context, params) => const SplashContainer(),
+          builder: (context, params) {
+            logFirebaseEvent('screen_view', parameters: {'screen_name': 'Splash'});
+            return const SplashContainer();
+          },
           routes: [
             CustomRoute(
               name: 'Splash',
               path: 'splash',
               parentNavigatorKey: NavigatorKeys.rootNavigator,
-              builder: (context, params) => const SplashContainer(),
+              builder: (context, params) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'Splash'});
+                return const SplashContainer();
+              },
             ).toRoute(appStateNotifier),
 
             CustomRoute(
               name: 'Loading',
               path: 'loading',
               parentNavigatorKey: NavigatorKeys.rootNavigator,
-              builder: (context, params) => const LoadingContainer(),
+              builder: (context, params) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'Loading'});
+                return const LoadingContainer();
+              },
             ).toRoute(appStateNotifier),
 
             // Authentication related routes

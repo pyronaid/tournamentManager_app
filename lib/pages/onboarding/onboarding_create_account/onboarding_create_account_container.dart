@@ -11,7 +11,6 @@ class OnboardingCreateAccountContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<OnboardingCreateAccountModel>(
       create: (_) {
-        logFirebaseEvent('screen_view', parameters: {'screen_name': 'Onboarding_CreateAccount'});
         return OnboardingCreateAccountModel();
       },
       child: const OnboardingCreateAccountWidget(),

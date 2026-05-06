@@ -98,7 +98,10 @@ class FirstLevelRoutes {
               path: 'edit-profile',
               parentNavigatorKey: NavigatorKeys.profileKey,
               redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
-              builder: (context, params) => const EditProfileContainer(),
+              builder: (context, params) {
+                logFirebaseEvent('screen_view', parameters: {'screen_name': 'EditProfile'});
+                return const EditProfileContainer();
+              },
               routes: [
                 GoRoute(
                   name: 'DialogDeleteAccount',
@@ -108,7 +111,10 @@ class FirstLevelRoutes {
                     if (state.extra == null) return '/';
                     return RouteGuard.authGuard(appStateNotifier, context, state);
                   },
-                  pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+                  pageBuilder: (context, state) {
+                    logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogDeleteAccount'});
+                    return DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+                  },
                 ),
                 GoRoute(
                   name: 'DialogResetPassword',
@@ -118,7 +124,10 @@ class FirstLevelRoutes {
                     if (state.extra == null) return '/';
                     return RouteGuard.authGuard(appStateNotifier, context, state);
                   },
-                  pageBuilder: (context, state) => DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+                  pageBuilder: (context, state) {
+                    logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogResetPassword'});
+                    return DialogPage(builder: (_) => DialogWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+                  },
                 ),
                 GoRoute(
                   name: 'DialogChangeMail',
@@ -128,7 +137,10 @@ class FirstLevelRoutes {
                     if (state.extra == null) return '/';
                     return RouteGuard.authGuard(appStateNotifier, context, state);
                   },
-                  pageBuilder: (context, state) => DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],)),
+                  pageBuilder: (context, state) {
+                    logFirebaseEvent('screen_view', parameters: {'screen_name': 'DialogChangeMail'});
+                    return DialogPage(builder: (_) => DialogFormWidget(request: (state.extra as Map<String, dynamic>)['req'],));
+                  },
                 ),
               ],
             ),
