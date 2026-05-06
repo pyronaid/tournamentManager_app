@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/backend/schema/company_information_record.dart';
@@ -41,8 +40,6 @@ abstract class _Dims {
 
 // ---------------------------------------------------------------------------
 // WIDGET
-// Kept as StatefulWidget: wrapWithModel requires a setState callback and
-// initContextVars needs a BuildContext after the Provider is in the tree.
 // ---------------------------------------------------------------------------
 class AboutUsWidget extends StatefulWidget {
   const AboutUsWidget({super.key});
@@ -53,25 +50,19 @@ class AboutUsWidget extends StatefulWidget {
 
 class _AboutUsWidgetState extends State<AboutUsWidget> {
   @override
-  void initState() {
-    super.initState();
-    context.read<AboutUsModel>().initContextVars(context);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-        body: SafeArea(
+        body: const SafeArea(
           top: true,
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: [
-                _Header(onUpdate: () => setState(() {})),
-                const _Body(),
+                _Header(),
+                _Body(),
               ],
             ),
           ),
@@ -83,12 +74,9 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
 
 // ---------------------------------------------------------------------------
 // HEADER  (appbar + page title)
-// Receives the setState callback so wrapWithModel can trigger rebuilds.
 // ---------------------------------------------------------------------------
 class _Header extends StatelessWidget {
-  const _Header({required this.onUpdate});
-
-  final VoidCallback onUpdate;
+  const _Header();
 
   @override
   Widget build(BuildContext context) {
@@ -97,16 +85,7 @@ class _Header extends StatelessWidget {
       padding: const EdgeInsets.all(_Dims.headerPaddingAll),
       child: Column(
         children: [
-          wrapWithModel(
-            model: context.read<AboutUsModel>().customAppbarModel,
-            updateCallback: onUpdate,
-            child: CustomAppbarWidget(
-              backButton: true,
-              actionButton: false,
-              actionButtonAction: () async {},
-              optionsButtonAction: () async {},
-            ),
-          ),
+          const CustomAppbarWidget(backButton: true),
           Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(
               _Dims.headerTitlePaddingH, 0, _Dims.headerTitlePaddingH, 0,

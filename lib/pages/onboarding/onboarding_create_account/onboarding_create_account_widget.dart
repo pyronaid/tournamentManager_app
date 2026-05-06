@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
@@ -34,12 +33,6 @@ class _OnboardingCreateAccountWidgetState
   final _formKey = GlobalKey<FormState>();
 
   @override
-  void initState() {
-    super.initState();
-    context.read<OnboardingCreateAccountModel>().initContextVars(context);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -58,7 +51,7 @@ class _OnboardingCreateAccountWidgetState
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _Header(onUpdate: () => setState(() {})),
+                    const _Header(),
                     Padding(
                       padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                       child: Text(
@@ -81,21 +74,11 @@ class _OnboardingCreateAccountWidgetState
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.onUpdate});
-  final VoidCallback onUpdate;
+  const _Header();
 
   @override
   Widget build(BuildContext context) {
-    return wrapWithModel(
-      model: context.read<OnboardingCreateAccountModel>().customAppbarModel,
-      updateCallback: onUpdate,
-      child: CustomAppbarWidget(
-        backButton: true,
-        actionButton: false,
-        actionButtonAction: () async {},
-        optionsButtonAction: () async {},
-      ),
-    );
+    return const CustomAppbarWidget(backButton: true);
   }
 }
 

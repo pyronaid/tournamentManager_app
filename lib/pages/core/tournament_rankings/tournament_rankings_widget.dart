@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/pages/core/tournament_rankings/tournament_rankings_model.dart';
 
@@ -38,9 +37,6 @@ class TournamentRankingsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // initContextVars is idempotent — safe to call on every build.
-    context.read<TournamentRankingsModel>().initContextVars(context);
-
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -119,8 +115,6 @@ class _RankingsBody extends StatelessWidget {
 // RANKINGS APP BAR
 // Pinned SliverAppBar containing navigation controls, search field, and the
 // column header row.
-// The updateCallback no-op is intentional: the appbar content is static for
-// this page, so triggering a parent rebuild on appbar changes is not needed.
 // ---------------------------------------------------------------------------
 class _RankingsAppBar extends StatelessWidget {
   const _RankingsAppBar({required this.model});
@@ -146,15 +140,10 @@ class _RankingsAppBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             // ── Navigation bar ──────────────────────────────────────────
-            wrapWithModel(
-              model: model.customAppbarModel,
-              updateCallback: () {},
-              child: CustomAppbarWidget(
-                backButton: true,
-                actionButton: false,
-                actionButtonAction: () async {},
-                optionsButtonAction: () async {},
-              ),
+            CustomAppbarWidget(
+              backButton: true,
+              actionButton: false,
+              optionsButtonAction: () async {},
             ),
 
             // ── Page title ──────────────────────────────────────────────

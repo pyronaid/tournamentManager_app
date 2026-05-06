@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/components/custom_expansion_panel/custom_expansion_panel_widget.dart';
@@ -37,9 +36,6 @@ class TournamentPairingsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // initContextVars is idempotent — safe to call on every build.
-    context.read<TournamentPairingsModel>().initContextVars(context);
-
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -117,10 +113,6 @@ class _PairingsBody extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // PAIRINGS APP BAR
 // Pinned SliverAppBar containing navigation controls and the search field.
-// wrapWithModel provides CustomAppbarModel to the subtree and marks it as
-// not-widget-disposable (the page model owns its lifecycle).
-// The updateCallback no-op is intentional: the appbar content is static for
-// this page, so triggering a parent rebuild on appbar changes is not needed.
 // ---------------------------------------------------------------------------
 class _PairingsAppBar extends StatelessWidget {
   const _PairingsAppBar({required this.model});
@@ -146,25 +138,21 @@ class _PairingsAppBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             // ── Navigation bar ──────────────────────────────────────────
-            wrapWithModel(
-              model: model.customAppbarModel,
-              updateCallback: () {},
-              child: CustomAppbarWidget(
-                backButton: true,
-                actionButton: true,
-                actionButtonText: 'Rankings',
-                actionButtonAction: () async {
-                  if (!context.mounted) return;
-                  context.pushNamedAuth(
-                    'TournamentRankings', context.mounted,
-                    pathParameters: {
-                      'tournamentId': model.tournamentModel.tournamentsRef,
-                      'roundId': model.roundId,
-                    }.withoutNulls,
-                  );
-                },
-                optionsButtonAction: () async {},
-              ),
+            CustomAppbarWidget(
+              backButton: true,
+              actionButton: true,
+              actionButtonText: 'Rankings',
+              actionButtonAction: () async {
+                if (!context.mounted) return;
+                context.pushNamedAuth(
+                  'TournamentRankings', context.mounted,
+                  pathParameters: {
+                    'tournamentId': model.tournamentModel.tournamentsRef,
+                    'roundId': model.roundId,
+                  }.withoutNulls,
+                );
+              },
+              optionsButtonAction: () async {},
             ),
 
             // ── Page title ──────────────────────────────────────────────

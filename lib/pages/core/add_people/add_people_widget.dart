@@ -47,12 +47,6 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
   final _formKey = GlobalKey<FormState>();
 
   @override
-  void initState() {
-    super.initState();
-    context.read<AddPeopleModel>().initContextVars(context);
-  }
-
-  @override
   Widget build(BuildContext context) {
     assert(() {
       debugPrint('[BUILD] add_people_widget.dart');
@@ -140,16 +134,9 @@ class _HeaderSection extends StatelessWidget {
       padding: const EdgeInsets.all(_Dims.headerPaddingAll),
       child: Column(
         children: [
-          wrapWithModel(
-            model: model.customAppbarModel,
-            updateCallback: () {},
-            child: CustomAppbarWidget(
-              backButton: true,
-              actionButton: false,
-              actionButtonAction: () async {},
-              optionsButtonAction: () async {},
-            ),
-          ),
+          // Direct instantiation — no wrapWithModel needed since
+          // CustomAppbarWidget is now a plain StatelessWidget.
+          const CustomAppbarWidget(backButton: true),
           Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(
               0, _Dims.titlePaddingTop, 0, _Dims.titlePaddingBtm,

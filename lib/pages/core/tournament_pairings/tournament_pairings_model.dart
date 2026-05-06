@@ -5,13 +5,11 @@ import 'package:get_it/get_it.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../app_flow/app_flow_model.dart';
 import '../../../app_flow/services/LoaderService.dart';
 import '../../../app_flow/services/SnackBarService.dart';
 import '../../../app_flow/services/supportClass/snackbar_style.dart';
 import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 import '../../../backend/schema/pairings_record.dart';
-import '../../../components/custom_appbar_model.dart';
 import '../../nav_bar/tournament_model.dart';
 
 class TournamentPairingsModel extends ChangeNotifier {
@@ -41,16 +39,6 @@ class TournamentPairingsModel extends ChangeNotifier {
   Timer? _debounce;
   String _oldValueToCompare = '';
   String _currentFilter = '';
-
-  // ---------------------------------------------------------------------------
-  // APPBAR MODEL
-  // Nullable backing field so initContextVars is idempotent: the widget is
-  // now a StatelessWidget whose build() can be called multiple times, and
-  // a late final field would throw on a second assignment.
-  // ---------------------------------------------------------------------------
-  CustomAppbarModel? _customAppbarModel;
-  CustomAppbarModel get customAppbarModel => _customAppbarModel!;
-
 
   /////////////////////////////CONSTRUCTOR
   TournamentPairingsModel({required this.tournamentModel, required this.roundId}){
@@ -114,16 +102,6 @@ class TournamentPairingsModel extends ChangeNotifier {
   TextEditingController get playerNameTextController => _playerNameTextController;
   FocusNode get playerNameFocusNode => _playerNameFocusNode;
   bool isTournamentEditable(PairingsRecord rec) => tournamentModel.isTournamentEditable && [tournamentModel.tournamentOwner, rec.playerA, rec.playerB].contains(currentUserUid);
-
-  // ---------------------------------------------------------------------------
-  // INIT CONTEXT VARS
-  // Called once from the container's build method so the widget can remain
-  // a StatelessWidget. Safe to call in build because createModel is
-  // idempotent — it only registers the model once.
-  // ---------------------------------------------------------------------------
-  void initContextVars(BuildContext context) {
-    _customAppbarModel ??= createModel(context, () => CustomAppbarModel());
-  }
 
   /////////////////////////////SETTER
   Future<void> onRefresh() async => _pagingController.refresh();
@@ -206,7 +184,6 @@ class TournamentPairingsModel extends ChangeNotifier {
     _pagingController.dispose();
     _playerNameTextController.dispose();
     _playerNameFocusNode.dispose();
-    _customAppbarModel?.dispose();
     super.dispose();
   }
 

@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
-import 'package:tournamentmanager/components/custom_appbar_model.dart';
-
+import 'package:tournamentmanager/backend/schema/enrollments_record.dart';
 import '../../../app_flow/services/PocketbaseApiManagerService.dart';
-import '../../../backend/schema/enrollments_record.dart';
 
 class AddPeopleModel extends ChangeNotifier {
-
-  CustomAppbarModel? _customAppbarModel;
-  CustomAppbarModel get customAppbarModel => _customAppbarModel!;
 
   final ListType listType;
 
@@ -20,17 +14,13 @@ class AddPeopleModel extends ChangeNotifier {
 
   AddPeopleModel({required this.listType});
 
-  /////////////////////////////GETTERS
+  // ── Getters ───────────────────────────────────────────────────────────────
   TextEditingController get fieldControllerIdUser => _fieldControllerIdUser;
   FocusNode get idUserFocusNode => _idUserFocusNode;
   String? Function(BuildContext, String?) get idUserTextControllerValidator =>
       _validateIdUser;
 
-  void initContextVars(BuildContext context) {
-    _customAppbarModel ??= createModel(context, () => CustomAppbarModel());
-  }
-
-  /////////////////////////////VALIDATOR
+  // ── Validator ─────────────────────────────────────────────────────────────
   String? _validateIdUser(BuildContext context, String? val) {
     if (val == null || val.isEmpty) {
       return 'L\'id dell\'user è un parametro obbligatorio';
@@ -38,16 +28,16 @@ class AddPeopleModel extends ChangeNotifier {
     return null;
   }
 
-  /////////////////////////////SETTERS
+  // ── Setters ───────────────────────────────────────────────────────────────
   void setFieldControllerIdUser(dynamic result) {
     _fieldControllerIdUser.text = result.toString();
     notifyListeners();
   }
 
   void composeOutputForRequest(
-    Map<String, dynamic> respMap, {
-    required ListType listType,
-  }) {
+      Map<String, dynamic> respMap, {
+        required ListType listType,
+      }) {
     messageObjList.clear();
     checked = false;
     if (!respMap[PocketbaseApiManagerService.foundKeyUserInfoResponseMap]) {
@@ -107,17 +97,17 @@ class AddPeopleModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _customAppbarModel?.dispose();
     _fieldControllerIdUser.dispose();
     _idUserFocusNode.dispose();
     super.dispose();
   }
 }
 
+// ── Value objects — unchanged ─────────────────────────────────────────────
+
 class MessagePeople {
   final MessageLevel messageLevel;
   final String message;
-
   const MessagePeople({required this.messageLevel, required this.message});
 }
 
@@ -131,6 +121,5 @@ enum MessageLevel {
 
   final Color color;
   final IconData icon;
-
   const MessageLevel(this.color, this.icon);
 }

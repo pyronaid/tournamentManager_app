@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
-import 'package:tournamentmanager/components/custom_appbar_model.dart';
 
 import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 
 class SignInModel extends ChangeNotifier {
-  late CustomAppbarModel customAppbarModel;
-
   final TextEditingController emailAddressTextController = TextEditingController();
   final FocusNode emailAddressFocusNode = FocusNode();
   late String? Function(BuildContext, String?) emailAddressTextControllerValidator;
@@ -22,10 +18,6 @@ class SignInModel extends ChangeNotifier {
   SignInModel() {
     emailAddressTextControllerValidator = _emailAddressTextControllerValidator;
     passwordTextControllerValidator = _passwordTextControllerValidator;
-  }
-
-  void initContextVars(BuildContext context) {
-    customAppbarModel = createModel(context, () => CustomAppbarModel());
   }
 
   String? _emailAddressTextControllerValidator(BuildContext context, String? val) {
@@ -65,7 +57,6 @@ class SignInModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    customAppbarModel.dispose();
     emailAddressTextController.dispose();
     emailAddressFocusNode.dispose();
     passwordTextController.dispose();

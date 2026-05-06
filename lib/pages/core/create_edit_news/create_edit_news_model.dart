@@ -2,9 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/services/ImagePickerService.dart';
-import 'package:tournamentmanager/components/custom_appbar_model.dart';
 
 import '../../nav_bar/news_model.dart';
 
@@ -13,7 +11,6 @@ class CreateEditNewsModel extends ChangeNotifier {
   final bool saveWay;
   final NewsModel newsModel;
 
-  late CustomAppbarModel customAppbarModel;
   late ImagePickerService imagePickerService;
 
 
@@ -173,7 +170,6 @@ class CreateEditNewsModel extends ChangeNotifier {
   @override
   void dispose() {
     newsModel.removeListener(_onNewsModelChanged);
-    customAppbarModel.dispose();
     _fieldControllerTitle.dispose();
     _fieldControllerSubTitle.dispose();
     _fieldControllerDescription.dispose();
@@ -183,9 +179,5 @@ class CreateEditNewsModel extends ChangeNotifier {
     super.dispose();
   }
 
-
-  void initContextVars(BuildContext context) {
-    customAppbarModel = createModel(context, () => CustomAppbarModel());
-  }
 
 }

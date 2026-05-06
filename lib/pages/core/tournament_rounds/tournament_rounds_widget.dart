@@ -140,7 +140,7 @@ class _RoundsSliverList extends StatelessWidget {
             // ValueKey is more type-safe and readable than the raw Key ctor.
             key: ValueKey('round_${item.uid}_$index'),
             roundRef: item,
-            indexo: index,
+            index: index,
             deleteFun: model.deleteRound,
             // FIX: closeFun uses a safe null check on itemList instead of
             // force-unwrapping itemList! which would throw if the list is null.

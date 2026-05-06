@@ -1,11 +1,10 @@
+// components/tournament_winner_card/tournament_winner_card_widget.dart
+
 import 'package:flutter/material.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
-import 'package:tournamentmanager/app_flow/app_flow_util.dart';
-import 'package:tournamentmanager/components/tournament_winner_card/tournament_winner_card_model.dart';
 
-
-class TournamentWinnerCardWidget extends StatefulWidget {
-
+/// Displays a tournament winner's identity card.
+class TournamentWinnerCardWidget extends StatelessWidget {
   const TournamentWinnerCardWidget({
     super.key,
     required this.name,
@@ -20,42 +19,16 @@ class TournamentWinnerCardWidget extends StatefulWidget {
   final String userId;
 
   @override
-  State<TournamentWinnerCardWidget> createState() => _TournamentWinnerCardWidgetState();
-}
-
-class _TournamentWinnerCardWidgetState extends State<TournamentWinnerCardWidget> {
-  late TournamentWinnerCardModel _model;
-
-  @override
-  void setState(VoidCallback callback) {
-    super.setState(callback);
-    _model.onUpdate();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _model = createModel(context, () => TournamentWinnerCardModel());
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-  }
-
-  @override
-  void dispose() {
-    _model.maybeDispose();
-
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final theme = CustomFlowTheme.of(context);
+
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(10, 15, 10, 0),
       child: Container(
-        width: 1000,
+        width: double.infinity,
         decoration: BoxDecoration(
-          color: CustomFlowTheme.of(context).tertiary,
-          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+          color: theme.tertiary,
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
         child: Padding(
           padding: const EdgeInsetsDirectional.all(15),
@@ -63,18 +36,12 @@ class _TournamentWinnerCardWidgetState extends State<TournamentWinnerCardWidget>
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                widget.username,
-                style: CustomFlowTheme.of(context).titleLarge.override(color: CustomFlowTheme.of(context).cardMain),
-              ),
-              Text(
-                '${widget.name} ${widget.surname}',
-                style: CustomFlowTheme.of(context).titleMedium.override(color: CustomFlowTheme.of(context).cardSecond),
-              ),
-              Text(
-                widget.userId,
-                style: CustomFlowTheme.of(context).bodySmall.override(color: CustomFlowTheme.of(context).cardMain),
-              ),
+              Text(username,
+                  style: theme.titleLarge.override(color: theme.cardMain)),
+              Text('$name $surname',
+                  style: theme.titleMedium.override(color: theme.cardSecond)),
+              Text(userId,
+                  style: theme.bodySmall.override(color: theme.cardMain)),
             ],
           ),
         ),

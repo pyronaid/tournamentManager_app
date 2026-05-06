@@ -7,9 +7,7 @@ import 'package:tournamentmanager/pages/core/add_people/scanned_barcode_label.da
 import 'package:tournamentmanager/pages/core/add_people/scanner_button_widgets.dart';
 import 'package:tournamentmanager/pages/core/add_people/scanner_error_widget.dart';
 
-import '../../../app_flow/app_flow_model.dart';
 import '../../../app_flow/app_flow_theme.dart';
-import '../../../components/custom_appbar_model.dart';
 import '../../../components/custom_appbar_widget.dart';
 
 class BarcodeScannerWithZoom extends StatefulWidget {
@@ -21,14 +19,12 @@ class BarcodeScannerWithZoom extends StatefulWidget {
 
 class _BarcodeScannerWithZoomState extends State<BarcodeScannerWithZoom> {
   double _zoomFactor = 0.0;
-  late final CustomAppbarModel customAppbarModel;
   late final MobileScannerController controller;
   bool _isPageClosed = false;
 
 
   @override
   void initState() {
-    customAppbarModel = createModel(context, () => CustomAppbarModel());
     controller = MobileScannerController(
       torchEnabled: false,
     );
@@ -111,16 +107,7 @@ class _BarcodeScannerWithZoomState extends State<BarcodeScannerWithZoom> {
                 color: CustomFlowTheme.of(context).secondary,
                 child: Column(
                   children: [
-                    wrapWithModel(
-                      model: customAppbarModel,
-                      updateCallback: () => setState(() {}),
-                      child: CustomAppbarWidget(
-                        backButton: true,
-                        actionButton: false,
-                        actionButtonAction: () async {},
-                        optionsButtonAction: () async {},
-                      ),
-                    ),
+                    const CustomAppbarWidget(backButton: true),
                     ////////////////
                     //PAGE TITLE
                     /////////////////
@@ -192,6 +179,5 @@ class _BarcodeScannerWithZoomState extends State<BarcodeScannerWithZoom> {
   Future<void> dispose() async {
     super.dispose();
     await controller.dispose();
-    customAppbarModel.dispose();
   }
 }

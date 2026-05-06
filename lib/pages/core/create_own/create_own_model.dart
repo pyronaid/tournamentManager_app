@@ -8,7 +8,6 @@ import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_style.dart';
 import 'package:tournamentmanager/auth/base_auth_user_provider.dart';
 import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
-import 'package:tournamentmanager/components/custom_appbar_model.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 import 'package:uuid/uuid.dart';
 
@@ -16,7 +15,6 @@ import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 
 class CreateOwnModel extends ChangeNotifier {
 
-  late CustomAppbarModel customAppbarModel;
   late var animationsMap = <int, AnimationInfo>{};
 
   late Future<PlacesApiManagerService> placesApiManagerService;
@@ -319,8 +317,6 @@ class CreateOwnModel extends ChangeNotifier {
   // misleading and forced callers to handle a future they never needed.
   // ---------------------------------------------------------------------------
   void initContextVars(BuildContext context) {
-    customAppbarModel = createModel(context, () => CustomAppbarModel());
-
     for (final game in Game.values.where((g) => g.name.isNotEmpty)) {
       animationsMap.putIfAbsent(
         game.index,
@@ -336,7 +332,6 @@ class CreateOwnModel extends ChangeNotifier {
   // ---------------------------------------------------------------------------
   @override
   void dispose() {
-    customAppbarModel.dispose();
     _pageViewController.dispose();
     _tournamentNameTextController.dispose();
     _tournamentAddressTextController.dispose();

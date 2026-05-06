@@ -4,14 +4,12 @@ import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_style.dart';
-import 'package:tournamentmanager/components/custom_appbar_model.dart';
 
 import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 import '../../../auth/pocketbase_auth/pocketbase_users_record.dart';
 
 class EditProfileModel extends ChangeNotifier {
 
-  late CustomAppbarModel customAppbarModel;
   late SnackBarService snackBarService;
   late Map<String, String?> _serverErrors;
 
@@ -216,7 +214,6 @@ class EditProfileModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    customAppbarModel.dispose();
     _nameTextController.dispose();
     _surnameTextController.dispose();
     _usernameTextController.dispose();
@@ -226,11 +223,6 @@ class EditProfileModel extends ChangeNotifier {
     _usernameFocusNode?.dispose();
     _emailAddressFocusNode?.dispose();
     super.dispose();
-  }
-
-
-  void initContextVars(BuildContext context) {
-    customAppbarModel = createModel(context, () => CustomAppbarModel());
   }
 
 

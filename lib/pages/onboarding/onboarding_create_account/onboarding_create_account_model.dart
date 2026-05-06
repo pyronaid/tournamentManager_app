@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_auth_util.dart';
 import 'package:tournamentmanager/backend/schema/company_information_record.dart';
-import 'package:tournamentmanager/components/custom_appbar_model.dart';
 
 class OnboardingCreateAccountModel extends ChangeNotifier {
-  late CustomAppbarModel customAppbarModel;
   late Map<String, String?> _serverErrors;
 
   // Fetched once; used in FutureBuilder without re-firing on rebuild.
@@ -41,10 +38,6 @@ class OnboardingCreateAccountModel extends ChangeNotifier {
     usernameTextControllerValidator = _usernameTextControllerValidator;
     emailAddressTextControllerValidator = _emailAddressTextControllerValidator;
     passwordTextControllerValidator = _passwordTextControllerValidator;
-  }
-
-  void initContextVars(BuildContext context) {
-    customAppbarModel = createModel(context, () => CustomAppbarModel());
   }
 
   String? _nameTextControllerValidator(BuildContext context, String? val) {
@@ -95,7 +88,6 @@ class OnboardingCreateAccountModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    customAppbarModel.dispose();
     nameTextController.dispose();
     nameFocusNode.dispose();
     surnameTextController.dispose();

@@ -6,7 +6,6 @@ import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_animations.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
@@ -40,7 +39,6 @@ class _OnboardingVerifyMailWidgetState
   void initState() {
     super.initState();
     _email = currentUserEmail;
-    context.read<OnboardingVerifyMailModel>().initContextVars(context);
     animationsMap.addAll({
       'imageOnPageLoadAnimation1': standardAnimationInfo(context),
     });
@@ -102,7 +100,7 @@ class _OnboardingVerifyMailWidgetState
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _Header(onUpdate: () => setState(() {})),
+                  const _Header(),
                   _MailContent(
                     email: _email,
                     animationsMap: animationsMap,
@@ -120,21 +118,11 @@ class _OnboardingVerifyMailWidgetState
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.onUpdate});
-  final VoidCallback onUpdate;
+  const _Header();
 
   @override
   Widget build(BuildContext context) {
-    return wrapWithModel(
-      model: context.read<OnboardingVerifyMailModel>().customAppbarModel,
-      updateCallback: onUpdate,
-      child: CustomAppbarWidget(
-        backButton: true,
-        actionButton: false,
-        actionButtonAction: () async {},
-        optionsButtonAction: () async {},
-      ),
-    );
+    return const CustomAppbarWidget(backButton: true);
   }
 }
 

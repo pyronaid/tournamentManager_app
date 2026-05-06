@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:provider/provider.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
@@ -34,7 +33,6 @@ class _SignInWidgetState extends State<SignInWidget> {
   @override
   void initState() {
     super.initState();
-    context.read<SignInModel>().initContextVars(context);
     if (!isWeb) {
       _keyboardVisibilitySubscription =
           KeyboardVisibilityController().onChange.listen((bool visible) {
@@ -69,7 +67,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _Header(onUpdate: () => setState(() {})),
+                      const _Header(),
                       _FormSection(formKey: _formKey),
                     ],
                   ),
@@ -88,26 +86,14 @@ class _SignInWidgetState extends State<SignInWidget> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.onUpdate});
-  final VoidCallback onUpdate;
+  const _Header();
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<SignInModel>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        wrapWithModel(
-          model: model.customAppbarModel,
-          updateCallback: onUpdate,
-          child: CustomAppbarWidget(
-            backButton: true,
-            actionButton: false,
-            optionsButton: false,
-            actionButtonAction: () async {},
-            optionsButtonAction: () async {},
-          ),
-        ),
+        const CustomAppbarWidget(backButton: true),
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
           child: Text(

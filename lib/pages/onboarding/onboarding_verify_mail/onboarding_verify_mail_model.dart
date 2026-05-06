@@ -1,12 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/services/VerifyMailService.dart';
-import 'package:tournamentmanager/components/custom_appbar_model.dart';
 
 class OnboardingVerifyMailModel extends ChangeNotifier {
-  late CustomAppbarModel customAppbarModel;
   late VerifyMailService _verifyMailService;
   StreamSubscription<bool>? _verificationSubscription;
 
@@ -18,10 +15,6 @@ class OnboardingVerifyMailModel extends ChangeNotifier {
 
   OnboardingVerifyMailModel() {
     _verifyMailService = VerifyMailService();
-  }
-
-  void initContextVars(BuildContext context) {
-    customAppbarModel = createModel(context, () => CustomAppbarModel());
   }
 
   Future<bool> sendInitialVerificationEmail(String? email) async {
@@ -65,7 +58,6 @@ class OnboardingVerifyMailModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    customAppbarModel.dispose();
     stopWatchingVerification();
     _verifyMailService.dispose();
     super.dispose();

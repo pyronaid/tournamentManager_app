@@ -3,10 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
-import '../../../app_flow/app_flow_model.dart';
 import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 import '../../../backend/schema/rankings_record.dart';
-import '../../../components/custom_appbar_model.dart';
 import '../../nav_bar/tournament_model.dart';
 
 class TournamentRankingsModel extends ChangeNotifier {
@@ -35,15 +33,6 @@ class TournamentRankingsModel extends ChangeNotifier {
   Timer? _debounce;
   String _oldValueToCompare = '';
   String _currentFilter = '';
-
-  // ---------------------------------------------------------------------------
-  // APPBAR MODEL
-  // Nullable backing field so initContextVars is idempotent: the widget is
-  // now a StatelessWidget whose build() can be called multiple times, and
-  // a plain late field would throw on a second assignment.
-  // ---------------------------------------------------------------------------
-  CustomAppbarModel? _customAppbarModel;
-  CustomAppbarModel get customAppbarModel => _customAppbarModel!;
 
   /////////////////////////////CONSTRUCTOR
   TournamentRankingsModel({required this.tournamentModel, required this.roundId}) {
@@ -147,15 +136,6 @@ class TournamentRankingsModel extends ChangeNotifier {
   }
 
   // ---------------------------------------------------------------------------
-  // INIT CONTEXT VARS
-  // Called from the widget's build method; ??= prevents double-initialisation
-  // across rebuilds, making this safe to call in a StatelessWidget's build().
-  // ---------------------------------------------------------------------------
-  void initContextVars(BuildContext context) {
-    _customAppbarModel ??= createModel(context, () => CustomAppbarModel());
-  }
-
-  // ---------------------------------------------------------------------------
   // DISPOSE
   // Remove listeners FIRST so no callback fires on a partially-disposed object.
   // ---------------------------------------------------------------------------
@@ -167,7 +147,6 @@ class TournamentRankingsModel extends ChangeNotifier {
     _pagingController.dispose();
     _playerNameTextController.dispose();
     _playerNameFocusNode.dispose();
-    _customAppbarModel?.dispose();
     super.dispose();
   }
 }

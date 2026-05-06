@@ -1,3 +1,5 @@
+// components/custom_appbar_widget.dart
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tournamentmanager/app_flow/app_flow_icon_button.dart';
@@ -5,75 +7,47 @@ import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
-import 'package:tournamentmanager/components/custom_appbar_model.dart';
 
-class CustomAppbarWidget extends StatefulWidget {
+/// App bar row with optional back button, action button, and options button.
+/// All three slots are independently opt-in via boolean flags.
+class CustomAppbarWidget extends StatelessWidget {
   const CustomAppbarWidget({
     super.key,
     required this.backButton,
-    bool? actionButton,
+    this.actionButton = false,
     this.actionButtonText,
     this.actionButtonAction,
-    bool? optionsButton,
-    required this.optionsButtonAction,
-  })  : actionButton = actionButton ?? false,
-        optionsButton = optionsButton ?? false;
+    this.optionsButton = false,
+    this.optionsButtonAction,
+  });
 
-  final bool? backButton;
+  final bool backButton;
   final bool actionButton;
   final String? actionButtonText;
-  final Future Function()? actionButtonAction;
+  final Future<void> Function()? actionButtonAction;
   final bool optionsButton;
-  final Future Function()? optionsButtonAction;
-
-  @override
-  State<CustomAppbarWidget> createState() => _CustomAppbarWidgetState();
-}
-
-class _CustomAppbarWidgetState extends State<CustomAppbarWidget> {
-  late CustomAppbarModel _model;
-
-  @override
-  void setState(VoidCallback callback) {
-    super.setState(callback);
-    _model.onUpdate();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _model = createModel(context, () => CustomAppbarModel());
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-  }
-
-  @override
-  void dispose() {
-    _model.maybeDispose();
-
-    super.dispose();
-  }
+  final Future<void> Function()? optionsButtonAction;
 
   @override
   Widget build(BuildContext context) {
+    final theme = CustomFlowTheme.of(context);
+
     return Row(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        ///////////////////////////////////////////////
-        //////////// BACK BUTTON ICON
-        ///////////////////////////////////////////////
-        if (widget.backButton ?? true)
+        // ── Back button ───────────────────────────────────────────────────
+        if (backButton)
           CustomFlowIconButton(
-            borderColor: CustomFlowTheme.of(context).secondaryBackground,
-            borderRadius: 24.0,
-            borderWidth: 1.0,
-            buttonSize: 44.0,
-            fillColor: CustomFlowTheme.of(context).secondaryBackground,
+            borderColor: theme.secondaryBackground,
+            borderRadius: 24,
+            borderWidth: 1,
+            buttonSize: 44,
+            fillColor: theme.secondaryBackground,
             icon: Icon(
               Icons.keyboard_arrow_left,
-              color: CustomFlowTheme.of(context).primaryText,
-              size: 18.0,
+              color: theme.primaryText,
+              size: 18,
             ),
             onPressed: () async {
               logFirebaseEvent('CUSTOM_APPBAR_keyboard_arrow_left_ICN_ON');
@@ -81,60 +55,50 @@ class _CustomAppbarWidgetState extends State<CustomAppbarWidget> {
               context.safePop();
             },
           ),
+
+        // ── Right-side buttons ────────────────────────────────────────────
         Row(
           mainAxisSize: MainAxisSize.max,
           children: [
-            if (widget.actionButton)
-            ///////////////////////////////////////////////
-            //////////// ACTION BUTTON
-            ///////////////////////////////////////////////
+            if (actionButton)
               AFButtonWidget(
                 onPressed: () async {
                   FocusScope.of(context).unfocus();
                   logFirebaseEvent('CUSTOM_APPBAR_COMP_SAVE_BTN_ON_TAP');
                   logFirebaseEvent('Button_execute_callback');
-                  await widget.actionButtonAction?.call();
+                  await actionButtonAction?.call();
                 },
-                text: valueOrDefault<String>(
-                  widget.actionButtonText,
-                  'Button',
-                ),
+                text: valueOrDefault<String>(actionButtonText, 'Button'),
                 options: AFButtonOptions(
-                  height: 44.0,
-                  padding: const EdgeInsetsDirectional.fromSTEB(10.0, 0.0, 10.0, 0.0),
-                  iconPadding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                  color: CustomFlowTheme.of(context).secondaryBackground,
-                  textStyle: CustomFlowTheme.of(context).bodyMedium.override(color: CustomFlowTheme.of(context).primaryText,),
-                  elevation: 0.0,
-                  borderSide: const BorderSide(
-                    color: Colors.transparent,
-                    width: 1.0,
-                  ),
-                  borderRadius: BorderRadius.circular(25.0),
+                  height: 44,
+                  padding: const EdgeInsetsDirectional.fromSTEB(10, 0, 10, 0),
+                  iconPadding: EdgeInsetsDirectional.zero,
+                  color: theme.secondaryBackground,
+                  textStyle: theme.bodyMedium.override(color: theme.primaryText),
+                  elevation: 0,
+                  borderSide: const BorderSide(color: Colors.transparent, width: 1),
+                  borderRadius: BorderRadius.circular(25),
                 ),
               ),
-            if (widget.optionsButton)
-            ///////////////////////////////////////////////
-            //////////// OPTION BUTTON
-            ///////////////////////////////////////////////
+            if (optionsButton)
               CustomFlowIconButton(
-                borderColor: CustomFlowTheme.of(context).secondaryBackground,
-                borderRadius: 24.0,
-                borderWidth: 1.0,
-                buttonSize: 44.0,
-                fillColor: CustomFlowTheme.of(context).secondaryBackground,
+                borderColor: theme.secondaryBackground,
+                borderRadius: 24,
+                borderWidth: 1,
+                buttonSize: 44,
+                fillColor: theme.secondaryBackground,
                 icon: FaIcon(
                   FontAwesomeIcons.ellipsis,
-                  color: CustomFlowTheme.of(context).primaryText,
-                  size: 18.0,
+                  color: theme.primaryText,
+                  size: 18,
                 ),
                 onPressed: () async {
                   logFirebaseEvent('CUSTOM_APPBAR_COMP_ellipsisH_ICN_ON_TAP');
                   logFirebaseEvent('IconButton_execute_callback');
-                  await widget.optionsButtonAction?.call();
+                  await optionsButtonAction?.call();
                 },
               ),
-          ].divide(const SizedBox(width: 8.0)),
+          ].divide(const SizedBox(width: 8)),
         ),
       ],
     );

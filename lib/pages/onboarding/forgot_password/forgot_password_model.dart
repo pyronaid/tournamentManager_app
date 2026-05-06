@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/services/SnackBarService.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/snackbar_style.dart';
-import 'package:tournamentmanager/components/custom_appbar_model.dart';
 
 class ForgotPasswordModel extends ChangeNotifier {
-  late CustomAppbarModel customAppbarModel;
   late SnackBarService snackBarService;
 
   final TextEditingController emailAddressTextController = TextEditingController();
@@ -17,10 +14,6 @@ class ForgotPasswordModel extends ChangeNotifier {
   ForgotPasswordModel() {
     snackBarService = GetIt.instance<SnackBarService>();
     emailAddressTextControllerValidator = _emailAddressTextControllerValidator;
-  }
-
-  void initContextVars(BuildContext context) {
-    customAppbarModel = createModel(context, () => CustomAppbarModel());
   }
 
   String? _emailAddressTextControllerValidator(BuildContext context, String? val) {
@@ -41,7 +34,6 @@ class ForgotPasswordModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    customAppbarModel.dispose();
     emailAddressTextController.dispose();
     emailAddressFocusNode.dispose();
     super.dispose();

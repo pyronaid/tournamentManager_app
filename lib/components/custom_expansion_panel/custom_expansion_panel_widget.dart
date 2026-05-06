@@ -1,13 +1,11 @@
-import 'package:flutter/cupertino.dart';
+// components/custom_expansion_panel_widget.dart
 
-import '../../app_flow/app_flow_model.dart';
-import 'custom_expansion_panel_model.dart';
+import 'package:flutter/material.dart';
 
+/// A wrapper that optionally makes its [child] expandable.
+/// When [isExpandable] is false the child is returned unwrapped —
+/// zero overhead, no animations, no gesture detection.
 class CustomExpansionPanelWidget extends StatefulWidget {
-  final Widget child;
-  final Widget Function(BuildContext context)? expandedContentBuilder;
-  final bool isExpandable;
-
   const CustomExpansionPanelWidget({
     super.key,
     required this.child,
@@ -15,59 +13,41 @@ class CustomExpansionPanelWidget extends StatefulWidget {
     this.isExpandable = false,
   });
 
+  final Widget child;
+  final Widget Function(BuildContext context)? expandedContentBuilder;
+  final bool isExpandable;
+
   @override
-  State<CustomExpansionPanelWidget> createState() => _CustomExpansionPanelWidgetState();
+  State<CustomExpansionPanelWidget> createState() =>
+      _CustomExpansionPanelWidgetState();
 }
 
-class _CustomExpansionPanelWidgetState extends State<CustomExpansionPanelWidget> {
-  late CustomExpansionPanelModel _model;
+class _CustomExpansionPanelWidgetState
+    extends State<CustomExpansionPanelWidget> {
 
-  @override
-  void setState(VoidCallback callback) {
-    super.setState(callback);
-    _model.onUpdate();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _model = createModel(context, () => CustomExpansionPanelModel());
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-  }
-
-  @override
-  void dispose() {
-    _model.maybeDispose();
-
-    super.dispose();
-  }
+  // ── Local UI state (was CustomExpansionPanelModel._isExpanded) ────────────
+  bool _isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.isExpandable) {
-      // If not expandable, just return the child with no wrapper
-      return widget.child;
-    }
+    // Fast path — no StatefulWidget overhead wasted on non-expandable usage.
+    if (!widget.isExpandable) return widget.child;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         GestureDetector(
-          onTap: () {
-            setState(() {
-              _model.flipExpanded();
-            });
-          },
+          onTap: () => setState(() => _isExpanded = !_isExpanded),
           child: widget.child,
         ),
         AnimatedCrossFade(
           firstChild: const SizedBox.shrink(),
-          secondChild: Padding(
-            padding: EdgeInsets.zero,
-            child: widget.expandedContentBuilder?.call(context) ?? const SizedBox.shrink(),
-          ),
-          crossFadeState: _model.isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          secondChild:
+          widget.expandedContentBuilder?.call(context) ??
+              const SizedBox.shrink(),
+          crossFadeState: _isExpanded
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
           duration: const Duration(milliseconds: 300),
           sizeCurve: Curves.easeInOut,
         ),

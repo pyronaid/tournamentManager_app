@@ -35,9 +35,7 @@ abstract class _Dims {
 
 // ---------------------------------------------------------------------------
 // WIDGET
-// Kept as StatefulWidget: wrapWithModel requires a setState callback, and
-// _formKey must persist across rebuilds without being re-created each time.
-// _scaffoldKey and _unfocusNode removed — both were unused or replaceable.
+// Kept as StatefulWidget: _formKey must persist across rebuilds.
 // ---------------------------------------------------------------------------
 class EditProfileWidget extends StatefulWidget {
   const EditProfileWidget({super.key});
@@ -48,12 +46,6 @@ class EditProfileWidget extends StatefulWidget {
 
 class _EditProfileWidgetState extends State<EditProfileWidget> {
   final _formKey = GlobalKey<FormState>();
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<EditProfileModel>().initContextVars(context);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +64,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _Header(formKey: _formKey, onUpdate: () => setState(() {})),
+                  _Header(formKey: _formKey),
                   _FormSection(formKey: _formKey),
                   const _ResetPasswordSection(),
                   const _ChangeMailSection(),
@@ -90,14 +82,11 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
 
 // ---------------------------------------------------------------------------
 // HEADER  (appbar with save action + page title)
-// Reads model from provider. Receives formKey and setState callback so
-// wrapWithModel can trigger rebuilds.
 // ---------------------------------------------------------------------------
 class _Header extends StatelessWidget {
-  const _Header({required this.formKey, required this.onUpdate});
+  const _Header({required this.formKey});
 
   final GlobalKey<FormState> formKey;
-  final VoidCallback onUpdate;
 
   @override
   Widget build(BuildContext context) {
@@ -107,24 +96,19 @@ class _Header extends StatelessWidget {
       padding: const EdgeInsets.all(_Dims.headerPaddingAll),
       child: Column(
         children: [
-          wrapWithModel(
-            model: model.customAppbarModel,
-            updateCallback: onUpdate,
-            child: CustomAppbarWidget(
-              backButton: true,
-              actionButton: true,
-              actionButtonText: 'Salva',
-              actionButtonAction: () async {
-                logFirebaseEvent('EDIT_PROFILE_Container_or1jni5i_CALLBACK');
-                logFirebaseEvent('customAppbar_backend_call');
-                if (formKey.currentState == null || !formKey.currentState!.validate()) {
-                  return;
-                }
-                model.updateUserProfile(formKey);
-                logFirebaseEvent('customAppbar_update_page_state');
-              },
-              optionsButtonAction: () async {},
-            ),
+          CustomAppbarWidget(
+            backButton: true,
+            actionButton: true,
+            actionButtonText: 'Salva',
+            actionButtonAction: () async {
+              logFirebaseEvent('EDIT_PROFILE_Container_or1jni5i_CALLBACK');
+              logFirebaseEvent('customAppbar_backend_call');
+              if (formKey.currentState == null || !formKey.currentState!.validate()) {
+                return;
+              }
+              model.updateUserProfile(formKey);
+              logFirebaseEvent('customAppbar_update_page_state');
+            },
           ),
           Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(0, _Dims.pageTitlePaddingTop, 0, 0),

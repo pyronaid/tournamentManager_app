@@ -49,12 +49,6 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
     super.initState();
 
     _model = context.read<CreateEditNewsModel>();
-
-    // initContextVars wires up anything the model needs from BuildContext
-    // (e.g. localisation, theme). Safe here because context is valid in
-    // initState for widgets inserted via the standard route/provider stack.
-    _model.initContextVars(context);
-
     snackBarService = GetIt.instance<SnackBarService>();
   }
 
