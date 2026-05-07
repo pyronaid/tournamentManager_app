@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_accordion/simple_accordion.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
@@ -20,18 +19,43 @@ import '../../../auth/pocketbase_auth/pocketbase_users_record.dart';
 // Centralise all magic numbers to make future adjustments trivial.
 // ---------------------------------------------------------------------------
 abstract class _Dims {
+  // Avatar
   static const double avatarSize        = 130.0;
   static const double avatarRadius      = 61.0;
+
+  // Edit badges — tap targets must stay fixed
   static const double editBadgeRadius   = 15.0;
   static const double editIconSize      = 18.0;
   static const double nameBadgeRadius   = 10.0;
   static const double nameBadgeIconSize = 10.0;
+
+  // Visual decoration
   static const double blurSigma         = 10.0;
   static const double borderWidth       = 4.0;
   static const double settingsBorder    = 1.0;
+
+  // Buttons — a fixed height gives a consistent touch target (Material spec: 48 dp min)
   static const double buttonHeight      = 50.0;
   static const double buttonRadius      = 25.0;
+
+  // Header — expressed as an aspect ratio so it scales with screen width.
+  // 16/7 ≈ a cinematic banner that is not too tall on small phones.
+  static const double headerAspectRatio = 16 / 7;
+
+  // Content area — caps the readable width on large screens (tablet / foldable).
+  static const double maxContentWidth   = 480.0;
+
+  // Settings row height — fixed because it contains two lines of small text
+  // and a dropdown; the Row's Expanded children distribute the width.
+  static const double settingsCellHeight = 64.0;
+
+  // Horizontal padding used consistently throughout the page.
+  static const double pagePadding = 20.0;
 }
+
+// ---------------------------------------------------------------------------
+// VALUE OBJECTS
+// ---------------------------------------------------------------------------
 
 @immutable
 class _TournamentOutcomeState {
@@ -46,14 +70,18 @@ class _TournamentOutcomeState {
   @override
   bool operator ==(Object other) =>
       other is _TournamentOutcomeState &&
-          other.state == state &&
-          other.hasWinner == hasWinner;
+      other.state == state &&
+      other.hasWinner == hasWinner;
 
   @override
   int get hashCode => Object.hash(state, hasWinner);
 }
 
-class TournamentDetailWidget extends StatelessWidget  {
+// ---------------------------------------------------------------------------
+// ROOT WIDGET
+// ---------------------------------------------------------------------------
+
+class TournamentDetailWidget extends StatelessWidget {
   const TournamentDetailWidget({super.key});
 
   @override
@@ -63,8 +91,6 @@ class TournamentDetailWidget extends StatelessWidget  {
       child: Selector<TournamentDetailModel, bool>(
         selector: (_, m) => m.isLoading,
         builder: (_, isLoading, __) {
-          // FIX [warning]: replaced print() with debugPrint(), gated on
-          //   kDebugMode so it is stripped in release builds.
           assert(() {
             debugPrint('[BUILD] tournament_detail_widget.dart');
             return true;
@@ -94,7 +120,6 @@ class TournamentDetailWidget extends StatelessWidget  {
 
 // ---------------------------------------------------------------------------
 // BODY
-// Assembles all sections. Each section is its own private StatelessWidget.
 // ---------------------------------------------------------------------------
 
 class _TournamentDetailBody extends StatelessWidget {
@@ -125,33 +150,35 @@ class _TournamentDetailBody extends StatelessWidget {
           _SettingsRowTwo(model: model),
 
           // ── 4. Winner area (only when tournament is closed) ───────────────
-          Selector<TournamentDetailModel, _TournamentOutcomeState>(selector: (_, m) => _TournamentOutcomeState(
-            state: m.tournamentModel.tournamentState,
-            hasWinner: m.tournamentModel.hasWinner,
-          ),
+          Selector<TournamentDetailModel, _TournamentOutcomeState>(
+            selector: (_, m) => _TournamentOutcomeState(
+              state: m.tournamentModel.tournamentState,
+              hasWinner: m.tournamentModel.hasWinner,
+            ),
             builder: (_, outcomeState, ___) {
-              if (outcomeState.state == StateTournament.close && outcomeState.hasWinner) {
+              if (outcomeState.state == StateTournament.close &&
+                  outcomeState.hasWinner) {
                 return _WinnerArea(winners: t.winner ?? []);
-              } else {
-                return const SizedBox.shrink();
               }
+              return const SizedBox.shrink();
             },
           ),
 
           // ── 5. Registration / enrolment area ──────────────────────────────
-          Selector<TournamentDetailModel, _TournamentOutcomeState>(selector: (_, m) => _TournamentOutcomeState(
-            state: m.tournamentModel.tournamentState,
-            hasWinner: m.tournamentModel.hasWinner,
-          ),
+          Selector<TournamentDetailModel, _TournamentOutcomeState>(
+            selector: (_, m) => _TournamentOutcomeState(
+              state: m.tournamentModel.tournamentState,
+              hasWinner: m.tournamentModel.hasWinner,
+            ),
             builder: (_, outcomeState, ___) {
-              if (outcomeState.state == StateTournament.ready && !outcomeState.hasWinner) {
+              if (outcomeState.state == StateTournament.ready &&
+                  !outcomeState.hasWinner) {
                 return _RegistrationArea(
                   model: model,
                   enrollCheckFuture: enrollCheckFuture,
                 );
-              } else {
-                return const SizedBox.shrink();
               }
+              return const SizedBox.shrink();
             },
           ),
 
@@ -178,29 +205,28 @@ class _TournamentHeader extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 10),
-      child: Container(
-        constraints: BoxConstraints(minHeight: 35.h),
+      // AspectRatio replaces the old responsive_sizer `35.h` constraint.
+      // The widget will always be as wide as the screen and exactly
+      // (width / headerAspectRatio) tall — no external dependency needed.
+      child: AspectRatio(
+        aspectRatio: _Dims.headerAspectRatio,
         child: Stack(
+          fit: StackFit.expand,
           children: [
             // Background game image
-            Positioned.fill(
-              child: Image.asset(t.tournamentGame.resource, fit: BoxFit.cover),
-            ),
+            Image.asset(t.tournamentGame.resource, fit: BoxFit.cover),
             // Blur overlay
-            Positioned.fill(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(
-                  sigmaX: _Dims.blurSigma,
-                  sigmaY: _Dims.blurSigma,
-                ),
-                child: Container(color: Colors.black.withValues(alpha: 0.1)),
+            BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: _Dims.blurSigma,
+                sigmaY: _Dims.blurSigma,
               ),
+              child: Container(color: Colors.black.withValues(alpha: 0.1)),
             ),
-            // Foreground content
+            // Foreground content — centred in the available space
             Center(
               child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _TournamentAvatar(model: model),
@@ -227,7 +253,8 @@ class _TournamentAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = model.tournamentModel;
 
-    return Selector<TournamentDetailModel, String?>(selector: (_, m) => m.tournamentModel.tournamentImageUrl,
+    return Selector<TournamentDetailModel, String?>(
+      selector: (_, m) => m.tournamentModel.tournamentImageUrl,
       builder: (_, image, ___) => Stack(
         children: [
           Container(
@@ -243,7 +270,9 @@ class _TournamentAvatar extends StatelessWidget {
             child: CircleAvatar(
               radius: _Dims.avatarRadius,
               backgroundImage: image == null
-                  ? const AssetImage('assets/images/icons/default_tournament.png') as ImageProvider
+                  ? const AssetImage(
+                          'assets/images/icons/default_tournament.png')
+                      as ImageProvider
                   : NetworkImage(image),
             ),
           ),
@@ -272,6 +301,10 @@ class _TournamentAvatar extends StatelessWidget {
 }
 
 // ── Tournament name row with optional edit icon ──────────────────────────────
+//
+// FIX: removed `width: 75.w`.  The Row is already constrained by the header
+//   Stack which fills the screen width.  Horizontal padding + `Flexible` on
+//   the Text is all that is needed to prevent overflow next to the edit badge.
 class _TournamentNameRow extends StatelessWidget {
   const _TournamentNameRow({required this.model});
 
@@ -281,42 +314,47 @@ class _TournamentNameRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = model.tournamentModel;
 
-    return Selector<TournamentDetailModel, String>(selector: (_, m) => m.tournamentModel.tournamentName,
+    return Selector<TournamentDetailModel, String>(
+      selector: (_, m) => m.tournamentModel.tournamentName,
       builder: (_, name, ___) => Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 5),
-        child: SizedBox(
-          width: 75.w,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                child: Text(
-                  name,
-                  style: CustomFlowTheme.of(context).titleLarge,
-                  textAlign: TextAlign.center,
+        padding: const EdgeInsetsDirectional.fromSTEB(
+          _Dims.pagePadding,
+          10,
+          _Dims.pagePadding,
+          5,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                name,
+                style: CustomFlowTheme.of(context).titleLarge,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            if (model.isTournamentEditable)
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(5, 0, 0, 20),
+                child: _EditBadge(
+                  onTap: () {
+                    if (!context.mounted) return;
+                    context.goNamed(
+                      'DialogChangeTournamentName',
+                      pathParameters: {
+                        'tournamentId': t.tournamentId,
+                      }.withoutNulls,
+                      extra: {
+                        'req': model.showChangeTournamentNameFormRequest(),
+                      },
+                    );
+                  },
+                  radius: _Dims.nameBadgeRadius,
+                  iconSize: _Dims.nameBadgeIconSize,
                 ),
               ),
-              if (model.isTournamentEditable)
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(5, 0, 0, 20),
-                  child: _EditBadge(
-                    onTap: () {
-                      if (!context.mounted) return;
-                      context.goNamed(
-                        'DialogChangeTournamentName',
-                        pathParameters: {'tournamentId': t.tournamentId}
-                            .withoutNulls,
-                        extra: {
-                          'req': model.showChangeTournamentNameFormRequest(),
-                        },
-                      );
-                    },
-                    radius: _Dims.nameBadgeRadius,
-                    iconSize: _Dims.nameBadgeIconSize,
-                  ),
-                ),
-            ],
-          ),
+          ],
         ),
       ),
     );
@@ -324,6 +362,9 @@ class _TournamentNameRow extends StatelessWidget {
 }
 
 // ── Game label ───────────────────────────────────────────────────────────────
+//
+// FIX: removed `width: 75.w`.  Horizontal padding expresses the same visual
+//   intent (inset text) without a package dependency or a magic percentage.
 class _TournamentGameLabel extends StatelessWidget {
   const _TournamentGameLabel({required this.gameName});
 
@@ -332,14 +373,16 @@ class _TournamentGameLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 5),
-      child: SizedBox(
-        width: 75.w,
-        child: Text(
-          gameName,
-          style: CustomFlowTheme.of(context).titleSmall,
-          textAlign: TextAlign.center,
-        ),
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        _Dims.pagePadding,
+        0,
+        _Dims.pagePadding,
+        5,
+      ),
+      child: Text(
+        gameName,
+        style: CustomFlowTheme.of(context).titleSmall,
+        textAlign: TextAlign.center,
       ),
     );
   }
@@ -359,29 +402,34 @@ class _TournamentCounters extends StatelessWidget {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Left placeholder – kept to preserve original layout intent.
         const Text('quattro'),
-        // Right counters
         Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 20, 0),
+          padding: const EdgeInsetsDirectional.fromSTEB(
+              0, 0, _Dims.pagePadding, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               if (t.tournamentPreRegistrationEn)
-                Selector<TournamentDetailModel, int>(selector: (_, m) => m.tournamentModel.tournamentPreRegisteredSize,
+                Selector<TournamentDetailModel, int>(
+                  selector: (_, m) =>
+                      m.tournamentModel.tournamentPreRegisteredSize,
                   builder: (_, size, ___) => _CounterLabel(
                     count: size,
                     label: ' Pre iscritti',
                   ),
                 ),
               if (t.tournamentWaitingListEn)
-                Selector<TournamentDetailModel, int>(selector: (_, m) => m.tournamentModel.tournamentWaitingSize,
+                Selector<TournamentDetailModel, int>(
+                  selector: (_, m) =>
+                      m.tournamentModel.tournamentWaitingSize,
                   builder: (_, size, ___) => _CounterLabel(
                     count: size,
                     label: ' Waiting list',
                   ),
                 ),
-              Selector<TournamentDetailModel, int>(selector: (_, m) => m.tournamentModel.tournamentRegisteredSize,
+              Selector<TournamentDetailModel, int>(
+                selector: (_, m) =>
+                    m.tournamentModel.tournamentRegisteredSize,
                 builder: (_, size, ___) => _CounterLabel(
                   count: size,
                   label: ' Iscritti',
@@ -396,10 +444,7 @@ class _TournamentCounters extends StatelessWidget {
 }
 
 class _CounterLabel extends StatelessWidget {
-  const _CounterLabel({
-    required this.count,
-    required this.label,
-  });
+  const _CounterLabel({required this.count, required this.label});
 
   final int count;
   final String label;
@@ -424,6 +469,10 @@ class _CounterLabel extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SECTION 2 – SETTINGS ROW 1  (state / date / capacity)
+//
+// FIX: each child was `width: 33.w`.  Now each child is wrapped in
+//   `Expanded` inside the Row, so Flutter distributes the available width
+//   equally — no percentage needed, works on every screen size.
 // ---------------------------------------------------------------------------
 
 class _SettingsRowOne extends StatelessWidget {
@@ -434,17 +483,19 @@ class _SettingsRowOne extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      // crossAxisAlignment defaults to center, which is fine for equal-height cells.
       children: [
-        _StateDropdown(model: model),
-        _DateSelector(model: model),
-        _CapacitySelector(model: model),
+        Expanded(child: _StateDropdown(model: model)),
+        Expanded(child: _DateSelector(model: model)),
+        Expanded(child: _CapacitySelector(model: model)),
       ],
     );
   }
 }
 
 // ── State dropdown ───────────────────────────────────────────────────────────
+// _SettingsCell no longer receives an explicit width; it fills its Expanded
+// parent via `width: double.infinity`.
 class _StateDropdown extends StatelessWidget {
   const _StateDropdown({required this.model});
 
@@ -465,7 +516,8 @@ class _StateDropdown extends StatelessWidget {
     final t = model.tournamentModel;
     final states = _visibleStates;
 
-    return Selector<TournamentDetailModel, StateTournament>(selector: (_, m) => m.tournamentModel.tournamentState,
+    return Selector<TournamentDetailModel, StateTournament>(
+      selector: (_, m) => m.tournamentModel.tournamentState,
       builder: (_, state, ___) => _SettingsCell(
         child: DropdownButton<String>(
           alignment: Alignment.center,
@@ -476,16 +528,18 @@ class _StateDropdown extends StatelessWidget {
           underline: const SizedBox.shrink(),
           onChanged: model.canInteractOn
               ? (String? newValue) {
-            if (newValue == null || !context.mounted) return;
-            context.goNamed(
-              'DialogState',
-              pathParameters: {'tournamentId': t.tournamentId}.withoutNulls,
-              extra: {
-                'req': model
-                    .showChangeTournamentStateAlertRequest(newValue),
-              },
-            );
-          }
+                  if (newValue == null || !context.mounted) return;
+                  context.goNamed(
+                    'DialogState',
+                    pathParameters: {
+                      'tournamentId': t.tournamentId,
+                    }.withoutNulls,
+                    extra: {
+                      'req': model
+                          .showChangeTournamentStateAlertRequest(newValue),
+                    },
+                  );
+                }
               : null,
           items: states.map((s) {
             return DropdownMenuItem<String>(
@@ -527,7 +581,8 @@ class _DateSelector extends StatelessWidget {
       onTap: () {
         if (editable) _showDatePicker(context, t);
       },
-      child: Selector<TournamentDetailModel, DateTime?>(selector: (_, m) => m.tournamentModel.tournamentDate,
+      child: Selector<TournamentDetailModel, DateTime?>(
+        selector: (_, m) => m.tournamentModel.tournamentDate,
         builder: (_, date, ___) => _SettingsCell(
           color: editable
               ? CustomFlowTheme.of(context).info
@@ -537,8 +592,8 @@ class _DateSelector extends StatelessWidget {
             children: [
               _SettingsCellContent(
                 title: 'DATA',
-                subtitle: DateFormat('dd/MM/yy')
-                    .format(date ?? DateTime.now()),
+                subtitle:
+                    DateFormat('dd/MM/yy').format(date ?? DateTime.now()),
                 subtitleColor: editable ? Colors.grey : Colors.black,
               ),
               const Icon(Icons.arrow_drop_down, color: Colors.black, size: 30),
@@ -567,7 +622,6 @@ class _DateSelector extends StatelessWidget {
 }
 
 // ── Capacity selector ────────────────────────────────────────────────────────
-
 class _CapacitySelector extends StatelessWidget {
   const _CapacitySelector({required this.model});
 
@@ -613,6 +667,10 @@ class _CapacitySelector extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SECTION 3 – SETTINGS ROW 2  (pre-registration / waiting list)
+//
+// FIX: each _ToggleCell was `width: 50.w`.  Now each is wrapped in
+//   `Expanded` inside the Row. _ToggleCell's explicit width is removed;
+//   it fills its parent via the Expanded constraint.
 // ---------------------------------------------------------------------------
 
 class _SettingsRowTwo extends StatelessWidget {
@@ -623,42 +681,55 @@ class _SettingsRowTwo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-      Selector<TournamentDetailModel, bool>(selector: (_, m) => m.tournamentModel.tournamentPreRegistrationEn,
-        builder: (_, flag, ___) => _ToggleCell(
-            model: model,
-            title: 'PRE ISCRIZIONI',
-            enabled: model.isTournamentEditable,
-            value: flag,
-            onTap: () {
-              if (!model.isTournamentEditable || !context.mounted) return;
-              context.goNamed(
-                'DialogPreIscrizioni',
-                pathParameters: {
-                  'tournamentId': model.tournamentModel.tournamentId,
-                }.withoutNulls,
-                extra: {'req': model.showSwitchPreIscrizioniAlertRequest()},
-              );
-            },
+        Expanded(
+          child: Selector<TournamentDetailModel, bool>(
+            selector: (_, m) =>
+                m.tournamentModel.tournamentPreRegistrationEn,
+            builder: (_, flag, ___) => _ToggleCell(
+              title: 'PRE ISCRIZIONI',
+              enabled: model.isTournamentEditable,
+              value: flag,
+              onTap: () {
+                if (!model.isTournamentEditable || !context.mounted) {
+                  return;
+                }
+                context.goNamed(
+                  'DialogPreIscrizioni',
+                  pathParameters: {
+                    'tournamentId': model.tournamentModel.tournamentId,
+                  }.withoutNulls,
+                  extra: {
+                    'req': model.showSwitchPreIscrizioniAlertRequest(),
+                  },
+                );
+              },
+            ),
           ),
         ),
-        Selector<TournamentDetailModel, bool>(selector: (_, m) => m.tournamentModel.tournamentWaitingListEn,
-          builder: (_, flag, ___) => _ToggleCell(
-            model: model,
-            title: 'WAITING LIST',
-            enabled: model.tournamentModel.tournamentWaitingListPossible,
-            value: flag,
-            onTap: () {
-              if (!model.isTournamentEditable || !context.mounted) return;
-              context.goNamed(
-                'DialogWaitingList',
-                pathParameters: {
-                  'tournamentId': model.tournamentModel.tournamentId,
-                }.withoutNulls,
-                extra: {'req': model.showSwitchWaitingListAlertRequest()},
-              );
-            },
+        Expanded(
+          child: Selector<TournamentDetailModel, bool>(
+            selector: (_, m) =>
+                m.tournamentModel.tournamentWaitingListEn,
+            builder: (_, flag, ___) => _ToggleCell(
+              title: 'WAITING LIST',
+              enabled: model.tournamentModel.tournamentWaitingListPossible,
+              value: flag,
+              onTap: () {
+                if (!model.isTournamentEditable || !context.mounted) {
+                  return;
+                }
+                context.goNamed(
+                  'DialogWaitingList',
+                  pathParameters: {
+                    'tournamentId': model.tournamentModel.tournamentId,
+                  }.withoutNulls,
+                  extra: {
+                    'req': model.showSwitchWaitingListAlertRequest(),
+                  },
+                );
+              },
+            ),
           ),
         ),
       ],
@@ -666,16 +737,17 @@ class _SettingsRowTwo extends StatelessWidget {
   }
 }
 
+// FIX: removed `width: 50.w` — width now comes from the Expanded parent.
+//      Height stays fixed (settingsCellHeight) because it contains two lines
+//      of text and should not grow/shrink with screen height.
 class _ToggleCell extends StatelessWidget {
   const _ToggleCell({
-    required this.model,
     required this.title,
     required this.enabled,
     required this.value,
     required this.onTap,
   });
 
-  final TournamentDetailModel model;
   final String title;
   final bool enabled;
   final bool value;
@@ -686,8 +758,7 @@ class _ToggleCell extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        width: 50.w,
-        height: 30.sp,
+        height: _Dims.settingsCellHeight,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -710,7 +781,9 @@ class _ToggleCell extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(
+              Flexible(
+                // Flexible (not Expanded) because the Column has
+                // mainAxisSize: min — Expanded would throw here.
                 child: Text(
                   title,
                   style: CustomFlowTheme.of(context)
@@ -748,7 +821,7 @@ class _WinnerArea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsetsDirectional.all(20),
+      padding: const EdgeInsetsDirectional.all(_Dims.pagePadding),
       child: Column(
         children: winners.map((item) {
           final userId = item[PocketbaseUser.idFieldName];
@@ -767,8 +840,6 @@ class _WinnerArea extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SECTION 5 – REGISTRATION AREA
-// Uses a stable Future reference to prevent flickering rebuilds.
-// The RegistrationStatus enum (computed in the model) drives the UI decision.
 // ---------------------------------------------------------------------------
 
 class _RegistrationArea extends StatelessWidget {
@@ -783,7 +854,7 @@ class _RegistrationArea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsetsDirectional.all(20),
+      padding: const EdgeInsetsDirectional.all(_Dims.pagePadding),
       child: FutureBuilder<EnrollmentCheckResult>(
         future: enrollCheckFuture,
         builder: (context, snapshot) {
@@ -791,8 +862,6 @@ class _RegistrationArea extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // Delegate the decision to the model, keeping the view purely
-          // declarative. Each status maps to one widget below.
           final status = model.resolveRegistrationStatus(snapshot.data!);
 
           return switch (status) {
@@ -919,7 +988,7 @@ class _TooltipAccordion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsetsDirectional.all(20),
+      padding: const EdgeInsetsDirectional.all(_Dims.pagePadding),
       child: SimpleAccordion(
         children: [
           AccordionHeaderItem(
@@ -981,6 +1050,11 @@ class _TooltipAccordion extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 /// Generic bordered cell used in settings rows.
+///
+/// FIX: width is no longer set here. The cell fills its parent, which is an
+///   `Expanded` widget inside a Row.  This makes the width fully automatic.
+///   Height stays fixed because settings cells always display two lines of
+///   text and should not vary with screen height.
 class _SettingsCell extends StatelessWidget {
   const _SettingsCell({required this.child, this.color});
 
@@ -990,8 +1064,8 @@ class _SettingsCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 33.w,
-      height: 30.sp,
+      // width: intentionally omitted — filled by Expanded parent.
+      height: _Dims.settingsCellHeight,
       decoration: BoxDecoration(
         color: color ?? CustomFlowTheme.of(context).info,
         border: Border.all(
@@ -1091,7 +1165,8 @@ class _InfoBox extends StatelessWidget {
   @override
   Widget build(BuildContext ctx) {
     return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(
+          _Dims.pagePadding, 0, _Dims.pagePadding, 0),
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
@@ -1103,14 +1178,16 @@ class _InfoBox extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(24, 16, 24, 20),
+          padding: const EdgeInsetsDirectional.fromSTEB(
+              _Dims.pagePadding, 16, _Dims.pagePadding, 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (child != null)
                 Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
+                  padding:
+                      const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
                   child: Text(
                     message,
                     style: CustomFlowTheme.of(context).labelLarge,
