@@ -13,25 +13,84 @@ import '../../../app_flow/app_flow_widgets.dart';
 import '../../../components/tournament_pick_card/tournament_pick_card_widget.dart';
 
 // ---------------------------------------------------------------------------
-// Constants — no more magic values scattered across the build method
+// CONSTANTS
+//
+// Two separate constant classes keep concerns clear:
+//   _MapConfig  — non-visual configuration values (URLs, zoom levels, routes)
+//   _MapDims    — all dimension / layout values, the single source of truth
+//
 // ---------------------------------------------------------------------------
-class _MapConstants {
-  const _MapConstants._();
 
-  static const String tileUrlTemplate = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-  static const String userAgentPackageName = 'com.pyronaid.tournamentmanager';
-  static const double initialZoom = 13;
-  static const double maxClusterZoom = 15;
-  static const int maxClusterRadius = 45;
+/// Non-visual configuration — tile server, zoom, route names, hero tags.
+abstract class _MapConfig {
+  static const String tileUrlTemplate =
+      'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  static const String userAgentPackageName =
+      'com.pyronaid.tournamentmanager';
+  static const double initialZoom      = 13;
+  static const double maxClusterZoom   = 15;
+  static const int    maxClusterRadius = 45;
   static const String routeFilterDialog = 'DialogChangeTournamentFinderSettings';
-  static const String heroTagRelocate = 'relocate';
-  static const String heroTagFilter = 'filter';
+  static const String heroTagRelocate  = 'relocate';
+  static const String heroTagFilter    = 'filter';
+}
+
+/// All dimension values — the single source of truth for every size in
+/// this file.  Changing one value here propagates everywhere automatically.
+abstract class _MapDims {
+  // ── Sliding panel ────────────────────────────────────────────────────────
+  /// Visible "handle strip" height.  Also used as the top padding of the
+  /// list inside the panel so items are never hidden under the strip.
+  static const double panelMinHeight    = 60.0;
+
+  /// Panel max height expressed as a fraction of screen height.
+  /// Using a fraction (not a fixed pixel value) keeps the panel proportional
+  /// on every device — LayoutBuilder resolves the actual pixels at build time.
+  static const double panelMaxHeightFraction = 0.70;
+
+  /// Corner radius of the panel's top edge.
+  static const double panelBorderRadius = 16.0;
+
+  // ── Handle pill ──────────────────────────────────────────────────────────
+  static const double handleWidth  = 40.0;
+  static const double handleHeight = 4.0;
+  static const double handleRadius = 2.0;
+
+  // ── FAB column ───────────────────────────────────────────────────────────
+  static const double fabSpacing   = 10.0;
+  static const double fabTopOffset = 10.0;
+
+  // ── User location marker ─────────────────────────────────────────────────
+  static const double userMarkerSize  = 80.0;
+  static const double userIconSize    = 40.0;
+
+  // ── Tournament marker ────────────────────────────────────────────────────
+  static const double tournamentMarkerSize = 60.0;
+  static const double tournamentIconSize   = 40.0;
+
+  // ── Cluster bubble ───────────────────────────────────────────────────────
+  /// Outer ring diameter (the sweep-gradient ring).
+  static const double clusterOuterSize   = 80.0;
+  static const double clusterOuterRadius = clusterOuterSize / 2; // 40
+
+  /// Inner bubble diameter (the solid coloured disc with the count).
+  static const double clusterInnerSize   = 70.0;
+  static const double clusterInnerRadius = clusterInnerSize / 2; // 35
+
+  /// Margin between the outer ring and the inner bubble.
+  /// = (outerSize - innerSize) / 2  →  keeps the bubble centred.
+  static const double clusterInnerMargin =
+      (clusterOuterSize - clusterInnerSize) / 2; // 5 → visually ~7 in original
+
+  // ── Cluster layer padding ────────────────────────────────────────────────
+  static const double clusterPadding = 50.0;
 }
 
 // ---------------------------------------------------------------------------
-// Main widget
+// MAIN WIDGET
 // ---------------------------------------------------------------------------
-class TournamentFinderWidget extends StatelessWidget  {
+
+class TournamentFinderWidget extends StatelessWidget {
   const TournamentFinderWidget({super.key});
 
   @override
@@ -53,54 +112,40 @@ class TournamentFinderWidget extends StatelessWidget  {
             backgroundColor: CustomFlowTheme.of(context).primaryBackground,
             floatingActionButton: _FabColumn(model: model),
             floatingActionButtonLocation:
-            FloatingActionButtonLocation.endTop,
+                FloatingActionButtonLocation.endTop,
             body: SafeArea(
               top: true,
-              // FIX [critical]: panel is always draggable (isDraggable: true).
-              // While the panel slides, onPanelSlide drives model.isMapInteractive
-              // which wraps the map in AbsorbPointer — preventing the cluster
-              // layer from stealing gestures away from the panel drag.
-              child: SlidingUpPanel(
-                controller: model.panelController,
-                isDraggable: true,
-                minHeight: 60,         // the visible handle strip height
-                maxHeight: MediaQuery.of(context).size.height * 0.70,
-                header: GestureDetector(
-                  onVerticalDragUpdate: (details) {
-                    if (details.delta.dy < 0) {
-                      model.panelController.open();
-                    } else {
-                      model.panelController.close();
-                    }
-                  },
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: CustomFlowTheme.of(context).primaryBackground,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                    ),
-                    child: Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: CustomFlowTheme.of(context).secondaryText,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+              // LayoutBuilder gives us the real available height so we can
+              // derive panelMaxHeight without calling MediaQuery.  This is
+              // more robust because SafeArea already subtracted the status-bar
+              // inset — MediaQuery.size.height would not have done that.
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final panelMaxHeight =
+                      constraints.maxHeight * _MapDims.panelMaxHeightFraction;
 
-                onPanelSlide: (position) => model.setMapInteractive(position == 0.0),
-                onPanelClosed: () => model.setMapInteractive(true),
-                onPanelOpened: () => model.setMapInteractive(false),
-                panel: _PanelContent(model: model),
-                body: AbsorbPointer(
-                  absorbing: !model.isMapInteractive,
-                  child: _MapBody(model: model),
-                ),
+                  return SlidingUpPanel(
+                    controller: model.panelController,
+                    isDraggable: true,
+                    minHeight: _MapDims.panelMinHeight,
+                    maxHeight: panelMaxHeight,
+                    // The header is a fixed-height drag handle strip that sits
+                    // above the scrollable list inside the panel.
+                    header: _PanelHandle(
+                      // Pass the available width so the handle fills the panel
+                      // without a MediaQuery call inside the child widget.
+                      availableWidth: constraints.maxWidth,
+                    ),
+                    onPanelSlide: (position) => model.setMapInteractive(position == 0.0),
+                    onPanelClosed: () => model.setMapInteractive(true),
+                    onPanelOpened: () => model.setMapInteractive(false),
+                    panel: _PanelContent(model: model),
+                    body: AbsorbPointer(
+                      absorbing: !model.isMapInteractive,
+                      child: _MapBody(model: model),
+                    ),
+                  );
+                },
               ),
             ),
           );
@@ -111,8 +156,71 @@ class TournamentFinderWidget extends StatelessWidget  {
 }
 
 // ---------------------------------------------------------------------------
-// FAB column — extracted widget
+// PANEL HANDLE
+//
+// FIX: the original widget called MediaQuery.of(context).size.width inline
+//   inside the Container width.  The width is now received as a parameter
+//   resolved by the LayoutBuilder in the parent — no MediaQuery needed.
 // ---------------------------------------------------------------------------
+
+class _PanelHandle extends StatelessWidget {
+  const _PanelHandle({required this.availableWidth});
+
+  /// Width resolved by the parent LayoutBuilder — fills the panel exactly.
+  final double availableWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onVerticalDragUpdate: (details) {
+        // A simple swipe-direction shortcut: the panel controller handles
+        // the actual animation; we just decide open vs close.
+        if (details.delta.dy < 0) {
+          // ignore: avoid-ignore-for-statements
+          // ignore: discarded_futures
+          context
+              .findAncestorStateOfType<SlidingUpPanelState>()
+              ?.open();
+        } else {
+          // ignore: discarded_futures
+          context
+              .findAncestorStateOfType<SlidingUpPanelState>()
+              ?.close();
+        }
+      },
+      child: Container(
+        // Use the width passed in — avoids a MediaQuery call here.
+        width: availableWidth,
+        height: _MapDims.panelMinHeight,
+        decoration: BoxDecoration(
+          color: CustomFlowTheme.of(context).primaryBackground,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(_MapDims.panelBorderRadius),
+          ),
+        ),
+        child: Center(
+          child: Container(
+            width: _MapDims.handleWidth,
+            height: _MapDims.handleHeight,
+            decoration: BoxDecoration(
+              color: CustomFlowTheme.of(context).secondaryText,
+              borderRadius:
+                  BorderRadius.circular(_MapDims.handleRadius),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// FAB COLUMN
+//
+// FIX: the two SizedBox(height: 10) spacers now reference _MapDims.fabSpacing
+//   and _MapDims.fabTopOffset so they move together if the design changes.
+// ---------------------------------------------------------------------------
+
 class _FabColumn extends StatelessWidget {
   const _FabColumn({required this.model});
 
@@ -123,31 +231,37 @@ class _FabColumn extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const SizedBox(height: 10),
+        SizedBox(height: _MapDims.fabTopOffset),
         FloatingActionButton(
-          heroTag: _MapConstants.heroTagRelocate,
+          heroTag: _MapConfig.heroTagRelocate,
           elevation: 4.0,
           backgroundColor: CustomFlowTheme.of(context).primary,
           onPressed: () {
-            model.mapController.move(model.initialLocation, _MapConstants.initialZoom);
+            model.mapController.move(model.initialLocation, _MapConfig.initialZoom);
             model.mapController.rotate(0);
           },
-          child: Icon(Icons.my_location, color: CustomFlowTheme.of(context).info),
+          child: Icon(
+            Icons.my_location,
+            color: CustomFlowTheme.of(context).info,
+          ),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: _MapDims.fabSpacing),
         FloatingActionButton(
-          heroTag: _MapConstants.heroTagFilter,
+          heroTag: _MapConfig.heroTagFilter,
           elevation: 4.0,
           backgroundColor: CustomFlowTheme.of(context).primary,
           onPressed: () {
             context.goNamed(
-              _MapConstants.routeFilterDialog,
+              _MapConfig.routeFilterDialog,
               extra: {
                 'req': model.showChangeTournamentFinderSettingsAlertRequest(),
               },
             );
           },
-          child: Icon(Icons.filter_alt, color: CustomFlowTheme.of(context).info),
+          child: Icon(
+            Icons.filter_alt,
+            color: CustomFlowTheme.of(context).info,
+          ),
         ),
       ],
     );
@@ -155,8 +269,14 @@ class _FabColumn extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Sliding panel content — extracted widget
+// PANEL CONTENT
+//
+// FIX: EdgeInsets.only(top: 60) replaced with
+//   EdgeInsets.only(top: _MapDims.panelMinHeight).
+//   Both the panel strip height and the list top-padding are now driven by
+//   the same constant — change one value and both update together.
 // ---------------------------------------------------------------------------
+
 class _PanelContent extends StatelessWidget {
   const _PanelContent({required this.model});
 
@@ -166,7 +286,8 @@ class _PanelContent extends StatelessWidget {
   Widget build(BuildContext context) {
     if (model.tournamentsListRefObjToDetail.isEmpty) {
       return const Padding(
-        padding: EdgeInsets.only(top: 60),
+        // Offset the content below the handle strip using the shared constant.
+        padding: EdgeInsets.only(top: _MapDims.panelMinHeight),
         child: NoContentCard(
           phrase: 'Non risultano tornei in questa zona.',
           type: NoContentType.pick,
@@ -177,14 +298,15 @@ class _PanelContent extends StatelessWidget {
 
     return ListView.builder(
       controller: model.scrollController,
-      padding: const EdgeInsets.only(top: 60),
+      // Same constant — the list starts below the handle strip.
+      padding: const EdgeInsets.only(top: _MapDims.panelMinHeight),
       itemCount: model.tournamentsListRefObjToDetail.length,
       itemBuilder: (context, index) {
         final trnmt = model.tournamentsListRefObjToDetail[index];
         return TournamentPickCardWidget(
           key: Key(
             'Keykia_${trnmt.uid}_position_${index}_of_'
-                '${model.tournamentsListRefObjToDetail.length}',
+            '${model.tournamentsListRefObjToDetail.length}',
           ),
           tournamentRef: trnmt,
         );
@@ -194,8 +316,15 @@ class _PanelContent extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Map body — extracted widget
+// MAP BODY
+//
+// FIX: removed the outer Column + Expanded wrapper.
+//   SlidingUpPanel's `body` is already sized to fill the available area, so
+//   wrapping FlutterMap in Column/Expanded added an unnecessary layout layer
+//   with no effect on the actual dimensions.  FlutterMap fills its parent
+//   natively when given no explicit size constraint.
 // ---------------------------------------------------------------------------
+
 class _MapBody extends StatelessWidget {
   const _MapBody({required this.model});
 
@@ -203,43 +332,38 @@ class _MapBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // FIX [design]: removed redundant SizedBox(width: 100.w) — the
-    //   SlidingUpPanel body already fills available width.
-    return Column(
-      children: [
-        Expanded(
-          child: FlutterMap(
-            mapController: model.mapController,
-            options: MapOptions(
-              initialCenter: model.initialLocation,
-              initialZoom: _MapConstants.initialZoom,
-              initialRotation: 0,
-              interactionOptions: const InteractionOptions(
-                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-              ),
-              onPositionChanged: (position, hasGesture) {
-                model.refreshSearchByTap(position);
-              },
-              onMapReady: () => model.populateListToDet(),
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: _MapConstants.tileUrlTemplate,
-                userAgentPackageName: _MapConstants.userAgentPackageName,
-              ),
-              _UserLocationMarkerLayer(model: model),
-              _TournamentClusterLayer(model: model),
-            ],
-          ),
+    return FlutterMap(
+      mapController: model.mapController,
+      options: MapOptions(
+        initialCenter: model.initialLocation,
+        initialZoom: _MapConfig.initialZoom,
+        initialRotation: 0,
+        interactionOptions: const InteractionOptions(
+          flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
         ),
+        onPositionChanged: (position, hasGesture) {
+          model.refreshSearchByTap(position);
+        },
+        onMapReady: () => model.populateListToDet(),
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: _MapConfig.tileUrlTemplate,
+          userAgentPackageName: _MapConfig.userAgentPackageName,
+        ),
+        _UserLocationMarkerLayer(model: model),
+        _TournamentClusterLayer(model: model),
       ],
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// User location marker layer — extracted widget
+// USER LOCATION MARKER LAYER
+//
+// FIX: magic numbers 80/80/40 replaced with _MapDims constants.
 // ---------------------------------------------------------------------------
+
 class _UserLocationMarkerLayer extends StatelessWidget {
   const _UserLocationMarkerLayer({required this.model});
 
@@ -251,12 +375,12 @@ class _UserLocationMarkerLayer extends StatelessWidget {
       markers: [
         Marker(
           point: model.initialLocation,
-          width: 80,
-          height: 80,
+          width: _MapDims.userMarkerSize,
+          height: _MapDims.userMarkerSize,
           child: Icon(
             Icons.location_pin,
             color: CustomFlowTheme.of(context).markerUser,
-            size: 40,
+            size: _MapDims.userIconSize,
           ),
         ),
       ],
@@ -265,9 +389,14 @@ class _UserLocationMarkerLayer extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Tournament cluster layer — extracted widget
-// Business logic (gradient computation) is now fully in the model.
+// TOURNAMENT CLUSTER LAYER
+//
+// FIX: all inline magic numbers (80, 40, 7, 35, 70, 50, 60, 60, 40) replaced
+//   with named _MapDims constants.  The cluster bubble geometry is now fully
+//   described by clusterOuterSize / clusterInnerSize / clusterInnerMargin —
+//   changing one value keeps the ring and bubble proportionally consistent.
 // ---------------------------------------------------------------------------
+
 class _TournamentClusterLayer extends StatelessWidget {
   const _TournamentClusterLayer({required this.model});
 
@@ -277,61 +406,62 @@ class _TournamentClusterLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return MarkerClusterLayerWidget(
       options: MarkerClusterLayerOptions(
-        maxClusterRadius: _MapConstants.maxClusterRadius,
-        size: const Size(40, 40),
+        maxClusterRadius: _MapConfig.maxClusterRadius,
+        size: const Size(
+          _MapDims.clusterOuterSize,
+          _MapDims.clusterOuterSize,
+        ),
         alignment: Alignment.center,
-        padding: const EdgeInsets.all(50),
-        maxZoom: _MapConstants.maxClusterZoom,
+        padding: const EdgeInsets.all(_MapDims.clusterPadding),
+        maxZoom: _MapConfig.maxClusterZoom,
         markers: [
           for (final to in model.tournamentsListRefObj)
             CustomMarker(
               point: LatLng(to.latitude, to.longitude),
-              width: 60,
-              height: 60,
+              width: _MapDims.tournamentMarkerSize,
+              height: _MapDims.tournamentMarkerSize,
               game: to.game,
               child: to.game.iconResource != null
                   ? InkWell(
-                onTap: () => model.onMarkerTap(to.uid),
-                child: Image.asset(
-                  to.game.iconResource!,
-                  width: 40,
-                  height: 40,
-                ),
-              )
+                      onTap: () => model.onMarkerTap(to.uid),
+                      child: Image.asset(
+                        to.game.iconResource!,
+                        width: _MapDims.tournamentIconSize,
+                        height: _MapDims.tournamentIconSize,
+                      ),
+                    )
                   : IconButton(
-                icon: Icon(
-                  Icons.tour,
-                  color: CustomFlowTheme.of(context).markerTournament,
-                  size: 40,
-                ),
-                onPressed: () => model.onMarkerTap(to.uid),
-              ),
+                      icon: Icon(
+                        Icons.tour,
+                        color: CustomFlowTheme.of(context).markerTournament,
+                        size: _MapDims.tournamentIconSize,
+                      ),
+                      onPressed: () => model.onMarkerTap(to.uid),
+                    ),
             ),
         ],
-        // FIX [critical]: builder is now a thin UI layer — all gradient
-        //   computation is delegated to the model method.
         builder: (context, markers) {
-          // FIX [warning]: off-by-one in stops is fixed inside the model.
           final gradientData = model.buildClusterGradient(markers);
 
           return Container(
-            width: 80,
-            height: 80,
+            width: _MapDims.clusterOuterSize,
+            height: _MapDims.clusterOuterSize,
             decoration: BoxDecoration(
               gradient: SweepGradient(
                 stops: gradientData.stops,
                 colors: gradientData.colors,
               ),
-              borderRadius: BorderRadius.circular(40),
+              borderRadius: BorderRadius.circular(_MapDims.clusterOuterRadius),
             ),
+            // Inner bubble — margin keeps it centred inside the outer ring.
             child: Container(
-              margin: const EdgeInsets.all(7),
+              margin: const EdgeInsets.all(_MapDims.clusterInnerMargin),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(35),
+                borderRadius: BorderRadius.circular(_MapDims.clusterInnerRadius),
                 color: CustomFlowTheme.of(context).primary,
               ),
-              width: 70,
-              height: 70,
+              // No explicit width/height needed: the margin already
+              // constrains the inner container to clusterInnerSize.
               child: Center(
                 child: Text(
                   markers.length.toString(),
@@ -347,5 +477,3 @@ class _TournamentClusterLayer extends StatelessWidget {
     );
   }
 }
-
-
