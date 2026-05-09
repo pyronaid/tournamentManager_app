@@ -1,0 +1,13 @@
+services:
+  pocketbase:
+    build: .
+    container_name: extended-pocketbase
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./pb_data:/home/pocketbase/pb_data
+      - ./pb_public:/home/pocketbase/pb_public
+    environment:
+      # Override at deploy time if needed, e.g. for a reverse-proxy setup
+      - PB_ENCRYPTION_KEY=${PB_ENCRYPTION_KEY:-}
