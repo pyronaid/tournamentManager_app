@@ -41,6 +41,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# PocketBase runtime data (SQLite DB, logs — never commit)
+__pocketbase/pb_data/
 /env/*.env
 /firebase/cloud-functions/node_modules/
 /node_modules/
