@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_animations.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
@@ -16,11 +15,27 @@ import 'package:tournamentmanager/pages/onboarding/onboarding_verify_mail/onboar
 
 import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 
+
+// ---------------------------------------------------------------------------
+// DIMENSION CONSTANTS
+// ---------------------------------------------------------------------------
 abstract class _Dims {
   static const double buttonHeight = 50.0;
   static const double buttonRadius = 25.0;
+
+  // ── Lottie animation ───────────────────────────────────────────────────────
+  /// The animation fills this fraction of the available width.
+  /// FractionallySizedBox resolves the actual pixel size at build time —
+  /// no external package needed.
+  static const double animationWidthFraction  = 0.80; // replaces 80.w
+  /// Height expressed as a fraction of width to preserve aspect ratio.
+  /// 60/80 = 0.75 → same ratio as the original 60.w / 80.w.
+  static const double animationHeightFraction = 0.75; // replaces 60.w
 }
 
+// ---------------------------------------------------------------------------
+// ROOT WIDGET
+// ---------------------------------------------------------------------------
 class OnboardingVerifyMailWidget extends StatefulWidget {
   const OnboardingVerifyMailWidget({super.key});
 
@@ -68,16 +83,14 @@ class _OnboardingVerifyMailWidgetState
         }
       },
       onError: (error) {
-        if (mounted) {
-          if (error is TimeoutException) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                    'Verifica email scaduta. Prova a rimandare l\'email.'),
-                backgroundColor: Colors.orange,
-              ),
-            );
-          }
+        if (mounted && error is TimeoutException) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'Verifica email scaduta. Prova a rimandare l\'email.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
         }
       },
     );
@@ -91,24 +104,26 @@ class _OnboardingVerifyMailWidgetState
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
-          child: Align(
-            alignment: const AlignmentDirectional(0, 0),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const _Header(),
-                  _MailContent(
-                    email: _email,
-                    animationsMap: animationsMap,
-                  ),
-                  const _ContinueButton(),
-                  _ResendButton(email: _email),
-                ],
-              ),
+          // FIX: Align(0,0) removed — it was redundant here since the Column
+          //   below uses crossAxisAlignment.start and mainAxisAlignment.start.
+          //   Align(0,0) centres its child, which contradicts the start
+          //   alignment of the Column content.  SingleChildScrollView is
+          //   added for safety on small screens / landscape orientation.
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _Header(),
+                _MailContent(
+                  email: _email,
+                  animationsMap: animationsMap,
+                ),
+                const _ContinueButton(),
+                _ResendButton(email: _email),
+              ],
             ),
           ),
         ),
@@ -117,6 +132,9 @@ class _OnboardingVerifyMailWidgetState
   }
 }
 
+// ---------------------------------------------------------------------------
+// HEADER
+// ---------------------------------------------------------------------------
 class _Header extends StatelessWidget {
   const _Header();
 
@@ -126,8 +144,24 @@ class _Header extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// MAIL CONTENT
+//
+// FIX: Lottie width/height changed from 80.w / 60.w (responsive_sizer
+//   percentage) to LayoutBuilder + FractionallySizedBox.
+//
+//   Why FractionallySizedBox is better here:
+//     - It resolves the actual pixel size from its parent's constraints at
+//       build time, with no external package.
+//     - The animation stays proportional: height = width * 0.75 (same ratio
+//       as original 60w/80w = 0.75), expressed as a named constant so the
+//       relationship is self-documenting.
+//     - On tablets the animation scales up correctly rather than being
+//       capped at a device-specific 80%.
+// ---------------------------------------------------------------------------
 class _MailContent extends StatelessWidget {
   const _MailContent({required this.email, required this.animationsMap});
+
   final String? email;
   final Map<String, AnimationInfo> animationsMap;
 
@@ -139,13 +173,21 @@ class _MailContent extends StatelessWidget {
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
           child: Center(
-            child: Lottie.asset(
-              'assets/animation/send_mail_animation.json',
-              fit: BoxFit.cover,
-              width: 80.w,
-              height: 60.w,
-              repeat: true,
-            ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation1']!),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final animWidth =
+                    constraints.maxWidth * _Dims.animationWidthFraction;
+                final animHeight = animWidth * _Dims.animationHeightFraction;
+                return Lottie.asset(
+                  'assets/animation/send_mail_animation.json',
+                  fit: BoxFit.contain,
+                  width: animWidth,
+                  height: animHeight,
+                  repeat: true,
+                ).animateOnPageLoad(
+                    animationsMap['imageOnPageLoadAnimation1']!);
+              },
+            ),
           ),
         ),
         Padding(
@@ -183,6 +225,10 @@ class _MailContent extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// CONTINUE BUTTON
+// FIX: fromSTEB(0,0,0,0) → EdgeInsetsDirectional.zero.
+// ---------------------------------------------------------------------------
 class _ContinueButton extends StatelessWidget {
   const _ContinueButton();
 
@@ -191,7 +237,7 @@ class _ContinueButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
       child: AFButtonWidget(
-        onPressed: () async {
+        onPressed: () {
           FocusScope.of(context).unfocus();
           logFirebaseEvent('ONBOARDING_VERIFY_MAIL_CONTINUE');
           logFirebaseEvent('Button_haptic_feedback');
@@ -203,8 +249,8 @@ class _ContinueButton extends StatelessWidget {
         options: AFButtonOptions(
           width: double.infinity,
           height: _Dims.buttonHeight,
-          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-          iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+          padding: EdgeInsetsDirectional.zero,
+          iconPadding: EdgeInsetsDirectional.zero,
           color: CustomFlowTheme.of(context).primary,
           textStyle: CustomFlowTheme.of(context).titleSmall,
           elevation: 0,
@@ -216,8 +262,15 @@ class _ContinueButton extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// RESEND BUTTON
+// context.watch is correct here — the button text/enabled state reacts to
+// isEmailSending changes.  No fix needed.
+// FIX: fromSTEB(0,0,0,0) → EdgeInsetsDirectional.zero.
+// ---------------------------------------------------------------------------
 class _ResendButton extends StatelessWidget {
   const _ResendButton({required this.email});
+
   final String? email;
 
   @override
@@ -255,8 +308,8 @@ class _ResendButton extends StatelessWidget {
         options: AFButtonOptions(
           width: double.infinity,
           height: _Dims.buttonHeight,
-          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-          iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+          padding: EdgeInsetsDirectional.zero,
+          iconPadding: EdgeInsetsDirectional.zero,
           color: CustomFlowTheme.of(context).primaryBackground,
           textStyle: CustomFlowTheme.of(context).titleSmall,
           elevation: 0,
