@@ -39,7 +39,7 @@ abstract class _Dims {
 }
 
 // ---------------------------------------------------------------------------
-// WIDGET
+// ROOT WIDGET
 // ---------------------------------------------------------------------------
 class AboutUsWidget extends StatefulWidget {
   const AboutUsWidget({super.key});
@@ -49,20 +49,32 @@ class AboutUsWidget extends StatefulWidget {
 }
 
 class _AboutUsWidgetState extends State<AboutUsWidget> {
+  // FIX: model resolved once in initState — not inside _Body.build().
+  //   The future stored in the model must be obtained exactly once;
+  //   resolving the model in a descendant build() risks reading it after
+  //   hot-reload or tree restructure.
+  late final AboutUsModel _model;
+
+  @override
+  void initState() {
+    super.initState();
+    _model = context.read<AboutUsModel>();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-        body: const SafeArea(
+        body: SafeArea(
           top: true,
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: [
-                _Header(),
-                _Body(),
+                const _Header(),
+                _Body(model: _model),
               ],
             ),
           ),
@@ -73,7 +85,7 @@ class _AboutUsWidgetState extends State<AboutUsWidget> {
 }
 
 // ---------------------------------------------------------------------------
-// HEADER  (appbar + page title)
+// HEADER
 // ---------------------------------------------------------------------------
 class _Header extends StatelessWidget {
   const _Header();
@@ -102,15 +114,19 @@ class _Header extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// BODY  (FutureBuilder — future lives in model so it isn't re-fired on rebuild)
+// BODY
+//
+// FIX: model received as constructor parameter — no context.read in build().
 // ---------------------------------------------------------------------------
 class _Body extends StatelessWidget {
-  const _Body();
+  const _Body({required this.model});
+
+  final AboutUsModel model;
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<CompanyInformationRecord?>(
-      future: context.read<AboutUsModel>().companyInfoFuture,
+      future: model.companyInfoFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
@@ -135,7 +151,7 @@ class _Body extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// CONTENT  (company info + optional developers)
+// CONTENT
 // ---------------------------------------------------------------------------
 class _Content extends StatelessWidget {
   const _Content({required this.record});
@@ -217,7 +233,7 @@ class _CoverWithLogo extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// LOGO ONLY (no cover image)
+// LOGO ONLY
 // ---------------------------------------------------------------------------
 class _LogoOnly extends StatelessWidget {
   const _LogoOnly({required this.record});
