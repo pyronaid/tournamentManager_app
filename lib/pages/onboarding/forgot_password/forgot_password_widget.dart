@@ -11,11 +11,20 @@ import 'package:tournamentmanager/pages/onboarding/forgot_password/forgot_passwo
 
 import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 
+// ---------------------------------------------------------------------------
+// DIMENSION CONSTANTS
+// ---------------------------------------------------------------------------
 abstract class _Dims {
   static const double buttonHeight = 50.0;
   static const double buttonRadius = 25.0;
+  static const double prefixIconSize = 18.0;
 }
 
+// ---------------------------------------------------------------------------
+// ROOT WIDGET
+// Kept as StatefulWidget because _formKey must survive rebuilds and
+// _handleReset references mounted + context.
+// ---------------------------------------------------------------------------
 class ForgotPasswordWidget extends StatefulWidget {
   const ForgotPasswordWidget({super.key});
 
@@ -25,6 +34,38 @@ class ForgotPasswordWidget extends StatefulWidget {
 
 class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
   final _formKey = GlobalKey<FormState>();
+  late final ForgotPasswordModel _model;
+
+  @override
+  void initState() {
+    super.initState();
+    _model = context.read<ForgotPasswordModel>();
+  }
+
+  // FIX: button logic extracted from the inline onPressed lambda into a
+  //   named method — consistent with _handleSave in every other form page.
+  Future<void> _handleReset() async {
+    FocusScope.of(context).unfocus();
+    logFirebaseEvent('FORGOT_PASSWORD_RESET_PASSWORD_BTN_ON_TA');
+    logFirebaseEvent('Button_validate_form');
+
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
+      return;
+    }
+
+    logFirebaseEvent('Button_haptic_feedback');
+    HapticFeedback.lightImpact();
+    logFirebaseEvent('Button_auth');
+
+    if (_model.emailAddressTextController.text.isEmpty) {
+      _model.showResetPasswordIssueSnackBar();
+    } else {
+      await pocketAuthManager
+          .resetPassword(_model.emailAddressTextController.text);
+      logFirebaseEvent('Button_navigate_back');
+      if (mounted) context.safePop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,27 +76,29 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Align(
-                  alignment: const AlignmentDirectional(0, 0),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const _Header(),
-                        _FormSection(formKey: _formKey),
-                      ],
-                    ),
-                  ),
+          // FIX: Expanded + Align(0,0) replaced with a simple Padding +
+          //   SingleChildScrollView.
+          //   The original Expanded filled all available height, then
+          //   Align(0,0) centred the Column inside it — effectively just
+          //   adding extra space below the form with no scrolling.
+          //   SingleChildScrollView is safer: if the keyboard appears or the
+          //   screen is very small the content scrolls rather than overflowing,
+          //   even though resizeToAvoidBottomInset is false.
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _Header(),
+                _FormSection(
+                  formKey: _formKey,
+                  model: _model,
+                  onReset: _handleReset,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -63,6 +106,9 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// HEADER
+// ---------------------------------------------------------------------------
 class _Header extends StatelessWidget {
   const _Header();
 
@@ -84,13 +130,25 @@ class _Header extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// FORM SECTION
+//
+// FIX: model is now received as a constructor parameter — no context.read
+//   inside build().  onReset replaces the inline async lambda on the button.
+// ---------------------------------------------------------------------------
 class _FormSection extends StatelessWidget {
-  const _FormSection({required this.formKey});
+  const _FormSection({
+    required this.formKey,
+    required this.model,
+    required this.onReset,
+  });
+
   final GlobalKey<FormState> formKey;
+  final ForgotPasswordModel model;
+  final VoidCallback onReset;
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<ForgotPasswordModel>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -122,16 +180,17 @@ class _FormSection extends StatelessWidget {
                     controller: model.emailAddressTextController,
                     focusNode: model.emailAddressFocusNode,
                     autofocus: false,
-                    autofillHints: const [AutofillHints.name],
+                    autofillHints: const [AutofillHints.email],
                     textCapitalization: TextCapitalization.none,
-                    textInputAction: TextInputAction.next,
+                    textInputAction: TextInputAction.done,
+                    keyboardType: TextInputType.emailAddress,
                     obscureText: false,
                     decoration: standardInputDecoration(
                       context,
                       prefixIcon: Icon(
                         Icons.email,
                         color: CustomFlowTheme.of(context).secondaryText,
-                        size: 18,
+                        size: _Dims.prefixIconSize,
                       ),
                     ),
                     style: CustomFlowTheme.of(context).titleSmall.override(
@@ -139,7 +198,6 @@ class _FormSection extends StatelessWidget {
                           lineHeight: 1,
                         ),
                     minLines: 1,
-                    keyboardType: TextInputType.emailAddress,
                     cursorColor: CustomFlowTheme.of(context).primary,
                     validator: model.emailAddressTextControllerValidator
                         .asValidator(context),
@@ -152,31 +210,13 @@ class _FormSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
           child: AFButtonWidget(
-            onPressed: () async {
-              FocusScope.of(context).unfocus();
-              logFirebaseEvent('FORGOT_PASSWORD_RESET_PASSWORD_BTN_ON_TA');
-              logFirebaseEvent('Button_validate_form');
-              if (formKey.currentState == null ||
-                  !formKey.currentState!.validate()) return;
-              logFirebaseEvent('Button_haptic_feedback');
-              HapticFeedback.lightImpact();
-              logFirebaseEvent('Button_auth');
-              final m = context.read<ForgotPasswordModel>();
-              if (m.emailAddressTextController.text.isEmpty) {
-                m.showResetPasswordIssueSnackBar();
-              } else {
-                await pocketAuthManager
-                    .resetPassword(m.emailAddressTextController.text);
-                logFirebaseEvent('Button_navigate_back');
-                if (context.mounted) context.safePop();
-              }
-            },
+            onPressed: onReset,
             text: 'Reset Password',
             options: AFButtonOptions(
               width: double.infinity,
               height: _Dims.buttonHeight,
-              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-              iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+              padding: EdgeInsetsDirectional.zero,
+              iconPadding: EdgeInsetsDirectional.zero,
               color: CustomFlowTheme.of(context).primary,
               textStyle: CustomFlowTheme.of(context).titleSmall,
               elevation: 0,
