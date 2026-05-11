@@ -36,10 +36,7 @@ abstract class _Dims {
 }
 
 // ---------------------------------------------------------------------------
-// WIDGET
-// Kept as StatefulWidget: SchedulerBinding post-frame haptic feedback requires
-// a mounted widget at call time. companyInfoFuture lives in ProfileModel so
-// it is not recreated on every build.
+// ROOT WIDGET
 // ---------------------------------------------------------------------------
 class ProfileWidget extends StatefulWidget {
   const ProfileWidget({super.key});
@@ -49,9 +46,16 @@ class ProfileWidget extends StatefulWidget {
 }
 
 class _ProfileWidgetState extends State<ProfileWidget> {
+  // FIX: model resolved once in initState — not inside _CompanyInfoSection
+  //   build(). The future stored in ProfileModel must be obtained exactly
+  //   once; reading the model in a descendant build() risks calling it after
+  //   a hot-reload or tree restructure where the model may be briefly absent.
+  late final ProfileModel _model;
+
   @override
   void initState() {
     super.initState();
+    _model = context.read<ProfileModel>();
     SchedulerBinding.instance.addPostFrameCallback((_) {
       logFirebaseEvent('PROFILE_PAGE_Profile_ON_INIT_STATE');
       HapticFeedback.mediumImpact();
@@ -69,24 +73,28 @@ class _ProfileWidgetState extends State<ProfileWidget> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
-        body: const SafeArea(
+        body: SafeArea(
           top: true,
           child: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(
-                _Dims.pagePaddingH, _Dims.pagePaddingTop,
-                _Dims.pagePaddingH, 0,
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                _Dims.pagePaddingH,
+                _Dims.pagePaddingTop,
+                _Dims.pagePaddingH,
+                0,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _GreetingSection(),
-                  _SupportBanner(),
-                  _QrSection(),
-                  _CompanyInfoSection(),
-                  SizedBox(height: _Dims.endSpacerHeight),
+                  const _GreetingSection(),
+                  const _SupportBanner(),
+                  const _QrSection(),
+                  // FIX: model passed as parameter — no context.read in
+                  //   _CompanyInfoSection.build().
+                  _CompanyInfoSection(model: _model),
+                  const SizedBox(height: _Dims.endSpacerHeight),
                 ],
               ),
             ),
@@ -134,8 +142,6 @@ class _GreetingSection extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SUPPORT BANNER
-// TODO: wire up an onTap action — the banner text says "Clicca qui se vuoi
-// supportarci!" but no tap handler was ever implemented.
 // ---------------------------------------------------------------------------
 class _SupportBanner extends StatelessWidget {
   const _SupportBanner();
@@ -209,19 +215,19 @@ class _QrSection extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// COMPANY INFO SECTION (FutureBuilder)
-// FIX: future is read from ProfileModel (created once) instead of being
-// constructed inline in build() which caused it to re-fire on every rebuild.
-// FIX: uses connectionState for the loading gate so a null result doesn't
-// leave the spinner spinning forever.
+// COMPANY INFO SECTION
+//
+// FIX: model received as constructor parameter — no context.read in build().
 // ---------------------------------------------------------------------------
 class _CompanyInfoSection extends StatelessWidget {
-  const _CompanyInfoSection();
+  const _CompanyInfoSection({required this.model});
+
+  final ProfileModel model;
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<CompanyInformationRecord?>(
-      future: context.read<ProfileModel>().companyInfoFuture,
+      future: model.companyInfoFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
@@ -285,15 +291,14 @@ class _ActionList extends StatelessWidget {
               logFirebaseEvent('PROFILE_PAGE_ContactUsTile_ON_TAP');
               if (record.email != '') {
                 logFirebaseEvent('ContactUsTile_send_email');
-                await launchUrl(Uri(scheme: 'mailto', path: record.email));
+                await launchUrl(
+                    Uri(scheme: 'mailto', path: record.email));
               } else {
                 logFirebaseEvent('ContactUsTile_call_number');
                 await launchUrl(Uri(scheme: 'tel', path: record.phone));
               }
             },
           ),
-        // FIX: was using Icons.person_outline_rounded (same as Edit Profile)
-        // Changed to Icons.emoji_events_outlined to reflect tournament creation.
         _ActionTile(
           icon: Icons.emoji_events_outlined,
           label: 'Create Own',
@@ -359,7 +364,7 @@ class _ActionTile extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// LOGOUT TILE  (no divider)
+// LOGOUT TILE
 // ---------------------------------------------------------------------------
 class _LogoutTile extends StatelessWidget {
   const _LogoutTile();
@@ -385,7 +390,7 @@ class _LogoutTile extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
-            _TileIcon(icon: Icons.logout),
+            const _TileIcon(icon: Icons.logout),
             Padding(
               padding: const EdgeInsetsDirectional.fromSTEB(
                 _Dims.tileLabelPaddingL, 0, 0, 0,
