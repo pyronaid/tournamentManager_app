@@ -12,12 +12,19 @@ import 'package:tournamentmanager/components/custom_appbar_widget.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 import 'package:tournamentmanager/pages/onboarding/sign_in/sign_in_model.dart';
 
+// ---------------------------------------------------------------------------
+// DIMENSION CONSTANTS
+// ---------------------------------------------------------------------------
 abstract class _Dims {
-  static const double buttonHeight = 50.0;
-  static const double buttonRadius = 25.0;
-  static const double sectionRadius = 8.0;
+  static const double buttonHeight   = 50.0;
+  static const double buttonRadius   = 25.0;
+  static const double sectionRadius  = 8.0;
+  static const double prefixIconSize = 18.0;
 }
 
+// ---------------------------------------------------------------------------
+// ROOT WIDGET
+// ---------------------------------------------------------------------------
 class SignInWidget extends StatefulWidget {
   const SignInWidget({super.key});
 
@@ -30,9 +37,13 @@ class _SignInWidgetState extends State<SignInWidget> {
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
 
+  // FIX: model resolved once in initState — not inside descendant build().
+  late final SignInModel _model;
+
   @override
   void initState() {
     super.initState();
+    _model = context.read<SignInModel>();
     if (!isWeb) {
       _keyboardVisibilitySubscription =
           KeyboardVisibilityController().onChange.listen((bool visible) {
@@ -47,8 +58,34 @@ class _SignInWidgetState extends State<SignInWidget> {
     super.dispose();
   }
 
+  // FIX: sign-in button logic extracted to a named method — consistent with
+  //   _handleSave / _handleReset / _handleCreateAccount across all form pages.
+  Future<void> _handleSignIn() async {
+    FocusScope.of(context).unfocus();
+    logFirebaseEvent('SIGN_IN_PAGE_SIGN_IN_BTN_ON_TAP');
+    logFirebaseEvent('Button_validate_form');
+
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
+      return;
+    }
+
+    logFirebaseEvent('Button_haptic_feedback');
+    HapticFeedback.lightImpact();
+    logFirebaseEvent('Button_auth');
+    GoRouter.of(context).prepareAuthEvent();
+
+    final signed = await _model.executeSignIn();
+    if (signed && mounted) {
+      context.goNamedAuth('Dashboard', context.mounted);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final keyboardVisible = isWeb
+        ? MediaQuery.viewInsetsOf(context).bottom > 0
+        : _isKeyboardVisible;
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -68,15 +105,16 @@ class _SignInWidgetState extends State<SignInWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const _Header(),
-                      _FormSection(formKey: _formKey),
+                      _FormSection(
+                        model: _model,
+                        formKey: _formKey,
+                        onSignIn: _handleSignIn,
+                      ),
                     ],
                   ),
                 ),
               ),
-              if (!(isWeb
-                  ? MediaQuery.viewInsetsOf(context).bottom > 0
-                  : _isKeyboardVisible))
-                const _CreateAccountSection(),
+              if (!keyboardVisible) const _CreateAccountSection(),
             ],
           ),
         ),
@@ -85,6 +123,9 @@ class _SignInWidgetState extends State<SignInWidget> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// HEADER
+// ---------------------------------------------------------------------------
 class _Header extends StatelessWidget {
   const _Header();
 
@@ -106,13 +147,29 @@ class _Header extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// FORM SECTION
+//
+// FIX: model received as constructor parameter — no context.read in build().
+// FIX: Consumer for the password field replaced with Selector<SignInModel,bool>
+//   on passwordVisibility — rebuilds only when the eye-icon flag changes,
+//   not on every model notification (e.g. errorMessage updates).
+// FIX: sign-in button receives onSignIn callback — inline lambda removed.
+// FIX: fromSTEB(0,0,0,0) → EdgeInsetsDirectional.zero.
+// ---------------------------------------------------------------------------
 class _FormSection extends StatelessWidget {
-  const _FormSection({required this.formKey});
+  const _FormSection({
+    required this.model,
+    required this.formKey,
+    required this.onSignIn,
+  });
+
+  final SignInModel model;
   final GlobalKey<FormState> formKey;
+  final VoidCallback onSignIn;
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<SignInModel>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -122,6 +179,7 @@ class _FormSection extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
+              // ── Email field ──────────────────────────────────────────
               Padding(
                 padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
                 child: Column(
@@ -145,7 +203,7 @@ class _FormSection extends StatelessWidget {
                         prefixIcon: Icon(
                           Icons.email,
                           color: CustomFlowTheme.of(context).secondaryText,
-                          size: 18,
+                          size: _Dims.prefixIconSize,
                         ),
                       ),
                       style: CustomFlowTheme.of(context)
@@ -160,42 +218,50 @@ class _FormSection extends StatelessWidget {
                   ],
                 ),
               ),
-              Consumer<SignInModel>(
-                builder: (context, m, _) => Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
+
+              // ── Password field — Selector on passwordVisibility only ──
+              Selector<SignInModel, bool>(
+                selector: (_, m) => m.passwordVisibility,
+                builder: (_, __, ___) => Padding(
+                  padding:
+                      const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                        child: Text('Password',
-                            style: CustomFlowTheme.of(context).bodyMedium),
+                        padding:
+                            const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                        child: Text(
+                          'Password',
+                          style: CustomFlowTheme.of(context).bodyMedium,
+                        ),
                       ),
                       TextFormField(
-                        controller: m.passwordTextController,
-                        focusNode: m.passwordFocusNode,
+                        controller: model.passwordTextController,
+                        focusNode: model.passwordFocusNode,
                         autofocus: false,
                         autofillHints: const [AutofillHints.password],
                         textInputAction: TextInputAction.done,
                         textCapitalization: TextCapitalization.none,
-                        obscureText: !m.passwordVisibility,
+                        obscureText: !model.passwordVisibility,
                         decoration: standardInputDecoration(
                           context,
                           prefixIcon: Icon(
                             Icons.lock,
                             color: CustomFlowTheme.of(context).secondaryText,
-                            size: 18,
+                            size: _Dims.prefixIconSize,
                           ),
                           suffixIcons: [
                             InkWell(
-                              onTap: () => m.togglePasswordVisibility(),
+                              onTap: () => model.togglePasswordVisibility(),
                               focusNode: FocusNode(skipTraversal: true),
                               child: Icon(
-                                m.passwordVisibility
+                                model.passwordVisibility
                                     ? Icons.visibility_outlined
                                     : Icons.visibility_off_outlined,
-                                color: CustomFlowTheme.of(context).secondaryText,
-                                size: 18,
+                                color:
+                                    CustomFlowTheme.of(context).secondaryText,
+                                size: _Dims.prefixIconSize,
                               ),
                             ),
                           ],
@@ -204,7 +270,7 @@ class _FormSection extends StatelessWidget {
                             .bodyLarge
                             .override(fontWeight: FontWeight.w500, lineHeight: 1),
                         cursorColor: CustomFlowTheme.of(context).primary,
-                        validator: m.passwordTextControllerValidator
+                        validator: model.passwordTextControllerValidator
                             .asValidator(context),
                       ),
                     ],
@@ -214,13 +280,16 @@ class _FormSection extends StatelessWidget {
             ],
           ),
         ),
-        Consumer<SignInModel>(
-          builder: (context, m, _) {
-            if (m.errorMessage.isEmpty) return const SizedBox.shrink();
+
+        // ── Error message — Selector on errorMessage only ────────────────
+        Selector<SignInModel, String>(
+          selector: (_, m) => m.errorMessage,
+          builder: (_, errorMsg, __) {
+            if (errorMsg.isEmpty) return const SizedBox.shrink();
             return Padding(
               padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
               child: Text(
-                m.errorMessage,
+                errorMsg,
                 style: CustomFlowTheme.of(context).bodyLarge.override(
                       fontWeight: FontWeight.w500,
                       color: CustomFlowTheme.of(context).error,
@@ -230,31 +299,19 @@ class _FormSection extends StatelessWidget {
             );
           },
         ),
+
+        // ── Sign-in button ───────────────────────────────────────────────
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
           child: AFButtonWidget(
-            onPressed: () async {
-              FocusScope.of(context).unfocus();
-              logFirebaseEvent('SIGN_IN_PAGE_SIGN_IN_BTN_ON_TAP');
-              logFirebaseEvent('Button_validate_form');
-              if (formKey.currentState == null ||
-                  !formKey.currentState!.validate()) return;
-              logFirebaseEvent('Button_haptic_feedback');
-              HapticFeedback.lightImpact();
-              logFirebaseEvent('Button_auth');
-              GoRouter.of(context).prepareAuthEvent();
-              final signed =
-                  await context.read<SignInModel>().executeSignIn();
-              if (signed && context.mounted) {
-                context.goNamedAuth('Dashboard', context.mounted);
-              }
-            },
+            onPressed: onSignIn,
             text: 'Accedi',
             options: AFButtonOptions(
               width: double.infinity,
               height: _Dims.buttonHeight,
-              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-              iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+              // FIX: fromSTEB(0,0,0,0) → zero.
+              padding: EdgeInsetsDirectional.zero,
+              iconPadding: EdgeInsetsDirectional.zero,
               color: CustomFlowTheme.of(context).primary,
               textStyle: CustomFlowTheme.of(context).titleSmall,
               elevation: 0,
@@ -263,6 +320,8 @@ class _FormSection extends StatelessWidget {
             ),
           ),
         ),
+
+        // ── Forgot password link ──────────────────────────────────────────
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
           child: InkWell(
@@ -270,7 +329,7 @@ class _FormSection extends StatelessWidget {
             focusColor: Colors.transparent,
             hoverColor: Colors.transparent,
             highlightColor: Colors.transparent,
-            onTap: () async {
+            onTap: () {
               logFirebaseEvent('SIGN_IN_PAGE_Row_4ukbm94e_ON_TAP');
               logFirebaseEvent('Row_navigate_to');
               context.pushNamed('ForgotPassword');
@@ -295,6 +354,10 @@ class _FormSection extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// CREATE ACCOUNT SECTION
+// FIX: fromSTEB(0,0,0,0) → EdgeInsetsDirectional.zero.
+// ---------------------------------------------------------------------------
 class _CreateAccountSection extends StatelessWidget {
   const _CreateAccountSection();
 
@@ -326,7 +389,7 @@ class _CreateAccountSection extends StatelessWidget {
                 ),
               ),
               AFButtonWidget(
-                onPressed: () async {
+                onPressed: () {
                   FocusScope.of(context).unfocus();
                   logFirebaseEvent('SIGN_IN_PAGE_CREATE_ACCOUNT_BTN_ON_TAP');
                   logFirebaseEvent('Button_navigate_to');
@@ -336,8 +399,8 @@ class _CreateAccountSection extends StatelessWidget {
                 options: AFButtonOptions(
                   width: double.infinity,
                   height: _Dims.buttonHeight,
-                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                  iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                  padding: EdgeInsetsDirectional.zero,
+                  iconPadding: EdgeInsetsDirectional.zero,
                   color: CustomFlowTheme.of(context).secondary,
                   textStyle: CustomFlowTheme.of(context).bodyMedium,
                   elevation: 0,
