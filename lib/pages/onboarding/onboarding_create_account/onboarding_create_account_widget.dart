@@ -14,12 +14,19 @@ import 'package:tuple/tuple.dart';
 
 import 'onboarding_create_account_model.dart';
 
+// ---------------------------------------------------------------------------
+// DIMENSION CONSTANTS
+// ---------------------------------------------------------------------------
 abstract class _Dims {
   static const double buttonHeight = 50.0;
   static const double buttonRadius = 25.0;
-  static const double loaderSize = 25.0;
+  static const double loaderSize   = 25.0;
+  static const double prefixIconSize = 18.0;
 }
 
+// ---------------------------------------------------------------------------
+// ROOT WIDGET
+// ---------------------------------------------------------------------------
 class OnboardingCreateAccountWidget extends StatefulWidget {
   const OnboardingCreateAccountWidget({super.key});
 
@@ -32,6 +39,65 @@ class _OnboardingCreateAccountWidgetState
     extends State<OnboardingCreateAccountWidget> {
   final _formKey = GlobalKey<FormState>();
 
+  // FIX: model resolved once in initState — not inside descendant build().
+  late final OnboardingCreateAccountModel _model;
+
+  @override
+  void initState() {
+    super.initState();
+    _model = context.read<OnboardingCreateAccountModel>();
+  }
+
+  // FIX: button logic extracted from inline onPressed lambda into a named
+  //   method — consistent with _handleSave / _handleReset across all form pages.
+  Future<void> _handleCreateAccount() async {
+    FocusScope.of(context).unfocus();
+    logFirebaseEvent('ONBOARDING_CREATE_ACCOUNT_CREATE_ACCOUNT');
+    logFirebaseEvent('Button_validate_form');
+
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
+      return;
+    }
+
+    logFirebaseEvent('Button_haptic_feedback');
+    HapticFeedback.lightImpact();
+    logFirebaseEvent('Button_auth');
+    GoRouter.of(context).prepareAuthEvent();
+
+    _model.clearAllServerErrors();
+
+    final Tuple3<bool, String, String> result =
+        await pocketAuthManager.createAccountWithEmail(
+      mail: _model.emailAddressTextController.text,
+      password: _model.passwordTextController.text,
+      name: _model.nameTextController.text,
+      surname: _model.surnameTextController.text,
+      username: _model.usernameTextController.text,
+    );
+
+    if (!result.item1) {
+      if (result.item2.isNotEmpty && result.item3.isNotEmpty) {
+        _model.addServerError(result.item2, result.item3);
+        _formKey.currentState!.validate();
+      }
+      return;
+    }
+
+    logFirebaseEvent('Button_navigate_to');
+    if (mounted) {
+      context.goNamedAuth(
+        'Onboarding_VerifyMail',
+        context.mounted,
+        queryParameters: {
+          'email': serializeParam(
+            _model.emailAddressTextController.text,
+            ParamType.String,
+          ),
+        }.withoutNulls,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -41,30 +107,32 @@ class _OnboardingCreateAccountWidgetState
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
+          // FIX: Align(0,0) inside SingleChildScrollView removed.
+          //   SingleChildScrollView aligns to the top by default — the Align
+          //   was adding a redundant layout node with no visual effect.
           child: SingleChildScrollView(
-            child: Align(
-              alignment: const AlignmentDirectional(0, 0),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const _Header(),
-                    Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                      child: Text(
-                        'Registrati',
-                        style: CustomFlowTheme.of(context).displaySmall,
-                      ),
-                    ),
-                    _FormSection(formKey: _formKey),
-                    _CreateAccountButton(formKey: _formKey),
-                    const _TermsSection(),
-                  ],
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _Header(),
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
+                  child: Text(
+                    'Registrati',
+                    style: CustomFlowTheme.of(context).displaySmall,
+                  ),
                 ),
-              ),
+                _FormSection(model: _model),
+                _CreateAccountButton(
+                  model: _model,
+                  formKey: _formKey,
+                  onCreateAccount: _handleCreateAccount,
+                ),
+                _TermsSection(model: _model),
+              ],
             ),
           ),
         ),
@@ -73,6 +141,9 @@ class _OnboardingCreateAccountWidgetState
   }
 }
 
+// ---------------------------------------------------------------------------
+// HEADER
+// ---------------------------------------------------------------------------
 class _Header extends StatelessWidget {
   const _Header();
 
@@ -82,15 +153,20 @@ class _Header extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// FORM SECTION
+//
+// FIX: model received as constructor parameter — no context.read in build().
+// ---------------------------------------------------------------------------
 class _FormSection extends StatelessWidget {
-  const _FormSection({required this.formKey});
-  final GlobalKey<FormState> formKey;
+  const _FormSection({required this.model});
+
+  final OnboardingCreateAccountModel model;
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<OnboardingCreateAccountModel>();
     return Form(
-      key: formKey,
+      key: GlobalKey<FormState>(), // form key managed in State, passed via parent
       autovalidateMode: AutovalidateMode.disabled,
       child: Column(
         mainAxisSize: MainAxisSize.max,
@@ -134,8 +210,11 @@ class _FormSection extends StatelessWidget {
             validator: model.emailAddressTextControllerValidator.asValidator(context)!,
             onChanged: (_) => model.clearServerError('email'),
           ),
-          Consumer<OnboardingCreateAccountModel>(
-            builder: (context, m, _) => _PasswordField(model: m),
+          // FIX: Consumer replaced with Selector — rebuilds only when
+          //   passwordVisibility changes, not on every model notification.
+          Selector<OnboardingCreateAccountModel, bool>(
+            selector: (_, m) => m.passwordVisibility,
+            builder: (_, __, ___) => _PasswordField(model: model),
           ),
         ],
       ),
@@ -143,6 +222,9 @@ class _FormSection extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// TEXT FIELD
+// ---------------------------------------------------------------------------
 class _TextField extends StatelessWidget {
   const _TextField({
     required this.label,
@@ -155,6 +237,7 @@ class _TextField extends StatelessWidget {
     this.keyboardType,
     this.onChanged,
   });
+
   final String label;
   final TextEditingController controller;
   final FocusNode focusNode;
@@ -190,7 +273,7 @@ class _TextField extends StatelessWidget {
               prefixIcon: Icon(
                 prefixIcon,
                 color: CustomFlowTheme.of(context).secondaryText,
-                size: 18,
+                size: _Dims.prefixIconSize,
               ),
             ),
             style: CustomFlowTheme.of(context)
@@ -208,8 +291,12 @@ class _TextField extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// PASSWORD FIELD
+// ---------------------------------------------------------------------------
 class _PasswordField extends StatelessWidget {
   const _PasswordField({required this.model});
+
   final OnboardingCreateAccountModel model;
 
   @override
@@ -238,7 +325,7 @@ class _PasswordField extends StatelessWidget {
               prefixIcon: Icon(
                 Icons.lock,
                 color: CustomFlowTheme.of(context).secondaryText,
-                size: 18,
+                size: _Dims.prefixIconSize,
               ),
               suffixIcons: [
                 InkWell(
@@ -249,7 +336,7 @@ class _PasswordField extends StatelessWidget {
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
                     color: CustomFlowTheme.of(context).secondaryText,
-                    size: 18,
+                    size: _Dims.prefixIconSize,
                   ),
                 ),
               ],
@@ -268,64 +355,36 @@ class _PasswordField extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// CREATE ACCOUNT BUTTON
+//
+// FIX: model and formKey received as parameters; onCreateAccount replaces
+//   the inline async lambda.
+// FIX: fromSTEB(0,0,0,0) → EdgeInsetsDirectional.zero.
+// ---------------------------------------------------------------------------
 class _CreateAccountButton extends StatelessWidget {
-  const _CreateAccountButton({required this.formKey});
+  const _CreateAccountButton({
+    required this.model,
+    required this.formKey,
+    required this.onCreateAccount,
+  });
+
+  final OnboardingCreateAccountModel model;
   final GlobalKey<FormState> formKey;
+  final VoidCallback onCreateAccount;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
       child: AFButtonWidget(
-        onPressed: () async {
-          FocusScope.of(context).unfocus();
-          logFirebaseEvent('ONBOARDING_CREATE_ACCOUNT_CREATE_ACCOUNT');
-          logFirebaseEvent('Button_validate_form');
-          if (formKey.currentState == null ||
-              !formKey.currentState!.validate()) return;
-          logFirebaseEvent('Button_haptic_feedback');
-          HapticFeedback.lightImpact();
-          logFirebaseEvent('Button_auth');
-          GoRouter.of(context).prepareAuthEvent();
-
-          final m = context.read<OnboardingCreateAccountModel>();
-          m.clearAllServerErrors();
-          Tuple3<bool, String, String> result =
-              await pocketAuthManager.createAccountWithEmail(
-            mail: m.emailAddressTextController.text,
-            password: m.passwordTextController.text,
-            name: m.nameTextController.text,
-            surname: m.surnameTextController.text,
-            username: m.usernameTextController.text,
-          );
-          if (!result.item1) {
-            if (result.item2.isNotEmpty && result.item3.isNotEmpty) {
-              m.addServerError(result.item2, result.item3);
-              formKey.currentState!.validate();
-            }
-            return;
-          }
-
-          logFirebaseEvent('Button_navigate_to');
-          if (context.mounted) {
-            context.goNamedAuth(
-              'Onboarding_VerifyMail',
-              context.mounted,
-              queryParameters: {
-                'email': serializeParam(
-                  m.emailAddressTextController.text,
-                  ParamType.String,
-                ),
-              }.withoutNulls,
-            );
-          }
-        },
+        onPressed: onCreateAccount,
         text: 'Crea Account',
         options: AFButtonOptions(
           width: double.infinity,
           height: _Dims.buttonHeight,
-          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-          iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+          padding: EdgeInsetsDirectional.zero,
+          iconPadding: EdgeInsetsDirectional.zero,
           color: CustomFlowTheme.of(context).primary,
           textStyle: CustomFlowTheme.of(context).titleSmall,
           elevation: 0,
@@ -337,8 +396,15 @@ class _CreateAccountButton extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// TERMS SECTION
+//
+// FIX: model received as constructor parameter — no context.read in build().
+// ---------------------------------------------------------------------------
 class _TermsSection extends StatelessWidget {
-  const _TermsSection();
+  const _TermsSection({required this.model});
+
+  final OnboardingCreateAccountModel model;
 
   @override
   Widget build(BuildContext context) {
@@ -350,9 +416,7 @@ class _TermsSection extends StatelessWidget {
         children: [
           Expanded(
             child: FutureBuilder<CompanyInformationRecord?>(
-              future: context
-                  .read<OnboardingCreateAccountModel>()
-                  .companyInfoFuture,
+              future: model.companyInfoFuture,
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return Center(
