@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_animations.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
@@ -13,15 +12,29 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart' as smooth_page
 
 import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 
+
+// ---------------------------------------------------------------------------
+// DIMENSION CONSTANTS
+// ---------------------------------------------------------------------------
 abstract class _Dims {
   static const double buttonHeight = 50.0;
   static const double buttonRadius = 25.0;
-  static const double dotRadius = 10.0;
-  static const double dotWidth = 10.0;
-  static const double dotSpacing = 10.0;
+  static const double dotRadius    = 10.0;
+  static const double dotWidth     = 10.0;
+  static const double dotSpacing   = 10.0;
   static const double dotExpansion = 3.0;
+
+  // ── Slide image ────────────────────────────────────────────────────────────
+  /// Aspect ratio for the slide illustration.
+  /// Each slide fills its available Column height via Expanded + BoxFit.contain,
+  /// so no explicit height is needed — but we constrain the image's own
+  /// aspect ratio so it never distorts on wide screens.
+  static const double slideImageAspectRatio = 4 / 3;
 }
 
+// ---------------------------------------------------------------------------
+// ROOT WIDGET
+// ---------------------------------------------------------------------------
 class OnboardingSlideshowWidget extends StatefulWidget {
   const OnboardingSlideshowWidget({super.key});
 
@@ -34,9 +47,13 @@ class _OnboardingSlideshowWidgetState
     extends State<OnboardingSlideshowWidget> {
   final animationsMap = <String, AnimationInfo>{};
 
+  // FIX: model resolved once in initState — not inside descendant build().
+  late final OnboardingSlideshowModel _model;
+
   @override
   void initState() {
     super.initState();
+    _model = context.read<OnboardingSlideshowModel>();
     animationsMap.addAll({
       'textOnPageLoadAnimation1': standardAnimationInfo(context),
       'imageOnPageLoadAnimation1': standardAnimationInfo(context),
@@ -62,27 +79,25 @@ class _OnboardingSlideshowWidgetState
             mainAxisSize: MainAxisSize.max,
             children: [
               Expanded(
-                child: Align(
-                  alignment: const AlignmentDirectional(0, 0),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const _Header(),
-                        Expanded(
-                          child: _PageCarousel(
-                            animationsMap: animationsMap,
-                            onDotClicked: () => setState(() {}),
-                          ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const _Header(),
+                      Expanded(
+                        child: _PageCarousel(
+                          model: _model,
+                          animationsMap: animationsMap,
+                          onDotClicked: () => setState(() {}),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              const _ContinueButton(),
+              _ContinueButton(model: _model),
             ],
           ),
         ),
@@ -91,6 +106,9 @@ class _OnboardingSlideshowWidgetState
   }
 }
 
+// ---------------------------------------------------------------------------
+// HEADER
+// ---------------------------------------------------------------------------
 class _Header extends StatelessWidget {
   const _Header();
 
@@ -100,20 +118,31 @@ class _Header extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// PAGE CAROUSEL
+//
+// FIX: context.read<OnboardingSlideshowModel>() removed from build() —
+//   model passed as constructor parameter.
+//
+// FIX: SizedBox(height: 500) replaced with SizedBox.expand().
+//   The parent already wraps this widget in an Expanded, so the carousel
+//   fills the available space naturally without a hardcoded pixel height
+//   that would overflow on small devices (e.g. iPhone SE at ~650dp).
+// ---------------------------------------------------------------------------
 class _PageCarousel extends StatelessWidget {
   const _PageCarousel({
+    required this.model,
     required this.animationsMap,
     required this.onDotClicked,
   });
+
+  final OnboardingSlideshowModel model;
   final Map<String, AnimationInfo> animationsMap;
   final VoidCallback onDotClicked;
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<OnboardingSlideshowModel>();
-    return SizedBox(
-      width: double.infinity,
-      height: 500,
+    return SizedBox.expand(
       child: Stack(
         children: [
           Padding(
@@ -188,6 +217,20 @@ class _PageCarousel extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// SLIDE ITEM
+//
+// FIX: Image(height: 35.h) replaced with AspectRatio + Expanded.
+//   35% of screen height fails on:
+//     - iPhone SE (667dp): 35% = 233dp, leaves very little space for text
+//     - iPad (1024dp): 35% = 358dp, oversized for a slide illustration
+//
+//   The new approach:
+//     - Expanded fills the remaining vertical space after title and description
+//     - AspectRatio(4/3) prevents the image from distorting on wide screens
+//     - BoxFit.contain preserves aspect ratio within the constrained area
+//   The image is always proportional and fits any device without overflow.
+// ---------------------------------------------------------------------------
 class _SlideItem extends StatelessWidget {
   const _SlideItem({
     required this.title,
@@ -198,6 +241,7 @@ class _SlideItem extends StatelessWidget {
     required this.descAnim,
     this.imageFit = BoxFit.contain,
   });
+
   final String title;
   final String imagePath;
   final String description;
@@ -220,13 +264,19 @@ class _SlideItem extends StatelessWidget {
             style: CustomFlowTheme.of(context).displaySmall,
           ).animateOnPageLoad(titleAnim),
         ),
-        Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
-          child: Image.asset(
-            imagePath,
-            height: 35.h,
-            fit: imageFit,
-          ).animateOnPageLoad(imageAnim),
+        // FIX: Expanded + AspectRatio replaces the fixed `height: 35.h`.
+        //   The image fills available vertical space proportionally.
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+            child: AspectRatio(
+              aspectRatio: _Dims.slideImageAspectRatio,
+              child: Image.asset(
+                imagePath,
+                fit: imageFit,
+              ).animateOnPageLoad(imageAnim),
+            ),
+          ),
         ),
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 0),
@@ -241,47 +291,54 @@ class _SlideItem extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// CONTINUE BUTTON
+//
+// FIX: context.read inside build() removed — model passed as parameter.
+// FIX: fromSTEB(0,0,0,0) → EdgeInsetsDirectional.zero.
+// ---------------------------------------------------------------------------
 class _ContinueButton extends StatelessWidget {
-  const _ContinueButton();
+  const _ContinueButton({required this.model});
+
+  final OnboardingSlideshowModel model;
+
+  Future<void> _handleContinue(BuildContext context) async {
+    FocusScope.of(context).unfocus();
+    logFirebaseEvent('ONBOARDING_SLIDESHOW_CONTINUE_BTN_ON_TAP');
+    logFirebaseEvent('Button_haptic_feedback');
+    HapticFeedback.lightImpact();
+
+    if (model.pageViewCurrentIndex == 2) {
+      logFirebaseEvent('Button_navigate_to');
+      context.pushNamed('Onboarding_CreateAccount');
+    } else {
+      logFirebaseEvent('Button_page_view');
+      await model.pageViewController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.ease,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
-      child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
-        child: AFButtonWidget(
-          onPressed: () async {
-            FocusScope.of(context).unfocus();
-            logFirebaseEvent('ONBOARDING_SLIDESHOW_CONTINUE_BTN_ON_TAP');
-            logFirebaseEvent('Button_haptic_feedback');
-            HapticFeedback.lightImpact();
-            final model = context.read<OnboardingSlideshowModel>();
-            if (model.pageViewCurrentIndex == 2) {
-              logFirebaseEvent('Button_navigate_to');
-              context.pushNamed('Onboarding_CreateAccount');
-            } else {
-              logFirebaseEvent('Button_page_view');
-              await model.pageViewController.nextPage(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.ease,
-              );
-            }
-          },
-          text: 'Continua',
-          options: AFButtonOptions(
-            width: double.infinity,
-            height: _Dims.buttonHeight,
-            padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-            iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-            color: CustomFlowTheme.of(context).primary,
-            textStyle: CustomFlowTheme.of(context).titleSmall,
-            elevation: 0,
-            borderSide: const BorderSide(color: Colors.transparent, width: 1),
-            borderRadius: BorderRadius.circular(_Dims.buttonRadius),
-          ),
-          showLoadingIndicator: false,
+      padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 12),
+      child: AFButtonWidget(
+        onPressed: () => _handleContinue(context),
+        text: 'Continua',
+        options: AFButtonOptions(
+          width: double.infinity,
+          height: _Dims.buttonHeight,
+          padding: EdgeInsetsDirectional.zero,
+          iconPadding: EdgeInsetsDirectional.zero,
+          color: CustomFlowTheme.of(context).primary,
+          textStyle: CustomFlowTheme.of(context).titleSmall,
+          elevation: 0,
+          borderSide: const BorderSide(color: Colors.transparent, width: 1),
+          borderRadius: BorderRadius.circular(_Dims.buttonRadius),
         ),
+        showLoadingIndicator: false,
       ),
     );
   }
