@@ -65,12 +65,9 @@ class TournamentNewsWidget extends StatelessWidget {
             // Read is safe here: we are inside a Selector builder that
             // already fired because canInteractOn changed — the model is
             // guaranteed to be present and we do not need to listen to it.
-            final tournamentRef = context
-                .read<TournamentNewsModel>()
-                .tournamentModel
-                .tournamentsRef;
+            final tournamentRef = context.read<TournamentNewsModel>().tournamentModel.tournamentsRef;
 
-            return _AddNewsFab(tournamentRef: tournamentRef);
+            return _AddNewsFab(tournamentRef: tournamentRef!);
           },
         ),
 

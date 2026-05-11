@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_animations.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
@@ -15,22 +14,46 @@ import 'package:tournamentmanager/pages/core/create_own/create_own_model.dart';
 
 // ---------------------------------------------------------------------------
 // DIMENSION CONSTANTS
+//
+// FIX: carouselHeight, carouselImgHeight, dropdownMenuMax were expressed as
+//   percentages via responsive_sizer (.h suffix).  All three are now handled
+//   by layout widgets instead:
+//     - Carousel height  → AspectRatio (scales with screen width)
+//     - Image height     → Expanded inside the AspectRatio column (fills
+//                          the available height after the carousel is sized)
+//     - Dropdown max     → LayoutBuilder resolves actual screen height once
+//                          and passes it down as a concrete pixel value
+//
+//   The remaining constants are all fixed physical values (spacing, tap
+//   targets, border widths) that are correct to keep fixed.
 // ---------------------------------------------------------------------------
 abstract class _Dims {
-  static const double fieldSpacing     = 18.0;
-  static const double buttonHeight     = 50.0;
-  static const double buttonRadius     = 25.0;
-  static const double prefixIconSize   = 18.0;
-  static const double carouselHeight   = 24.0; // used as 24.h (responsive)
-  static const double carouselImgHeight = 20.0; // used as 20.h (responsive)
-  static const double dropdownMenuMax  = 50.0; // used as 50.h (responsive)
-  static const double borderWidth      = 1.0;
+  static const double fieldSpacing    = 18.0;
+  static const double buttonHeight    = 50.0;
+  static const double buttonRadius    = 25.0;
+  static const double prefixIconSize  = 18.0;
+  static const double borderWidth     = 1.0;
+
+  // ── Carousel ──────────────────────────────────────────────────────────────
+  /// Aspect ratio of the game image carousel banner.
+  /// 16/6 ≈ a wide cinematic strip that is not too tall on small phones and
+  /// not too short on tablets — scales automatically with screen width via
+  /// AspectRatio, no external package needed.
+  static const double carouselAspectRatio = 16 / 6;
+
+  /// Horizontal + vertical padding inside the carousel.
+  static const double carouselPaddingH = 24.0;
+  static const double carouselPaddingT = 20.0;
+
+  // ── Dropdown ──────────────────────────────────────────────────────────────
+  /// The game dropdown menu height is capped at this fraction of the screen
+  /// height.  Resolved to pixels by LayoutBuilder at build time — no
+  /// responsive_sizer needed.
+  static const double dropdownMaxHeightFraction = 0.50;
 }
 
 // ---------------------------------------------------------------------------
 // VALUE OBJECTS
-// Used by Selectors to compare composite state.
-// FIX: replaces Tuple2<List<dynamic>, bool> with a named, type-safe class.
 // ---------------------------------------------------------------------------
 @immutable
 class _AddressState {
@@ -46,7 +69,6 @@ class _AddressState {
   bool operator ==(Object other) =>
       other is _AddressState &&
           other.isOnline == isOnline &&
-          // List equality — rebuilds when the suggestions list changes.
           other.placeList.length == placeList.length;
 
   @override
@@ -55,10 +77,6 @@ class _AddressState {
 
 // ---------------------------------------------------------------------------
 // ROOT WIDGET
-// Kept as StatefulWidget because:
-//   - GlobalKey<FormState> must survive rebuilds
-//   - _handleSave references mounted and context
-//   - _model.initContextVars must run exactly once in initState
 // ---------------------------------------------------------------------------
 class CreateOwnWidget extends StatefulWidget {
   const CreateOwnWidget({super.key});
@@ -76,15 +94,9 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
   void initState() {
     super.initState();
     _model = context.read<CreateOwnModel>();
-    // initContextVars wires up anything the model needs from BuildContext.
-    // Safe here — context is valid in initState for widgets inserted via
-    // the standard route/provider stack.
     _model.initContextVars(context);
   }
 
-  // ── Save handler ───────────────────────────────────────────────────────────
-  // Extracted from onPressed so it can be read, tested, and reasoned about
-  // independently from the button widget that triggers it.
   Future<void> _handleSave() async {
     FocusScope.of(context).unfocus();
     logFirebaseEvent('ONBOARDING_CREATE_OWN_CREATE_OWN');
@@ -99,7 +111,6 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
 
     final result = await _model.saveTournament();
 
-    // Guard: widget might have been disposed during the async save.
     if (!mounted) return;
 
     if (result) {
@@ -115,11 +126,18 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
-          child: SingleChildScrollView(
-            child: _CreateOwnForm(
-              model: _model,
-              formKey: _formKey,
-              onSave: _handleSave,
+          // LayoutBuilder is used here — not deeper — so that the resolved
+          // screen height is available to both the carousel and the dropdown
+          // without threading it through multiple constructor parameters.
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              child: _CreateOwnForm(
+                model: _model,
+                formKey: _formKey,
+                onSave: _handleSave,
+                // Resolved once here; both carousel and dropdown consume it.
+                availableHeight: constraints.maxHeight,
+              ),
             ),
           ),
         ),
@@ -130,19 +148,22 @@ class _CreateOwnWidgetState extends State<CreateOwnWidget> {
 
 // ---------------------------------------------------------------------------
 // FORM BODY
-// Purely presentational. Receives everything via constructor.
-// No Provider.of / context.read calls inside — all data flows in from above.
 // ---------------------------------------------------------------------------
 class _CreateOwnForm extends StatelessWidget {
   const _CreateOwnForm({
     required this.model,
     required this.formKey,
     required this.onSave,
+    required this.availableHeight,
   });
 
   final CreateOwnModel model;
   final GlobalKey<FormState> formKey;
   final VoidCallback onSave;
+
+  /// Resolved screen height passed from the LayoutBuilder above.
+  /// Used to cap the dropdown menu and size the carousel proportionally.
+  final double availableHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -151,13 +172,13 @@ class _CreateOwnForm extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Header ────────────────────────────────────────────────────────
+        // ── Header ──────────────────────────────────────────────────────
         _FormHeader(model: model),
 
-        // ── Game carousel ─────────────────────────────────────────────────
+        // ── Game carousel ────────────────────────────────────────────────
         _GameCarousel(model: model),
 
-        // ── Form fields ───────────────────────────────────────────────────
+        // ── Form fields ──────────────────────────────────────────────────
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
           child: Form(
@@ -166,7 +187,12 @@ class _CreateOwnForm extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: [
-                _GameDropdown(model: model),
+                _GameDropdown(
+                  model: model,
+                  // Dropdown menu height capped at a fraction of screen height.
+                  menuMaxHeight: availableHeight *
+                      _Dims.dropdownMaxHeightFraction,
+                ),
                 _NameField(model: model),
                 _DateField(model: model),
                 _OnlineSwitch(model: model),
@@ -179,7 +205,7 @@ class _CreateOwnForm extends StatelessWidget {
           ),
         ),
 
-        // ── Submit button ─────────────────────────────────────────────────
+        // ── Submit button ────────────────────────────────────────────────
         _SubmitButton(onSave: onSave),
       ],
     );
@@ -188,8 +214,6 @@ class _CreateOwnForm extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SECTION: HEADER
-// FIX: wrapWithModel removed — CustomAppbarWidget is built directly.
-// wrapWithModel was accumulating stale callbacks on each rebuild.
 // ---------------------------------------------------------------------------
 class _FormHeader extends StatelessWidget {
   const _FormHeader({required this.model});
@@ -225,9 +249,21 @@ class _FormHeader extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SECTION: GAME CAROUSEL
-// Static structure — no Selector needed. The PageView drives its own
-// internal state; the model only needs to know the page index for the
-// dropdown sync, which is handled by _GameDropdown's Selector.
+//
+// FIX: the original used:
+//   SizedBox(height: _Dims.carouselHeight.h)   → 24% of screen height
+//   Image(height: _Dims.carouselImgHeight.h)   → 20% of screen height
+//
+// Both are replaced with AspectRatio(aspectRatio: carouselAspectRatio).
+//
+// Why AspectRatio is better here:
+//   - It derives height from the available width, which is the correct
+//     dimension to scale a banner-style component against.
+//   - On a phone in portrait the banner is comfortably sized; in landscape
+//     or on a tablet it scales proportionally rather than jumping to 24% of
+//     a much larger screen height.
+//   - The Image uses BoxFit.contain inside an Expanded, so it always fills
+//     the available carousel height without needing its own explicit size.
 // ---------------------------------------------------------------------------
 class _GameCarousel extends StatelessWidget {
   const _GameCarousel({required this.model});
@@ -238,29 +274,32 @@ class _GameCarousel extends StatelessWidget {
   Widget build(BuildContext context) {
     final games = Game.values.where((g) => g.desc.isNotEmpty).toList();
 
-    return SizedBox(
-      width: double.infinity,
-      height: _Dims.carouselHeight.h,
-      child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(24, 20, 24, 0),
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        _Dims.carouselPaddingH,
+        _Dims.carouselPaddingT,
+        _Dims.carouselPaddingH,
+        0,
+      ),
+      child: AspectRatio(
+        // Height is derived from width — scales correctly on every device
+        // and orientation without any external package.
+        aspectRatio: _Dims.carouselAspectRatio,
         child: PageView(
           controller: model.pageViewController,
           scrollDirection: Axis.horizontal,
           onPageChanged: model.jumpToPageAndNotify,
           children: games.map((game) {
-            return Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
-                  child: Image.asset(
-                    game.resource,
-                    height: _Dims.carouselImgHeight.h,
-                    fit: BoxFit.cover,
-                  ).animateOnPageLoad(model.animationsMap[game.index]!),
-                ),
-              ],
+            return Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+              child: Image.asset(
+                game.resource,
+                // Expanded is not available inside PageView children directly,
+                // so we use fit: BoxFit.contain and let the AspectRatio parent
+                // constrain the available space.  The image fills the carousel
+                // height without needing an explicit pixel value.
+                fit: BoxFit.contain,
+              ).animateOnPageLoad(model.animationsMap[game.index]!),
             );
           }).toList(),
         ),
@@ -271,18 +310,29 @@ class _GameCarousel extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SECTION: GAME DROPDOWN
-// FIX: Selector reads from model directly via m.pageViewController.page,
-// not from a captured variable. Rebuilds only when the page changes.
+//
+// FIX: menuMaxHeight was `_Dims.dropdownMenuMax.h` (50% of screen height via
+//   responsive_sizer).  It now receives the resolved pixel value from the
+//   parent LayoutBuilder via the `menuMaxHeight` parameter — same result,
+//   no external package, and the computation happens once at the LayoutBuilder
+//   level rather than on every dropdown rebuild.
 // ---------------------------------------------------------------------------
 class _GameDropdown extends StatelessWidget {
-  const _GameDropdown({required this.model});
+  const _GameDropdown({
+    required this.model,
+    required this.menuMaxHeight,
+  });
 
   final CreateOwnModel model;
 
+  /// Concrete pixel height for the dropdown overlay menu.
+  /// Resolved by the parent LayoutBuilder as:
+  ///   constraints.maxHeight * _Dims.dropdownMaxHeightFraction
+  final double menuMaxHeight;
+
   @override
   Widget build(BuildContext context) {
-    final games =
-    Game.values.where((g) => g.desc.isNotEmpty).toList();
+    final games = Game.values.where((g) => g.desc.isNotEmpty).toList();
 
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 20),
@@ -291,7 +341,7 @@ class _GameDropdown extends StatelessWidget {
         builder: (_, page, __) {
           return DropdownButton<int>(
             itemHeight: null,
-            menuMaxHeight: _Dims.dropdownMenuMax.h,
+            menuMaxHeight: menuMaxHeight,
             value: page != null ? page.round() : 0,
             items: games.map((game) {
               return DropdownMenuItem(
@@ -319,8 +369,6 @@ class _GameDropdown extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SECTION: NAME FIELD
-// No Selector needed — TextFormField manages its own display via the
-// controller. notifyListeners on the model is not needed for text fields.
 // ---------------------------------------------------------------------------
 class _NameField extends StatelessWidget {
   const _NameField({required this.model});
@@ -362,11 +410,6 @@ class _NameField extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SECTION: DATE FIELD
-// FIX: Selector on TextEditingController.text removed.
-// TextEditingController notifies its own listeners — not the model's
-// notifyListeners — so that Selector never triggered a rebuild anyway.
-// The field is readOnly and updated via the date picker which writes
-// directly to the controller, causing the TextFormField to rebuild itself.
 // ---------------------------------------------------------------------------
 class _DateField extends StatelessWidget {
   const _DateField({required this.model});
@@ -418,7 +461,6 @@ class _DateField extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SECTION: ONLINE SWITCH
-// Selector on isOnlineEnabledVar — rebuilds only when the flag changes.
 // ---------------------------------------------------------------------------
 class _OnlineSwitch extends StatelessWidget {
   const _OnlineSwitch({required this.model});
@@ -442,9 +484,6 @@ class _OnlineSwitch extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SECTION: ADDRESS FIELD
-// FIX: Tuple2 replaced with _AddressState value object.
-// Rebuilds when isOnline changes (enables/disables the field) or when
-// the suggestions list changes (updates TypeAhead options).
 // ---------------------------------------------------------------------------
 class _AddressField extends StatelessWidget {
   const _AddressField({required this.model});
@@ -469,7 +508,6 @@ class _AddressField extends StatelessWidget {
               return TextFormField(
                 controller: controller,
                 focusNode: focusNode,
-                // Field is disabled when tournament is online.
                 enabled: !addressState.isOnline,
                 textInputAction: TextInputAction.next,
                 obscureText: false,
@@ -508,8 +546,6 @@ class _AddressField extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SECTION: CAPACITY FIELD
-// FIX: Selector on TextEditingController.text removed — same reason as
-// _DateField. The controller manages its own display.
 // ---------------------------------------------------------------------------
 class _CapacityField extends StatelessWidget {
   const _CapacityField({required this.model});
@@ -637,8 +673,6 @@ class _SubmitButton extends StatelessWidget {
 // SHARED HELPER WIDGETS
 // ---------------------------------------------------------------------------
 
-/// Labelled wrapper for form fields — replaces the repeated
-/// Column > Padding > Text > field pattern across all form sections.
 class _LabelledField extends StatelessWidget {
   const _LabelledField({
     required this.label,
@@ -670,8 +704,6 @@ class _LabelledField extends StatelessWidget {
   }
 }
 
-/// Label + trailing selector row — replaces the repeated
-/// Row > Text > Selector > Switch pattern for all toggle fields.
 class _SwitchRow extends StatelessWidget {
   const _SwitchRow({
     required this.label,

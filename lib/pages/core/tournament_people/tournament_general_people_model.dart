@@ -57,6 +57,9 @@ class TournamentGeneralPeopleModel extends ChangeNotifier {
       tournamentModel.tournamentRegisteredSize +
       tournamentModel.tournamentWaitingSize;
 
+  bool get keepPageAlive => getTotalPartecipants() < 100;
+  bool get canInteractOn => true;
+
   List<ActionButton> buildFabActions() {
     final actions = <ActionButton>[];
     for (final pageType in _availablePages.reversed) {

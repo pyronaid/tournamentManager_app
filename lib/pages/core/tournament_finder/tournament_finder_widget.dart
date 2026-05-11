@@ -19,6 +19,9 @@ import '../../../components/tournament_pick_card/tournament_pick_card_widget.dar
 //   _MapConfig  — non-visual configuration values (URLs, zoom levels, routes)
 //   _MapDims    — all dimension / layout values, the single source of truth
 //
+// Rule: if a number appears more than once, or will be adjusted together with
+//       another number (e.g. panelMinHeight and list topPadding), it belongs
+//       here — not inline.
 // ---------------------------------------------------------------------------
 
 /// Non-visual configuration — tile server, zoom, route names, hero tags.
@@ -112,7 +115,7 @@ class TournamentFinderWidget extends StatelessWidget {
             backgroundColor: CustomFlowTheme.of(context).primaryBackground,
             floatingActionButton: _FabColumn(model: model),
             floatingActionButtonLocation:
-                FloatingActionButtonLocation.endTop,
+            FloatingActionButtonLocation.endTop,
             body: SafeArea(
               top: true,
               // LayoutBuilder gives us the real available height so we can
@@ -132,9 +135,8 @@ class TournamentFinderWidget extends StatelessWidget {
                     // The header is a fixed-height drag handle strip that sits
                     // above the scrollable list inside the panel.
                     header: _PanelHandle(
-                      // Pass the available width so the handle fills the panel
-                      // without a MediaQuery call inside the child widget.
                       availableWidth: constraints.maxWidth,
+                      panelController: model.panelController,
                     ),
                     onPanelSlide: (position) => model.setMapInteractive(position == 0.0),
                     onPanelClosed: () => model.setMapInteractive(true),
@@ -158,38 +160,42 @@ class TournamentFinderWidget extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // PANEL HANDLE
 //
-// FIX: the original widget called MediaQuery.of(context).size.width inline
-//   inside the Container width.  The width is now received as a parameter
-//   resolved by the LayoutBuilder in the parent — no MediaQuery needed.
+// Two parameters are received from the parent LayoutBuilder:
+//   - availableWidth   : resolves the container width without a MediaQuery call
+//   - panelController  : the same PanelController owned by the model, used to
+//                        open/close the panel on swipe gestures
+//
+// The original code tried findAncestorStateOfType<SlidingUpPanelState> which
+// does not exist in the sliding_up_panel public API and would crash at runtime.
+// PanelController is the correct and only supported way to programmatically
+// drive the panel.
 // ---------------------------------------------------------------------------
 
 class _PanelHandle extends StatelessWidget {
-  const _PanelHandle({required this.availableWidth});
+  const _PanelHandle({
+    required this.availableWidth,
+    required this.panelController,
+  });
 
   /// Width resolved by the parent LayoutBuilder — fills the panel exactly.
   final double availableWidth;
+
+  /// Owned by the model; used to open/close the panel on swipe.
+  final PanelController panelController;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onVerticalDragUpdate: (details) {
-        // A simple swipe-direction shortcut: the panel controller handles
-        // the actual animation; we just decide open vs close.
+        // Swipe up → open; swipe down → close.
+        // PanelController is the only supported API for programmatic control.
         if (details.delta.dy < 0) {
-          // ignore: avoid-ignore-for-statements
-          // ignore: discarded_futures
-          context
-              .findAncestorStateOfType<SlidingUpPanelState>()
-              ?.open();
+          panelController.open();
         } else {
-          // ignore: discarded_futures
-          context
-              .findAncestorStateOfType<SlidingUpPanelState>()
-              ?.close();
+          panelController.close();
         }
       },
       child: Container(
-        // Use the width passed in — avoids a MediaQuery call here.
         width: availableWidth,
         height: _MapDims.panelMinHeight,
         decoration: BoxDecoration(
@@ -204,8 +210,7 @@ class _PanelHandle extends StatelessWidget {
             height: _MapDims.handleHeight,
             decoration: BoxDecoration(
               color: CustomFlowTheme.of(context).secondaryText,
-              borderRadius:
-                  BorderRadius.circular(_MapDims.handleRadius),
+              borderRadius: BorderRadius.circular(_MapDims.handleRadius),
             ),
           ),
         ),
@@ -306,7 +311,7 @@ class _PanelContent extends StatelessWidget {
         return TournamentPickCardWidget(
           key: Key(
             'Keykia_${trnmt.uid}_position_${index}_of_'
-            '${model.tournamentsListRefObjToDetail.length}',
+                '${model.tournamentsListRefObjToDetail.length}',
           ),
           tournamentRef: trnmt,
         );
@@ -423,21 +428,21 @@ class _TournamentClusterLayer extends StatelessWidget {
               game: to.game,
               child: to.game.iconResource != null
                   ? InkWell(
-                      onTap: () => model.onMarkerTap(to.uid),
-                      child: Image.asset(
-                        to.game.iconResource!,
-                        width: _MapDims.tournamentIconSize,
-                        height: _MapDims.tournamentIconSize,
-                      ),
-                    )
+                onTap: () => model.onMarkerTap(to.uid),
+                child: Image.asset(
+                  to.game.iconResource!,
+                  width: _MapDims.tournamentIconSize,
+                  height: _MapDims.tournamentIconSize,
+                ),
+              )
                   : IconButton(
-                      icon: Icon(
-                        Icons.tour,
-                        color: CustomFlowTheme.of(context).markerTournament,
-                        size: _MapDims.tournamentIconSize,
-                      ),
-                      onPressed: () => model.onMarkerTap(to.uid),
-                    ),
+                icon: Icon(
+                  Icons.tour,
+                  color: CustomFlowTheme.of(context).markerTournament,
+                  size: _MapDims.tournamentIconSize,
+                ),
+                onPressed: () => model.onMarkerTap(to.uid),
+              ),
             ),
         ],
         builder: (context, markers) {

@@ -11,17 +11,30 @@ import '../../../components/no_content_card/no_content_card_widget.dart';
 
 // ---------------------------------------------------------------------------
 // DIMENSION CONSTANTS
-// Centralise all magic numbers to make future adjustments trivial.
 // ---------------------------------------------------------------------------
 abstract class _Dims {
-  static const double sliverAppBarExpandedHeight = 100.0;
+  static const double sliverAppBarExpandedHeight  = 100.0;
   static const double sliverAppBarCollapsedHeight = 70.0;
-  static const double sectionFooterHeight = 40.0;
-  static const double listBottomSpacing = 100.0;
-  static const double titlePaddingBottom = 30.0;
-  static const double titlePaddingTop = 15.0;
-  static const double sectionFooterRadius = 20.0;
+  static const double sectionFooterHeight         = 40.0;
+  static const double sectionFooterRadius         = 20.0;
+  static const double titlePaddingBottom          = 30.0;
+  static const double titlePaddingTop             = 15.0;
+
+  // ── Bottom spacer — derived, not guessed ──────────────────────────────────
+  /// Standard Material FAB diameter.
+  static const double fabSize           = 56.0;
+
+  /// Breathing room between the last card and the FAB.
+  static const double fabClearance      = 24.0;
+
+  /// Total bottom spacing = FAB height + clearance.
+  /// Derived so it stays correct if either value above changes.
+  static const double listBottomSpacing = fabSize + fabClearance; // 80.0
 }
+
+// ---------------------------------------------------------------------------
+// ROOT WIDGET
+// ---------------------------------------------------------------------------
 
 class OwnTournamentsWidget extends StatelessWidget {
   const OwnTournamentsWidget({super.key});
@@ -40,7 +53,14 @@ class OwnTournamentsWidget extends StatelessWidget {
               if (isLoading) {
                 return const Center(child: CircularProgressIndicator());
               }
-              return const _TournamentsBody();
+
+              // FIX: model resolved here in the Selector builder and passed
+              //   to _TournamentsBody as a constructor parameter.
+              //   This removes context.read from inside _TournamentsBody.build
+              //   and eliminates the misleading `const _TournamentsBody()` —
+              //   a widget that needs a runtime model cannot be const-constructed.
+              final model = context.read<OwnTournamentsModel>();
+              return _TournamentsBody(model: model);
             },
           ),
         ),
@@ -49,24 +69,31 @@ class OwnTournamentsWidget extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// TOURNAMENTS BODY
+//
+// FIX: model received as constructor parameter instead of context.read in
+//   build. See rationale in root widget above.
+//
+// FIX: SliverToBoxAdapter bottom spacer child no longer carries
+//   width: double.infinity — slivers fill the viewport cross-axis natively.
+// ---------------------------------------------------------------------------
+
 class _TournamentsBody extends StatelessWidget {
-  const _TournamentsBody();
+  const _TournamentsBody({required this.model});
+
+  final OwnTournamentsModel model;
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<OwnTournamentsModel>();
-
     return RefreshIndicator(
-      // FIX [medium]: no anonymous lambda wrapper needed — method tear-off
-      // is cleaner and avoids creating a closure on every build.
       onRefresh: model.onRefresh,
       child: CustomScrollView(
         slivers: [
-          // ── Active section ───────────────────────────────────────────────
+          // ── Active section ─────────────────────────────────────────────
           _SectionHeader(
             label: 'ATTIVI/FUTURI',
             backgroundColor: CustomFlowTheme.of(context).secondary,
-            // Selector ensures only this header rebuilds when the flag flips.
             isExpanded: Selector<OwnTournamentsModel, bool>(
               selector: (_, m) => m.showActiveTournaments,
               builder: (_, show, __) => _ToggleIcon(show: show),
@@ -74,8 +101,6 @@ class _TournamentsBody extends StatelessWidget {
             onToggle: model.switchShowActiveTournaments,
           ),
 
-          // FIX [medium]: Selector on showActiveTournaments so the list
-          // appears/disappears without rebuilding the whole scroll view.
           Selector<OwnTournamentsModel, bool>(
             selector: (_, m) => m.showActiveTournaments,
             builder: (_, show, __) => show
@@ -98,7 +123,7 @@ class _TournamentsBody extends StatelessWidget {
             ),
           ),
 
-          // ── Closed section ───────────────────────────────────────────────
+          // ── Closed section ─────────────────────────────────────────────
           _SectionHeader(
             label: 'TERMINATI',
             backgroundColor: CustomFlowTheme.of(context).primaryBackground,
@@ -132,6 +157,12 @@ class _TournamentsBody extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// SECTION HEADER
+// Accepts a pre-built widget for isExpanded so the caller can wrap it in a
+// Selector without this widget needing to know about the model.
+// ---------------------------------------------------------------------------
+
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({
     required this.label,
@@ -142,8 +173,6 @@ class _SectionHeader extends StatelessWidget {
 
   final String label;
   final Color backgroundColor;
-  // Accepts a pre-built widget so the caller can wrap it in a Selector
-  // without this widget needing to know about the model.
   final Widget isExpanded;
   final VoidCallback onToggle;
 
@@ -154,7 +183,7 @@ class _SectionHeader extends StatelessWidget {
       snap: false,
       floating: false,
       expandedHeight: _Dims.sliverAppBarExpandedHeight,
-      collapsedHeight: _Dims.sliverAppBarCollapsedHeight,
+      collapsedHeight: _Dims.sliverAppBarExpandedHeight,
       backgroundColor: backgroundColor,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
@@ -181,6 +210,10 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// TOGGLE ICON
+// ---------------------------------------------------------------------------
+
 class _ToggleIcon extends StatelessWidget {
   const _ToggleIcon({required this.show});
 
@@ -193,6 +226,14 @@ class _ToggleIcon extends StatelessWidget {
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// SECTION FOOTER
+//
+// FIX: width: double.infinity removed from the inner SizedBox.
+//   DecoratedBox inside SliverToBoxAdapter already fills the sliver
+//   cross-axis — the explicit width on the child SizedBox had no effect.
+// ---------------------------------------------------------------------------
 
 class _SectionFooter extends StatelessWidget {
   const _SectionFooter({required this.color});
@@ -209,13 +250,14 @@ class _SectionFooter extends StatelessWidget {
           bottomRight: Radius.circular(_Dims.sectionFooterRadius),
         ),
       ),
-      child: const SizedBox(
-        height: _Dims.sectionFooterHeight,
-        width: double.infinity,
-      ),
+      child: const SizedBox(height: _Dims.sectionFooterHeight),
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// TOURNAMENT SLIVER LIST
+// ---------------------------------------------------------------------------
 
 class _TournamentSliverList extends StatelessWidget {
   const _TournamentSliverList({
@@ -245,7 +287,6 @@ class _TournamentSliverList extends StatelessWidget {
             final isLast =
                 itemList != null && index == itemList.length - 1;
             return TournamentCardWidget(
-              // ValueKey is type-safe and disambiguates between the two lists.
               key: ValueKey('tournament_${item.uid}_${listKey}_$index'),
               last: isLast,
               tournamentRef: item,

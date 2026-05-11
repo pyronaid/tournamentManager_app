@@ -14,26 +14,26 @@ import '../tournament_people/tournament_people_model.dart';
 // DIMENSION CONSTANTS
 // ---------------------------------------------------------------------------
 abstract class _Dims {
-  static const double headerPaddingAll = 24.0;
-  static const double titlePaddingTop  = 24.0;
-  static const double titlePaddingBtm  = 30.0;
-  static const double formPaddingAll   = 24.0;
-  static const double fieldPaddingBtm  = 30.0;
-  static const double labelPaddingBtm  = 4.0;
-  static const double msgPaddingBtm    = 30.0;
-  static const double msgRowPadding    = 8.0;
-  static const double msgIconSize      = 30.0;
-  static const double msgIconInner     = 20.0;
-  static const double msgIconGap       = 20.0;
-  static const double prefixIconSize   = 18.0;
-  static const double suffixIconSize   = 20.0;
-  static const double submitHeight     = 50.0;
-  static const double submitRadius     = 25.0;
-  static const double submitPaddingAll = 24.0;
+  static const double headerPaddingAll  = 24.0;
+  static const double titlePaddingTop   = 24.0;
+  static const double titlePaddingBtm   = 30.0;
+  static const double formPaddingAll    = 24.0;
+  static const double fieldPaddingBtm   = 30.0;
+  static const double labelPaddingBtm   = 4.0;
+  static const double msgPaddingBtm     = 30.0;
+  static const double msgRowPadding     = 8.0;
+  static const double msgIconSize       = 30.0;
+  static const double msgIconInner      = 20.0;
+  static const double msgIconGap        = 20.0;
+  static const double prefixIconSize    = 18.0;
+  static const double suffixIconSize    = 20.0;
+  static const double submitHeight      = 50.0;
+  static const double submitRadius      = 25.0;
+  static const double submitPaddingAll  = 24.0;
 }
 
 // ---------------------------------------------------------------------------
-// WIDGET
+// ROOT WIDGET
 // Kept as StatefulWidget because _formKey (GlobalKey) must survive rebuilds.
 // ---------------------------------------------------------------------------
 class AddPeopleWidget extends StatefulWidget {
@@ -63,7 +63,22 @@ class _AddPeopleWidgetState extends State<AddPeopleWidget> {
             selector: (_, m) => m.isLoading,
             builder: (_, isLoading, __) {
               if (isLoading) return const _LoadingBody();
-              return _AddPeopleBody(formKey: _formKey);
+
+              // FIX: both models resolved here and passed as parameters —
+              //   avoids context.read inside descendant build methods.
+              //   AddPeopleModel is read once; TournamentPeopleModel is read
+              //   once. Neither needs to be watched — all reactive state goes
+              //   through the Consumer in _AddPeopleBody.
+              final addModel =
+              context.read<AddPeopleModel>();
+              final peopleModel =
+              context.read<TournamentPeopleModel>();
+
+              return _AddPeopleBody(
+                formKey: _formKey,
+                addModel: addModel,
+                peopleModel: peopleModel,
+              );
             },
           ),
         ),
@@ -87,33 +102,50 @@ class _LoadingBody extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // MAIN BODY
-// Consumer<AddPeopleModel> rebuilds only when composeOutputForRequest /
-// setFieldControllerIdUser fires notifyListeners — not on every keystroke.
+//
+// FIX: Align(topCenter) removed.  SingleChildScrollView aligns its child
+//   to the top by default — the explicit Align added a redundant layout node.
+//
+// FIX: Consumer<AddPeopleModel> replaced with a constructor parameter.
+//   Consumer rebuilds the entire Column (header + form + button) on every
+//   notifyListeners call from AddPeopleModel.  Since both models are already
+//   resolved in the Selector builder above and passed down, this widget is
+//   now purely declarative and rebuilds only when its parent rebuilds
+//   (i.e. when isLoading flips).
+//   The model is passed to _FormSection and _SubmitButton which need it;
+//   _HeaderSection only needs the peopleModel for the tournament name.
 // ---------------------------------------------------------------------------
 class _AddPeopleBody extends StatelessWidget {
-  const _AddPeopleBody({required this.formKey});
+  const _AddPeopleBody({
+    required this.formKey,
+    required this.addModel,
+    required this.peopleModel,
+  });
 
   final GlobalKey<FormState> formKey;
+  final AddPeopleModel addModel;
+  final TournamentPeopleModel peopleModel;
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: SingleChildScrollView(
-        child: Consumer<AddPeopleModel>(
-          builder: (context, model, _) {
-            return Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _HeaderSection(model: model),
-                _FormSection(model: model, formKey: formKey),
-                _SubmitButton(model: model, formKey: formKey),
-              ],
-            );
-          },
-        ),
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _HeaderSection(),
+          _FormSection(
+            addModel: addModel,
+            peopleModel: peopleModel,
+            formKey: formKey,
+          ),
+          _SubmitButton(
+            addModel: addModel,
+            peopleModel: peopleModel,
+            formKey: formKey,
+          ),
+        ],
       ),
     );
   }
@@ -121,11 +153,13 @@ class _AddPeopleBody extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // HEADER SECTION
+//
+// FIX: model parameter removed — the header only shows a static title and
+//   the appbar back button.  It has no model dependency so it becomes a
+//   genuinely const-constructible widget.
 // ---------------------------------------------------------------------------
 class _HeaderSection extends StatelessWidget {
-  const _HeaderSection({required this.model});
-
-  final AddPeopleModel model;
+  const _HeaderSection();
 
   @override
   Widget build(BuildContext context) {
@@ -134,8 +168,6 @@ class _HeaderSection extends StatelessWidget {
       padding: const EdgeInsets.all(_Dims.headerPaddingAll),
       child: Column(
         children: [
-          // Direct instantiation — no wrapWithModel needed since
-          // CustomAppbarWidget is now a plain StatelessWidget.
           const CustomAppbarWidget(backButton: true),
           Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(
@@ -156,9 +188,14 @@ class _HeaderSection extends StatelessWidget {
 // FORM SECTION
 // ---------------------------------------------------------------------------
 class _FormSection extends StatelessWidget {
-  const _FormSection({required this.model, required this.formKey});
+  const _FormSection({
+    required this.addModel,
+    required this.peopleModel,
+    required this.formKey,
+  });
 
-  final AddPeopleModel model;
+  final AddPeopleModel addModel;
+  final TournamentPeopleModel peopleModel;
   final GlobalKey<FormState> formKey;
 
   @override
@@ -172,8 +209,10 @@ class _FormSection extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _UserIdField(model: model),
-            _MessageList(messages: model.messageObjList),
+            _UserIdField(addModel: addModel, peopleModel: peopleModel),
+            // FIX: messageObjList passed directly — _MessageList has no model
+            //   dependency, only the list content.
+            _MessageList(messages: addModel.messageObjList),
           ],
         ),
       ),
@@ -183,16 +222,34 @@ class _FormSection extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // USER ID FIELD
+//
+// FIX: context.read<TournamentPeopleModel>() removed from build().
+//   peopleModel is now received as a constructor parameter — resolved once
+//   in the Selector builder at the root widget level.
 // ---------------------------------------------------------------------------
 class _UserIdField extends StatelessWidget {
-  const _UserIdField({required this.model});
+  const _UserIdField({
+    required this.addModel,
+    required this.peopleModel,
+  });
 
-  final AddPeopleModel model;
+  final AddPeopleModel addModel;
+  final TournamentPeopleModel peopleModel;
+
+  // Extracted helper so the two icon button callbacks share the lookup logic.
+  Future<void> _lookupAndCompose(BuildContext context, String userId) async {
+    final respMap = await peopleModel.getUserInfoForEnrollment(
+      userId,
+      listType: peopleModel.listTypeReferral,
+    );
+    addModel.composeOutputForRequest(
+      respMap,
+      listType: peopleModel.listTypeReferral,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final peopleModel = context.read<TournamentPeopleModel>();
-
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, _Dims.fieldPaddingBtm),
       child: Column(
@@ -205,8 +262,8 @@ class _UserIdField extends StatelessWidget {
             child: Text('Id utente', style: CustomFlowTheme.of(context).bodyMedium),
           ),
           TextFormField(
-            controller: model.fieldControllerIdUser,
-            focusNode: model.idUserFocusNode,
+            controller: addModel.fieldControllerIdUser,
+            focusNode: addModel.idUserFocusNode,
             autofocus: false,
             autofillHints: const [AutofillHints.name],
             textCapitalization: TextCapitalization.none,
@@ -220,19 +277,18 @@ class _UserIdField extends StatelessWidget {
                 size: _Dims.prefixIconSize,
               ),
               suffixIcons: [
+                // Refresh — looks up the typed ID
                 IconButton(
                   onPressed: () async {
-                    if (model.fieldControllerIdUser.text.isNotEmpty) {
-                      final respMap = await peopleModel.getUserInfoForEnrollment(
-                        model.fieldControllerIdUser.text,
-                        listType: peopleModel.listTypeReferral,
-                      );
-                      model.composeOutputForRequest(respMap, listType: peopleModel.listTypeReferral);
+                    final text = addModel.fieldControllerIdUser.text;
+                    if (text.isNotEmpty) {
+                      await _lookupAndCompose(context, text);
                     }
                   },
                   icon: Icon(Icons.refresh, size: _Dims.suffixIconSize),
                   color: CustomFlowTheme.of(context).secondaryText,
                 ),
+                // QR scanner — fills the field then looks up
                 IconButton(
                   onPressed: () async {
                     final result = await context.pushNamedAuth(
@@ -242,13 +298,10 @@ class _UserIdField extends StatelessWidget {
                       }.withoutNulls,
                     );
                     if (result != null) {
-                      model.setFieldControllerIdUser(result);
-                      if (model.fieldControllerIdUser.text.isNotEmpty) {
-                        final respMap = await peopleModel.getUserInfoForEnrollment(
-                          model.fieldControllerIdUser.text,
-                          listType: peopleModel.listTypeReferral,
-                        );
-                        model.composeOutputForRequest(respMap, listType: peopleModel.listTypeReferral);
+                      addModel.setFieldControllerIdUser(result);
+                      final text = addModel.fieldControllerIdUser.text;
+                      if (text.isNotEmpty && context.mounted) {
+                        await _lookupAndCompose(context, text);
                       }
                     }
                   },
@@ -263,7 +316,7 @@ class _UserIdField extends StatelessWidget {
             ),
             minLines: 1,
             cursorColor: CustomFlowTheme.of(context).primary,
-            validator: model.idUserTextControllerValidator.asValidator(context),
+            validator: addModel.idUserTextControllerValidator.asValidator(context),
           ),
         ],
       ),
@@ -339,38 +392,53 @@ class _MessageRow extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SUBMIT BUTTON
+//
+// FIX: context.read<TournamentPeopleModel>() removed from build().
+//   peopleModel received as constructor parameter.
+//
+// FIX: the inline async lambda on onPressed extracted to _handleSubmit —
+//   consistent with the _handleSave pattern used in create_own_widget and
+//   create_edit_news_widget.  The button declaration becomes one line.
 // ---------------------------------------------------------------------------
 class _SubmitButton extends StatelessWidget {
-  const _SubmitButton({required this.model, required this.formKey});
+  const _SubmitButton({
+    required this.addModel,
+    required this.peopleModel,
+    required this.formKey,
+  });
 
-  final AddPeopleModel model;
+  final AddPeopleModel addModel;
+  final TournamentPeopleModel peopleModel;
   final GlobalKey<FormState> formKey;
+
+  Future<void> _handleSubmit(BuildContext context) async {
+    FocusScope.of(context).unfocus();
+    logFirebaseEvent('ONBOARDING_ADD_USER_ADD_USER');
+    logFirebaseEvent('Button_validate_form');
+
+    if (formKey.currentState == null || !formKey.currentState!.validate()) {
+      return;
+    }
+
+    final flag = await peopleModel.promotePeople(
+      addModel.fieldControllerIdUser.text,
+      listType: peopleModel.listTypeReferral,
+    );
+
+    logFirebaseEvent('Button_haptic_feedback');
+    HapticFeedback.lightImpact();
+
+    if (flag && context.mounted) context.safePop();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final peopleModel = context.read<TournamentPeopleModel>();
-
     return Padding(
       padding: const EdgeInsetsDirectional.all(_Dims.submitPaddingAll),
       child: AFButtonWidget(
-        onPressed: (!model.checked)
-            ? null
-            : () async {
-                FocusScope.of(context).unfocus();
-                logFirebaseEvent('ONBOARDING_ADD_USER_ADD_USER');
-                logFirebaseEvent('Button_validate_form');
-                if (formKey.currentState == null ||
-                    !formKey.currentState!.validate()) {
-                  return;
-                }
-                final flag = await peopleModel.promotePeople(
-                  model.fieldControllerIdUser.text,
-                  listType: peopleModel.listTypeReferral,
-                );
-                if (flag && context.mounted) context.safePop();
-                logFirebaseEvent('Button_haptic_feedback');
-                HapticFeedback.lightImpact();
-              },
+        onPressed: addModel.checked
+            ? () => _handleSubmit(context)
+            : null,
         text: 'Aggiungi',
         options: AFButtonOptions(
           width: double.infinity,

@@ -21,7 +21,6 @@ import '../../../auth/pocketbase_auth/pocketbase_users_record.dart';
 abstract class _Dims {
   // Avatar
   static const double avatarSize        = 130.0;
-  static const double avatarRadius      = 61.0;
 
   // Edit badges — tap targets must stay fixed
   static const double editBadgeRadius   = 15.0;
@@ -39,8 +38,9 @@ abstract class _Dims {
   static const double buttonRadius      = 25.0;
 
   // Header — expressed as an aspect ratio so it scales with screen width.
-  // 16/7 ≈ a cinematic banner that is not too tall on small phones.
-  static const double headerAspectRatio = 16 / 7;
+  // 16/9 ≈ standard widescreen; gives ~231px on a 411px-wide screen which
+  // fits the avatar (130px) + name + game label + counters without overflow.
+  static const double headerAspectRatio = 16 / 9;
 
   // Content area — caps the readable width on large screens (tablet / foldable).
   static const double maxContentWidth   = 480.0;
@@ -223,17 +223,39 @@ class _TournamentHeader extends StatelessWidget {
               ),
               child: Container(color: Colors.black.withValues(alpha: 0.1)),
             ),
-            // Foreground content — centred in the available space
+            // Foreground content — centred in the available space.
+            // LayoutBuilder provides the real header height so the avatar can
+            // shrink on narrow screens.  FittedBox + ConstrainedBox guarantee
+            // that ANY remaining overflow (variable counter count, larger fonts,
+            // editable badge) is handled by a proportional scale-down instead
+            // of a RenderFlex overflow error.
             Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _TournamentAvatar(model: model),
-                  _TournamentNameRow(model: model),
-                  _TournamentGameLabel(gameName: t.tournamentGame.desc),
-                  _TournamentCounters(model: model),
-                ],
+              child: LayoutBuilder(
+                builder: (_, constraints) {
+                  // Avatar takes available height minus fixed text rows (~91 px)
+                  // plus a small safety margin; clamped so it never disappears.
+                  final avatarSize = (constraints.maxHeight - 100)
+                      .clamp(70.0, _Dims.avatarSize);
+                  return FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: ConstrainedBox(
+                      // Bound the column width so the counters Row (mainAxisSize:
+                      // max) doesn't try to expand to infinite width inside the
+                      // otherwise-unconstrained FittedBox child layout.
+                      constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          _TournamentAvatar(model: model, size: avatarSize),
+                          _TournamentNameRow(model: model),
+                          _TournamentGameLabel(gameName: t.tournamentGame.desc),
+                          _TournamentCounters(model: model),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -245,21 +267,23 @@ class _TournamentHeader extends StatelessWidget {
 
 // ── Avatar with optional edit badge ─────────────────────────────────────────
 class _TournamentAvatar extends StatelessWidget {
-  const _TournamentAvatar({required this.model});
+  const _TournamentAvatar({required this.model, this.size = _Dims.avatarSize});
 
   final TournamentDetailModel model;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
     final t = model.tournamentModel;
+    final radius = size / 2 - _Dims.borderWidth;
 
     return Selector<TournamentDetailModel, String?>(
       selector: (_, m) => m.tournamentModel.tournamentImageUrl,
       builder: (_, image, ___) => Stack(
         children: [
           Container(
-            width: _Dims.avatarSize,
-            height: _Dims.avatarSize,
+            width: size,
+            height: size,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -268,7 +292,7 @@ class _TournamentAvatar extends StatelessWidget {
               ),
             ),
             child: CircleAvatar(
-              radius: _Dims.avatarRadius,
+              radius: radius,
               backgroundImage: image == null
                   ? const AssetImage(
                           'assets/images/icons/default_tournament.png')
@@ -336,7 +360,7 @@ class _TournamentNameRow extends StatelessWidget {
             ),
             if (model.isTournamentEditable)
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(5, 0, 0, 20),
+                padding: const EdgeInsetsDirectional.fromSTEB(5, 0, 0, 0),
                 child: _EditBadge(
                   onTap: () {
                     if (!context.mounted) return;

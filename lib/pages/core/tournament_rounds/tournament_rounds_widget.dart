@@ -15,10 +15,29 @@ import '../../../components/tournament_round_card/tournament_rounds_card_widget.
 // DIMENSION CONSTANTS
 // ---------------------------------------------------------------------------
 abstract class _Dims {
-  static const double listTopPadding    = 20.0;
-  static const double listBottomSpacing = 100.0;
-  static const double fabDistance       = 60.0;
+  static const double listTopPadding = 20.0;
+
+  // ── Bottom spacer — derived, not guessed ──────────────────────────────────
+  /// Standard Material FAB diameter.
+  static const double fabSize = 56.0;
+
+  /// Breathing room between the last card and the FAB.
+  static const double fabClearance = 24.0;
+
+  /// Total bottom spacing = FAB height + clearance.
+  /// Derived so it stays correct if either value above changes.
+  static const double listBottomSpacing = fabSize + fabClearance; // 80.0
+
+  // ── FAB expandable ────────────────────────────────────────────────────────
+  /// The radius of the arc on which child FABs are spread when the
+  /// FabExpandableWidget is open.  This is a design value that controls
+  /// how far the children fan out — not related to screen size.
+  static const double fabDistance = 60.0;
 }
+
+// ---------------------------------------------------------------------------
+// ROOT WIDGET
+// ---------------------------------------------------------------------------
 
 class TournamentRoundsWidget extends StatelessWidget {
   const TournamentRoundsWidget({super.key});
@@ -31,7 +50,7 @@ class TournamentRoundsWidget extends StatelessWidget {
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
 
         // ── FAB: rebuilds only when isTournamentOngoing or canInteractOn
-        // changes — not on every model notification.
+        //   changes — not on every model notification.
         floatingActionButton: Selector<TournamentRoundsModel,
             ({bool ongoing, bool canInteract})>(
           selector: (_, m) => (
@@ -62,7 +81,14 @@ class TournamentRoundsWidget extends StatelessWidget {
               }());
 
               if (isLoading) return const _LoadingBody();
-              return const _RoundsBody();
+
+              // FIX: model is resolved here and passed as a parameter so
+              //   _RoundsBody does not need to call context.read inside its
+              //   own build method.  This also removes the misleading `const`
+              //   keyword that was on `_RoundsBody()` — a widget that receives
+              //   a non-const model reference cannot be const-constructed.
+              final model = context.read<TournamentRoundsModel>();
+              return _RoundsBody(model: model);
             },
           ),
         ),
@@ -74,6 +100,7 @@ class TournamentRoundsWidget extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // LOADING BODY
 // ---------------------------------------------------------------------------
+
 class _LoadingBody extends StatelessWidget {
   const _LoadingBody();
 
@@ -88,20 +115,21 @@ class _LoadingBody extends StatelessWidget {
 // context.read is correct here: _RoundsBody only rebuilds when isLoading
 // flips (Selector above), so there is no stale-reference risk on the model.
 // ---------------------------------------------------------------------------
+
 class _RoundsBody extends StatelessWidget {
-  const _RoundsBody();
+  const _RoundsBody({required this.model});
+
+  final TournamentRoundsModel model;
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<TournamentRoundsModel>();
-
     return RefreshIndicator(
-      // FIX: method tear-off — no anonymous async lambda needed.
       onRefresh: model.onRefresh,
       child: CustomScrollView(
         slivers: [
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(0, _Dims.listTopPadding, 0, 0),
+            // FIX: EdgeInsets.only is cleaner for a single-side padding.
+            padding: const EdgeInsets.only(top: _Dims.listTopPadding),
             sliver: _RoundsSliverList(model: model),
           ),
 
@@ -121,6 +149,7 @@ class _RoundsBody extends StatelessWidget {
 // Extracted to keep _RoundsBody readable and to make the pagination
 // delegate easy to swap independently.
 // ---------------------------------------------------------------------------
+
 class _RoundsSliverList extends StatelessWidget {
   const _RoundsSliverList({required this.model});
 
@@ -140,13 +169,12 @@ class _RoundsSliverList extends StatelessWidget {
                 itemList != null && index == itemList.length - 1;
 
             return TournamentRoundsCardWidget(
-              // ValueKey is more type-safe and readable than the raw Key ctor.
               key: ValueKey('round_${item.uid}_$index'),
               roundRef: item,
               index: index,
               deleteFun: model.deleteRound,
-              // FIX: closeFun uses a safe null check on itemList instead of
-              // force-unwrapping itemList! which would throw if the list is null.
+              // Safe null check on itemList — avoids the force-unwrap
+              // itemList! that would throw if the list is null.
               closeFun: isLast ? model.closeTournament : null,
               deepFun: (roundId) {
                 context.pushNamedAuth(

@@ -51,7 +51,7 @@ class PocketbaseAuthManager {
         }
       }
       return Tuple2(false,convertedMessage);
-    } on Exception catch (_, __) {
+    } on Exception catch (_) {
       return const Tuple2(false,'Errore generico in fase di login');
     }
   }

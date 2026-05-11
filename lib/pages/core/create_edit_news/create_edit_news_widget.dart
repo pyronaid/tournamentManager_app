@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/app_flow_widgets.dart';
@@ -23,14 +22,39 @@ import '../../../app_flow/services/supportClass/snackbar_style.dart';
 // DIMENSION CONSTANTS
 // ---------------------------------------------------------------------------
 abstract class _Dims {
-  static const double fieldSpacing      = 30.0;
-  static const double buttonHeight      = 50.0;
-  static const double buttonRadius      = 25.0;
-  static const double imageButtonWidth  = 40; // used as 40.w (responsive)
-  static const double prefixIconSize    = 18.0;
+  static const double fieldSpacing       = 30.0;
+  static const double buttonHeight       = 50.0;
+  static const double buttonRadius       = 25.0;
+  static const double prefixIconSize     = 18.0;
   static const double sectionBorderWidth = 1.0;
+
+  /// Gap between the two image action buttons.
+  static const double imageButtonGap     = 10.0;
 }
 
+// ---------------------------------------------------------------------------
+// VALUE OBJECT
+// ---------------------------------------------------------------------------
+@immutable
+class _ImageState {
+  const _ImageState({required this.localPath, required this.useNetwork});
+
+  final String? localPath;
+  final bool useNetwork;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _ImageState &&
+          other.localPath == localPath &&
+          other.useNetwork == useNetwork;
+
+  @override
+  int get hashCode => Object.hash(localPath, useNetwork);
+}
+
+// ---------------------------------------------------------------------------
+// ROOT WIDGET
+// ---------------------------------------------------------------------------
 class CreateEditNewsWidget extends StatefulWidget {
   const CreateEditNewsWidget({super.key});
 
@@ -39,7 +63,6 @@ class CreateEditNewsWidget extends StatefulWidget {
 }
 
 class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
-  // Owned by the State so they survive rebuilds.
   final _formKey = GlobalKey<FormState>();
 
   late final CreateEditNewsModel _model;
@@ -48,18 +71,13 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
   @override
   void initState() {
     super.initState();
-
     _model = context.read<CreateEditNewsModel>();
     snackBarService = GetIt.instance<SnackBarService>();
   }
 
-  // ── Save / submit handler ──────────────────────────────────────────────────
-  // Extracted from onPressed so it can be read, tested, and reasoned about
-  // independently from the button widget that triggers it.
   Future<void> _handleSave() async {
     FocusScope.of(context).unfocus();
 
-    // Analytics: fire the correct event based on create vs edit mode.
     _model.saveWayEn
         ? logFirebaseEvent('ONBOARDING_CREATE_NEWS_CREATE_NEWS')
         : logFirebaseEvent('ONBOARDING_EDIT_NEWS_EDIT_NEWS');
@@ -79,13 +97,13 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
       _model.newsImageUrlTemp,
       _model.newsShowTimestampEnVar,
     );
+
     snackBarService.showSnackBar(
-        message: result ? 'News creata/modificata con successo' : 'Errore nella creazione della News. Riprova più tardi',
-        title: 'Creazione/Modifica News',
-        style: result ? SnackbarStyle.success : SnackbarStyle.error);
+      message: result ? 'News creata/modificata con successo' : 'Errore nella creazione della News. Riprova più tardi',
+      title: 'Creazione/Modifica News',
+      style: result ? SnackbarStyle.success : SnackbarStyle.error,
+    );
 
-
-    // Guard: the widget might have been disposed during the async save.
     if (!mounted) return;
 
     logFirebaseEvent('Button_haptic_feedback');
@@ -102,11 +120,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
-          // Align(topCenter) removed: SingleChildScrollView already aligns
-          // its child to the top by default.
           child: SingleChildScrollView(
-            // Selector on isLoading only: rebuilds this subtree only when the
-            // loading flag changes, not on every NewsModel notification.
             child: Selector<NewsModel, bool>(
               selector: (_, m) => m.isLoading,
               builder: (context, isLoading, _) {
@@ -132,10 +146,7 @@ class _CreateEditNewsWidgetState extends State<CreateEditNewsWidget> {
 
 // ---------------------------------------------------------------------------
 // FORM BODY
-// Purely presentational. Receives everything it needs via constructor.
-// No Provider.of / context.read calls inside — all data flows in from above.
 // ---------------------------------------------------------------------------
-
 class _CreateEditNewsForm extends StatelessWidget {
   const _CreateEditNewsForm({
     required this.model,
@@ -153,10 +164,7 @@ class _CreateEditNewsForm extends StatelessWidget {
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Header (appbar + page title) ──────────────────────────────────
         _FormHeader(model: model),
-
-        // ── Form fields ───────────────────────────────────────────────────
         Padding(
           padding: const EdgeInsets.all(24),
           child: Form(
@@ -166,7 +174,6 @@ class _CreateEditNewsForm extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title
                 _LabelledFormField(
                   label: 'Titolo news',
                   controller: model.fieldControllerTitle,
@@ -175,8 +182,6 @@ class _CreateEditNewsForm extends StatelessWidget {
                   validator: model.newsTitleTextControllerValidator
                       .asValidator(context),
                 ),
-
-                // Subtitle
                 _LabelledFormField(
                   label: 'Sotto Titolo news (facoltativo)',
                   controller: model.fieldControllerSubTitle,
@@ -185,8 +190,6 @@ class _CreateEditNewsForm extends StatelessWidget {
                   validator: model.newsSubTitleTextControllerValidator
                       .asValidator(context),
                 ),
-
-                // Description (multiline)
                 _LabelledFormField(
                   label: 'Testo news',
                   controller: model.fieldControllerDescription,
@@ -197,18 +200,12 @@ class _CreateEditNewsForm extends StatelessWidget {
                   validator: model.newsDescriptionTextControllerValidator
                       .asValidator(context),
                 ),
-
-                // Image picker
                 _ImagePickerField(model: model),
-
-                // Show timestamp toggle
                 _TimestampToggle(model: model),
               ],
             ),
           ),
         ),
-
-        // ── Submit button ──────────────────────────────────────────────────
         _SubmitButton(model: model, onSave: onSave),
       ],
     );
@@ -218,7 +215,6 @@ class _CreateEditNewsForm extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // SECTION: HEADER
 // ---------------------------------------------------------------------------
-
 class _FormHeader extends StatelessWidget {
   const _FormHeader({required this.model});
 
@@ -232,9 +228,6 @@ class _FormHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // AppBar: the model listener is registered in State.initState, so
-          // we build the widget directly without wrapWithModel to avoid
-          // accumulating stale callbacks on each rebuild.
           CustomAppbarWidget(
             backButton: true,
             actionButton: false,
@@ -258,10 +251,7 @@ class _FormHeader extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SECTION: LABELLED FORM FIELD
-// Replaces the three copy-pasted Title / Subtitle / Description blocks.
-// Every structural difference (icon, lines, validator) is a parameter.
 // ---------------------------------------------------------------------------
-
 class _LabelledFormField extends StatelessWidget {
   const _LabelledFormField({
     required this.label,
@@ -326,29 +316,7 @@ class _LabelledFormField extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SECTION: IMAGE PICKER FIELD
-// Two granular Selectors so only the image preview or the button row
-// rebuilds when its specific slice of state changes — never the whole form.
 // ---------------------------------------------------------------------------
-
-/// Value object replacing Tuple2<String?, bool> for the image selector.
-/// Named fields make the selector self-documenting and type-safe.
-@immutable
-class _ImageState {
-  const _ImageState({required this.localPath, required this.useNetwork});
-
-  final String? localPath;
-  final bool useNetwork;
-
-  @override
-  bool operator ==(Object other) =>
-      other is _ImageState &&
-          other.localPath == localPath &&
-          other.useNetwork == useNetwork;
-
-  @override
-  int get hashCode => Object.hash(localPath, useNetwork);
-}
-
 class _ImagePickerField extends StatelessWidget {
   const _ImagePickerField({required this.model});
 
@@ -377,7 +345,6 @@ class _ImagePickerField extends StatelessWidget {
               decoration: BoxDecoration(
                 color: CustomFlowTheme.of(context).accent1,
               ),
-              // Rebuilds only when localPath or useNetwork changes.
               child: Selector<CreateEditNewsModel, _ImageState>(
                 selector: (_, m) => _ImageState(
                   localPath: m.newsImageUrlTemp,
@@ -388,10 +355,6 @@ class _ImagePickerField extends StatelessWidget {
               ),
             ),
           ),
-
-          // ── Upload / delete buttons ─────────────────────────────────────
-          // Rebuilds only when useNetworkImage changes (controls delete button
-          // visibility).
           Selector<CreateEditNewsModel, bool>(
             selector: (_, m) => m.useNetworkImage,
             builder: (context, useNetwork, _) =>
@@ -412,11 +375,8 @@ class _ImagePreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (imageState.useNetwork) {
-      // Read the current network URL directly from NewsModel — safe here
-      // because this widget only rebuilds when useNetwork flips.
       final networkUrl = context.read<NewsModel>().newsImageUrl;
       if (networkUrl == null) return const Text('Nessuna immagine caricata');
-
       return Image.network(
         networkUrl,
         loadingBuilder: (_, child, progress) {
@@ -453,7 +413,7 @@ class _ImageActionButtons extends StatelessWidget {
   final CreateEditNewsModel model;
   final bool showDelete;
 
-  void _onUpload(BuildContext context) async {
+  Future<void> _onUpload(BuildContext context) async {
     FocusScope.of(context).unfocus();
     logFirebaseEvent('Button_load_pic');
     HapticFeedback.lightImpact();
@@ -479,17 +439,30 @@ class _ImageActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // FIX: the original used `width: _Dims.imageButtonWidth.w` (40% of
+    //   screen width via responsive_sizer) on each button.  Two problems:
+    //     1. On narrow screens (320 dp) two 40% buttons = 256 dp + 10 gap
+    //        → overflows.
+    //     2. On tablets the buttons stretch to 320+ dp each — too wide.
+    //
+    //   Expanded distributes the available Row width equally between the
+    //   two buttons.  They always fit, regardless of screen width, and the
+    //   gap between them is the only fixed value (_Dims.imageButtonGap).
     return Row(
       children: [
-        _ImageButton(
-          label: 'Carica immagine',
-          onPressed: () => _onUpload(context),
+        Expanded(
+          child: _ImageButton(
+            label: 'Carica immagine',
+            onPressed: () => _onUpload(context),
+          ),
         ),
         if (showDelete) ...[
-          const SizedBox(width: 10),
-          _ImageButton(
-            label: 'Elimina immagine',
-            onPressed: () => _onDelete(context),
+          const SizedBox(width: _Dims.imageButtonGap),
+          Expanded(
+            child: _ImageButton(
+              label: 'Elimina immagine',
+              onPressed: () => _onDelete(context),
+            ),
           ),
         ],
       ],
@@ -505,11 +478,13 @@ class _ImageButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // FIX: width removed — provided by the Expanded parent in
+    //   _ImageActionButtons.  The button fills its share of the Row.
     return AFButtonWidget(
       onPressed: onPressed,
       text: label,
       options: AFButtonOptions(
-        width: _Dims.imageButtonWidth.w,
+        width: double.infinity,
         height: _Dims.buttonHeight,
         padding: EdgeInsetsDirectional.zero,
         iconPadding: EdgeInsetsDirectional.zero,
@@ -555,9 +530,7 @@ class _ImageSourceSheet extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SECTION: TIMESTAMP TOGGLE
-// Rebuilds only when newsShowTimestampEnVar changes.
 // ---------------------------------------------------------------------------
-
 class _TimestampToggle extends StatelessWidget {
   const _TimestampToggle({required this.model});
 
@@ -592,7 +565,6 @@ class _TimestampToggle extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // SECTION: SUBMIT BUTTON
 // ---------------------------------------------------------------------------
-
 class _SubmitButton extends StatelessWidget {
   const _SubmitButton({required this.model, required this.onSave});
 
