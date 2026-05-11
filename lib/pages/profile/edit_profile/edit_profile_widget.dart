@@ -29,12 +29,17 @@ abstract class _Dims {
   static const double buttonPaddingTop    = 12.0;
   static const double buttonHeight        = 50.0;
   static const double buttonRadius        = 25.0;
+
+  /// Bottom padding after the delete account button — provides breathing room
+  /// before the end of the scroll content.
+  static const double deleteButtonPaddingBtm = 48.0;
+
   static const Color  deleteButtonBg      = Color(0xFFFFD4D4);
   static const Color  deleteButtonText    = Color(0xFFB74D4D);
 }
 
 // ---------------------------------------------------------------------------
-// WIDGET
+// ROOT WIDGET
 // Kept as StatefulWidget: _formKey must persist across rebuilds.
 // ---------------------------------------------------------------------------
 class EditProfileWidget extends StatefulWidget {
@@ -47,6 +52,18 @@ class EditProfileWidget extends StatefulWidget {
 class _EditProfileWidgetState extends State<EditProfileWidget> {
   final _formKey = GlobalKey<FormState>();
 
+  // FIX: model resolved once in initState — not inside multiple descendant
+  //   build() methods.  Passing it as a parameter makes every widget's
+  //   dependency explicit and removes six separate context.read calls from
+  //   build methods throughout the tree.
+  late final EditProfileModel _model;
+
+  @override
+  void initState() {
+    super.initState();
+    _model = context.read<EditProfileModel>();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -56,22 +73,22 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
         backgroundColor: CustomFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
+          // FIX: Align(0,0) inside SingleChildScrollView removed.
+          //   SingleChildScrollView aligns content to the top by default;
+          //   the Align was a redundant layout node with no visual effect.
           child: SingleChildScrollView(
-            child: Align(
-              alignment: const AlignmentDirectional(0, 0),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _Header(formKey: _formKey),
-                  _FormSection(formKey: _formKey),
-                  const _ResetPasswordSection(),
-                  const _ChangeMailSection(),
-                  const _DeleteAccountSection(),
-                  const _HiddenEmailField(),
-                ],
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _Header(model: _model, formKey: _formKey),
+                _FormSection(model: _model, formKey: _formKey),
+                _ResetPasswordSection(model: _model),
+                _ChangeMailSection(model: _model),
+                _DeleteAccountSection(model: _model),
+                _HiddenEmailField(model: _model),
+              ],
             ),
           ),
         ),
@@ -84,13 +101,13 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
 // HEADER  (appbar with save action + page title)
 // ---------------------------------------------------------------------------
 class _Header extends StatelessWidget {
-  const _Header({required this.formKey});
+  const _Header({required this.model, required this.formKey});
 
+  final EditProfileModel model;
   final GlobalKey<FormState> formKey;
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<EditProfileModel>();
     return Container(
       color: CustomFlowTheme.of(context).secondary,
       padding: const EdgeInsets.all(_Dims.headerPaddingAll),
@@ -127,13 +144,13 @@ class _Header extends StatelessWidget {
 // FORM SECTION  (name / surname / username fields)
 // ---------------------------------------------------------------------------
 class _FormSection extends StatelessWidget {
-  const _FormSection({required this.formKey});
+  const _FormSection({required this.model, required this.formKey});
 
+  final EditProfileModel model;
   final GlobalKey<FormState> formKey;
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<EditProfileModel>();
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(
         _Dims.formPaddingH, _Dims.formPaddingTop,
@@ -284,9 +301,16 @@ class _FormTextField extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // RESET PASSWORD SECTION
+//
+// FIX: model received as constructor parameter — no context.read in build().
+// FIX: EdgeInsets.fromLTRB(sectionPaddingH, 0, sectionPaddingH, 0) replaced
+//   with EdgeInsets.symmetric(horizontal: sectionPaddingH) — expresses the
+//   same inset more clearly.  Applied to all three section widgets below.
 // ---------------------------------------------------------------------------
 class _ResetPasswordSection extends StatelessWidget {
-  const _ResetPasswordSection();
+  const _ResetPasswordSection({required this.model});
+
+  final EditProfileModel model;
 
   @override
   Widget build(BuildContext context) {
@@ -294,7 +318,7 @@ class _ResetPasswordSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
-          padding: EdgeInsets.fromLTRB(_Dims.sectionPaddingH, 0, _Dims.sectionPaddingH, 0),
+          padding: EdgeInsets.symmetric(horizontal: _Dims.sectionPaddingH),
           child: TitleWithSubtitleWidget(
             title: 'Reset Password',
             subtitle: 'Ricevi un link via email per resettare la tua password.',
@@ -309,7 +333,6 @@ class _ResetPasswordSection extends StatelessWidget {
               FocusScope.of(context).unfocus();
               logFirebaseEvent('EDIT_PROFILE_RESET_PASSWORD_BTN_ON_TAP');
               logFirebaseEvent('Button_auth');
-              final model = context.read<EditProfileModel>();
               if (model.emailAddressTextController.text.isEmpty) {
                 model.showIssueSnackBar();
               } else {
@@ -329,7 +352,9 @@ class _ResetPasswordSection extends StatelessWidget {
 // CHANGE MAIL SECTION
 // ---------------------------------------------------------------------------
 class _ChangeMailSection extends StatelessWidget {
-  const _ChangeMailSection();
+  const _ChangeMailSection({required this.model});
+
+  final EditProfileModel model;
 
   @override
   Widget build(BuildContext context) {
@@ -337,7 +362,8 @@ class _ChangeMailSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(_Dims.sectionPaddingH, 0, _Dims.sectionPaddingH, 0),
+          padding:
+              const EdgeInsets.symmetric(horizontal: _Dims.sectionPaddingH),
           child: TitleWithSubtitleWidget(
             title: 'Cambio Mail',
             subtitle: 'Avvia la procedura di cambio mail: $currentUserEmail',
@@ -352,7 +378,6 @@ class _ChangeMailSection extends StatelessWidget {
               FocusScope.of(context).unfocus();
               logFirebaseEvent('EDIT_PROFILE_CHANGE_MAIL_BTN_ON_TAP');
               logFirebaseEvent('Button_auth');
-              final model = context.read<EditProfileModel>();
               if (model.emailAddressTextController.text.isEmpty) {
                 model.showIssueSnackBar();
               } else {
@@ -372,7 +397,9 @@ class _ChangeMailSection extends StatelessWidget {
 // DELETE ACCOUNT SECTION
 // ---------------------------------------------------------------------------
 class _DeleteAccountSection extends StatelessWidget {
-  const _DeleteAccountSection();
+  const _DeleteAccountSection({required this.model});
+
+  final EditProfileModel model;
 
   @override
   Widget build(BuildContext context) {
@@ -380,7 +407,7 @@ class _DeleteAccountSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
-          padding: EdgeInsets.fromLTRB(_Dims.sectionPaddingH, 0, _Dims.sectionPaddingH, 0),
+          padding: EdgeInsets.symmetric(horizontal: _Dims.sectionPaddingH),
           child: TitleWithSubtitleWidget(
             title: 'Cancella Account',
             subtitle: 'I dati del tuo account saranno cancellati senza possibilità di ripristino.',
@@ -395,8 +422,10 @@ class _DeleteAccountSection extends StatelessWidget {
               FocusScope.of(context).unfocus();
               logFirebaseEvent('EDIT_PROFILE_DELETE_ACCOUNT_BTN_ON_TAP');
               logFirebaseEvent('Button_auth');
-              final model = context.read<EditProfileModel>();
-              context.goNamed('DialogDeleteAccount', extra: {'req': model.showConfirmDeletionAccountAlertRequest()});
+              context.goNamed('DialogDeleteAccount',
+                  extra: {
+                    'req': model.showConfirmDeletionAccountAlertRequest(),
+                  });
             },
             text: 'Cancella Account',
             options: AFButtonOptions(
@@ -421,13 +450,15 @@ class _DeleteAccountSection extends StatelessWidget {
 // HIDDEN EMAIL FIELD  (invisible — holds email value for validation/alert refs)
 // ---------------------------------------------------------------------------
 class _HiddenEmailField extends StatelessWidget {
-  const _HiddenEmailField();
+  const _HiddenEmailField({required this.model});
+
+  final EditProfileModel model;
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<EditProfileModel>();
     return Padding(
-      padding: const EdgeInsets.fromLTRB(_Dims.sectionPaddingH, 0, _Dims.sectionPaddingH, 0),
+      padding:
+          const EdgeInsets.symmetric(horizontal: _Dims.sectionPaddingH),
       child: TextFormField(
         controller: model.emailAddressTextController,
         focusNode: model.emailAddressFocusNode,
