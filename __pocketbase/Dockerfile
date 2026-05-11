@@ -25,6 +25,9 @@ RUN addgroup -g 1001 pocketbase && \
 WORKDIR /home/pocketbase
 
 COPY --from=builder /build/extended-pocketbase .
+# Schema snapshot used by main.go to seed a fresh pb_data volume.
+# The file is part of the image so no extra volume or bind-mount is needed.
+COPY --from=builder /build/pb_schema.json .
 
 # pb_data  → database, migrations, logs  (must be persisted via a volume)
 # pb_public → static files served by the GET /{path...} route
