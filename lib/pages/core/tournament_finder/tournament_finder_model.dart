@@ -94,6 +94,8 @@ class TournamentFinderModel extends ChangeNotifier {
   late double _radiusInKm;
   //////////////////////////////DROPDOWN GAMES DIALOG
   late List<Game> _games;
+  //////////////////////////////ONLINE FLAG DIALOG
+  late bool _addOnlineToo;
   //////////////////////////////DATARANGE DIALOG
   late DateTime _dateStart;
   late DateTime _dateEnd;
@@ -121,6 +123,7 @@ class TournamentFinderModel extends ChangeNotifier {
     _dateStart = DateTime.now();
     _dateEnd = _dateStart.add(const Duration(days: 7));
     _games = List.of(Game.values);
+    _addOnlineToo = false;
     _mapController = MapController();
     tournamentsListRefObj = [];
     tournamentsListRefObjToDetail = [];
@@ -196,11 +199,12 @@ class TournamentFinderModel extends ChangeNotifier {
       }
     });
   }
-  Future<void> refreshSearchByFilter(String? nameToFilter, Map<String, String?>? placeIdToFilter, double? sliderToFilter, List<Game>? gamesToFilter, List<DateTime>? dataRangeToFilter) async {
+  Future<void> refreshSearchByFilter(String? nameToFilter, Map<String, String?>? placeIdToFilter, double? sliderToFilter, List<Game>? gamesToFilter, List<DateTime>? dataRangeToFilter, bool addOnlineToo) async {
     if((nameToFilter == null || nameToFilter.isEmpty || nameToFilter == _name) &&
         (placeIdToFilter == null || placeIdToFilter["placeId"] == null || placeIdToFilter["lastSelected"] == null || placeIdToFilter["lastSelected"] == _place["lastSelected"]) &&
         (sliderToFilter == null || sliderToFilter == _radiusInKm) &&
         (gamesToFilter == null || containsSameGames(gamesToFilter,_games)) &&
+        (addOnlineToo == _addOnlineToo) &&
         (dataRangeToFilter == null || (dataRangeToFilter[0] == _dateStart && dataRangeToFilter[1] == _dateEnd))){
       return;
     }
@@ -220,6 +224,8 @@ class TournamentFinderModel extends ChangeNotifier {
     if(nameToFilter != null){
       _name = nameToFilter;
     }
+    _addOnlineToo = addOnlineToo;
+    
     if(placeIdToFilter != null && placeIdToFilter["placeId"] != null){
       try {
         if(placeIdToFilter["lastSelected"] != null){
@@ -285,7 +291,7 @@ class TournamentFinderModel extends ChangeNotifier {
           key: GlobalKey<SliderFormElementState>(),
         ),
         () async => DropdownFormElement<Game>(
-          label: "Giochi di interesse",
+          label: "Formati di interesse",
           value: null,
           items: Game.values.where((game) => game.desc.isNotEmpty).toList(),
           selectedItems: _games,
@@ -298,6 +304,11 @@ class TournamentFinderModel extends ChangeNotifier {
           label: "Date di ricerca",
           key: GlobalKey<CalendarPickerFormElementState>(),
         ),
+        () async => SwitchFormElement(
+          label: "Includi tornei online",
+          value: _addOnlineToo,
+          key: GlobalKey<SwitchFormElementState>(),
+        ),
       ],
       functionConfirmed: (List<dynamic>? formValues) async {
         try {
@@ -306,7 +317,8 @@ class TournamentFinderModel extends ChangeNotifier {
           double? sliderToFilter = (formValues[2] as double);
           List<Game>? gamesToFilter = (formValues[3]! as List<Game>);
           List<DateTime>? dataRangeToFilter = (formValues[4]!.whereType<DateTime>().toList() as List<DateTime>);
-          await refreshSearchByFilter(nameToFilter, placeIdToFilter, sliderToFilter, gamesToFilter, dataRangeToFilter);
+          bool addOnlineToo = (formValues[5] as bool?) ?? false;
+          await refreshSearchByFilter(nameToFilter, placeIdToFilter, sliderToFilter, gamesToFilter, dataRangeToFilter, addOnlineToo);
         } catch (e){
           debugPrint('[TournamentFinderModel] Error in showChangeTournamentFinderSettingsAlertRequest: $e');
         }
@@ -418,16 +430,33 @@ class TournamentFinderModel extends ChangeNotifier {
       currentLat = mapController.camera.center.latitude;
       currentLong = mapController.camera.center.longitude;
     }
+    // 1. Build the base query
     String query = 'state = "${StateTournament.ready.name}" && '
-        'date <= "$_dateEnd" && date >= "$_dateStart" && '
-        '(${_games.map((g) => g.name).map((el) => "game = '$el'").toList().join(" || ")}) && '
-        'latitude  >= "${currentLat - (_radiusInKm / 111.32)}" && '
-        'latitude  <= "${currentLat + (_radiusInKm / 111.32)}" && '
-        'longitude  >= "${currentLong - (_radiusInKm / (111.32 * cos(currentLat * pi / 180)))}" && '
-        'longitude  <= "${currentLong + (_radiusInKm / (111.32 * cos(currentLat * pi / 180)))}"';
-    if(_name.isNotEmpty){
+      'date <= "$_dateEnd" && date >= "$_dateStart" && '
+      '(${_games.map((g) => g.name).map((el) => "game = \'$el\'").join(" || ")})';
+
+    // 2. Append optional name filter
+    if (_name.isNotEmpty) {
       query = '$query && name ~ "$_name"';
     }
+
+    // 3. Build location filter once (reused in both branches)
+    final double latDelta = _radiusInKm / 111.32;
+    final double lonDelta = _radiusInKm / (111.32 * cos(currentLat * pi / 180));
+
+    final String locationFilter =
+        '(isOnline = false && '
+        'latitude >= "${currentLat - latDelta}" && '
+        'latitude <= "${currentLat + latDelta}" && '
+        'longitude >= "${currentLong - lonDelta}" && '
+        'longitude <= "${currentLong + lonDelta}")';
+
+    // 4. Append online/location filter
+    final String onlineFilter = _addOnlineToo
+        ? '(isOnline = true || $locationFilter)'
+        : locationFilter;
+
+    query = '$query && $onlineFilter';
     return query;
   }
 
