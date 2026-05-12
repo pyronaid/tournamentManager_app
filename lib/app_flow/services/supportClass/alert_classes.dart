@@ -3,12 +3,48 @@ import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:multi_select_flutter/chip_field/multi_select_chip_field.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/components/standard_graphics/standard_graphics_widgets.dart';
 
+// ---------------------------------------------------------------------------
+// DIMENSION CONSTANTS
+//
+// FIX: CalendarPickerFormElement used `SizedBox(width: 100.w)` to try to
+//   force the calendar to fill the available width.  This is both wrong and
+//   unnecessary:
+//   - `100.w` calls MediaQuery internally, which is the total screen width,
+//     not the available width inside the dialog (which has padding/margins).
+//     This causes the calendar to overflow on both sides of the dialog.
+//   - A SizedBox(width: double.infinity) or simply omitting the explicit
+//     width allows the TableCalendar to fill its parent naturally, which
+//     is already constrained by the dialog's ConstrainedBox.
+//
+//   The height (450) is a fixed value — calendars have a well-known minimum
+//   height to show a full month grid — so it is kept as a named constant.
+// ---------------------------------------------------------------------------
+abstract class _FormDims {
+  /// Icon size used in form field decorations.
+  static const double iconSize = 18.0;
+
+  /// Label top padding — consistent across all form element types.
+  static const double labelPaddingTop = 10.0;
+
+  /// Label bottom padding.
+  static const double labelPaddingBtm = 4.0;
+
+  /// Calendar height — fixed because a full month grid has a known minimum
+  /// height regardless of screen size.
+  static const double calendarHeight = 450.0;
+
+  /// Chip field border radius.
+  static const double chipRadius = 10.0;
+}
+
+// ---------------------------------------------------------------------------
+// ALERT REQUEST
+// ---------------------------------------------------------------------------
 class AlertRequest {
   final String title;
   final String description;
@@ -31,7 +67,7 @@ class AlertRequest {
   });
 }
 
-class AlertFormRequest extends AlertRequest{
+class AlertFormRequest extends AlertRequest {
   final List<Future<FormInformation> Function()> formInfo;
 
   AlertFormRequest({
@@ -40,7 +76,7 @@ class AlertFormRequest extends AlertRequest{
     required super.description,
     required super.buttonTitleConfirmed,
     required super.buttonTitleCancelled,
-    super.functionConfirmed
+    super.functionConfirmed,
   });
 }
 
@@ -55,6 +91,9 @@ abstract class FormInformation extends StatefulWidget {
   dynamic result();
 }
 
+// ---------------------------------------------------------------------------
+// TEXT FORM ELEMENT
+// ---------------------------------------------------------------------------
 class TextFormElement extends FormInformation {
   final String controllerInitValue;
   final bool autofocus;
@@ -115,7 +154,8 @@ class TextFormElementState extends State<TextFormElement> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 4),
+          padding: const EdgeInsetsDirectional.fromSTEB(
+              0, _FormDims.labelPaddingTop, 0, _FormDims.labelPaddingBtm),
           child: Text(
             widget.label,
             style: CustomFlowTheme.of(context).bodyMedium,
@@ -133,49 +173,53 @@ class TextFormElementState extends State<TextFormElement> {
           readOnly: widget.readOnly,
           decoration: standardInputDecoration(
             context,
-            prefixIcon: widget.iconPrefix != null ?
-            Icon(
-              widget.iconPrefix,
-              color: CustomFlowTheme.of(context).secondaryText,
-              size: 18,
-            ) : null,
-            suffixIcons:
-              widget.obscureTextSwitch ?
-                [
-                  InkWell(
-                    onTap: () => setState(
-                      () => obscureTextSwitchFlag = !obscureTextSwitchFlag,
-                    ),
-                    child: Icon(
-                      obscureTextSwitchFlag ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                      color: CustomFlowTheme.of(context).secondaryText,
-                      size: 18,
-                    ),
-                  ),
-                ]
-                : (widget.iconSuffix != null ?
-                  (widget.iconSuffixOnTapFunction != null ?
-                    [
-                      IconButton(
-                        icon: Icon(
-                          widget.iconSuffix,
-                          color: CustomFlowTheme.of(context).secondaryText,
-                          size: 18,
-                        ),
-                        onPressed: () async {
-                          widget.iconSuffixOnTapFunction!(context);
-                        },
-                      )
-                    ]:
-                    [
-                      Icon(
-                        widget.iconSuffix,
-                        color: CustomFlowTheme.of(context).secondaryText,
-                        size: 18,
-                      )
-                    ]
+            prefixIcon: widget.iconPrefix != null
+                ? Icon(
+                    widget.iconPrefix,
+                    color: CustomFlowTheme.of(context).secondaryText,
+                    size: _FormDims.iconSize,
                   )
-                : null),
+                : null,
+            suffixIcons: widget.obscureTextSwitch
+                ? [
+                    InkWell(
+                      onTap: () => setState(
+                        () => obscureTextSwitchFlag =
+                            !obscureTextSwitchFlag,
+                      ),
+                      child: Icon(
+                        obscureTextSwitchFlag
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        color: CustomFlowTheme.of(context).secondaryText,
+                        size: _FormDims.iconSize,
+                      ),
+                    ),
+                  ]
+                : (widget.iconSuffix != null
+                    ? (widget.iconSuffixOnTapFunction != null
+                        ? [
+                            IconButton(
+                              icon: Icon(
+                                widget.iconSuffix,
+                                color: CustomFlowTheme.of(context)
+                                    .secondaryText,
+                                size: _FormDims.iconSize,
+                              ),
+                              onPressed: () async {
+                                widget.iconSuffixOnTapFunction!(context);
+                              },
+                            )
+                          ]
+                        : [
+                            Icon(
+                              widget.iconSuffix,
+                              color: CustomFlowTheme.of(context)
+                                  .secondaryText,
+                              size: _FormDims.iconSize,
+                            )
+                          ])
+                    : null),
           ),
           style: CustomFlowTheme.of(context).bodyLarge.override(
             fontWeight: FontWeight.w500,
@@ -197,6 +241,9 @@ class TextFormElementState extends State<TextFormElement> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// SLIDER FORM ELEMENT
+// ---------------------------------------------------------------------------
 class SliderFormElement extends FormInformation {
   final double sliderValue;
   final double min;
@@ -230,17 +277,17 @@ class SliderFormElementState extends State<SliderFormElement> {
   @override
   void initState() {
     super.initState();
-    currentValue = widget.sliderValue; // Initialize once with widget's initial value
+    currentValue = widget.sliderValue;
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 4),
+          padding: const EdgeInsetsDirectional.fromSTEB(
+              0, _FormDims.labelPaddingTop, 0, _FormDims.labelPaddingBtm),
           child: Text(
             widget.label,
             style: CustomFlowTheme.of(context).bodyMedium,
@@ -272,13 +319,16 @@ class SliderFormElementState extends State<SliderFormElement> {
               widget.max.toStringAsFixed(0),
               style: CustomFlowTheme.of(context).labelMedium,
             ),
-          ]
+          ],
         ),
       ],
     );
   }
 }
 
+// ---------------------------------------------------------------------------
+// SINGLE DROPDOWN FORM ELEMENT
+// ---------------------------------------------------------------------------
 class SingleDropdownFormElement<T> extends FormInformation {
   final T? value;
   final List<T> items;
@@ -305,17 +355,15 @@ class SingleDropdownFormElement<T> extends FormInformation {
 class SingleDropdownFormElementState<T> extends State<SingleDropdownFormElement<T>> {
   T? _selectedItem;
   List<T> _allItems = [];
-  late final FocusNode focusNode;
 
   @override
   void initState() {
     super.initState();
     _selectedItem = widget.selectedItem;
     _allItems = List.from(widget.items);
-    if(!_allItems.contains(_selectedItem)){
+    if (!_allItems.contains(_selectedItem)) {
       _selectedItem = _allItems[0];
     }
-    //focusNode = FocusNode();
   }
 
   @override
@@ -324,7 +372,8 @@ class SingleDropdownFormElementState<T> extends State<SingleDropdownFormElement<
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 4),
+          padding: const EdgeInsetsDirectional.fromSTEB(
+              0, _FormDims.labelPaddingTop, 0, _FormDims.labelPaddingBtm),
           child: Text(
             widget.label,
             style: CustomFlowTheme.of(context).bodyMedium,
@@ -337,13 +386,15 @@ class SingleDropdownFormElementState<T> extends State<SingleDropdownFormElement<
           onSelected: (value) {
             _selectedItem = value;
           },
-          //focusNode: focusNode,
-        )
+        ),
       ],
     );
   }
 }
 
+// ---------------------------------------------------------------------------
+// MULTI-SELECT DROPDOWN FORM ELEMENT
+// ---------------------------------------------------------------------------
 class DropdownFormElement<T> extends FormInformation {
   final T? value;
   final List<T> items;
@@ -386,7 +437,8 @@ class DropdownFormElementState<T> extends State<DropdownFormElement<T>> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 4),
+          padding: const EdgeInsetsDirectional.fromSTEB(
+              0, _FormDims.labelPaddingTop, 0, _FormDims.labelPaddingBtm),
           child: Text(
             widget.label,
             style: CustomFlowTheme.of(context).bodyMedium,
@@ -406,15 +458,16 @@ class DropdownFormElementState<T> extends State<DropdownFormElement<T>> {
           },
           selectedChipColor: CustomFlowTheme.of(context).primary,
           selectedTextStyle: const TextStyle(color: Colors.white),
-          textStyle: const TextStyle(color: Colors.black54,),
+          textStyle: const TextStyle(color: Colors.black54),
           scroll: false,
-          decoration:  const BoxDecoration(),
+          decoration: const BoxDecoration(),
           chipShape: RoundedRectangleBorder(
             side: const BorderSide(
               color: Colors.transparent,
               width: 0,
             ),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius:
+                BorderRadius.circular(_FormDims.chipRadius),
           ),
         ),
       ],
@@ -422,6 +475,17 @@ class DropdownFormElementState<T> extends State<DropdownFormElement<T>> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// CALENDAR PICKER FORM ELEMENT
+//
+// FIX: `SizedBox(width: 100.w)` removed from around the TableCalendar.
+//   100.w = MediaQuery.of(context).size.width, which is the total screen
+//   width — not the available width inside the dialog's padded/margined
+//   container.  This caused the calendar to overflow the dialog on both
+//   sides.  TableCalendar fills its parent width naturally when given no
+//   explicit width constraint, which is the correct behaviour here since
+//   the dialog's ConstrainedBox already limits the available space.
+// ---------------------------------------------------------------------------
 class CalendarPickerFormElement<T> extends FormInformation {
   final DateTime from;
   final DateTime to;
@@ -468,11 +532,11 @@ class CalendarPickerFormElementState extends State<CalendarPickerFormElement> {
     });
   }
 
-  void _onDaySelected(DateTime? selected, DateTime focused){
-    if(!isSameDay(selected, _selectedDay)){
+  void _onDaySelected(DateTime? selected, DateTime focused) {
+    if (!isSameDay(selected, _selectedDay)) {
       setState(() {
         _selectedDay = selected;
-        _selectedDay = focused;
+        _focusedDay = focused;
       });
     }
   }
@@ -484,15 +548,18 @@ class CalendarPickerFormElementState extends State<CalendarPickerFormElement> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 4),
+          padding: const EdgeInsetsDirectional.fromSTEB(
+              0, _FormDims.labelPaddingTop, 0, _FormDims.labelPaddingBtm),
           child: Text(
             widget.label,
             style: CustomFlowTheme.of(context).bodyMedium,
           ),
         ),
+        // FIX: SizedBox(width: 100.w) removed.
+        //   TableCalendar fills its parent width naturally — no explicit
+        //   width needed and no MediaQuery call required.
         SizedBox(
-          width: 100 .w,
-          height: 450,
+          height: _FormDims.calendarHeight,
           child: TableCalendar(
             availableGestures: AvailableGestures.horizontalSwipe,
             locale: 'it_IT',
@@ -515,28 +582,16 @@ class CalendarPickerFormElementState extends State<CalendarPickerFormElement> {
             ),
             calendarStyle: const CalendarStyle(
               outsideDaysVisible: false,
-              weekendTextStyle: TextStyle(
-                color: Colors.white,
+              weekendTextStyle: TextStyle(color: Colors.white),
+              withinRangeTextStyle: TextStyle(
+                color: Colors.black54,
+                fontWeight: FontWeight.bold,
               ),
-              withinRangeTextStyle : TextStyle(
-                color: Colors.black54, // Text color for weekend days
-                fontWeight: FontWeight.bold, // Font style for weekend days
-              ),
-              disabledTextStyle : TextStyle(
-                color: Colors.grey
-              ),
+              disabledTextStyle: TextStyle(color: Colors.grey),
             ),
             startingDayOfWeek: StartingDayOfWeek.monday,
-            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-            /*
-            onFormatChanged: (format) {
-              if (_calendarFormat != format) {
-                setState(() {
-                  _calendarFormat = format;
-                });
-              }
-            },
-            */
+            selectedDayPredicate: (day) =>
+                isSameDay(_selectedDay, day),
             onPageChanged: (focusedDay) {
               _focusedDay = focusedDay;
             },
@@ -544,7 +599,6 @@ class CalendarPickerFormElementState extends State<CalendarPickerFormElement> {
               formatButtonVisible: false,
               titleCentered: true,
             ),
-
           ),
         ),
       ],
@@ -552,8 +606,11 @@ class CalendarPickerFormElementState extends State<CalendarPickerFormElement> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// TYPEAHEAD ADDRESS FORM ELEMENT
+// ---------------------------------------------------------------------------
 class TextAheadAddressFormElement extends FormInformation {
-  final Map<String,String> controllerInitValue;
+  final Map<String, String> controllerInitValue;
   final bool autofocus;
   final TextInputType keyboardType;
   final List<TextInputFormatter>? inputFormatters;
@@ -582,8 +639,8 @@ class TextAheadAddressFormElement extends FormInformation {
   dynamic result() {
     final currentState = (key as GlobalKey<TextAheadAddressFormElementState>).currentState;
     return {
-      'placeId' : currentState?.placeId,
-      'lastSelected' : currentState?.lastSelected,
+      'placeId': currentState?.placeId,
+      'lastSelected': currentState?.lastSelected,
     };
   }
 }
@@ -607,14 +664,14 @@ class TextAheadAddressFormElementState extends State<TextAheadAddressFormElement
     focusNode = FocusNode();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 4),
+          padding: const EdgeInsetsDirectional.fromSTEB(
+              0, _FormDims.labelPaddingTop, 0, _FormDims.labelPaddingBtm),
           child: Text(
             widget.label,
             style: CustomFlowTheme.of(context).bodyMedium,
@@ -638,12 +695,14 @@ class TextAheadAddressFormElementState extends State<TextAheadAddressFormElement
               readOnly: false,
               decoration: standardInputDecoration(
                 context,
-                prefixIcon: widget.iconPrefix != null ?
-                Icon(
-                  widget.iconPrefix,
-                  color: CustomFlowTheme.of(context).secondaryText,
-                  size: 18,
-                ) : null,
+                prefixIcon: widget.iconPrefix != null
+                    ? Icon(
+                        widget.iconPrefix,
+                        color:
+                            CustomFlowTheme.of(context).secondaryText,
+                        size: _FormDims.iconSize,
+                      )
+                    : null,
               ),
               style: CustomFlowTheme.of(context).bodyLarge.override(
                 fontWeight: FontWeight.w500,
@@ -656,15 +715,14 @@ class TextAheadAddressFormElementState extends State<TextAheadAddressFormElement
           },
           itemBuilder: (context, place) {
             return ListTile(
-              title: Text(place["description"]),
-              //subtitle: Text(city.country),
+              title: Text(place['description'] as String),
             );
           },
           onSelected: (place) {
-            placeId = place["place_id"];
-            lastSelected = place["description"];
+            placeId = place['place_id'] as String?;
+            lastSelected = place['description'] as String?;
             setState(() {
-              controller.text = place["description"];
+              controller.text = place['description'] as String;
             });
           },
         ),
@@ -680,6 +738,9 @@ class TextAheadAddressFormElementState extends State<TextAheadAddressFormElement
   }
 }
 
+// ---------------------------------------------------------------------------
+// SWITCH FORM ELEMENT
+// ---------------------------------------------------------------------------
 class SwitchFormElement extends FormInformation {
   final bool value;
 
@@ -720,9 +781,7 @@ class SwitchFormElementState extends State<SwitchFormElement> {
         Switch(
           value: _currentValue,
           onChanged: (newValue) {
-            setState(() {
-              _currentValue = newValue;
-            });
+            setState(() => _currentValue = newValue);
           },
         ),
       ],
@@ -730,6 +789,9 @@ class SwitchFormElementState extends State<SwitchFormElement> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// ALERT RESPONSE
+// ---------------------------------------------------------------------------
 class AlertResponse {
   final bool confirmed;
   final List<dynamic>? formValues;
