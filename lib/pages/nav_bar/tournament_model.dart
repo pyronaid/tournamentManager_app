@@ -57,6 +57,8 @@ class TournamentModel extends ChangeNotifier {
   int get tournamentCapacityInt => tournamentsRefObj != null ? tournamentsRefObj!.capacity : 0;
   DateTime? get tournamentDate => tournamentsRefObj?.date;
   Game get tournamentGame => tournamentsRefObj != null ? tournamentsRefObj!.game : Game.unknown;
+  String get tournamentAddress => tournamentsRefObj != null ? tournamentsRefObj!.address : "UNKNOWN ADDRESS";
+  bool get tournamentIsOnline => tournamentsRefObj != null ? tournamentsRefObj!.isOnlineEn : false;
   bool get tournamentPreRegistrationEn => tournamentsRefObj != null ? tournamentsRefObj!.preRegistrationEn : false;
   bool get tournamentWaitingListEn => tournamentsRefObj != null ? tournamentsRefObj!.waitingListEn : false;
   bool get tournamentWaitingListPossible{
