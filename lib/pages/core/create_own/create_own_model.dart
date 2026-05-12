@@ -243,6 +243,7 @@ class CreateOwnModel extends ChangeNotifier {
 
   @override
   void dispose() {
+    super.dispose();
     _unfocusNode.dispose();
     customAppbarModel.dispose();
     _tournamentNameTextController.dispose();
