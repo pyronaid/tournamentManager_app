@@ -61,6 +61,7 @@ class TournamentCardWidget extends StatelessWidget {
                 _NameAddressColumn(
                   name: tournamentRef.name,
                   address: tournamentRef.address,
+                  isOnline: tournamentRef.isOnlineEn,
                   theme: theme,
                 ),
                 _StateLabel(
@@ -115,11 +116,13 @@ class _NameAddressColumn extends StatelessWidget {
   const _NameAddressColumn({
     required this.name,
     required this.address,
+    required this.isOnline,
     required this.theme,
   });
 
   final String name;
   final String address;
+  final bool isOnline;
   final CustomFlowTheme theme;
 
   @override
@@ -135,7 +138,10 @@ class _NameAddressColumn extends StatelessWidget {
           children: [
             Text(name, style: CustomFlowTheme.of(context).bodyMedium),
             const SizedBox(height: 10),
-            Text(address, style: CustomFlowTheme.of(context).labelMedium),
+            Text(
+              isOnline ? 'ONLINE' : address,
+              style: CustomFlowTheme.of(context).labelMedium,
+            ),
           ],
         ),
       ),
