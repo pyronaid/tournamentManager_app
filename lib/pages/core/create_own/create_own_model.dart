@@ -197,6 +197,7 @@ class CreateOwnModel extends ChangeNotifier {
   void switchIsOnlineEn() {
     _isOnlineEnabledVar = !_isOnlineEnabledVar;
     _tournamentAddressTextController.text = _isOnlineEnabledVar ? 'Torneo Online' : '';
+    _preRegistrationEnabledVar = true; // Online tournaments require pre-registration to be active.
     // Reset selected place so the address validator stays consistent.
     _selectedPlace = null;
     notifyListeners();
