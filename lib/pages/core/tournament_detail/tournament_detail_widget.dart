@@ -250,6 +250,7 @@ class _TournamentHeader extends StatelessWidget {
                           _TournamentAvatar(model: model, size: avatarSize),
                           _TournamentNameRow(model: model),
                           _TournamentGameLabel(gameName: t.tournamentGame.desc),
+                          _TournamentAddress(model: model),
                           _TournamentCounters(model: model),
                         ],
                       ),
@@ -408,6 +409,38 @@ class _TournamentGameLabel extends StatelessWidget {
         style: CustomFlowTheme.of(context).titleSmall,
         textAlign: TextAlign.center,
       ),
+    );
+  }
+}
+
+class _TournamentAddress extends StatelessWidget {
+  const _TournamentAddress({required this.model});
+
+  final TournamentDetailModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<TournamentDetailModel, (String, bool)>(
+      selector: (_, m) => (
+        m.tournamentModel.tournamentAddress,
+        m.tournamentModel.tournamentIsOnline,
+      ),
+      builder: (_, data, ___) {
+        final (address, isOnline) = data;
+        return Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(
+            _Dims.pagePadding,
+            0,
+            _Dims.pagePadding,
+            5,
+          ),
+          child: Text(
+            isOnline ? 'ONLINE' : address,
+            style: CustomFlowTheme.of(context).bodyMedium,
+            textAlign: TextAlign.center,
+          ),
+        );
+      },
     );
   }
 }
