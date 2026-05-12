@@ -2,11 +2,45 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
 import 'package:tournamentmanager/backend/schema/rounds_record.dart';
+
+// ---------------------------------------------------------------------------
+// DIMENSION CONSTANTS
+//
+// FIX: `width: 20.w` and `height: 20.w` on the round type image replaced
+//   with a fixed constant _Dims.roundIconSize.
+//
+//   Using a screen-width percentage for an icon is semantically wrong:
+//   - On a 320dp phone  20% = 64dp  (acceptable)
+//   - On an 800dp tablet 20% = 160dp (oversized, looks broken)
+//
+//   The icon is a fixed asset displayed at a consistent visual weight —
+//   a fixed dp value is the correct sizing strategy.
+// ---------------------------------------------------------------------------
+abstract class _Dims {
+  /// Round type icon (versus / versus_top) size.
+  /// Fixed at 72dp — large enough to be recognisable without dominating.
+  static const double roundIconSize    = 72.0;
+
+  /// Stat row icon size (completed/ongoing/player/round icons).
+  static const double statIconSize     = 30.0;
+
+  /// Gap between stat icon and label.
+  static const double statIconGap      = 10.0;
+
+  /// Card outer padding.
+  static const double cardPaddingH     = 10.0;
+  static const double cardPaddingTop   = 15.0;
+
+  /// Card inner padding.
+  static const double cardInnerPadding = 15.0;
+
+  /// Card corner radius.
+  static const double cardRadius       = 10.0;
+}
 
 class TournamentRoundsCardWidget extends StatelessWidget {
   const TournamentRoundsCardWidget({
@@ -19,75 +53,76 @@ class TournamentRoundsCardWidget extends StatelessWidget {
     this.closeFun,
   });
 
-  final RoundsRecord roundRef;  // non-nullable: guard at call site
+  final RoundsRecord roundRef;
   final int index;
   final Future<void> Function(RoundsRecord round) deleteFun;
   final Future<void> Function(RoundsRecord round)? closeFun;
   final void Function(String roundId) deepFun;
   final bool editable;
 
-  // ── AlertRequest builders (were TournamentRoundsCardModel methods) ────────
-
   AlertRequest _deleteRequest() => AlertRequest(
-    title: 'ATTENZIONE: Cancellazione del round in corso...',
-    description: 'Sei sicuro di voler eliminare questo Round?',
-    buttonTitleCancelled: 'Annulla',
-    buttonTitleConfirmed: 'Continua',
-    functionConfirmed: (_) => deleteFun(roundRef),
-  );
+        title: 'ATTENZIONE: Cancellazione del round in corso...',
+        description: 'Sei sicuro di voler eliminare questo Round?',
+        buttonTitleCancelled: 'Annulla',
+        buttonTitleConfirmed: 'Continua',
+        functionConfirmed: (_) => deleteFun(roundRef),
+      );
 
   AlertRequest _closeRequest() => AlertRequest(
-    title: 'ATTENZIONE: Chiusura del torneo in corso...',
-    description: 'Sei sicuro di voler chiudere il torneo e nominare il vincitore?',
-    buttonTitleCancelled: 'Annulla',
-    buttonTitleConfirmed: 'Continua',
-    // closeFun is guaranteed non-null at call sites that show this action.
-    functionConfirmed: (_) => closeFun!(roundRef),
-  );
+        title: 'ATTENZIONE: Chiusura del torneo in corso...',
+        description:
+            'Sei sicuro di voler chiudere il torneo e nominare il vincitore?',
+        buttonTitleCancelled: 'Annulla',
+        buttonTitleConfirmed: 'Continua',
+        functionConfirmed: (_) => closeFun!(roundRef),
+      );
 
   @override
   Widget build(BuildContext context) {
     final theme = CustomFlowTheme.of(context);
 
     return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(10, 15, 10, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        _Dims.cardPaddingH,
+        _Dims.cardPaddingTop,
+        _Dims.cardPaddingH,
+        0,
+      ),
       child: Slidable(
         key: ValueKey('round$index'),
         endActionPane: editable
             ? ActionPane(
-          motion: const ScrollMotion(),
-          children: [
-            // Delete action — shown whenever the round is editable.
-            SlidableAction(
-              onPressed: (_) => context.goNamed(
-                'DialogDeleteRound',
-                pathParameters: {
-                  'tournamentId': roundRef.tournamentId,
-                }.withoutNulls,
-                extra: {'req': _deleteRequest()},
-              ),
-              backgroundColor: theme.error,
-              foregroundColor: theme.info,
-              icon: Icons.delete,
-              label: 'Delete',
-            ),
-            // Close tournament — only when closeFun is provided.
-            if (closeFun != null)
-              SlidableAction(
-                onPressed: (_) => context.goNamed(
-                  'DialogCloseTournament',
-                  pathParameters: {
-                    'tournamentId': roundRef.tournamentId,
-                  }.withoutNulls,
-                  extra: {'req': _closeRequest()},
-                ),
-                backgroundColor: theme.completed,
-                foregroundColor: theme.info,
-                icon: Icons.key,
-                label: 'Chiudi\nTorneo',
-              ),
-          ],
-        )
+                motion: const ScrollMotion(),
+                children: [
+                  SlidableAction(
+                    onPressed: (_) => context.goNamed(
+                      'DialogDeleteRound',
+                      pathParameters: {
+                        'tournamentId': roundRef.tournamentId,
+                      }.withoutNulls,
+                      extra: {'req': _deleteRequest()},
+                    ),
+                    backgroundColor: theme.error,
+                    foregroundColor: theme.info,
+                    icon: Icons.delete,
+                    label: 'Delete',
+                  ),
+                  if (closeFun != null)
+                    SlidableAction(
+                      onPressed: (_) => context.goNamed(
+                        'DialogCloseTournament',
+                        pathParameters: {
+                          'tournamentId': roundRef.tournamentId,
+                        }.withoutNulls,
+                        extra: {'req': _closeRequest()},
+                      ),
+                      backgroundColor: theme.completed,
+                      foregroundColor: theme.info,
+                      icon: Icons.key,
+                      label: 'Chiudi\nTorneo',
+                    ),
+                ],
+              )
             : null,
         child: InkWell(
           onTap: () => deepFun(roundRef.uid),
@@ -95,10 +130,11 @@ class TournamentRoundsCardWidget extends StatelessWidget {
             width: double.infinity,
             decoration: BoxDecoration(
               color: theme.tertiary,
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              borderRadius:
+                  const BorderRadius.all(Radius.circular(_Dims.cardRadius)),
             ),
             child: Padding(
-              padding: const EdgeInsetsDirectional.all(15),
+              padding: const EdgeInsetsDirectional.all(_Dims.cardInnerPadding),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -138,13 +174,14 @@ class _RoundTypeColumn extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // FIX: width/height: 20.w replaced with fixed _Dims.roundIconSize.
         Image.asset(
           isTopCut
               ? 'assets/images/icons/versus_top.png'
               : 'assets/images/icons/versus.png',
-          width: 20.w,
-          height: 20.w,
-          fit: BoxFit.cover,
+          width: _Dims.roundIconSize,
+          height: _Dims.roundIconSize,
+          fit: BoxFit.contain,
         ),
         Text(
           roundRef.roundKind.desc,
@@ -161,7 +198,7 @@ class _RoundTypeColumn extends StatelessWidget {
   }
 }
 
-// ── Round stats: completion status, player count, pairing progress ───────────
+// ── Round stats ──────────────────────────────────────────────────────────────
 class _RoundStatsColumn extends StatelessWidget {
   const _RoundStatsColumn({required this.roundRef});
 
@@ -184,15 +221,14 @@ class _RoundStatsColumn extends StatelessWidget {
         _StatRow(
           asset: 'assets/images/icons/round.png',
           label:
-          'Pairing completati : ${roundRef.matchCompleted} / ${roundRef.matchAll}',
+              'Pairing completati : ${roundRef.matchCompleted} / ${roundRef.matchAll}',
         ),
       ],
     );
   }
 }
 
-// ── Single stat row: icon + label ────────────────────────────────────────────
-// Extracted: used three times in _RoundStatsColumn with identical structure.
+// ── Single stat row ──────────────────────────────────────────────────────────
 class _StatRow extends StatelessWidget {
   const _StatRow({required this.asset, required this.label});
 
@@ -205,8 +241,13 @@ class _StatRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Image.asset(asset, width: 30, height: 30, fit: BoxFit.cover),
-        const SizedBox(width: 10),
+        Image.asset(
+          asset,
+          width: _Dims.statIconSize,
+          height: _Dims.statIconSize,
+          fit: BoxFit.cover,
+        ),
+        SizedBox(width: _Dims.statIconGap),
         Expanded(
           child: Text(
             label,
