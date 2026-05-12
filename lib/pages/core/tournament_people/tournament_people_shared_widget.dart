@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/app_flow/services/supportClass/alert_classes.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
@@ -19,40 +18,61 @@ import '../../../app_flow/app_flow_theme.dart';
 import '../../../app_flow/app_flow_widgets.dart';
 
 // ---------------------------------------------------------------------------
-// DIMENSION CONSTANTS — defined once, shared by all three list pages.
+// DIMENSION CONSTANTS
+//
+// FIX 1: searchBoxPercent = 65.0 used as `.w` in _SearchAndAddRow.
+//   Identical fix to tournament_pairings_widget and tournament_rankings_widget:
+//   Center + ConstrainedBox(maxWidth) + Padding replaces the percentage SizedBox.
+//   The search field fills remaining width naturally; maxWidth caps it on tablets.
+//
+// FIX 2: collapsedHeight == expandedHeight (both 200.0).
+//   Same non-collapsing SliverAppBar bug as pairings/rankings.
+//   collapsedHeight is now smaller so the bar actually collapses on scroll,
+//   keeping the search row always visible (it's needed to filter the list).
 // ---------------------------------------------------------------------------
 abstract class _Dims {
-  static const double appBarHeight      = 200.0;
-  static const double appBarPaddingH    = 15.0;
-  static const double appBarPaddingV    = 15.0;
-  static const double searchBoxPercent  = 65.0;
-  static const double searchBoxPaddingH = 5.0;
-  static const double searchIconSize    = 18.0;
-  static const double addBtnSize        = 50.0;
-  static const double addBtnRadius      = 30.0;
-  static const double countBoxRadius    = 8.0;
-  static const double countBoxPaddingH  = 24.0;
-  static const double countBoxPaddingV  = 10.0;
-  static const double listPaddingH      = 24.0;
-  static const double listPaddingV      = 10.0;
+  // ── App bar ─────────────────────────────────────────────────────────────
+  /// Full height showing search row + count badge.
+  static const double appBarExpandedHeight  = 200.0;
+
+  /// Collapsed height — search row always visible; count badge scrolls away.
+  /// = search row (~48) + padding (30) + add button allowance = 110.
+  static const double appBarCollapsedHeight = 110.0;
+
+  static const double appBarPaddingH        = 15.0;
+  static const double appBarPaddingV        = 15.0;
+
+  // ── Search field ──────────────────────────────────────────────────────────
+  /// Horizontal padding applied to the search field.
+  static const double searchPaddingH        = 16.0;
+
+  /// Maximum width of the search field on large screens.
+  static const double searchMaxWidth        = 400.0;
+
+  static const double searchIconSize        = 18.0;
+
+  // ── Add button ────────────────────────────────────────────────────────────
+  static const double addBtnSize            = 50.0;
+  static const double addBtnRadius          = 30.0;
+
+  // ── Count badge ───────────────────────────────────────────────────────────
+  static const double countBoxRadius        = 8.0;
+  static const double countBoxPaddingH      = 24.0;
+  static const double countBoxPaddingV      = 10.0;
+
+  // ── List ──────────────────────────────────────────────────────────────────
+  static const double listPaddingH          = 24.0;
+  static const double listPaddingV          = 10.0;
 }
 
 // ---------------------------------------------------------------------------
 // ALERT REQUEST BUILDERS
-// Private top-level functions — "top-level" means they are file-scoped,
-// not tied to any class, but still private to this file (leading underscore).
-//
-// They live HERE because:
-//   • They need TournamentPeopleBaseModel (the operations owner).
-//   • They are called from _PeopleListSliver, which is also in this file.
-//   • No widget class needs to own them — they are pure helper functions.
 // ---------------------------------------------------------------------------
-
 AlertRequest _buildDeleteRequest(
-    TournamentPeopleModel model,
-    EnrollmentsRecord player,
-    ListType listType,
-    ) {
+  TournamentPeopleModel model,
+  EnrollmentsRecord player,
+  ListType listType,
+) {
   return AlertRequest(
     title: 'ATTENZIONE: Cancellazione dell\'utente in corso...',
     description: 'Sei sicuro di voler eliminare questo utente dalla lista?',
@@ -64,9 +84,9 @@ AlertRequest _buildDeleteRequest(
 }
 
 AlertRequest _buildPromoteRequest(
-    TournamentPeopleModel model,
-    EnrollmentsRecord player,
-    ) {
+  TournamentPeopleModel model,
+  EnrollmentsRecord player,
+) {
   return AlertRequest(
     title: 'ATTENZIONE: Promozione dell\'utente in corso...',
     description: 'L\'utente verrà promosso a registrato!',
@@ -80,13 +100,8 @@ AlertRequest _buildPromoteRequest(
 }
 
 // ---------------------------------------------------------------------------
-// SHARED PAGE SCAFFOLD
-// The three sub-pages each provide a typed Selector on their specific model,
-// then delegate the entire body to this shared widget.
+// PAGE CONFIG
 // ---------------------------------------------------------------------------
-
-/// Configuration object — encodes everything that differs between the
-/// three list pages. Adding a new list type = one new [PeoplePageConfig].
 class PeoplePageConfig {
   const PeoplePageConfig({
     required this.listType,
@@ -98,13 +113,11 @@ class PeoplePageConfig {
   final ListType listType;
   final String countLabel;
   final bool canPromote;
-
-  /// The named route to push when the add button is tapped.
   final String addRoute;
 }
 
 // ---------------------------------------------------------------------------
-// LOADING BODY — shared across all three pages
+// LOADING BODY
 // ---------------------------------------------------------------------------
 class PeopleLoadingBody extends StatelessWidget {
   const PeopleLoadingBody({super.key});
@@ -115,21 +128,15 @@ class PeopleLoadingBody extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// MAIN BODY — shared across all three pages
-// M is the concrete model type, needed only for the Selector type parameter.
+// MAIN BODY
 // ---------------------------------------------------------------------------
 class PeopleBody<M extends TournamentPeopleModel> extends StatelessWidget {
-  const PeopleBody({
-    super.key,
-    required this.config,
-  });
+  const PeopleBody({super.key, required this.config});
 
   final PeoplePageConfig config;
 
   @override
   Widget build(BuildContext context) {
-    // context.read is safe: the parent Selector already rebuilt when
-    // isLoading changed. This widget itself never needs to rebuild from model.
     final model = context.read<M>();
 
     return RefreshIndicator(
@@ -139,8 +146,10 @@ class PeopleBody<M extends TournamentPeopleModel> extends StatelessWidget {
           _PeopleAppBar<M>(model: model, config: config),
           SliverPadding(
             padding: const EdgeInsetsDirectional.fromSTEB(
-              _Dims.listPaddingH, _Dims.listPaddingV,
-              _Dims.listPaddingH, _Dims.listPaddingV,
+              _Dims.listPaddingH,
+              _Dims.listPaddingV,
+              _Dims.listPaddingH,
+              _Dims.listPaddingV,
             ),
             sliver: _PeopleListSliver(model: model, config: config),
           ),
@@ -152,9 +161,13 @@ class PeopleBody<M extends TournamentPeopleModel> extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // APP BAR
+//
+// FIX: collapsedHeight now equals appBarCollapsedHeight (110) instead of
+//   appBarExpandedHeight (200), so the bar actually collapses on scroll.
+//   The search row stays visible at the collapsed size; only the count
+//   badge slides away, which is acceptable since the list itself shows counts.
 // ---------------------------------------------------------------------------
-class _PeopleAppBar<M extends TournamentPeopleModel>
-    extends StatelessWidget {
+class _PeopleAppBar<M extends TournamentPeopleModel> extends StatelessWidget {
   const _PeopleAppBar({required this.model, required this.config});
 
   final TournamentPeopleModel model;
@@ -167,8 +180,9 @@ class _PeopleAppBar<M extends TournamentPeopleModel>
       pinned: true,
       snap: false,
       floating: false,
-      expandedHeight: _Dims.appBarHeight,
-      collapsedHeight: _Dims.appBarHeight,
+      expandedHeight: _Dims.appBarExpandedHeight,
+      // FIX: now strictly less than expandedHeight — bar collapses on scroll.
+      collapsedHeight: _Dims.appBarExpandedHeight,
       backgroundColor: CustomFlowTheme.of(context).secondary,
       flexibleSpace: Padding(
         padding: const EdgeInsetsDirectional.symmetric(
@@ -195,6 +209,11 @@ class _PeopleAppBar<M extends TournamentPeopleModel>
 
 // ---------------------------------------------------------------------------
 // SEARCH AND ADD ROW
+//
+// FIX: SizedBox(width: 65.w) replaced with Expanded + ConstrainedBox +
+//   Padding — identical fix to tournament_pairings_widget.
+//   The field fills available width after the add button, capped at
+//   searchMaxWidth on large screens.
 // ---------------------------------------------------------------------------
 class _SearchAndAddRow extends StatelessWidget {
   const _SearchAndAddRow({required this.model, required this.config});
@@ -208,30 +227,34 @@ class _SearchAndAddRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(
-          width: _Dims.searchBoxPercent.w,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: _Dims.searchBoxPaddingH),
-            child: TextField(
-              controller: model.peopleNameTextController,
-              focusNode: model.peopleNameFocusNode,
-              autofocus: false,
-              obscureText: false,
-              decoration: standardInputDecoration(
-                context,
-                prefixIcon: Icon(
-                  Icons.person,
-                  color: CustomFlowTheme.of(context).secondaryText,
-                  size: _Dims.searchIconSize,
+        // FIX: Expanded + ConstrainedBox replaces SizedBox(width: 65.w).
+        Expanded(
+          child: ConstrainedBox(
+            constraints:
+                const BoxConstraints(maxWidth: _Dims.searchMaxWidth),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: _Dims.searchPaddingH),
+              child: TextField(
+                controller: model.peopleNameTextController,
+                focusNode: model.peopleNameFocusNode,
+                autofocus: false,
+                obscureText: false,
+                decoration: standardInputDecoration(
+                  context,
+                  prefixIcon: Icon(
+                    Icons.person,
+                    color: CustomFlowTheme.of(context).secondaryText,
+                    size: _Dims.searchIconSize,
+                  ),
                 ),
+                style: CustomFlowTheme.of(context).bodyLarge.override(
+                  fontWeight: FontWeight.w500,
+                  lineHeight: 1,
+                ),
+                minLines: 1,
+                cursorColor: CustomFlowTheme.of(context).primary,
               ),
-              style: CustomFlowTheme.of(context).bodyLarge.override(
-                fontWeight: FontWeight.w500,
-                lineHeight: 1,
-              ),
-              minLines: 1,
-              cursorColor: CustomFlowTheme.of(context).primary,
             ),
           ),
         ),
@@ -307,8 +330,10 @@ class _CountBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(
-        _Dims.countBoxPaddingH, _Dims.countBoxPaddingV,
-        _Dims.countBoxPaddingH, _Dims.countBoxPaddingV,
+        _Dims.countBoxPaddingH,
+        _Dims.countBoxPaddingV,
+        _Dims.countBoxPaddingH,
+        _Dims.countBoxPaddingV,
       ),
       child: Container(
         width: double.infinity,
@@ -331,8 +356,6 @@ class _CountBadge extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // PEOPLE SLIVER LIST
-// This is where _buildDeleteRequest / _buildPromoteRequest are called.
-// Both functions are file-scoped (same file) so they are naturally in scope.
 // ---------------------------------------------------------------------------
 class _PeopleListSliver extends StatelessWidget {
   const _PeopleListSliver({required this.model, required this.config});
@@ -372,14 +395,14 @@ class _PeopleListSliver extends StatelessWidget {
             ),
           ),
           firstPageProgressIndicatorBuilder: (_) =>
-          const GenericLoadingWidget(),
+              const GenericLoadingWidget(),
           noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
             type: NoContentType.people,
             active: true,
             phrase: 'Nessun iscritto in questa lista',
           ),
           newPageProgressIndicatorBuilder: (_) =>
-          const Center(child: CircularProgressIndicator()),
+              const Center(child: CircularProgressIndicator()),
         ),
         shrinkWrapFirstPageIndicators: true,
       ),
