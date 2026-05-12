@@ -65,6 +65,7 @@ class TournamentPickCardWidget extends StatelessWidget {
                   address: tournamentRef.address,
                   ownerId: tournamentRef.ownerId,
                   onMapTap: _openMap,
+                  isOnline: tournamentRef.isOnlineEn,
                 ),
                 if (tournamentRef.game.iconResource != null)
                   _GameIcon(
@@ -112,13 +113,15 @@ class _InfoColumn extends StatelessWidget {
     required this.address,
     required this.ownerId,
     required this.onMapTap,
+    required this.isOnline,
   });
 
   final String name;
   final String address;
   final String ownerId;
   final VoidCallback onMapTap;
-
+  final bool isOnline;
+  
   @override
   Widget build(BuildContext context) {
     final theme = CustomFlowTheme.of(context);
@@ -142,17 +145,21 @@ class _InfoColumn extends StatelessWidget {
               text: TextSpan(
                 style: labelStyle,
                 children: [
-                  TextSpan(text: address),
-                  const TextSpan(text: '  '),
-                  WidgetSpan(
-                    child: IconButton(
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      icon: Icon(Icons.open_in_new,
-                          color: theme.primaryText, size: 18),
-                      onPressed: onMapTap,
+                  if (isOnline) 
+                    const TextSpan(text: 'Online')
+                  else ...[
+                    TextSpan(text: address),
+                    const TextSpan(text: '  '),
+                    WidgetSpan(
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: Icon(Icons.open_in_new,
+                            color: theme.primaryText, size: 18),
+                        onPressed: onMapTap,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
