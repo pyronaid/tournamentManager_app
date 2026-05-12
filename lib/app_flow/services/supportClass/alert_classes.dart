@@ -680,7 +680,55 @@ class TextAheadAddressFormElementState extends State<TextAheadAddressFormElement
   }
 }
 
+class SwitchFormElement extends FormInformation {
+  final bool value;
 
+  const SwitchFormElement({
+    required GlobalKey<SwitchFormElementState> key,
+    required super.label,
+    required this.value,
+  }) : super(key: key);
+
+  @override
+  State<SwitchFormElement> createState() => SwitchFormElementState();
+
+  @override
+  dynamic result() {
+    final currentState = (key as GlobalKey<SwitchFormElementState>).currentState;
+    return currentState?._currentValue ?? value;
+  }
+}
+
+class SwitchFormElementState extends State<SwitchFormElement> {
+  late bool _currentValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentValue = widget.value;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          widget.label,
+          style: CustomFlowTheme.of(context).bodyMedium,
+        ),
+        Switch(
+          value: _currentValue,
+          onChanged: (newValue) {
+            setState(() {
+              _currentValue = newValue;
+            });
+          },
+        ),
+      ],
+    );
+  }
+}
 
 class AlertResponse {
   final bool confirmed;
