@@ -17,17 +17,57 @@ NoContentCard(type: NoContentType.people,     phrase: 'Nessuna persona',       a
 NoContentCard(type: NoContentType.pick,       phrase: 'Seleziona un torneo',   variant: NoContentVariant.pill)
 NoContentCard(type: NoContentType.rankings,   phrase: 'Nessuna classifica',    active: false)
 NoContentCard(type: NoContentType.rounds,     phrase: 'Nessun round',          active: true)
-
 */
 
-
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 
 // ---------------------------------------------------------------------------
-// ENUM — encodes the icon asset for each use-case.
-// Adding a new variant = one new enum value, zero new files.
+// DIMENSION CONSTANTS
+//
+// FIX 1: `90.w` (90% of screen width) on container widths in _FlatCard and
+//   _BorderedCard.  A percentage width is the wrong tool here because the
+//   cards are always rendered inside a sliver/scroll view that already
+//   constrains the width.  `double.infinity` fills the available width
+//   correctly on every screen size without any package dependency.
+//
+// FIX 2: `30.sp` (scaled pixels) on the icon image height in _IconPhraseRow.
+//   sp is a text-scaling unit — using it for an image height means the icon
+//   grows/shrinks with the user's system font size, which is semantically
+//   wrong.  A fixed dp value is correct for an icon.
+// ---------------------------------------------------------------------------
+abstract class _Dims {
+  /// Icon image size — fixed dp, not scaled with font size.
+  static const double iconSize         = 28.0;
+
+  /// Inner vertical padding of the bordered card variant.
+  static const double cardPaddingV     = 20.0;
+
+  /// Padding around the pill container content.
+  static const double pillPaddingAll   = 5.0;
+
+  /// Outer margin around the pill container.
+  static const double pillMarginAll    = 10.0;
+
+  /// Corner radius of the pill container.
+  static const double pillRadius       = 20.0;
+
+  /// Horizontal padding inside the flat card inner container.
+  static const double flatCardPaddingH = 24.0;
+
+  /// Vertical padding inside the flat card inner container.
+  static const double flatCardPaddingT = 16.0;
+  static const double flatCardPaddingB = 32.0;
+
+  /// Corner radius shared by flat and bordered card variants.
+  static const double cardRadius       = 8.0;
+
+  /// Border width for the bordered card variant.
+  static const double cardBorderWidth  = 1.0;
+}
+
+// ---------------------------------------------------------------------------
+// ENUMS
 // ---------------------------------------------------------------------------
 enum NoContentType {
   tournament('assets/images/icons/empty-box.png'),
@@ -42,26 +82,10 @@ enum NoContentType {
   final String asset;
 }
 
-// ---------------------------------------------------------------------------
-// VARIANT — controls container styling.
-// Keeping this separate from NoContentType means you can freely mix
-// a new icon with any existing visual style without a combinatorial explosion.
-// ---------------------------------------------------------------------------
-enum NoContentVariant {
-  /// Original NoTournamentCard style — background fills the outer container
-  /// and the inner card matches it (no visible border effect).
-  flat,
-
-  /// Standard bordered card — secondaryBackground / secondary swap on active.
-  card,
-
-  /// NoTournamentPickCard style — primary-colored pill with no active toggle.
-  pill,
-}
+enum NoContentVariant { flat, card, pill }
 
 // ---------------------------------------------------------------------------
-// WIDGET
-// Pure StatelessWidget — no local state, no model file needed.
+// ROOT WIDGET
 // ---------------------------------------------------------------------------
 class NoContentCard extends StatelessWidget {
   const NoContentCard({
@@ -74,11 +98,7 @@ class NoContentCard extends StatelessWidget {
 
   final NoContentType type;
   final String phrase;
-
-  /// Drives color swaps in [flat] and [card] variants.
-  /// Ignored by [pill] since it has no active/inactive concept.
   final bool active;
-
   final NoContentVariant variant;
 
   @override
@@ -103,7 +123,11 @@ class NoContentCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// PRIVATE — FLAT VARIANT  (formerly NoTournamentCardWidget)
+// FLAT VARIANT
+//
+// FIX: inner Container `width: 90.w` replaced with `width: double.infinity`.
+//   The card is always inside a sliver/scroll view that already constrains
+//   the available width — double.infinity fills it correctly on every device.
 // ---------------------------------------------------------------------------
 class _FlatCard extends StatelessWidget {
   const _FlatCard({
@@ -125,16 +149,23 @@ class _FlatCard extends StatelessWidget {
     return Container(
       color: bg,
       child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
+        padding: const EdgeInsetsDirectional.fromSTEB(
+            _Dims.flatCardPaddingH, 0, _Dims.flatCardPaddingH, 0),
         child: Container(
-          width: 90.w,
+          // FIX: double.infinity replaces 90.w.
+          width: double.infinity,
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: bg, width: 1),
+            borderRadius: BorderRadius.circular(_Dims.cardRadius),
+            border: Border.all(color: bg, width: _Dims.cardBorderWidth),
           ),
           child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(24, 16, 24, 32),
+            padding: const EdgeInsetsDirectional.fromSTEB(
+              _Dims.flatCardPaddingH,
+              _Dims.flatCardPaddingT,
+              _Dims.flatCardPaddingH,
+              _Dims.flatCardPaddingB,
+            ),
             child: _IconPhraseRow(
               asset: asset,
               phrase: phrase,
@@ -150,8 +181,9 @@ class _FlatCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// PRIVATE — BORDERED CARD VARIANT  (formerly News / Pairings / People /
-//           Rankings / Rounds widgets — all identical except the asset)
+// BORDERED CARD VARIANT
+//
+// FIX: `width: 90.w` replaced with `width: double.infinity`.
 // ---------------------------------------------------------------------------
 class _BorderedCard extends StatelessWidget {
   const _BorderedCard({
@@ -167,23 +199,25 @@ class _BorderedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 90.w,
+      // FIX: double.infinity replaces 90.w.
+      width: double.infinity,
       decoration: BoxDecoration(
         color: active
             ? CustomFlowTheme.of(context).secondaryBackground
             : CustomFlowTheme.of(context).secondary,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(_Dims.cardRadius),
         border: Border.all(
           color: CustomFlowTheme.of(context).alternate,
-          width: 1,
+          width: _Dims.cardBorderWidth,
         ),
       ),
       child: Padding(
-        padding: const EdgeInsetsDirectional.symmetric(vertical: 20),
+        padding: const EdgeInsetsDirectional.symmetric(
+            vertical: _Dims.cardPaddingV),
         child: _IconPhraseRow(
           asset: asset,
           phrase: phrase,
-          spacing: 20,
+          spacing: _Dims.cardPaddingV,
           style: active
               ? CustomFlowTheme.of(context).labelLarge
               : CustomFlowTheme.of(context).bodySmall,
@@ -194,13 +228,10 @@ class _BorderedCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// PRIVATE — PILL VARIANT  (formerly NoTournamentPickCardWidget)
+// PILL VARIANT
 // ---------------------------------------------------------------------------
 class _PillCard extends StatelessWidget {
-  const _PillCard({
-    required this.asset,
-    required this.phrase,
-  });
+  const _PillCard({required this.asset, required this.phrase});
 
   final String asset;
   final String phrase;
@@ -210,13 +241,14 @@ class _PillCard extends StatelessWidget {
     return Column(
       children: [
         Container(
-          margin: const EdgeInsetsDirectional.all(10),
+          margin: const EdgeInsetsDirectional.all(_Dims.pillMarginAll),
           decoration: BoxDecoration(
             color: CustomFlowTheme.of(context).primary,
-            borderRadius: const BorderRadius.all(Radius.circular(20)),
+            borderRadius:
+                const BorderRadius.all(Radius.circular(_Dims.pillRadius)),
           ),
           child: Padding(
-            padding: const EdgeInsetsDirectional.all(5),
+            padding: const EdgeInsetsDirectional.all(_Dims.pillPaddingAll),
             child: _IconPhraseRow(
               asset: asset,
               phrase: phrase,
@@ -231,7 +263,13 @@ class _PillCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// PRIVATE — SHARED ROW  (icon + text, extracted once used by all variants)
+// SHARED ROW
+//
+// FIX: `Image.asset(height: 30.sp)` replaced with `height: _Dims.iconSize`.
+//   sp is for text scaling — using it for an image height causes the icon to
+//   grow/shrink with the system font size setting, which is semantically wrong.
+//   A fixed dp value is correct for an icon that should always appear the
+//   same physical size regardless of accessibility settings.
 // ---------------------------------------------------------------------------
 class _IconPhraseRow extends StatelessWidget {
   const _IconPhraseRow({
@@ -254,7 +292,8 @@ class _IconPhraseRow extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: mainAxisAlignment,
       children: [
-        Image.asset(asset, height: 30.sp, fit: BoxFit.cover),
+        // FIX: height: 30.sp → _Dims.iconSize (fixed dp).
+        Image.asset(asset, height: _Dims.iconSize, fit: BoxFit.contain),
         if (spacing > 0) SizedBox(width: spacing),
         Flexible(
           child: Text(phrase, style: style, textAlign: TextAlign.center),
