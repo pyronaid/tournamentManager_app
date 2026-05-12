@@ -10,9 +10,6 @@ import 'package:tournamentmanager/backend/schema/tournaments_record.dart';
 // ---------------------------------------------------------------------------
 // DIMENSION CONSTANTS
 //
-// FIX: all percentage widths via responsive_sizer replaced with layout
-//   widgets.
-//
 //   The original layout used:
 //     _DateColumn:        width: 15.w  (15% of screen)
 //     _NameAddressColumn: width: 60.w  (60% of screen)
