@@ -98,7 +98,6 @@ dependencies:
   pocketbase: ^0.23.2
   provider: ^6.1.2
   qr_flutter: ^4.1.0
-  responsive_sizer: ^3.3.1
   rxdart: ^0.28.0
   share_plus: ^10.1.2   #ADDED_NOT_DEMANDED   #10 → 13.1.0     │ Three major versions, API likely changed significantly
   shared_preferences: ^2.2.3
