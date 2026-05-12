@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
@@ -87,44 +86,40 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
 
-    return ResponsiveSizer(
-      builder: (context, orientation, deviceType){
-        return MaterialApp.router(
-          title: 'TournamentManager',
-          localizationsDelegates: const [
-            CustomLocalizationsDelegate(),
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
+    return MaterialApp.router(
+      title: 'TournamentManager',
+      localizationsDelegates: const [
+        CustomLocalizationsDelegate(),
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      locale: _locale,
+      supportedLocales: const [
+        Locale('en'),
+      ],
+      theme: ThemeData(
+        brightness: Brightness.light,
+        useMaterial3: false,
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        useMaterial3: false,
+      ),
+      themeMode: _themeMode,
+      routerConfig: _router,
+      builder: (context, child) {
+        return Overlay(
+          initialEntries: [
+            OverlayEntry(
+              builder: (context) => ServiceManager(
+                navigatorKey: NavigatorKeys.rootNavigator,
+                child: child!,
+              ),
+            ),
           ],
-          locale: _locale,
-          supportedLocales: const [
-            Locale('en'),
-          ],
-          theme: ThemeData(
-            brightness: Brightness.light,
-            useMaterial3: false,
-          ),
-          darkTheme: ThemeData(
-            brightness: Brightness.dark,
-            useMaterial3: false,
-          ),
-          themeMode: _themeMode,
-          routerConfig: _router,
-          builder: (context, child) {
-            return Overlay(
-              initialEntries: [
-                OverlayEntry(
-                  builder: (context) => ServiceManager(
-                    navigatorKey: NavigatorKeys.rootNavigator,
-                    child: child!,
-                  ),
-                ),
-              ],
-            );
-          },
         );
-      }
+      },
     );
   }
 }
