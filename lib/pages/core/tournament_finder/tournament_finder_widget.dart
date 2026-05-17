@@ -426,22 +426,13 @@ class _TournamentClusterLayer extends StatelessWidget {
               width: _MapDims.tournamentMarkerSize,
               height: _MapDims.tournamentMarkerSize,
               game: to.game,
-              child: to.game.iconResource != null
-                  ? InkWell(
+              child: InkWell(
                 onTap: () => model.onMarkerTap(to.uid),
                 child: Image.asset(
-                  to.game.iconResource!,
+                  to.game.iconResource,
                   width: _MapDims.tournamentIconSize,
                   height: _MapDims.tournamentIconSize,
                 ),
-              )
-                  : IconButton(
-                icon: Icon(
-                  Icons.tour,
-                  color: CustomFlowTheme.of(context).markerTournament,
-                  size: _MapDims.tournamentIconSize,
-                ),
-                onPressed: () => model.onMarkerTap(to.uid),
               ),
             ),
         ],

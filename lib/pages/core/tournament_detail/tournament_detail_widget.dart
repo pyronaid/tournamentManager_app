@@ -40,7 +40,7 @@ abstract class _Dims {
   // Header — expressed as an aspect ratio so it scales with screen width.
   // 16/9 ≈ standard widescreen; gives ~231px on a 411px-wide screen which
   // fits the avatar (130px) + name + game label + counters without overflow.
-  static const double headerAspectRatio = 16 / 9;
+  static const double headerAspectRatio = 4 / 3;
 
   // Content area — caps the readable width on large screens (tablet / foldable).
   static const double maxContentWidth   = 480.0;
@@ -51,6 +51,10 @@ abstract class _Dims {
 
   // Horizontal padding used consistently throughout the page.
   static const double pagePadding = 20.0;
+
+  // Game icon in the counters row — capped as a fraction of screen width so
+  // it never overflows on small phones or stretches too wide on tablets.
+  static const double gameIconMaxFraction = 0.30;
 }
 
 // ---------------------------------------------------------------------------
@@ -214,7 +218,7 @@ class _TournamentHeader extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             // Background game image
-            Image.asset(t.tournamentGame.resource, fit: BoxFit.cover),
+            Image.asset('assets/images/card_back/game_plain.jpg', fit: BoxFit.cover),
             // Blur overlay
             BackdropFilter(
               filter: ImageFilter.blur(
@@ -229,35 +233,33 @@ class _TournamentHeader extends StatelessWidget {
             // that ANY remaining overflow (variable counter count, larger fonts,
             // editable badge) is handled by a proportional scale-down instead
             // of a RenderFlex overflow error.
-            Center(
-              child: LayoutBuilder(
-                builder: (_, constraints) {
-                  // Avatar takes available height minus fixed text rows (~91 px)
-                  // plus a small safety margin; clamped so it never disappears.
-                  final avatarSize = (constraints.maxHeight - 100)
-                      .clamp(70.0, _Dims.avatarSize);
-                  return FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: ConstrainedBox(
-                      // Bound the column width so the counters Row (mainAxisSize:
-                      // max) doesn't try to expand to infinite width inside the
-                      // otherwise-unconstrained FittedBox child layout.
-                      constraints: BoxConstraints(maxWidth: constraints.maxWidth),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          _TournamentAvatar(model: model, size: avatarSize),
-                          _TournamentNameRow(model: model),
-                          _TournamentGameLabel(gameName: t.tournamentGame.desc),
-                          _TournamentAddress(model: model),
-                          _TournamentCounters(model: model),
-                        ],
-                      ),
+            LayoutBuilder(
+              builder: (_, constraints) {
+                final avatarSize = (constraints.maxHeight - 100)
+                    .clamp(70.0, _Dims.avatarSize);
+                // SizedBox forces the Column to exactly the stack width so the
+                // counters Row (mainAxisAlignment: spaceBetween) stretches edge
+                // to edge. Center was removed: Stack(StackFit.expand) already
+                // gives tight constraints here, and crossAxisAlignment.center
+                // on the Column handles horizontal centering of each child.
+                return FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: SizedBox(
+                    width: constraints.maxWidth,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        _TournamentAvatar(model: model, size: avatarSize),
+                        _TournamentNameRow(model: model),
+                        _TournamentGameLabel(gameName: t.tournamentGame.desc),
+                        _TournamentAddress(model: model),
+                        _TournamentCounters(model: model),
+                      ],
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -459,7 +461,15 @@ class _TournamentCounters extends StatelessWidget {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('quattro'),
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth:  MediaQuery.sizeOf(context).width * _Dims.gameIconMaxFraction,
+          ),
+          child: Image.asset(
+            t.tournamentGame.iconResource,
+            fit: BoxFit.contain,
+          ),
+        ),
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(
               0, 0, _Dims.pagePadding, 0),

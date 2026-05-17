@@ -50,3 +50,6 @@ __pocketbase/pb_data/
 /package-lock.json
 /.firebaserc
 /package.json
+
+android/app/google-services.json
+lib/backend/firebase/firebase_options.dart

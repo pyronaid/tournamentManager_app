@@ -48,13 +48,16 @@ class ScaffoldWithLevelTwoNestedNavigation extends StatelessWidget {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
-        // If at a nested tournament page, redirect directly to homepage.
+        // Read location fresh at callback time via the stable router instance —
+        // avoids the stale-closure risk of the build-time `currentLocation` string.
+        // At a branch root the URL ends with the tab name → go to dashboard.
+        // Deeper routes (pairings, rankings, dialogs) → pop the top route.
         if (RegExp(
           r'.*/tournament-(dets|rounds|people|news)$',
-        ).hasMatch(currentLocation)) {
+        ).hasMatch(router.getCurrentLocation())) {
           router.go('/dashboard');
         } else {
-          context.safePop();
+          router.pop();
         }
       },
       child: Scaffold(

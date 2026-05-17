@@ -155,7 +155,13 @@ flutter:
      - assets/images/logo_slideshow_1.png
      - assets/images/logo_slideshow_2.png
      - assets/images/logo_slideshow_3.png
-     - assets/images/card_back/game_ygo_adv.jpg
+     - assets/images/card_back/game_plain.jpg
+     - assets/images/card_back/game_edison.png
+     - assets/images/card_back/game_tengu.png
+     - assets/images/card_back/game_goat.png
+     - assets/images/card_back/game_hat.png
+     - assets/images/card_back/game_windup.png
+     - assets/images/card_back/game_other.png
      - assets/images/icons/trophy.png
      - assets/images/icons/profile.png
      - assets/images/icons/empty-box.png
@@ -167,12 +173,12 @@ flutter:
      - assets/images/icons/pairing.png
      - assets/images/icons/player.png
      - assets/images/icons/location.png
-     - assets/images/icons/altered_pointer.png
-     - assets/images/icons/lorcana_pointer.png
-     - assets/images/icons/magic_pointer.png
-     - assets/images/icons/onepiece_pointer.png
-     - assets/images/icons/ygoadv_pointer.png
-     - assets/images/icons/ygoretro_pointer.png
+     - assets/images/icons/goat_pointer.webp
+     - assets/images/icons/edison_pointer.webp
+     - assets/images/icons/tengu_pointer.webp
+     - assets/images/icons/windup_pointer.webp
+     - assets/images/icons/hat_pointer.webp
+     - assets/images/icons/other_pointer.webp
      - assets/images/icons/versus.png
      - assets/images/icons/versus_top.png
      - assets/images/icons/ongoing.png

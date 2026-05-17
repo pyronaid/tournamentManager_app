@@ -474,18 +474,17 @@ class TournamentsRecordDocumentEquality implements Equality<TournamentsRecord> {
 
 
 enum Game {
-  ygoAdv("Yu-Gi-Oh! Avanzato", 'assets/images/card_back/game_ygo_adv.jpg', 'assets/images/icons/ygoadv_pointer.png', Colors.orange),
-  ygoRetro("Yu-Gi-Oh! Retroformat", 'assets/images/card_back/game_ygo_adv.jpg', 'assets/images/icons/ygoretro_pointer.png', Colors.deepOrangeAccent),
-  lorcana("Lorcana", 'assets/images/card_back/game_ygo_adv.jpg', 'assets/images/icons/lorcana_pointer.png', Colors.deepPurpleAccent),
-  onepiece("One Piece", 'assets/images/card_back/game_ygo_adv.jpg', 'assets/images/icons/onepiece_pointer.png', Colors.red),
-  altered("Altered", 'assets/images/card_back/game_ygo_adv.jpg', 'assets/images/icons/altered_pointer.png', Colors.lightBlueAccent),
-  magic("Magic", 'assets/images/card_back/game_ygo_adv.jpg', 'assets/images/icons/magic_pointer.png', Colors.black54),
-  unknown("UNKNOWN", 'assets/images/card_back/game_ygo_adv.jpg', null, Colors.white),
-  none("", 'assets/images/card_back/game_ygo_adv.jpg', null, Colors.white);
+  goat("GOAT", 'assets/images/card_back/game_goat.png', 'assets/images/icons/goat_pointer.webp', Colors.blueAccent),
+  edison("Edison", 'assets/images/card_back/game_edison.png', 'assets/images/icons/edison_pointer.webp', Colors.deepOrangeAccent),
+  hat("Hat", 'assets/images/card_back/game_hat.png', 'assets/images/icons/hat_pointer.webp', Colors.deepPurpleAccent),
+  windup("WindUp", 'assets/images/card_back/game_windup.png', 'assets/images/icons/windup_pointer.webp', Colors.red),
+  tengu("Tengu", 'assets/images/card_back/game_tengu.png', 'assets/images/icons/tengu_pointer.webp', Colors.lightBlueAccent),
+  unknown("UNKNOWN", 'assets/images/card_back/game_other.png', 'assets/images/icons/other_pointer.webp', Colors.white),
+  other("Altro", 'assets/images/card_back/game_other.png', 'assets/images/icons/other_pointer.webp', Colors.black);
 
   final String desc;
   final String resource;
-  final String? iconResource;
+  final String iconResource;
   final Color color;
 
   const Game(this.desc, this.resource, this.iconResource, this.color);
