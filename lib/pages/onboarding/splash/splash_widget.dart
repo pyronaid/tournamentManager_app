@@ -15,7 +15,7 @@ import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 // ---------------------------------------------------------------------------
 abstract class _Dims {
   // ── Logo ──────────────────────────────────────────────────────────────────
-  static const double logoSize         = 80.0;
+  static const double logoSize         = 300.0;
   static const double logoRadius       = 30.0;
 
   /// Space between the logo image and the app title text below it.
@@ -78,44 +78,53 @@ class _Logo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: const AlignmentDirectional(0, 0),
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: _Dims.logoSize,
-            height: _Dims.logoSize,
-            decoration: BoxDecoration(
-              color: CustomFlowTheme.of(context).primary,
-              image: DecorationImage(
-                fit: BoxFit.cover,
-                image: Image.asset('assets/images/petsy_logo_paw.png').image,
-              ),
-              borderRadius: BorderRadius.circular(_Dims.logoRadius),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(0, _Dims.logoTitleSpacing, 0, 0),
-            child: Center(
-              child: RichText(
-                textScaler: MediaQuery.of(context).textScaler,
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Tournament Manager',
-                      style: CustomFlowTheme.of(context).displayLarge,
-                    ),
-                  ],
-                  style: CustomFlowTheme.of(context).displaySmall,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Reserve room for the title text + spacing below the logo.
+        const double reservedForText = _Dims.logoTitleSpacing + 48.0;
+        final double logoSize = (constraints.maxHeight - reservedForText).clamp(0.0, _Dims.logoSize);
+        final double logoRadius = _Dims.logoRadius * (logoSize / _Dims.logoSize);
+
+        return Align(
+          alignment: const AlignmentDirectional(0, 0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: logoSize,
+                height: logoSize,
+                decoration: BoxDecoration(
+                  color: CustomFlowTheme.of(context).info,
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: Image.asset('assets/images/tm_logo.png').image,
+                  ),
+                  borderRadius: BorderRadius.circular(logoRadius),
                 ),
               ),
-            ),
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(0, _Dims.logoTitleSpacing, 0, 0),
+                child: Center(
+                  child: RichText(
+                    textScaler: MediaQuery.of(context).textScaler,
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Tournament Manager',
+                          style: CustomFlowTheme.of(context).displayLarge,
+                        ),
+                      ],
+                      style: CustomFlowTheme.of(context).displaySmall,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -140,7 +149,7 @@ class _BottomActions extends StatelessWidget {
         mainAxisSize: MainAxisSize.max,
         children: [
           AFButtonWidget(
-            text: 'Get Started',
+            text: 'Inizia',
             onPressed: () async {
               FocusScope.of(context).unfocus();
               logFirebaseEvent('SPLASH_PAGE_GET_STARTED_BTN_ON_TAP');
@@ -183,11 +192,11 @@ class _BottomActions extends StatelessWidget {
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: 'Already a member?  ',
+                      text: 'Già iscritto?  ',
                       style: CustomFlowTheme.of(context).bodyMedium,
                     ),
                     TextSpan(
-                      text: 'Sign In',
+                      text: 'Log In',
                       style: CustomFlowTheme.of(context).bodyMedium.override(
                             decoration: TextDecoration.underline,
                           ),

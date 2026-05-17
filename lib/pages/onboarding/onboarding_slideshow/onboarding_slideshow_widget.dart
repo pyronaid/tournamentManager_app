@@ -152,29 +152,32 @@ class _PageCarousel extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               children: [
                 _SlideItem(
-                  title: 'Storico sanitario\ndel tuo pet',
+                  title: 'Cerca ed iscriviti\nai tuoi tornei preferiti',
                   imagePath: 'assets/images/logo_slideshow_1.png',
                   description:
-                      'Crea lo storico sanitario del tuo "pet" così che il tuo veterinario abbia sempre il contesto di tutto ciò che ha fatto',
+                      'Monitora tutti i tornei passati e futuri per tutti i giochi a cui sei interessato. '
+                      'Cerca con il finder il tuo torneo oppure organizzalo tu stesso!' ,
                   titleAnim: animationsMap['textOnPageLoadAnimation1']!,
                   imageAnim: animationsMap['imageOnPageLoadAnimation1']!,
                   descAnim: animationsMap['textOnPageLoadAnimation2']!,
                   imageFit: BoxFit.fill,
                 ),
                 _SlideItem(
-                  title: 'Foto gallery \nperiodica',
+                  title: 'Gestione del torneo \nend to end',
                   imagePath: 'assets/images/logo_slideshow_2.png',
                   description:
-                      'Carica delle foto cadenzate per vedere come cresce nel tempo.',
+                      'La gestione del torneo è tutta all\'interno dell\'app. '
+                      'Dalla preioscrizione, allo svolgimento dei turni, alla possibilità di vedere le classifiche turno per turno con il relativo tie break. '
+                      'Anche le news e le liste possono essere gestite da qui!',
                   titleAnim: animationsMap['textOnPageLoadAnimation3']!,
                   imageAnim: animationsMap['imageOnPageLoadAnimation2']!,
                   descAnim: animationsMap['textOnPageLoadAnimation4']!,
                 ),
                 _SlideItem(
-                  title: 'Reminder personalizzati\nper cure e appuntamenti',
-                  imagePath: 'assets/images/logo_slideshow_1.png',
+                  title: 'ELO\nin arrivo a breve...',
+                  imagePath: 'assets/images/logo_slideshow_3.png',
                   description:
-                      'L\'app è il tuo organizer personale per ricordarti delle somministrazioni e degli appuntamenti del veterinario.',
+                      'Scala la classifica e ottieni i migliori rank di ogni stagione.',
                   titleAnim: animationsMap['textOnPageLoadAnimation5']!,
                   imageAnim: animationsMap['imageOnPageLoadAnimation3']!,
                   descAnim: animationsMap['textOnPageLoadAnimation6']!,
@@ -219,17 +222,6 @@ class _PageCarousel extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // SLIDE ITEM
-//
-// FIX: Image(height: 35.h) replaced with AspectRatio + Expanded.
-//   35% of screen height fails on:
-//     - iPhone SE (667dp): 35% = 233dp, leaves very little space for text
-//     - iPad (1024dp): 35% = 358dp, oversized for a slide illustration
-//
-//   The new approach:
-//     - Expanded fills the remaining vertical space after title and description
-//     - AspectRatio(4/3) prevents the image from distorting on wide screens
-//     - BoxFit.contain preserves aspect ratio within the constrained area
-//   The image is always proportional and fits any device without overflow.
 // ---------------------------------------------------------------------------
 class _SlideItem extends StatelessWidget {
   const _SlideItem({
@@ -261,12 +253,15 @@ class _SlideItem extends StatelessWidget {
           child: Text(
             title,
             textAlign: TextAlign.center,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
             style: CustomFlowTheme.of(context).displaySmall,
           ).animateOnPageLoad(titleAnim),
         ),
-        // FIX: Expanded + AspectRatio replaces the fixed `height: 35.h`.
-        //   The image fills available vertical space proportionally.
-        Expanded(
+        // Flexible(loose) so AspectRatio receives loose constraints and can
+        // derive its height from the width. Expanded gives tight constraints
+        // (min==max), which makes AspectRatio skip the ratio and fill the box.
+        Flexible(
           child: Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
             child: AspectRatio(
@@ -283,6 +278,8 @@ class _SlideItem extends StatelessWidget {
           child: Text(
             description,
             textAlign: TextAlign.center,
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
             style: CustomFlowTheme.of(context).labelLarge,
           ).animateOnPageLoad(descAnim),
         ),

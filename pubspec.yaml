@@ -150,10 +150,11 @@ flutter:
      - assets/animation/confirm_animation.json
      - assets/animation/loading.json
      - assets/images/profile_picture_default.png
-     - assets/images/petsy_logo_paw.png
+     - assets/images/tm_logo.png
      - assets/images/logo.png
      - assets/images/logo_slideshow_1.png
      - assets/images/logo_slideshow_2.png
+     - assets/images/logo_slideshow_3.png
      - assets/images/card_back/game_ygo_adv.jpg
      - assets/images/icons/trophy.png
      - assets/images/icons/profile.png
