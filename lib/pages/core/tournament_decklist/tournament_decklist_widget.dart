@@ -5,6 +5,7 @@ import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/app_flow/app_flow_util.dart';
 import 'package:tournamentmanager/pages/core/tournament_decklist/tournament_decklist_model.dart';
 import 'package:tournamentmanager/pages/core/tournament_rounds/tournament_rounds_model.dart';
+import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
 
 import '../../../backend/schema/rounds_record.dart';
 import '../../../components/fab_expandable/fab_expandable_widget.dart';
@@ -40,8 +41,45 @@ abstract class _Dims {
 // ROOT WIDGET
 // ---------------------------------------------------------------------------
 
-class TournamentDecklistWidget extends StatelessWidget {
+class TournamentDecklistWidget extends StatefulWidget {
   const TournamentDecklistWidget({super.key});
+
+  @override
+  State<TournamentDecklistWidget> createState() => _TournamentDecklistWidgetState();
+}
+
+
+class _TournamentDecklistWidgetState extends State<TournamentDecklistWidget> {
+  final _formKey = GlobalKey<FormState>();
+
+  late final TournamentDecklistModel _model;
+
+  @override
+  void initState() {
+    super.initState();
+    _model = context.read<TournamentDecklistModel>();
+  }
+
+  Future<void> _handleSave() async {
+    FocusScope.of(context).unfocus();
+    logFirebaseEvent('ONBOARDING_UPLOAD_DECKLIST');
+    logFirebaseEvent('Button_validate_form');
+
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
+      return;
+    }
+
+    logFirebaseEvent('Button_haptic_feedback');
+    HapticFeedback.lightImpact();
+
+    final result = await _model.uploadDecklist();
+
+    if (!mounted) return;
+
+    if (result) {
+      notifyListeners();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,14 +99,18 @@ class TournamentDecklistWidget extends StatelessWidget {
               }());
 
               if (isLoading) return const _LoadingBody();
-
-              // FIX: model is resolved here and passed as a parameter so
-              //   _RoundsBody does not need to call context.read inside its
-              //   own build method.  This also removes the misleading `const`
-              //   keyword that was on `_RoundsBody()` — a widget that receives
-              //   a non-const model reference cannot be const-constructed.
-              final model = context.read<TournamentDecklistModel>();
-              return _DecklistBody(model: model);
+        
+              return LayoutBuilder(
+                builder: (context, constraints) => SingleChildScrollView(
+                  child: _DecklistForm(
+                    model: _model,
+                    formKey: _formKey,
+                    onSave: _handleSave,
+                    // Resolved once here; both carousel and dropdown consume it.
+                    availableHeight: constraints.maxHeight,
+                  ),
+                ),
+              );
             },
           ),
         ),
@@ -96,84 +138,52 @@ class _LoadingBody extends StatelessWidget {
 // flips (Selector above), so there is no stale-reference risk on the model.
 // ---------------------------------------------------------------------------
 
-class _DecklistBody extends StatelessWidget {
-  const _DecklistBody({required this.model});
+class _DecklistForm extends StatelessWidget {
+  const _DecklistForm({
+    required this.model,
+    required this.formKey,
+    required this.onSave,
+    required this.availableHeight,
+  });
 
   final TournamentDecklistModel model;
+  final GlobalKey<FormState> formKey;
+  final VoidCallback onSave;
+  final double availableHeight;
 
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: model.onRefresh,
-      child: Center(
-        child: Text(
-          "Decklist page",
-          style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.blueAccent),
-        ),
+      child: FutureBuilder<EnrollmentCheckResult>(
+        future: enrollCheckFuture,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final status = model.resolveRegistrationStatus(snapshot.data!);
+
+          return switch (status) {
+            RegistrationStatus.canRegister       => _PreRegisterButton(model: model),
+            RegistrationStatus.canJoinWaiting    => _WaitingListButton(model: model),
+            RegistrationStatus.alreadyEnrolled   => _DeEnrollSection(model: model),
+            RegistrationStatus.tournamentFull    => _InfoBox(
+              message:
+              'Il torneo ha raggiunto il limite e non è stata abilitata una waiting list. '
+                  'Monitoralo per vedere se vengono aggiunti nuovi posti o se ne liberano alcuni.',
+              context: context,
+            ),
+            RegistrationStatus.preRegDisabled    => _InfoBox(
+              message:
+              'Non è possibile preregistrarsi. Recati il giorno stabilito presso la sede '
+                  'dell\'evento o contatta l\'organizzatore per avere le modalità di registrazione.',
+              context: context,
+            ),
+          };
+        },
       ),
     );
   }
 }
 
-// ---------------------------------------------------------------------------
-// ROUNDS SLIVER LIST
-// Encapsulates PagedSliverList and its delegate configuration.
-// Extracted to keep _RoundsBody readable and to make the pagination
-// delegate easy to swap independently.
-// ---------------------------------------------------------------------------
-
-class _RoundsSliverList extends StatelessWidget {
-  const _RoundsSliverList({required this.model});
-
-  final TournamentRoundsModel model;
-
-  @override
-  Widget build(BuildContext context) {
-    return PagingListener(
-      controller: model.pagingControllerRounds,
-      builder: (context, state, fetchNextPage) => PagedSliverList<int, RoundsRecord>(
-        state: state,
-        fetchNextPage: fetchNextPage,
-        builderDelegate: PagedChildBuilderDelegate<RoundsRecord>(
-          itemBuilder: (context, item, index) {
-            final itemList = model.pagingControllerRounds.items;
-            final isLast =
-                itemList != null && index == itemList.length - 1;
-
-            return TournamentRoundsCardWidget(
-              key: ValueKey('round_${item.uid}_$index'),
-              roundRef: item,
-              index: index,
-              deleteFun: model.deleteRound,
-              // Safe null check on itemList — avoids the force-unwrap
-              // itemList! that would throw if the list is null.
-              closeFun: isLast ? model.closeTournament : null,
-              deepFun: (roundId) {
-                context.pushNamedAuth(
-                  'TournamentPairings', context.mounted,
-                  pathParameters: {
-                    'tournamentId': model.tournamentModel.tournamentId,
-                    'roundId': roundId,
-                  }.withoutNulls,
-                );
-              },
-              editable: model.isTournamentEditable,
-            );
-          },
-          firstPageProgressIndicatorBuilder: (_) => const GenericLoadingWidget(),
-          noItemsFoundIndicatorBuilder: (_) => const NoContentCard(
-            type: NoContentType.rounds,
-            active: true,
-            phrase: 'Nessun round pubblicato',
-          ),
-          newPageProgressIndicatorBuilder: (_) =>
-          const Center(child: CircularProgressIndicator()),
-        ),
-        shrinkWrapFirstPageIndicators: true,
-      ),
-    );
-  }
-}
