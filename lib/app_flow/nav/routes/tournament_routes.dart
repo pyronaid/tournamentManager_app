@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:tournamentmanager/backend/schema/rounds_record.dart';
+import 'package:tournamentmanager/pages/core/tournament_decklist/tournament_decklist_container.dart';
 import 'package:tournamentmanager/pages/core/tournament_pairings/tournament_pairings_container.dart';
 import 'package:tournamentmanager/pages/core/tournament_rounds/tournament_rounds_container.dart';
 
@@ -340,6 +341,21 @@ class TournamentRoutes {
               },
             ),
           ]
+        ),
+      ].map((r) => r.toRoute(appStateNotifier)).toList(),
+    ),
+    StatefulShellBranch(
+      navigatorKey: NavigatorKeys.tournamentNewsKey,
+      routes: [
+        CustomRoute(
+            name: 'TournamentDecklist',
+            path: 'tournament-decklist',
+            redirect: (context, state) => RouteGuard.authGuard(appStateNotifier, context, state),
+            builder: (context, params) {
+              logFirebaseEvent('screen_view', parameters: {'screen_name': 'TournamentDecklist'});
+              return const TournamentDecklistContainer();
+            },
+            routes: []
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     ),

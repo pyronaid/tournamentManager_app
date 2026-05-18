@@ -145,29 +145,37 @@ class ScaffoldWithLevelTwoNestedNavigation extends StatelessWidget {
                       activeIcon:
                           Icon(Icons.dashboard_rounded, size: 24),
                       label: 'Dashboard',
-                      tooltip: '',
+                      tooltip: 'Dashboard',
                     ),
                     BottomNavigationBarItem(
-                      icon: Icon(Icons.table_rows_outlined, size: 24),
+                      icon: Icon(Icons.account_tree_outlined, size: 24),
                       activeIcon:
-                          Icon(Icons.table_rows_rounded, size: 24),
+                          Icon(Icons.account_tree_rounded, size: 24),
                       label: 'Rounds',
-                      tooltip: '',
+                      tooltip: 'Rounds',
                     ),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.people_outline, size: 24),
                       activeIcon:
                           Icon(Icons.people_rounded, size: 24),
                       label: 'Players',
-                      tooltip: '',
+                      tooltip: 'Players',
                     ),
                     BottomNavigationBarItem(
                       icon:
-                          Icon(Icons.newspaper_outlined, size: 24),
+                          Icon(Icons.newspaper, size: 24),
                       activeIcon:
                           Icon(Icons.newspaper_rounded, size: 24),
                       label: 'News',
-                      tooltip: '',
+                      tooltip: 'News',
+                    ),
+                    BottomNavigationBarItem(
+                      icon:
+                          Icon(Icons.list, size: 24),
+                      activeIcon:
+                          Icon(Icons.list_rounded, size: 24),
+                      label: 'Decklist',
+                      tooltip: 'Decklist',
                     ),
                   ],
                 ),
