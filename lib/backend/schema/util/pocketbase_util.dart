@@ -1,6 +1,7 @@
 import 'package:pocketbase/pocketbase.dart';
 
 import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
+import '../enrollments_record.dart';
 
 abstract class PocketstoreRecord {
   PocketstoreRecord(this.reference, this.snapshotData);
@@ -15,6 +16,10 @@ DateTime? tryParseDate(String? dateStr){
   } catch (e) {
     return null;
   }
+}
+
+Decklist? convertJsonDecklist(dynamic json){
+  return json != null ? Decklist.fromJson(json) : null;
 }
 
 String? getFileUrl(String collectionId, String id, String? pathName) {

@@ -1282,6 +1282,16 @@
       },
       {
         "hidden": false,
+        "id": "json3976400582",
+        "maxSize": 0,
+        "name": "decklist",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "json"
+      },
+      {
+        "hidden": false,
         "id": "autodate2990389176",
         "name": "created",
         "onCreate": true,
@@ -2026,13 +2036,13 @@
         "system": false,
         "type": "select",
         "values": [
-          "ygoAdv",
-          "ygoRetro",
-          "lorcana",
-          "onepiece",
-          "altered",
-          "magic",
-          "unknown"
+          "unknown",
+          "other",
+          "edison",
+          "goat",
+          "tengu",
+          "windup",
+          "hat"
         ]
       },
       {
@@ -2121,6 +2131,15 @@
         "required": false,
         "system": false,
         "type": "number"
+      },
+      {
+        "hidden": false,
+        "id": "bool1599779888",
+        "name": "isOnline",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
       },
       {
         "cascadeDelete": false,
@@ -2222,7 +2241,7 @@
         "cascadeDelete": false,
         "collectionId": "pbc_340646327",
         "hidden": false,
-        "id": "_clone_RXIl",
+        "id": "_clone_6gSI",
         "maxSelect": 1,
         "minSelect": 0,
         "name": "id_tournament",
@@ -2235,7 +2254,7 @@
         "cascadeDelete": false,
         "collectionId": "_pb_users_auth_",
         "hidden": false,
-        "id": "_clone_cJN5",
+        "id": "_clone_rLDw",
         "maxSelect": 1,
         "minSelect": 0,
         "name": "id_user",
@@ -2246,7 +2265,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_KGl5",
+        "id": "_clone_ZN9r",
         "maxSelect": 1,
         "name": "listKind",
         "presentable": false,
@@ -2261,7 +2280,17 @@
       },
       {
         "hidden": false,
-        "id": "_clone_BHrn",
+        "id": "_clone_vk1W",
+        "maxSize": 0,
+        "name": "decklist",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "json"
+      },
+      {
+        "hidden": false,
+        "id": "_clone_AbBZ",
         "name": "created",
         "onCreate": true,
         "onUpdate": false,
@@ -2271,7 +2300,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_lqql",
+        "id": "_clone_MrS1",
         "name": "updated",
         "onCreate": true,
         "onUpdate": true,
@@ -2282,7 +2311,7 @@
       {
         "autogeneratePattern": "",
         "hidden": false,
-        "id": "_clone_uVOc",
+        "id": "_clone_9lTr",
         "max": 255,
         "min": 0,
         "name": "name",
@@ -2296,7 +2325,7 @@
       {
         "autogeneratePattern": "",
         "hidden": false,
-        "id": "_clone_OrnB",
+        "id": "_clone_QvQe",
         "max": 0,
         "min": 0,
         "name": "surname",
@@ -2310,7 +2339,7 @@
       {
         "autogeneratePattern": "",
         "hidden": false,
-        "id": "_clone_bq2o",
+        "id": "_clone_7UAy",
         "max": 0,
         "min": 0,
         "name": "username",
@@ -2325,7 +2354,7 @@
         "cascadeDelete": false,
         "collectionId": "_pb_users_auth_",
         "hidden": false,
-        "id": "_clone_GVr0",
+        "id": "_clone_fzKg",
         "maxSelect": 1,
         "minSelect": 0,
         "name": "id_owner",
@@ -2337,7 +2366,7 @@
     ],
     "indexes": [],
     "system": false,
-    "viewQuery": "SELECT \n  e.id,\n  e.id_tournament,\n  e.id_user,\n  e.listKind,\n  e.created,\n  e.updated,\n  u.name,\n  u.surname,\n  u.username,\n  t.id_owner\nFROM \n    enrollments e\n  LEFT JOIN users u ON e.id_user = u.id\n  LEFT JOIN tournament_with_stats t ON e.id_tournament = t.id;"
+    "viewQuery": "SELECT \n  e.id,\n  e.id_tournament,\n  e.id_user,\n  e.listKind,\n  e.decklist,\n  e.created,\n  e.updated,\n  u.name,\n  u.surname,\n  u.username,\n  t.id_owner\nFROM \n    enrollments e\n  LEFT JOIN users u ON e.id_user = u.id\n  LEFT JOIN tournament_with_stats t ON e.id_tournament = t.id;"
   },
   {
     "id": "pbc_943512571",
@@ -3082,7 +3111,7 @@
         "cascadeDelete": false,
         "collectionId": "_pb_users_auth_",
         "hidden": false,
-        "id": "_clone_Tjbn",
+        "id": "_clone_xHIX",
         "maxSelect": 1,
         "minSelect": 0,
         "name": "id_owner",
@@ -3094,7 +3123,7 @@
       {
         "autogeneratePattern": "",
         "hidden": false,
-        "id": "_clone_7IwK",
+        "id": "_clone_Zo1G",
         "max": 0,
         "min": 0,
         "name": "name",
@@ -3107,7 +3136,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_hiSv",
+        "id": "_clone_r6ee",
         "max": null,
         "min": null,
         "name": "capacity",
@@ -3119,7 +3148,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_Njvw",
+        "id": "_clone_iGkr",
         "max": "",
         "min": "",
         "name": "date",
@@ -3130,7 +3159,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_5BmB",
+        "id": "_clone_u1qY",
         "maxSelect": 1,
         "name": "game",
         "presentable": false,
@@ -3138,18 +3167,18 @@
         "system": false,
         "type": "select",
         "values": [
-          "ygoAdv",
-          "ygoRetro",
-          "lorcana",
-          "onepiece",
-          "altered",
-          "magic",
-          "unknown"
+          "unknown",
+          "other",
+          "edison",
+          "goat",
+          "tengu",
+          "windup",
+          "hat"
         ]
       },
       {
         "hidden": false,
-        "id": "_clone_9FRy",
+        "id": "_clone_kBlk",
         "maxSelect": 1,
         "name": "state",
         "presentable": false,
@@ -3166,7 +3195,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_Vwwt",
+        "id": "_clone_yszm",
         "maxSelect": 1,
         "maxSize": 0,
         "mimeTypes": [],
@@ -3180,7 +3209,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_tcmV",
+        "id": "_clone_N93d",
         "name": "preRegistrationEn",
         "presentable": false,
         "required": false,
@@ -3189,7 +3218,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_pWqM",
+        "id": "_clone_lRxh",
         "name": "waitingListEn",
         "presentable": false,
         "required": false,
@@ -3199,7 +3228,7 @@
       {
         "autogeneratePattern": "",
         "hidden": false,
-        "id": "_clone_VHIf",
+        "id": "_clone_MLit",
         "max": 0,
         "min": 0,
         "name": "address",
@@ -3212,7 +3241,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_7SlF",
+        "id": "_clone_tmLv",
         "max": null,
         "min": null,
         "name": "latitude",
@@ -3224,7 +3253,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_ZDAS",
+        "id": "_clone_OHxW",
         "max": null,
         "min": null,
         "name": "longitude",
@@ -3236,7 +3265,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_AMP7",
+        "id": "_clone_8p2m",
         "max": "",
         "min": "",
         "name": "lastUpdated_news",
@@ -3247,7 +3276,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_zhHy",
+        "id": "_clone_MhAF",
         "max": "",
         "min": "",
         "name": "lastUpdated_enrollments",
@@ -3258,7 +3287,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_JulR",
+        "id": "_clone_hCyG",
         "max": "",
         "min": "",
         "name": "lastUpdated_rounds",
@@ -3269,7 +3298,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_LGK5",
+        "id": "_clone_rZL8",
         "name": "created",
         "onCreate": true,
         "onUpdate": false,
@@ -3279,7 +3308,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_9xp2",
+        "id": "_clone_Seef",
         "name": "updated",
         "onCreate": true,
         "onUpdate": true,

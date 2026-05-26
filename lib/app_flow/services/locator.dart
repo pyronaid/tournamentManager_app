@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:tournamentmanager/app_flow/services/CardsApiManagerService.dart';
 import 'package:tournamentmanager/app_flow/services/ExternalAppManagerService.dart';
 import 'package:tournamentmanager/app_flow/services/ImagePickerService.dart';
 import 'package:tournamentmanager/app_flow/services/LoaderService.dart';
@@ -35,6 +36,7 @@ void serviceLocatorSetUp(){
   serviceLocator.registerLazySingleton<VerifyMailService>(() => VerifyMailService());
   serviceLocator.registerLazySingleton<ExternalAppManagerService>(() => ExternalAppManagerService());
   serviceLocator.registerLazySingleton<PocketbaseApiManagerService>(() => PocketbaseApiManagerService());
+  serviceLocator.registerLazySingleton<CardsApiManagerService>(() => CardsApiManagerService());
   //serviceLocator.registerSingleton<Model>(()=> MyModel());
   //serviceLocator.registerFactory<Model>(()=>MyModel());
   //serviceLocator.registerFactoryParam<Person,String,int>((name, age) => Person(name,age));

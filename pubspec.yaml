@@ -45,6 +45,7 @@ dependencies:
   crypto: ^3.0.3
   cupertino_icons: ^1.0.6
   easy_debounce: ^2.0.3
+  file_picker: ^11.0.2
   firebase_analytics: ^12.0.4
   firebase_app_check: ^0.4.1+2
   #firebase_auth: ^5.0.0
@@ -191,6 +192,7 @@ flutter:
      - assets/images/icons/bye.png
      - assets/images/icons/double_loss.png
      - assets/images/icons/ranking.png
+     - assets/images/icons/enroll.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

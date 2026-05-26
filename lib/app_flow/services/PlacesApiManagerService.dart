@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -10,7 +11,10 @@ class PlacesApiManagerService {
   late final String _placeApiKey;
 
   PlacesApiManagerService(){
-    print("[SERVICE CONSTRUCTOR] SecretManagerService");
+    assert(() {
+      debugPrint("[SERVICE CONSTRUCTOR] SecretManagerService");
+      return true;
+    }());
   }
 
   Future<void> initialize() async {
@@ -18,7 +22,10 @@ class PlacesApiManagerService {
       final result = await callablePlaceApiKey();
       _placeApiKey = result.data['apiKey'];
     } catch (e) {
-      print('Error retrieving secret: $e');
+      assert(() {
+        debugPrint('Error retrieving secret: $e');
+        return true;
+      }());
       throw Exception('Failed to get API key');
     }
   }

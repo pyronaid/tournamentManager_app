@@ -3,6 +3,7 @@ SELECT
   e.id_tournament,
   e.id_user,
   e.listKind,
+  e.decklist,
   e.created,
   e.updated,
   u.name,

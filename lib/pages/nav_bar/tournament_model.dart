@@ -14,6 +14,7 @@ import 'package:uuid/uuid.dart';
 import '../../app_flow/services/LoaderService.dart';
 import '../../app_flow/services/SnackBarService.dart';
 import '../../auth/pocketbase_auth/pocketbase_auth_util.dart';
+import '../../backend/schema/enrollments_record.dart';
 
 class TournamentModel extends ChangeNotifier {
 
@@ -72,6 +73,7 @@ class TournamentModel extends ChangeNotifier {
   bool get hasWinner => tournamentsRefObj != null ? tournamentsRefObj!.hasWinner() : false;
   List<dynamic>? get winner => tournamentsRefObj?.winnerUserId!;
   bool get isTournamentOngoing => tournamentsRefObj != null ? tournamentsRefObj!.state == StateTournament.ongoing : false;
+  bool get isTournamentClosed => tournamentsRefObj != null ? tournamentsRefObj!.state == StateTournament.close : false;
   bool get isTournamentEditable => tournamentsRefObj != null ? (tournamentsRefObj!.state == StateTournament.ready || tournamentsRefObj!.state == StateTournament.open) : false;
   int get tournamentCurrentSize => tournamentPreRegisteredSize + tournamentRegisteredSize;
   int get tournamentPreRegisteredSize => tournamentsRefObj != null ? tournamentsRefObj!.preRegisteredCount : 0;
@@ -159,6 +161,19 @@ class TournamentModel extends ChangeNotifier {
       //notifyListeners();
       loaderService.hideLoader(id: executionId);
     }
+  }
+  Future<bool> updateDecklist(PocketBase pb, {
+    required String enrollmentId,
+    required Decklist list
+  }) async {
+    bool flag = false;
+    try{
+      await EnrollmentsRecord.updateField(pb, enrollmentId, EnrollmentsRecord.decklistFieldName, list.toJson());
+      flag = true;
+    } catch(e, _){
+      debugPrint("Errore nel salvataggio della decklist $e");
+    }
+    return flag;
   }
   Future<bool> saveEditNews(PocketBase pb, {
     required bool isCreate,

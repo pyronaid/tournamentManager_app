@@ -345,7 +345,7 @@ class TournamentRoutes {
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     ),
     StatefulShellBranch(
-      navigatorKey: NavigatorKeys.tournamentNewsKey,
+      navigatorKey: NavigatorKeys.tournamentDecklistKey,
       routes: [
         CustomRoute(
             name: 'TournamentDecklist',

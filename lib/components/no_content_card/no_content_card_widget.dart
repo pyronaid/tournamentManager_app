@@ -76,6 +76,8 @@ enum NoContentType {
   people('assets/images/icons/player.png'),
   pick('assets/images/icons/empty-box.png'),
   rankings('assets/images/icons/ranking.png'),
+  enroll('assets/images/icons/enroll.png'),
+  ongoing('assets/images/icons/ongoing.png'),
   rounds('assets/images/icons/round.png');
 
   const NoContentType(this.asset);

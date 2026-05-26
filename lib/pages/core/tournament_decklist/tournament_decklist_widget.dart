@@ -3,13 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
+import 'package:tournamentmanager/app_flow/app_flow_model.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
+import 'package:tournamentmanager/components/tournament_decklist_card/tournament_decklist_card_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_decklist/tournament_decklist_model.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
-import 'package:tournamentmanager/services/snackbar_service.dart'; // adjust to your actual path
 
 import '../../../app_flow/app_flow_widgets.dart';
+import '../../../app_flow/services/SnackBarService.dart';
+import '../../../app_flow/services/supportClass/snackbar_style.dart';
+import '../../../backend/schema/enrollments_record.dart';
+import '../../../backend/schema/tournaments_record.dart';
 import '../../../components/no_content_card/no_content_card_widget.dart';
+import '../../../components/standard_graphics/standard_graphics_widgets.dart';
 
 // ---------------------------------------------------------------------------
 // DIMENSION CONSTANTS
@@ -23,6 +29,13 @@ abstract class _Dims {
 
   // Horizontal padding used consistently throughout the page.
   static const double pagePadding = 24.0;
+
+  static const double sliverAppBarExpandedHeight  = 70.0;
+  static const double sliverAppBarCollapsedHeight = 70.0;
+  static const double sectionFooterHeight         = 40.0;
+  static const double sectionFooterRadius         = 20.0;
+  static const double titlePaddingBottom          = 30.0;
+  static const double titlePaddingTop             = 15.0;
 }
 
 // ---------------------------------------------------------------------------
@@ -64,7 +77,7 @@ class _TournamentDecklistWidgetState extends State<TournamentDecklistWidget> {
 
     HapticFeedback.lightImpact();
 
-    final success = await _model.uploadDecklist();
+    final success = await _model.manageCode("");
 
     if (!mounted) return;
 
@@ -73,7 +86,7 @@ class _TournamentDecklistWidgetState extends State<TournamentDecklistWidget> {
     // ChangeNotifier.notifyListeners() is @protected.  The model exposes a
     // public method for exactly this purpose.
     if (success) {
-      _model.refresh();
+      _model.onRefresh();
     }
   }
 
@@ -161,52 +174,56 @@ class _DecklistForm extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // FIX: snapshot.hasData is a bool — the enrolled check must be
-          //   performed on the actual data object, not on hasData.
           final enrollResult = snapshot.data!;
-
           if (enrollResult.isNotEnrolled) {
-            return const NoContentCard(
-              type: NoContentType.generic,
+            return NoContentCard(
+              type: NoContentType.enroll,
               active: false,
               phrase:
-                  'Non sei iscritto a questo torneo e pertanto non puoi '
+              'Non sei iscritto a questo torneo e pertanto non puoi '
                   'caricare una decklist. Se pensi sia un errore, contatta '
                   "l'organizzatore.",
             );
           }
 
+          //The decklist area rebuild according to tournament state.
           return Column(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // The upload form is hidden once the tournament has started.
-              Selector<TournamentDecklistModel, bool>(
-                selector: (_, m) => m.isTournamentOngoing,
-                builder: (_, ongoing, ___) {
-                  if (ongoing) {
-                    return const NoContentCard(
-                      type: NoContentType.generic,
+              SizedBox(height: _Dims.fieldSpacing,),
+              _DecklistSection(enrollmnentCheckResult: enrollResult, model: model,),
+              SizedBox(height: _Dims.fieldSpacing,),
+              Selector<TournamentDecklistModel, StateTournament>(
+                selector: (_, m) => m.tournamentState,
+                builder: (_, state, ___) {
+                  if(state == StateTournament.close){
+                    return NoContentCard(
+                      type: NoContentType.enroll,
                       active: false,
                       phrase:
-                          'Il torneo è già iniziato, non puoi più modificare '
+                      'Non sei iscritto a questo torneo e pertanto non puoi '
+                          'caricare una decklist. Se pensi sia un errore, contatta '
+                          "l'organizzatore.",
+                    );
+                  } else if(state == StateTournament.ongoing){
+                    return const NoContentCard(
+                      type: NoContentType.ongoing,
+                      active: false,
+                      phrase:
+                      'Il torneo è già iniziato, non puoi più modificare '
                           'la decklist.',
                     );
                   }
+
                   return _SectionForm(
                     formKey: formKey,
                     onSave: onSave,
                     model: model,
+                    enrollmentCheckResult: enrollResult
                   );
                 },
-              ),
-
-              // The decklist preview rebuilds only when decklist changes.
-              Selector<TournamentDecklistModel, String?>(
-                selector: (_, m) => m.decklist,
-                builder: (_, decklist, ___) =>
-                    _DecklistSection(decklist: decklist),
               ),
             ],
           );
@@ -225,11 +242,13 @@ class _SectionForm extends StatelessWidget {
     required this.formKey,
     required this.onSave,
     required this.model,
+    required this.enrollmentCheckResult,
   });
 
   final GlobalKey<FormState> formKey;
   final VoidCallback onSave;
   final TournamentDecklistModel model;
+  final EnrollmentCheckResult enrollmentCheckResult;
 
   @override
   Widget build(BuildContext context) {
@@ -242,8 +261,8 @@ class _SectionForm extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            _YdkFileField(model: model),
-            _YdkLinkField(model: model, onSave: onSave),
+            _YdkFileField(model: model, enrollmentCheckResult: enrollmentCheckResult),
+            _YdkLinkField(model: model, onSave: onSave, enrollmentCheckResult: enrollmentCheckResult),
           ],
         ),
       ),
@@ -256,9 +275,13 @@ class _SectionForm extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _YdkFileField extends StatelessWidget {
-  const _YdkFileField({required this.model});
+  const _YdkFileField({
+    required this.model,
+    required this.enrollmentCheckResult,
+  });
 
   final TournamentDecklistModel model;
+  final EnrollmentCheckResult enrollmentCheckResult;
 
   Future<void> _onUploadYdk(BuildContext context) async {
     FocusScope.of(context).unfocus();
@@ -267,7 +290,7 @@ class _YdkFileField extends StatelessWidget {
 
     FilePickerResult? result;
     try {
-      result = await FilePicker.platform.pickFiles(
+      result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['ydk'],
         allowMultiple: false,
@@ -287,10 +310,10 @@ class _YdkFileField extends StatelessWidget {
 
     final PlatformFile pickedFile = result.files.single;
     final String? path = pickedFile.path;
-
+    final SnackBarService snackBarService = GetIt.instance<SnackBarService>();
     if (path == null) {
       // path is null on web — guard in case the app is ever ported.
-      GetIt.instance<SnackBarService>().showSnackBar(
+      snackBarService.showSnackBar(
         message: 'File non accessibile. Riprova.',
         title: 'Errore',
         style: SnackbarStyle.error,
@@ -298,7 +321,21 @@ class _YdkFileField extends StatelessWidget {
       return;
     }
 
-    await model.setYdkFilePath(path);
+    bool res = await model.manageFile(path, enrollmentCheckResult);
+    if(!res){
+      snackBarService.showSnackBar(
+        message: 'Errore durante il caricamento del file. Riprova.',
+        title: 'Errore',
+        style: SnackbarStyle.error,
+      );
+      return;
+    } else {
+      snackBarService.showSnackBar(
+        message: 'La lista è stata correttamente salvata',
+        title: 'Caricamento completato',
+        style: SnackbarStyle.success,
+      );
+    }
     HapticFeedback.lightImpact();
   }
 
@@ -348,9 +385,14 @@ class _YdkFileField extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _YdkLinkField extends StatelessWidget {
-  const _YdkLinkField({required this.model, required this.onSave});
+  const _YdkLinkField({
+    required this.model,
+    required this.onSave,
+    required this.enrollmentCheckResult,
+  });
 
   final TournamentDecklistModel model;
+  final EnrollmentCheckResult enrollmentCheckResult;
 
   // FIX: the original code referenced _onUploadYdkLink but never defined it.
   // The save callback is passed in from _SectionForm (which receives it from
@@ -374,8 +416,8 @@ class _YdkLinkField extends StatelessWidget {
             ),
           ),
           TextFormField(
-            controller: model.controller,
-            focusNode: model.focusNode,
+            controller: model.tournamentDecklistTextController,
+            focusNode: model.tournamentDecklistFocusNode,
             autofocus: false,
             autofillHints: const [AutofillHints.url],
             textCapitalization: TextCapitalization.none,
@@ -392,7 +434,7 @@ class _YdkLinkField extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                   lineHeight: 1,
                 ),
-            validator: model.validator,
+            validator: model.tournamentDecklistTextControllerValidator.asValidator(context),
           ),
           const SizedBox(height: 10),
           AFButtonWidget(
@@ -428,20 +470,23 @@ class _YdkLinkField extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _DecklistSection extends StatelessWidget {
-  const _DecklistSection({required this.decklist});
+  const _DecklistSection({
+    required this.model,
+    required this.enrollmnentCheckResult
+  });
 
-  final String? decklist;
+  final EnrollmentCheckResult? enrollmnentCheckResult;
+  final TournamentDecklistModel model;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(
-          _Dims.pagePadding, 0, _Dims.pagePadding, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(_Dims.pagePadding, 0, _Dims.pagePadding, 0),
       child: Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (decklist != null) ...[
+          if (enrollmnentCheckResult != null && enrollmnentCheckResult!.enrollments.isNotEmpty && enrollmnentCheckResult!.enrollments.first.decklist != null) ...[
             Padding(
               padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
               child: Text(
@@ -451,30 +496,249 @@ class _DecklistSection extends StatelessWidget {
             ),
             Container(
               width: double.infinity,
-              height: 200,
+              height: 500,
               decoration: BoxDecoration(
                 color: CustomFlowTheme.of(context).secondaryBackground,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(12),
-                child: Text(
-                  decklist!,
-                  style: CustomFlowTheme.of(context).bodyMedium.override(
-                        fontFamily: 'Source Code Pro',
-                        lineHeight: 1.2,
-                      ),
-                ),
+              child: CustomScrollView(
+                slivers: [
+                  // ── Main section ─────────────────────────────────────────────
+                  _SectionHeader(
+                    label: 'MAIN',
+                    backgroundColor: CustomFlowTheme.of(context).secondary,
+                    isExpanded: Selector<TournamentDecklistModel, bool>(
+                      selector: (_, m) => m.showMainCards,
+                      builder: (_, show, __) => _ToggleIcon(show: show),
+                    ),
+                    onToggle: model.switchShowMainCards,
+                  ),
+
+                  Selector<TournamentDecklistModel, bool>(
+                    selector: (_, m) => m.showMainCards,
+                    builder: (_, show, __) => show
+                        ? _DecklistSliverList(
+                      items: enrollmnentCheckResult!.enrollments.first.decklist!.main.entries.toList(),
+                      listKey: 'main',
+                      emptyPhrase: 'Nessuna carta nel main deck.',
+                    )
+                        : const SliverToBoxAdapter(child: SizedBox.shrink()),
+                  ),
+
+                  /*
+                  SliverToBoxAdapter(
+                    child: _SectionFooter(color: CustomFlowTheme.of(context).secondary),
+                  ),*/
+
+                  // ── Main section ─────────────────────────────────────────────
+                  _SectionHeader(
+                    label: 'SIDE',
+                    backgroundColor: CustomFlowTheme.of(context).secondary,
+                    isExpanded: Selector<TournamentDecklistModel, bool>(
+                      selector: (_, m) => m.showSideCards,
+                      builder: (_, show, __) => _ToggleIcon(show: show),
+                    ),
+                    onToggle: model.switchShowSideCards,
+                  ),
+
+                  Selector<TournamentDecklistModel, bool>(
+                    selector: (_, m) => m.showSideCards,
+                    builder: (_, show, __) => show
+                        ? _DecklistSliverList(
+                      items: enrollmnentCheckResult!.enrollments.first.decklist!.side.entries.toList(),
+                      listKey: 'main',
+                      emptyPhrase: 'Nessuna carta nel side deck.',
+                    )
+                        : const SliverToBoxAdapter(child: SizedBox.shrink()),
+                  ),
+
+                  /*
+                  SliverToBoxAdapter(
+                    child: _SectionFooter(color: CustomFlowTheme.of(context).secondary),
+                  ),*/
+
+                  // ── Main section ─────────────────────────────────────────────
+                  _SectionHeader(
+                    label: 'EXTRA',
+                    backgroundColor: CustomFlowTheme.of(context).secondary,
+                    isExpanded: Selector<TournamentDecklistModel, bool>(
+                      selector: (_, m) => m.showExtraCards,
+                      builder: (_, show, __) => _ToggleIcon(show: show),
+                    ),
+                    onToggle: model.switchShowExtraCards,
+                  ),
+
+                  Selector<TournamentDecklistModel, bool>(
+                    selector: (_, m) => m.showExtraCards,
+                    builder: (_, show, __) => show
+                        ? _DecklistSliverList(
+                      items: enrollmnentCheckResult!.enrollments.first.decklist!.extra.entries.toList(),
+                      listKey: 'main',
+                      emptyPhrase: 'Nessuna carta nell\'extra deck.',
+                    )
+                        : const SliverToBoxAdapter(child: SizedBox.shrink()),
+                  ),
+
+                  /*
+                  SliverToBoxAdapter(
+                    child: _SectionFooter(color: CustomFlowTheme.of(context).secondary),
+                  ),*/
+                ],
               ),
             ),
           ] else ...[
             const NoContentCard(
-              type: NoContentType.generic,
+              type: NoContentType.pick,
               active: false,
               phrase: 'Nessuna decklist caricata.',
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SECTION HEADER
+// Accepts a pre-built widget for isExpanded so the caller can wrap it in a
+// Selector without this widget needing to know about the model.
+// ---------------------------------------------------------------------------
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
+    required this.label,
+    required this.backgroundColor,
+    required this.isExpanded,
+    required this.onToggle,
+  });
+
+  final String label;
+  final Color backgroundColor;
+  final Widget isExpanded;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverAppBar(
+      pinned: true,
+      snap: false,
+      floating: false,
+      expandedHeight: _Dims.sliverAppBarExpandedHeight,
+      collapsedHeight: _Dims.sliverAppBarExpandedHeight,
+      toolbarHeight: _Dims.sliverAppBarExpandedHeight,
+      backgroundColor: backgroundColor,
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text(
+          label,
+          style: CustomFlowTheme.of(context).headlineLarge,
+          textAlign: TextAlign.center,
+        ),
+        expandedTitleScale: 1,
+        titlePadding: const EdgeInsetsDirectional.fromSTEB(
+          0,
+          _Dims.titlePaddingTop,
+          0,
+          _Dims.titlePaddingBottom,
+        ),
+        centerTitle: true,
+      ),
+      actions: [
+        IconButton(
+          icon: isExpanded,
+          onPressed: onToggle,
+        ),
+      ],
+    );
+  }
+}
+
+
+// ---------------------------------------------------------------------------
+// TOGGLE ICON
+// ---------------------------------------------------------------------------
+
+class _ToggleIcon extends StatelessWidget {
+  const _ToggleIcon({required this.show});
+
+  final bool show;
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      show ? Icons.remove_circle : Icons.add_circle,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SECTION FOOTER
+//
+// FIX: width: double.infinity removed from the inner SizedBox.
+//   DecoratedBox inside SliverToBoxAdapter already fills the sliver
+//   cross-axis — the explicit width on the child SizedBox had no effect.
+// ---------------------------------------------------------------------------
+
+class _SectionFooter extends StatelessWidget {
+  const _SectionFooter({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(_Dims.sectionFooterRadius),
+          bottomRight: Radius.circular(_Dims.sectionFooterRadius),
+        ),
+      ),
+      child: const SizedBox(height: _Dims.sectionFooterHeight),
+    );
+  }
+}
+
+
+// ---------------------------------------------------------------------------
+// TOURNAMENT SLIVER LIST
+// ---------------------------------------------------------------------------
+
+class _DecklistSliverList extends StatelessWidget {
+  const _DecklistSliverList({
+    required this.items,
+    required this.listKey,
+    required this.emptyPhrase,
+  });
+
+  // Map<CardRef, int> entries → list of (card, count) pairs
+  final List<MapEntry<CardRef, int>> items;
+  final String listKey;
+  final String emptyPhrase;
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return SliverToBoxAdapter(
+        child: NoContentCard(
+          type: NoContentType.pick,
+          active: false,
+          phrase: emptyPhrase,
+        ),
+      );
+    }
+
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+            (context, index) {
+          final entry = items[index];
+          return TournamentDecklistCardWidget(
+            key: ValueKey('${listKey}_${entry.key.id}'),
+            cardRef: entry.key,
+            qty: entry.value,
+          );
+        },
+        childCount: items.length,
       ),
     );
   }

@@ -13,6 +13,7 @@ import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 
 import '../../../app_flow/app_flow_widgets.dart';
 import '../../../auth/pocketbase_auth/pocketbase_users_record.dart';
+import '../../../backend/schema/enrollments_record.dart';
 
 // ---------------------------------------------------------------------------
 // DIMENSION CONSTANTS

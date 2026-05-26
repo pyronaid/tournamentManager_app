@@ -8,53 +8,6 @@ import 'package:tournamentmanager/pages/nav_bar/tournament_model.dart';
 import 'package:tuple/tuple.dart';
 
 // ---------------------------------------------------------------------------
-// 1. DATA CLASS  –  EnrollmentCheckResult
-// ---------------------------------------------------------------------------
-
-/// Result returned by [TournamentDetailModel.enrollCheckFuture].
-///
-/// - [count]       total number of enrollments found for the current user in
-///                 this tournament (0 = not enrolled).
-/// - [enrollments] the actual records, available for further inspection
-///                 (e.g. to distinguish pre-reg from confirmed).
-class EnrollmentCheckResult {
-  const EnrollmentCheckResult({
-    required this.count,
-    required this.enrollments,
-  });
-
-  final int count;
-  final List<EnrollmentsRecord> enrollments;
-
-  /// Convenience getter — true when the user has no enrollment records.
-  bool get isNotEnrolled => count == 0;
-}
-
-// ---------------------------------------------------------------------------
-// 2. ENUM  –  RegistrationStatus
-// ---------------------------------------------------------------------------
-
-/// Drives the registration section of the tournament detail screen.
-/// The widget performs a simple switch on this value — no business logic
-/// leaks into the UI layer.
-enum RegistrationStatus {
-  /// User can pre-register (capacity not reached, pre-reg enabled).
-  canRegister,
-
-  /// Capacity is full but waiting list is enabled.
-  canJoinWaiting,
-
-  /// User is already enrolled (pre-reg or confirmed).
-  alreadyEnrolled,
-
-  /// Capacity full, waiting list disabled.
-  tournamentFull,
-
-  /// Pre-registration is not enabled for this tournament.
-  preRegDisabled,
-}
-
-// ---------------------------------------------------------------------------
 // 3. MODEL
 // ---------------------------------------------------------------------------
 

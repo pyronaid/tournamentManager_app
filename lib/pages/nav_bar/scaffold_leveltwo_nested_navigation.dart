@@ -37,7 +37,7 @@ class ScaffoldWithLevelTwoNestedNavigation extends StatelessWidget {
     final currentLocation = router.getCurrentLocation();
 
     final bool showNav = !RegExp(
-      r'/tournament-(dets|people|news|rounds)/(?!dialog-)[a-zA-Z]+',
+      r'/tournament-(dets|people|news|rounds|decklist)/(?!dialog-)[a-zA-Z]+',
     ).hasMatch(currentLocation);
 
     final bool isDialogRoute = RegExp(
@@ -53,7 +53,7 @@ class ScaffoldWithLevelTwoNestedNavigation extends StatelessWidget {
         // At a branch root the URL ends with the tab name → go to dashboard.
         // Deeper routes (pairings, rankings, dialogs) → pop the top route.
         if (RegExp(
-          r'.*/tournament-(dets|rounds|people|news)$',
+          r'.*/tournament-(dets|rounds|people|news|decklist)$',
         ).hasMatch(router.getCurrentLocation())) {
           router.go('/dashboard');
         } else {

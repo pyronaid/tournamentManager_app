@@ -1,12 +1,15 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:get_it/get_it.dart';
 import 'package:http/http.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 import 'package:tournamentmanager/backend/schema/util/pocketbase_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
 import 'package:tuple/tuple.dart';
+
+import '../../app_flow/services/CardsApiManagerService.dart';
 
 class EnrollmentsRecord extends PocketstoreRecord {
   static const String collectionNameExt = "enrollments_extended";
@@ -15,6 +18,7 @@ class EnrollmentsRecord extends PocketstoreRecord {
   static const String idTournamentFieldName = 'id_tournament';
   static const String idUserFieldName = 'id_user';
   static const String listKindFieldName = 'listKind';
+  static const String decklistFieldName = 'decklist';
   static const String createdFieldName = 'created';
   static const String updatedFieldName = 'updated';
   static const String collectionIdFieldName = 'collectionId';
@@ -54,6 +58,10 @@ class EnrollmentsRecord extends PocketstoreRecord {
   late DateTime _updatedTime;
   DateTime get updatedTime => _updatedTime;
   bool hasUpdatedTime() => true;
+
+  late Decklist? _decklist;
+  Decklist? get decklist => _decklist;
+  bool hasDecklist() => _decklist != null;
 
   // ignore: unused_field
   late String _collectionId;
@@ -102,6 +110,7 @@ class EnrollmentsRecord extends PocketstoreRecord {
     _listKind = getListTypeEnum(snapshotData[listKindFieldName]);
     _createdTime = tryParseDate(snapshotData[createdFieldName])!;
     _updatedTime = tryParseDate(snapshotData[updatedFieldName])!;
+    _decklist = convertJsonDecklist(snapshotData[decklistFieldName]);
     _collectionId = snapshotData[collectionIdFieldName];
     _collectionName = snapshotData[collectionNameFieldName];
   }
@@ -291,6 +300,7 @@ class EnrollmentsRecordDocumentEquality implements Equality<EnrollmentsRecord> {
     return e1?.tournamentId == e2?.tournamentId &&
         e1?.uid == e2?.uid &&
         e1?.userId == e2?.userId &&
+        e1?.decklist == e2?.decklist &&
         e1?.listKind == e2?.listKind;
   }
 
@@ -299,6 +309,7 @@ class EnrollmentsRecordDocumentEquality implements Equality<EnrollmentsRecord> {
     e?.tournamentId,
     e?.uid,
     e?.userId,
+    e?.decklist,
     e?.listKind
   ]);
 
@@ -320,4 +331,232 @@ ListType getListTypeByName(String name) {
         (state) => state.name == name,
     orElse: () => ListType.waiting,
   );
+}
+
+// ---------------------------------------------------------------------------
+// 1. DATA CLASS  –  EnrollmentCheckResult
+// ---------------------------------------------------------------------------
+
+/// Result returned by [TournamentDetailModel.enrollCheckFuture].
+///
+/// - [count]       total number of enrollments found for the current user in
+///                 this tournament (0 = not enrolled).
+/// - [enrollments] the actual records, available for further inspection
+///                 (e.g. to distinguish pre-reg from confirmed).
+class EnrollmentCheckResult {
+  const EnrollmentCheckResult({
+    required this.count,
+    required this.enrollments,
+  });
+
+  final int count;
+  final List<EnrollmentsRecord> enrollments;
+
+  /// Convenience getter — true when the user has no enrollment records.
+  bool get isNotEnrolled => count == 0;
+}
+
+// ---------------------------------------------------------------------------
+// 2. ENUM  –  RegistrationStatus
+// ---------------------------------------------------------------------------
+
+/// Drives the registration section of the tournament detail screen.
+/// The widget performs a simple switch on this value — no business logic
+/// leaks into the UI layer.
+enum RegistrationStatus {
+  /// User can pre-register (capacity not reached, pre-reg enabled).
+  canRegister,
+
+  /// Capacity is full but waiting list is enabled.
+  canJoinWaiting,
+
+  /// User is already enrolled (pre-reg or confirmed).
+  alreadyEnrolled,
+
+  /// Capacity full, waiting list disabled.
+  tournamentFull,
+
+  /// Pre-registration is not enabled for this tournament.
+  preRegDisabled,
+}
+
+enum DecklistArea {
+  main,side,extra
+}
+
+extension CardTypeX on CardType {
+  static CardType? tryParse(String? value) {
+    return value != null ? CardType.values.where((e) => e.name == value).firstOrNull : null;
+  }
+}
+
+enum CardType {
+  synchro(Color(0xFFCFD3DA), Color(0xFF000000)),
+  fusion(Color(0xFF9966cc), Color(0xFF000000)),
+  effect(Color(0xFFEA742C), Color(0xFF000000)),
+  ritual(Color(0xFF99ccff), Color(0xFF000000)),
+  xyz(Color(0xFF333333), Color(0xFFffffff)),
+  link(Color(0xFF003399), Color(0xFF000000)),
+  normal(Color(0xFFffcc77), Color(0xFF000000)),
+  spell(Color(0xFF1F9585), Color(0xFF000000)),
+  trap(Color(0xFFa249a4), Color(0xFF000000));
+
+  final Color outer;
+  final Color inner;
+
+  const CardType(this.outer, this.inner);
+}
+
+class Decklist {
+  late Map<CardRef, int> main;
+  late Map<CardRef, int> side;
+  late Map<CardRef, int> extra;
+
+  Decklist(){
+    main = {};
+    side = {};
+    extra = {};
+  }
+
+  void addCardRef(CardRef cardRef, DecklistArea area){
+    switch(area){
+      case DecklistArea.main:
+        main[cardRef] = (main[cardRef] ?? 0) + 1;
+      case DecklistArea.side:
+        side[cardRef] = (side[cardRef] ?? 0) + 1;
+      case DecklistArea.extra:
+        extra[cardRef] = (extra[cardRef] ?? 0) + 1;
+    }
+  }
+  void addCardRefRaw({
+    required int id,
+    required String name,
+    required String type,
+    String? frameType,
+    String? imageUrl,
+    required DecklistArea area
+  }){
+    CardRef cardRef = CardRef(id: id, cardName: name);
+    switch(area){
+      case DecklistArea.main:
+        main[cardRef] = (main[cardRef] ?? 0) + 1;
+      case DecklistArea.side:
+        side[cardRef] = (side[cardRef] ?? 0) + 1;
+      case DecklistArea.extra:
+        extra[cardRef] = (extra[cardRef] ?? 0) + 1;
+    }
+  }
+
+  Map<String, dynamic> toJson() => {
+    'main':  _encodeZone(main),
+    'side':  _encodeZone(side),
+    'extra': _encodeZone(extra),
+  };
+
+  factory Decklist.fromJson(Map<String, dynamic> json) {
+    final decklist = Decklist();
+    decklist.main  = _decodeZone(json['main']);
+    decklist.side  = _decodeZone(json['side']);
+    decklist.extra = _decodeZone(json['extra']);
+    return decklist;
+  }
+
+  static List<Map<String, dynamic>> _encodeZone(Map<CardRef, int> zone) =>
+      zone.entries.map((e) => {
+        ...e.key.toJson(),
+        'count': e.value,
+      }).toList();
+
+  static Map<CardRef, int> _decodeZone(List<dynamic> list) => {
+    for (final e in list.cast<Map<String, dynamic>>())
+      CardRef.fromJson(e): e['count'] as int,
+  };
+}
+
+class CardRef {
+  CardRef({
+    required this.id,
+    required this.cardName,
+    this.type,
+    this.frameType,
+    this.imgUrl
+  });
+
+  int id;
+  String cardName;
+  String? type;
+  String? frameType;
+  Uri? imgUrl;
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'cardName': cardName,
+    'type': type,
+    'frameType': frameType,
+    'imgUrl': imgUrl?.toString(),
+  };
+
+  factory CardRef.fromJson(Map<String, dynamic> json) => CardRef(
+    id:        json['id'] as int,
+    cardName:  json['cardName'] as String,
+    type:      json['type'] as String?,
+    frameType: json['frameType'] as String?,
+    imgUrl:    json['imgUrl'] != null ? Uri.tryParse(json['imgUrl'] as String) : null,
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      other is CardRef &&
+          other.id == id;
+
+  @override
+  int get hashCode => id.hashCode;
+}
+
+Future<Decklist> parseYdkFile(String ydkContent) async {
+  CardsApiManagerService cardsApiManagerService = GetIt.instance<CardsApiManagerService>();
+  final lines = ydkContent.split('\n');
+
+  DecklistArea currentZone = DecklistArea.main;
+  final Decklist list = Decklist();
+  Map<int, CardRef> processed = {};
+
+  for (final raw in lines) {
+    final line = raw.trim();
+
+    if (line.isEmpty) continue;
+
+    if (line == '#main')  { currentZone = DecklistArea.main;  continue; }
+    if (line == '#extra') { currentZone = DecklistArea.extra; continue; }
+    if (line == '!side')  { currentZone = DecklistArea.side;  continue; }
+
+    // anything starting with # or ! that isn't a known section → skip
+    if (line.startsWith('#')) continue;
+    if (line.startsWith('!')) continue;
+
+    final id = int.tryParse(line);
+    if (id == null) continue;
+    String cardName;
+    String type;
+    String frameType;
+    String cardImg;
+    if(processed[id] == null){
+      dynamic info = await cardsApiManagerService.getCardInfo(id);
+      cardName = info[0]["name"];
+      type = info[0]["type"];
+      frameType = info[0]["frameType"];
+      cardImg = info[0]["card_images"][0]["image_url_cropped"];
+      processed[id] = CardRef(
+        id: id,
+        cardName: cardName,
+        type: type,
+        frameType: frameType,
+        imgUrl: Uri.parse(cardImg),
+      );
+    }
+    list.addCardRef(processed[id]!, currentZone);
+
+  }
+
+  return list;
 }
