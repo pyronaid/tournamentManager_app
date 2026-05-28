@@ -66,15 +66,22 @@ class TournamentRankingsModel extends ChangeNotifier {
   // a stale snapshot from the constructor. Now delegated + listener added.
   // ---------------------------------------------------------------------------
   void _onTournamentChanged() {
-    // Forward unconditionally — cheap and correct for local mutations.
-    notifyListeners();
-
-    // Guard the expensive paging refresh behind the updatedRounds timestamp.
+    final newLoading = tournamentModel.isLoading;
     final newUpdatedRounds = tournamentModel.updatedRounds;
+    var shouldNotify = false;
+
     if (_lastKnownUpdatedRounds != newUpdatedRounds) {
       _lastKnownUpdatedRounds = newUpdatedRounds;
       _pagingController.refresh();
+      shouldNotify = true;
     }
+
+    if (_lastKnownLoading != newLoading) {
+      _lastKnownLoading = newLoading;
+      shouldNotify = true;
+    }
+
+    if (shouldNotify) notifyListeners();    
   }
 
   // ---------------------------------------------------------------------------
