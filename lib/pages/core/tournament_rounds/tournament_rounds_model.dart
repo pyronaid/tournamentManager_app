@@ -53,19 +53,22 @@ class TournamentRoundsModel extends ChangeNotifier {
   }
 
   void _onTournamentChanged() {
-    // Always forward — TournamentModel only notifies when something genuinely
-    // changed, so forwarding unconditionally is both correct and cheap.
-    // This ensures local mutations (state changes, toggles) propagate
-    // immediately without waiting for a backend round-trip.
-    notifyListeners();
-
-    // Guard the expensive paging refresh behind the updatedRounds timestamp.
-    // Only refresh when rounds data actually changed on the backend.
+    final newLoading = tournamentModel.isLoading;
     final newUpdatedRounds = tournamentModel.updatedRounds;
+    var shouldNotify = false;
+
     if (_lastKnownUpdatedRounds != newUpdatedRounds) {
       _lastKnownUpdatedRounds = newUpdatedRounds;
       _pagingController.refresh();
+      shouldNotify = true;
     }
+
+    if (_lastKnownLoading != newLoading) {
+      _lastKnownLoading = newLoading;
+      shouldNotify = true;
+    }
+
+    if (shouldNotify) notifyListeners();    
   }
 
   /////////////////////////////GETTER
