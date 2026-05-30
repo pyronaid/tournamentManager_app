@@ -24,6 +24,7 @@ class TournamentRankingsModel extends ChangeNotifier {
   // isLoading is forwarded unconditionally — see _onTournamentChanged.
   // ---------------------------------------------------------------------------
   DateTime? _lastKnownUpdatedRounds;
+  bool _lastKnownLoading;
 
   // ---------------------------------------------------------------------------
   // SEARCH
@@ -35,7 +36,9 @@ class TournamentRankingsModel extends ChangeNotifier {
   String _currentFilter = '';
 
   /////////////////////////////CONSTRUCTOR
-  TournamentRankingsModel({required this.tournamentModel, required this.roundId}) {
+  TournamentRankingsModel({required this.tournamentModel, required this.roundId}) :
+      _lastKnownLoading = tournamentModel.isLoading,
+      _lastKnownUpdatedRounds = tournamentModel.updatedRounds {
     _lastKnownUpdatedRounds = tournamentModel.updatedRounds;
 
     _pagingController = PagingController(

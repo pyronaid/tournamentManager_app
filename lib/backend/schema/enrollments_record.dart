@@ -1,15 +1,18 @@
 import 'dart:async';
+import 'dart:typed_data' as td;
+import 'dart:ui' as ui;
 
 import 'package:collection/collection.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:pocketbase/pocketbase.dart';
 import 'package:tournamentmanager/backend/schema/util/firestore_util.dart';
 import 'package:tournamentmanager/backend/schema/util/pocketbase_util.dart';
 import 'package:tournamentmanager/backend/schema/util/schema_util.dart';
+import 'package:ygoprodeck_api/ygoprodeck_api.dart';
 import 'package:tuple/tuple.dart';
 
-import '../../app_flow/services/CardsApiManagerService.dart';
 
 class EnrollmentsRecord extends PocketstoreRecord {
   static const String collectionNameExt = "enrollments_extended";
@@ -19,8 +22,10 @@ class EnrollmentsRecord extends PocketstoreRecord {
   static const String idUserFieldName = 'id_user';
   static const String listKindFieldName = 'listKind';
   static const String decklistFieldName = 'decklist';
+  static const String decklistImageFieldName = 'decklistImage';
   static const String createdFieldName = 'created';
   static const String updatedFieldName = 'updated';
+  static const String collectionIdSourceFieldName = 'collectionIdSource';
   static const String collectionIdFieldName = 'collectionId';
   static const String collectionNameFieldName = 'collectionName';
 
@@ -62,6 +67,16 @@ class EnrollmentsRecord extends PocketstoreRecord {
   late Decklist? _decklist;
   Decklist? get decklist => _decklist;
   bool hasDecklist() => _decklist != null;
+
+  late String? _decklistImage;
+  String? get decklistImage => _decklistImage;
+  Future<void> setImage(PocketBase pb, {required List<MultipartFile> files}) async {
+    for(MultipartFile file in files) {
+      _decklistImage = getFileUrl(snapshotData[extFlag ? collectionIdSourceFieldName : collectionIdFieldName], snapshotData[idFieldName], file.filename);
+      await updateFiles(pb, uid, files: [file]);
+    }
+  }
+  bool hasDecklistImage() => _decklistImage != null;
 
   // ignore: unused_field
   late String _collectionId;
@@ -111,6 +126,7 @@ class EnrollmentsRecord extends PocketstoreRecord {
     _createdTime = tryParseDate(snapshotData[createdFieldName])!;
     _updatedTime = tryParseDate(snapshotData[updatedFieldName])!;
     _decklist = convertJsonDecklist(snapshotData[decklistFieldName]);
+    _decklistImage = getFileUrl(snapshotData[extFlag ? collectionIdSourceFieldName : collectionIdFieldName], snapshotData[idFieldName], snapshotData[decklistImageFieldName]);
     _collectionId = snapshotData[collectionIdFieldName];
     _collectionName = snapshotData[collectionNameFieldName];
   }
@@ -219,7 +235,15 @@ class EnrollmentsRecord extends PocketstoreRecord {
       files: files??[],
     );
   }
-
+  static Future<void> updateFiles(PocketBase pb, String id, {required List<MultipartFile> files}) async {
+    try {
+      await pb.collection(collectionName).update(id,
+        files: files,
+      );
+    } catch (e) {
+      print("Failed to update field: $e");
+    }
+  }
   static Future<void> updateField(PocketBase pb, String id, String fieldName, dynamic newValue, {List<MultipartFile>? files}) async {
     try {
       await pb.collection(collectionName).update(id,
@@ -301,6 +325,7 @@ class EnrollmentsRecordDocumentEquality implements Equality<EnrollmentsRecord> {
         e1?.uid == e2?.uid &&
         e1?.userId == e2?.userId &&
         e1?.decklist == e2?.decklist &&
+        e1?.decklistImage == e2?.decklistImage &&
         e1?.listKind == e2?.listKind;
   }
 
@@ -310,6 +335,7 @@ class EnrollmentsRecordDocumentEquality implements Equality<EnrollmentsRecord> {
     e?.uid,
     e?.userId,
     e?.decklist,
+    e?.decklistImage,
     e?.listKind
   ]);
 
@@ -381,7 +407,12 @@ enum RegistrationStatus {
 }
 
 enum DecklistArea {
-  main,side,extra
+  main(10),
+  side(15),
+  extra(15);
+
+  final int columnSize;
+  const DecklistArea(this.columnSize);
 }
 
 extension CardTypeX on CardType {
@@ -405,6 +436,16 @@ enum CardType {
   final Color inner;
 
   const CardType(this.outer, this.inner);
+}
+
+class DecklistAndImage {
+  Decklist list;
+  td.Uint8List img;
+
+  DecklistAndImage({
+    required this.list,
+    required this.img,
+  });
 }
 
 class Decklist {
@@ -513,50 +554,222 @@ class CardRef {
   int get hashCode => id.hashCode;
 }
 
-Future<Decklist> parseYdkFile(String ydkContent) async {
-  CardsApiManagerService cardsApiManagerService = GetIt.instance<CardsApiManagerService>();
+Future<DecklistAndImage> parseYdkFile(String ydkContent, int baseTileSize) async {
+  final sw = Stopwatch()..start();
+  //final CardsApiManagerService api = GetIt.instance<CardsApiManagerService>();
+  final api = YgoProDeckClient(showDebugLogs: true);
   final lines = ydkContent.split('\n');
 
+  // ── Pass 1: parse structure only (no I/O) ──────────────────────────────
+  // Build the ordered sequence of (id, zone) and the set of unique IDs
+  // that need to be fetched.
+  final List<({int id, DecklistArea zone})> entries = [];
+  final Set<int> uniqueIds = {};
   DecklistArea currentZone = DecklistArea.main;
-  final Decklist list = Decklist();
-  Map<int, CardRef> processed = {};
 
   for (final raw in lines) {
     final line = raw.trim();
-
     if (line.isEmpty) continue;
 
     if (line == '#main')  { currentZone = DecklistArea.main;  continue; }
     if (line == '#extra') { currentZone = DecklistArea.extra; continue; }
     if (line == '!side')  { currentZone = DecklistArea.side;  continue; }
-
     // anything starting with # or ! that isn't a known section → skip
-    if (line.startsWith('#')) continue;
-    if (line.startsWith('!')) continue;
+    if (line.startsWith('#') || line.startsWith('!')) continue;
 
     final id = int.tryParse(line);
     if (id == null) continue;
-    String cardName;
-    String type;
-    String frameType;
-    String cardImg;
-    if(processed[id] == null){
-      dynamic info = await cardsApiManagerService.getCardInfo(id);
-      cardName = info[0]["name"];
-      type = info[0]["type"];
-      frameType = info[0]["frameType"];
-      cardImg = info[0]["card_images"][0]["image_url_cropped"];
-      processed[id] = CardRef(
-        id: id,
-        cardName: cardName,
-        type: type,
-        frameType: frameType,
-        imgUrl: Uri.parse(cardImg),
-      );
-    }
-    list.addCardRef(processed[id]!, currentZone);
 
+    entries.add((id: id, zone: currentZone));
+    uniqueIds.add(id);
   }
 
-  return list;
+  debugPrint('Pass 1 (parse): ${sw.elapsedMilliseconds}ms');
+  sw.reset();
+
+  // ── Pass 2: fetch all unique IDs in parallel ────────────────────────────
+  // Future.wait fires every request at once instead of one-at-a-time.
+  final CardInfoResponse info = await api.getCards(
+    query: CardInfoQuery(
+      id: uniqueIds.toList(),
+    ),
+  );
+  final List<CardRef> fetched = info.data.map<CardRef>((card){
+    return CardRef(
+      id: card.id,
+      cardName: card.name,
+      type: card.type,
+      frameType: card.frameType,
+      imgUrl: card.cardImages != null && card.cardImages!.isNotEmpty ? Uri.parse(card.cardImages!.first.imageUrlCropped!) : null,
+    );
+  }).toList();
+  debugPrint('Pass 2 (api and fetch): ${sw.elapsedMilliseconds}ms');
+  sw.reset();
+
+  final Map<int, ui.Image> imageCache = await _loadAll(fetched, baseTileSize);
+  debugPrint('Pass 3 (load images): ${sw.elapsedMilliseconds}ms');
+  sw.reset();
+  final Map<int, CardRef> cache = {
+    for (final ref in fetched) ref.id: ref,
+  };
+
+  // ── Pass 3: assemble the decklist in original order ─────────────────────
+  final Decklist decklist = Decklist();
+  for (final (:id, :zone) in entries) {
+    final ref = cache[id];
+    if (ref != null) decklist.addCardRef(ref, zone);
+  }
+  debugPrint('Pass 4 (create decklist): ${sw.elapsedMilliseconds}ms');
+  sw.reset();
+
+  final td.Uint8List png = await _render(
+      imageCache,
+      decklist,
+      baseTileSize.toDouble()
+  );
+  debugPrint('Pass 5 (create image): ${sw.elapsedMilliseconds}ms');
+  sw.reset();
+
+  // Release native-backed image memory now that the PNG bytes are ready.
+  for (final image in imageCache.values) {
+    image.dispose();
+  }
+  return DecklistAndImage(list: decklist, img: png);
+}
+
+Future<Map<int, ui.Image>> _loadAll(
+    List<CardRef> cards,
+    int baseTileSize,
+    ) async {
+  final entries = await Future.wait(
+    cards.map((card) async {
+      final image = card.imgUrl != null
+          ? await _loadImage(card.imgUrl!, baseTileSize)
+          : await _placeholder(baseTileSize);
+      return MapEntry(card.id, image);
+    }),
+  );
+
+  return Map.fromEntries(entries);
+}
+
+Future<ui.Image> _loadImage(Uri uri, int baseTileSize) async {
+  try {
+    final response = await http.get(uri);
+    if (response.statusCode != 200) return _placeholder(baseTileSize);
+    final codec = await ui.instantiateImageCodec(
+      response.bodyBytes,
+      targetWidth: baseTileSize,  // decode at tile width; height stays proportional
+    );
+    final frame = await codec.getNextFrame();
+    return frame.image;
+  } catch (_) {
+    return _placeholder(baseTileSize);
+  }
+}
+
+Future<ui.Image> _placeholder(int baseTileSize) async {
+  final size = baseTileSize;
+  final recorder = ui.PictureRecorder();
+  ui.Canvas(recorder).drawRect(
+    ui.Rect.fromLTWH(0, 0, size.toDouble(), size.toDouble()),
+    ui.Paint()..color = const ui.Color(0xFFBDBDBD),
+  );
+  final picture = recorder.endRecording();
+  return picture.toImage(size, size);
+}
+
+Future<td.Uint8List> _render(
+    Map<int, ui.Image> cacheImgMap,
+    Decklist list,
+    double baseTileSize,
+    ) async {
+  final recorder     = ui.PictureRecorder();
+  final canvas       = ui.Canvas(recorder);
+  final paint        = ui.Paint();
+  final separatorColor  = const ui.Color(0xFFCCCCCC);
+  final separatorHeight = 4.0;
+  final sideTileSize  = (DecklistArea.main.columnSize * baseTileSize) / DecklistArea.side.columnSize;
+  final extraTileSize = (DecklistArea.main.columnSize * baseTileSize) / DecklistArea.extra.columnSize;
+
+  double offsetY = 0;
+
+  // ── helper: draws one zone and advances offsetY ─────────────────────────
+  void drawZone(
+      Map<CardRef, int> zone,
+      int columns,
+      double tileSize,
+      ) {
+    int drawnCount = 0;
+    for (final entry in zone.entries) {
+      final ui.Image? img = cacheImgMap[entry.key.id];
+      if (img == null) continue;
+
+      // Center-crop: take the largest square from the middle of the image so
+      // portrait/landscape art is not stretched to fill the square tile.
+      final double w = img.width.toDouble();
+      final double h = img.height.toDouble();
+      final double cropSize = w < h ? w : h;
+      final ui.Rect srcRect = ui.Rect.fromLTWH(
+        (w - cropSize) / 2,
+        (h - cropSize) / 2,
+        cropSize,
+        cropSize,
+      );
+
+      for (int i = 0; i < entry.value; i++) {
+        final col = drawnCount % columns;
+        final row = drawnCount ~/ columns;
+
+        canvas.drawImageRect(
+          img,
+          srcRect,
+          ui.Rect.fromLTWH(
+            col * tileSize,
+            offsetY + row * tileSize,
+            tileSize,
+            tileSize,
+          ),
+          paint,
+        );
+        drawnCount++;
+      }
+    }
+
+    // Use the actual number of drawn cards so that skipped null-image cards
+    // do not inflate the zone height with phantom empty rows.
+    offsetY += (drawnCount / columns).ceil() * tileSize;
+  }
+
+  void drawSeparator() {
+    canvas.drawRect(
+      ui.Rect.fromLTWH(
+        0, offsetY,
+        DecklistArea.main.columnSize * baseTileSize,
+        separatorHeight,
+      ),
+      ui.Paint()..color = separatorColor,
+    );
+    offsetY += separatorHeight;
+  }
+
+  // ── draw the three zones ────────────────────────────────────────────────
+  drawZone(list.main,  DecklistArea.main.columnSize,  baseTileSize);
+  drawSeparator();
+  drawZone(list.side,  DecklistArea.side.columnSize,  sideTileSize);
+  drawSeparator();
+  drawZone(list.extra, DecklistArea.extra.columnSize, extraTileSize);
+
+  // offsetY now holds the exact total height — no separate calculation needed
+  final totalHeight = offsetY;
+
+  // ── encode to PNG ───────────────────────────────────────────────────────
+  final picture = recorder.endRecording();
+  final ui.Image img = await picture.toImage(
+    (DecklistArea.main.columnSize * baseTileSize).toInt(),
+    totalHeight.toInt(),
+  );
+  final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+  img.dispose();
+  return byteData!.buffer.asUint8List();
 }

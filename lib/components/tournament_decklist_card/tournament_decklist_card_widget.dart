@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/backend/schema/enrollments_record.dart';
-import 'package:tournamentmanager/backend/schema/rankings_record.dart';
 
 /// Displays a single ranking row: position, player name/username, and scores.
 class TournamentDecklistCardWidget extends StatelessWidget {
@@ -60,7 +59,7 @@ class TournamentDecklistCardWidget extends StatelessWidget {
                         softWrap: true,
                       ),
                       Text(
-                        '${cardRef.type} -- ${cardRef.frameType}',
+                        cardRef.type.toString(),
                         style: theme.bodySmall.override(color: inner),
                         softWrap: true,
                       ),

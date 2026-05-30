@@ -8,7 +8,6 @@ import 'package:uuid/uuid.dart';
 
 import '../../../app_flow/services/LoaderService.dart';
 import '../../../app_flow/services/SnackBarService.dart';
-import '../../../app_flow/services/supportClass/snackbar_style.dart';
 import '../../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 import '../../../backend/schema/enrollments_record.dart';
 import '../../../backend/schema/tournaments_record.dart';
@@ -49,10 +48,12 @@ class TournamentDecklistModel extends ChangeNotifier {
   // ENROLLMENT FUTURE
   // FIX: was a getter that created a new Future on every access, causing
   // FutureBuilder to re-fire the network call on every rebuild.
-  // Now a late final field — computed exactly once at construction and
-  // stable for the model's entire lifetime.
+  // Stored as a non-final field so it can be replaced on refresh — each new
+  // Future object has a distinct identity, which the Selector in the widget
+  // uses to detect that a rebuild (and a new FutureBuilder resolution) is
+  // needed.
   // ---------------------------------------------------------------------------
-  late final Future<EnrollmentCheckResult> enrollCheckFuture;
+  late Future<EnrollmentCheckResult> enrollCheckFuture;
 
 
   /////////////////////////////CONSTRUCTOR
@@ -112,21 +113,32 @@ class TournamentDecklistModel extends ChangeNotifier {
 
 
   ////////////////////////////SETTER
-  Future<void> onRefresh() async => notifyListeners();
-  Future<bool> manageFile(String path, EnrollmentCheckResult enrollmentCheckResult) async {
+
+  // Replaces enrollCheckFuture with a fresh network call so the FutureBuilder
+  // in the widget resolves up-to-date data, then notifies listeners so the
+  // Selector that watches the future triggers a rebuild.
+  Future<void> onRefresh() async {
+    enrollCheckFuture = _fetchEnrollmentCheck();
+    notifyListeners();
+  }
+
+  Future<bool> manageFile(String path, EnrollmentCheckResult enrollmentCheckResult, int baseTileSize) async {
     final executionId = const Uuid().v4();
     loaderService.showLoader(id: executionId);
     bool flag = false;
     try {
       File file = File(path);
       final String content = await file.readAsString();
-      final Decklist list = await parseYdkFile(content);
+      final DecklistAndImage list = await parseYdkFile(content, baseTileSize);
       tournamentModel.updateDecklist(pb, enrollmentId: enrollmentCheckResult.enrollments.first.uid, list: list);
       flag = true;
     } catch(e, _) {
       debugPrint("Errore da debuggare");
     } finally{
       loaderService.hideLoader(id: executionId);
+      // Refresh enrollment data (e.g. newly uploaded decklist) before
+      // notifying so the widget picks up the new future in the same frame.
+      enrollCheckFuture = _fetchEnrollmentCheck();
       notifyListeners();
     }
     return flag;
@@ -135,6 +147,10 @@ class TournamentDecklistModel extends ChangeNotifier {
     debugPrint("TODO manageCode");
     return false;
   }
+
+
+
+
   void switchShowMainCards() {
     _showMainCards = !_showMainCards;
     notifyListeners();

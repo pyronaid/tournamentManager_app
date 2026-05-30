@@ -28,17 +28,19 @@ class TournamentRoundsModel extends ChangeNotifier {
   static const _pageSize = 30;
 
   DateTime? _lastKnownUpdatedRounds;
+  bool _lastKnownLoading;
 
   late final List<RoundKind> _availablePages;
 
   /////////////////////////////CONSTRUCTOR
-  TournamentRoundsModel({required this.tournamentModel}){
+  TournamentRoundsModel({required this.tournamentModel}) :
+      _lastKnownLoading = tournamentModel.isLoading,
+      _lastKnownUpdatedRounds = tournamentModel.updatedRounds{
     loaderService = GetIt.instance<LoaderService>();
     snackBarService = GetIt.instance<SnackBarService>();
     _pocketbaseApiManagerService = GetIt.instance<PocketbaseApiManagerService>();
 
     _availablePages = _calculateAvailablePages();
-    _lastKnownUpdatedRounds = tournamentModel.updatedRounds;
 
     _pagingController = PagingController(
       getNextPageKey: (state) {

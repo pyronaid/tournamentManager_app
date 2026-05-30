@@ -164,11 +164,16 @@ class TournamentModel extends ChangeNotifier {
   }
   Future<bool> updateDecklist(PocketBase pb, {
     required String enrollmentId,
-    required Decklist list
+    required DecklistAndImage list
   }) async {
     bool flag = false;
     try{
-      await EnrollmentsRecord.updateField(pb, enrollmentId, EnrollmentsRecord.decklistFieldName, list.toJson());
+      MultipartFile file = MultipartFile.fromBytes(
+        EnrollmentsRecord.decklistImageFieldName, // field name in your PocketBase collection
+        list.img,
+        filename: 'decklistImage',
+      );
+      await EnrollmentsRecord.updateField(pb, enrollmentId, EnrollmentsRecord.decklistFieldName, list.list.toJson(), files: [file]);
       flag = true;
     } catch(e, _){
       debugPrint("Errore nel salvataggio della decklist $e");

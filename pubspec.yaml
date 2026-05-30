@@ -120,6 +120,7 @@ dependencies:
   tuple: ^2.0.2
   uuid: ^4.5.1
   url_launcher: ^6.3.1
+  ygoprodeck_api: ^0.1.1
 
 
 dev_dependencies:

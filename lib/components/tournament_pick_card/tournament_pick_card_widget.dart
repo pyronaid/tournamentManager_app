@@ -112,11 +112,10 @@ class TournamentPickCardWidget extends StatelessWidget {
                   ),
                 ),
                 // FIX: fixed width replaces 25.w.
-                if (tournamentRef.game.iconResource != null)
-                  _GameIcon(
-                    asset: tournamentRef.game.iconResource!,
-                    onTap: () => _navigateToDetail(context),
-                  ),
+                _GameIcon(
+                  asset: tournamentRef.game.iconResource,
+                  onTap: () => _navigateToDetail(context),
+                ),
               ],
             ),
           ),

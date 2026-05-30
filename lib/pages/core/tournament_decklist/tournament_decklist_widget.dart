@@ -8,6 +8,7 @@ import 'package:tournamentmanager/app_flow/app_flow_theme.dart';
 import 'package:tournamentmanager/components/tournament_decklist_card/tournament_decklist_card_widget.dart';
 import 'package:tournamentmanager/pages/core/tournament_decklist/tournament_decklist_model.dart';
 import 'package:tournamentmanager/backend/firebase_analytics/analytics.dart';
+import 'dart:ui' as ui;
 
 import '../../../app_flow/app_flow_widgets.dart';
 import '../../../app_flow/services/SnackBarService.dart';
@@ -36,6 +37,8 @@ abstract class _Dims {
   static const double sectionFooterRadius         = 20.0;
   static const double titlePaddingBottom          = 30.0;
   static const double titlePaddingTop             = 15.0;
+
+  static const int    baseTileSize                = 100;
 }
 
 // ---------------------------------------------------------------------------
@@ -110,18 +113,10 @@ class _TournamentDecklistWidgetState extends State<TournamentDecklistWidget> {
 
               if (isLoading) return const _LoadingBody();
 
-              // LayoutBuilder provides the real available height so child
-              // widgets can size themselves proportionally if needed.
-              return LayoutBuilder(
-                builder: (context, constraints) => SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  child: _DecklistForm(
-                    model: _model,
-                    formKey: _formKey,
-                    onSave: _handleSave,
-                    availableHeight: constraints.maxHeight,
-                  ),
-                ),
+              return _DecklistForm(
+                model: _model,
+                formKey: _formKey,
+                onSave: _handleSave,
               );
             },
           ),
@@ -153,83 +148,90 @@ class _DecklistForm extends StatelessWidget {
     required this.model,
     required this.formKey,
     required this.onSave,
-    required this.availableHeight,
   });
 
   final TournamentDecklistModel model;
   final GlobalKey<FormState> formKey;
   final VoidCallback onSave;
-  final double availableHeight;
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      // onRefresh must cause model.enrollCheckFuture to be reassigned so
-      // the FutureBuilder below picks up the refreshed value.
-      onRefresh: model.onRefresh,
-      child: FutureBuilder<EnrollmentCheckResult>(
-        future: model.enrollCheckFuture,
+    // Selector watches the Future object by identity.  When onRefresh() or
+    // manageFile() reassigns model.enrollCheckFuture, the Selector sees a
+    // new object (Dart Futures compare by reference) and rebuilds, handing
+    // the fresh Future to FutureBuilder so it re-resolves from the network.
+    return Selector<TournamentDecklistModel, Future<EnrollmentCheckResult>>(
+      selector: (_, m) => m.enrollCheckFuture,
+      builder: (_, future, __) => FutureBuilder<EnrollmentCheckResult>(
+        future: future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          final enrollResult = snapshot.data!;
-          if (enrollResult.isNotEnrolled) {
-            return NoContentCard(
-              type: NoContentType.enroll,
-              active: false,
-              phrase:
-              'Non sei iscritto a questo torneo e pertanto non puoi '
-                  'caricare una decklist. Se pensi sia un errore, contatta '
-                  "l'organizzatore.",
-            );
-          }
-
-          //The decklist area rebuild according to tournament state.
-          return Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: _Dims.fieldSpacing,),
-              _DecklistSection(enrollmnentCheckResult: enrollResult, model: model,),
-              SizedBox(height: _Dims.fieldSpacing,),
-              Selector<TournamentDecklistModel, StateTournament>(
-                selector: (_, m) => m.tournamentState,
-                builder: (_, state, ___) {
-                  if(state == StateTournament.close){
-                    return NoContentCard(
-                      type: NoContentType.enroll,
-                      active: false,
-                      phrase:
-                      'Non sei iscritto a questo torneo e pertanto non puoi '
-                          'caricare una decklist. Se pensi sia un errore, contatta '
-                          "l'organizzatore.",
-                    );
-                  } else if(state == StateTournament.ongoing){
-                    return const NoContentCard(
-                      type: NoContentType.ongoing,
-                      active: false,
-                      phrase:
-                      'Il torneo è già iniziato, non puoi più modificare '
-                          'la decklist.',
-                    );
-                  }
-
-                  return _SectionForm(
-                    formKey: formKey,
-                    onSave: onSave,
-                    model: model,
-                    enrollmentCheckResult: enrollResult
-                  );
-                },
-              ),
-            ],
+        final enrollResult = snapshot.data!;
+        if (enrollResult.isNotEnrolled) {
+          return NoContentCard(
+            type: NoContentType.enroll,
+            active: false,
+            phrase:
+            'Non sei iscritto a questo torneo e pertanto non puoi '
+                'caricare una decklist. Se pensi sia un errore, contatta '
+                "l'organizzatore.",
           );
-        },
-      ),
-    );
+        }
+
+        // ── Form / state message on top, decklist preview fills the rest ──
+        return Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: _Dims.fieldSpacing),
+            Selector<TournamentDecklistModel, StateTournament>(
+              selector: (_, m) => m.tournamentState,
+              builder: (_, state, ___) {
+                if (state == StateTournament.close) {
+                  return NoContentCard(
+                    type: NoContentType.enroll,
+                    active: false,
+                    phrase:
+                    'Non sei iscritto a questo torneo e pertanto non puoi '
+                        'caricare una decklist. Se pensi sia un errore, contatta '
+                        "l'organizzatore.",
+                  );
+                } else if (state == StateTournament.ongoing) {
+                  return const NoContentCard(
+                    type: NoContentType.ongoing,
+                    active: false,
+                    phrase:
+                    'Il torneo è già iniziato, non puoi più modificare '
+                        'la decklist.',
+                  );
+                }
+
+                return _SectionForm(
+                  formKey: formKey,
+                  onSave: onSave,
+                  model: model,
+                  enrollmentCheckResult: enrollResult,
+                );
+              },
+            ),
+            SizedBox(height: _Dims.fieldSpacing),
+            // _DecklistSection takes all the space left below the form.
+            Expanded(
+              child: _DecklistSection(
+                enrollmnentCheckResult: enrollResult,
+                model: model,
+                onRefresh: model.onRefresh,
+              ),
+            ),
+          ],
+        );       // Column
+      },         // FutureBuilder builder
+    ),           // FutureBuilder
+  );             // Selector
   }
 }
 
@@ -321,7 +323,7 @@ class _YdkFileField extends StatelessWidget {
       return;
     }
 
-    bool res = await model.manageFile(path, enrollmentCheckResult);
+    bool res = await model.manageFile(path, enrollmentCheckResult, _Dims.baseTileSize);
     if(!res){
       snackBarService.showSnackBar(
         message: 'Errore durante il caricamento del file. Riprova.',
@@ -472,21 +474,29 @@ class _YdkLinkField extends StatelessWidget {
 class _DecklistSection extends StatelessWidget {
   const _DecklistSection({
     required this.model,
-    required this.enrollmnentCheckResult
+    required this.enrollmnentCheckResult,
+    required this.onRefresh,
   });
 
   final EnrollmentCheckResult? enrollmnentCheckResult;
   final TournamentDecklistModel model;
+  final RefreshCallback onRefresh;
 
   @override
   Widget build(BuildContext context) {
+    final decklist = enrollmnentCheckResult != null &&
+            enrollmnentCheckResult!.enrollments.isNotEmpty
+        ? enrollmnentCheckResult!.enrollments.first.decklist
+        : null;
+
     return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(_Dims.pagePadding, 0, _Dims.pagePadding, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(
+          _Dims.pagePadding, 0, _Dims.pagePadding, 0),
       child: Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (enrollmnentCheckResult != null && enrollmnentCheckResult!.enrollments.isNotEmpty && enrollmnentCheckResult!.enrollments.first.decklist != null) ...[
+          if (decklist != null) ...[
             Padding(
               padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
               child: Text(
@@ -494,96 +504,102 @@ class _DecklistSection extends StatelessWidget {
                 style: CustomFlowTheme.of(context).bodyMedium,
               ),
             ),
-            Container(
-              width: double.infinity,
-              height: 500,
-              decoration: BoxDecoration(
-                color: CustomFlowTheme.of(context).secondaryBackground,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: CustomScrollView(
-                slivers: [
-                  // ── Main section ─────────────────────────────────────────────
-                  _SectionHeader(
-                    label: 'MAIN',
-                    backgroundColor: CustomFlowTheme.of(context).secondary,
-                    isExpanded: Selector<TournamentDecklistModel, bool>(
-                      selector: (_, m) => m.showMainCards,
-                      builder: (_, show, __) => _ToggleIcon(show: show),
-                    ),
-                    onToggle: model.switchShowMainCards,
+            // Expanded: the scroll view fills all vertical space left by the
+            // form section above it.
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: CustomFlowTheme.of(context).secondaryBackground,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: RefreshIndicator(
+                  onRefresh: onRefresh,
+                  child: CustomScrollView(
+                    slivers: [
+                      // ── Main ──────────────────────────────────────────────
+                      _SectionHeader(
+                        label: 'MAIN',
+                        backgroundColor: CustomFlowTheme.of(context).secondary,
+                        isExpanded: Selector<TournamentDecklistModel, bool>(
+                          selector: (_, m) => m.showMainCards,
+                          builder: (_, show, __) => _ToggleIcon(show: show),
+                        ),
+                        onToggle: model.switchShowMainCards,
+                      ),
+                      Selector<TournamentDecklistModel, bool>(
+                        selector: (_, m) => m.showMainCards,
+                        builder: (_, show, __) => show
+                            ? _DecklistSliverList(
+                                items: decklist.main.entries.toList(),
+                                listKey: 'main',
+                                emptyPhrase: 'Nessuna carta nel main deck.',
+                              )
+                            : const SliverToBoxAdapter(
+                                child: SizedBox.shrink()),
+                      ),
+
+                      /*
+                      SliverToBoxAdapter(
+                        child: _SectionFooter(color: CustomFlowTheme.of(context).secondary),
+                      ),*/
+
+                      // ── Side ──────────────────────────────────────────────
+                      _SectionHeader(
+                        label: 'SIDE',
+                        backgroundColor: CustomFlowTheme.of(context).secondary,
+                        isExpanded: Selector<TournamentDecklistModel, bool>(
+                          selector: (_, m) => m.showSideCards,
+                          builder: (_, show, __) => _ToggleIcon(show: show),
+                        ),
+                        onToggle: model.switchShowSideCards,
+                      ),
+                      Selector<TournamentDecklistModel, bool>(
+                        selector: (_, m) => m.showSideCards,
+                        builder: (_, show, __) => show
+                            ? _DecklistSliverList(
+                                items: decklist.side.entries.toList(),
+                                listKey: 'side',
+                                emptyPhrase: 'Nessuna carta nel side deck.',
+                              )
+                            : const SliverToBoxAdapter(
+                                child: SizedBox.shrink()),
+                      ),
+
+                      /*
+                      SliverToBoxAdapter(
+                        child: _SectionFooter(color: CustomFlowTheme.of(context).secondary),
+                      ),*/
+
+                      // ── Extra ─────────────────────────────────────────────
+                      _SectionHeader(
+                        label: 'EXTRA',
+                        backgroundColor: CustomFlowTheme.of(context).secondary,
+                        isExpanded: Selector<TournamentDecklistModel, bool>(
+                          selector: (_, m) => m.showExtraCards,
+                          builder: (_, show, __) => _ToggleIcon(show: show),
+                        ),
+                        onToggle: model.switchShowExtraCards,
+                      ),
+                      Selector<TournamentDecklistModel, bool>(
+                        selector: (_, m) => m.showExtraCards,
+                        builder: (_, show, __) => show
+                            ? _DecklistSliverList(
+                                items: decklist.extra.entries.toList(),
+                                listKey: 'extra',
+                                emptyPhrase: 'Nessuna carta nell\'extra deck.',
+                              )
+                            : const SliverToBoxAdapter(
+                                child: SizedBox.shrink()),
+                      ),
+
+                      /*
+                      SliverToBoxAdapter(
+                        child: _SectionFooter(color: CustomFlowTheme.of(context).secondary),
+                      ),*/
+                    ],
                   ),
-
-                  Selector<TournamentDecklistModel, bool>(
-                    selector: (_, m) => m.showMainCards,
-                    builder: (_, show, __) => show
-                        ? _DecklistSliverList(
-                      items: enrollmnentCheckResult!.enrollments.first.decklist!.main.entries.toList(),
-                      listKey: 'main',
-                      emptyPhrase: 'Nessuna carta nel main deck.',
-                    )
-                        : const SliverToBoxAdapter(child: SizedBox.shrink()),
-                  ),
-
-                  /*
-                  SliverToBoxAdapter(
-                    child: _SectionFooter(color: CustomFlowTheme.of(context).secondary),
-                  ),*/
-
-                  // ── Main section ─────────────────────────────────────────────
-                  _SectionHeader(
-                    label: 'SIDE',
-                    backgroundColor: CustomFlowTheme.of(context).secondary,
-                    isExpanded: Selector<TournamentDecklistModel, bool>(
-                      selector: (_, m) => m.showSideCards,
-                      builder: (_, show, __) => _ToggleIcon(show: show),
-                    ),
-                    onToggle: model.switchShowSideCards,
-                  ),
-
-                  Selector<TournamentDecklistModel, bool>(
-                    selector: (_, m) => m.showSideCards,
-                    builder: (_, show, __) => show
-                        ? _DecklistSliverList(
-                      items: enrollmnentCheckResult!.enrollments.first.decklist!.side.entries.toList(),
-                      listKey: 'main',
-                      emptyPhrase: 'Nessuna carta nel side deck.',
-                    )
-                        : const SliverToBoxAdapter(child: SizedBox.shrink()),
-                  ),
-
-                  /*
-                  SliverToBoxAdapter(
-                    child: _SectionFooter(color: CustomFlowTheme.of(context).secondary),
-                  ),*/
-
-                  // ── Main section ─────────────────────────────────────────────
-                  _SectionHeader(
-                    label: 'EXTRA',
-                    backgroundColor: CustomFlowTheme.of(context).secondary,
-                    isExpanded: Selector<TournamentDecklistModel, bool>(
-                      selector: (_, m) => m.showExtraCards,
-                      builder: (_, show, __) => _ToggleIcon(show: show),
-                    ),
-                    onToggle: model.switchShowExtraCards,
-                  ),
-
-                  Selector<TournamentDecklistModel, bool>(
-                    selector: (_, m) => m.showExtraCards,
-                    builder: (_, show, __) => show
-                        ? _DecklistSliverList(
-                      items: enrollmnentCheckResult!.enrollments.first.decklist!.extra.entries.toList(),
-                      listKey: 'main',
-                      emptyPhrase: 'Nessuna carta nell\'extra deck.',
-                    )
-                        : const SliverToBoxAdapter(child: SizedBox.shrink()),
-                  ),
-
-                  /*
-                  SliverToBoxAdapter(
-                    child: _SectionFooter(color: CustomFlowTheme.of(context).secondary),
-                  ),*/
-                ],
+                ),
               ),
             ),
           ] else ...[
@@ -621,7 +637,7 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      pinned: true,
+      pinned: false,
       snap: false,
       floating: false,
       expandedHeight: _Dims.sliverAppBarExpandedHeight,
@@ -742,4 +758,55 @@ class _DecklistSliverList extends StatelessWidget {
       ),
     );
   }
+}
+
+class ImageSection {
+  final List<ui.Image> images;
+  final int columns;
+  final double tileSize;
+
+  const ImageSection({
+    required this.images,
+    required this.columns,
+    required this.tileSize,
+  });
+
+  int get rows => (images.length / columns).ceil();
+  double get height => rows * tileSize;
+}
+
+class ImageCompositorConfig {
+  /// Width of each tile in the first (main) section.
+  final int baseTileSize;
+
+  /// Number of columns in the main section.
+  final int mainColumns;
+
+  /// Number of images in the main section (must be mainColumns * N rows).
+  final int mainCount; // 40
+
+  /// Number of images in each of the secondary sections.
+  final int secondaryCount; // 15
+
+  /// Separator height in pixels.
+  final double separatorHeight;
+
+  /// Separator color.
+  final ui.Color separatorColor;
+
+  const ImageCompositorConfig({
+    this.baseTileSize = 100,
+    this.mainColumns = 10,
+    this.mainCount = 40,
+    this.secondaryCount = 15,
+    this.separatorHeight = 4,
+    this.separatorColor = const ui.Color(0xFFCCCCCC),
+  });
+
+  /// The tile size for secondary sections, derived so their total width
+  /// matches the main section width exactly.
+  double get secondaryTileSize =>
+      (mainColumns * baseTileSize) / secondaryCount;
+
+  double get canvasWidth => (mainColumns * baseTileSize).toDouble();
 }
