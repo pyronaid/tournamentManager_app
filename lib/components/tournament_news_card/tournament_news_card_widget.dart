@@ -144,7 +144,7 @@ class _NewsImage extends StatelessWidget {
       },
       errorBuilder: (_, __, ___) => Icon(
         Icons.error,
-        color: CustomFlowTheme.of(context).error,
+        color: theme.error,
         size: 18,
       ),
     );

@@ -484,9 +484,15 @@ class _DecklistSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = CustomFlowTheme.of(context);
     final decklist = enrollmnentCheckResult != null &&
             enrollmnentCheckResult!.enrollments.isNotEmpty
         ? enrollmnentCheckResult!.enrollments.first.decklist
+        : null;
+
+    final decklistImage = enrollmnentCheckResult != null &&
+        enrollmnentCheckResult!.enrollments.isNotEmpty
+        ? enrollmnentCheckResult!.enrollments.first.decklistImage
         : null;
 
     return Padding(
@@ -517,6 +523,11 @@ class _DecklistSection extends StatelessWidget {
                   onRefresh: onRefresh,
                   child: CustomScrollView(
                     slivers: [
+                      if (decklistImage != null) ...[
+                        const SliverToBoxAdapter(child: SizedBox(height: 10)),
+                        SliverToBoxAdapter(child: _DecklistImage(url: decklistImage, theme: theme)),
+                        const SliverToBoxAdapter(child: SizedBox(height: 10)),
+                      ],
                       // ── Main ──────────────────────────────────────────────
                       _SectionHeader(
                         label: 'MAIN',
@@ -688,35 +699,6 @@ class _ToggleIcon extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// SECTION FOOTER
-//
-// FIX: width: double.infinity removed from the inner SizedBox.
-//   DecoratedBox inside SliverToBoxAdapter already fills the sliver
-//   cross-axis — the explicit width on the child SizedBox had no effect.
-// ---------------------------------------------------------------------------
-
-class _SectionFooter extends StatelessWidget {
-  const _SectionFooter({required this.color});
-
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(_Dims.sectionFooterRadius),
-          bottomRight: Radius.circular(_Dims.sectionFooterRadius),
-        ),
-      ),
-      child: const SizedBox(height: _Dims.sectionFooterHeight),
-    );
-  }
-}
-
-
-// ---------------------------------------------------------------------------
 // TOURNAMENT SLIVER LIST
 // ---------------------------------------------------------------------------
 
@@ -760,53 +742,30 @@ class _DecklistSliverList extends StatelessWidget {
   }
 }
 
-class ImageSection {
-  final List<ui.Image> images;
-  final int columns;
-  final double tileSize;
+class _DecklistImage extends StatelessWidget {
+  const _DecklistImage({required this.url, required this.theme});
 
-  const ImageSection({
-    required this.images,
-    required this.columns,
-    required this.tileSize,
-  });
+  final String url;
+  final CustomFlowTheme theme;
 
-  int get rows => (images.length / columns).ceil();
-  double get height => rows * tileSize;
-}
-
-class ImageCompositorConfig {
-  /// Width of each tile in the first (main) section.
-  final int baseTileSize;
-
-  /// Number of columns in the main section.
-  final int mainColumns;
-
-  /// Number of images in the main section (must be mainColumns * N rows).
-  final int mainCount; // 40
-
-  /// Number of images in each of the secondary sections.
-  final int secondaryCount; // 15
-
-  /// Separator height in pixels.
-  final double separatorHeight;
-
-  /// Separator color.
-  final ui.Color separatorColor;
-
-  const ImageCompositorConfig({
-    this.baseTileSize = 100,
-    this.mainColumns = 10,
-    this.mainCount = 40,
-    this.secondaryCount = 15,
-    this.separatorHeight = 4,
-    this.separatorColor = const ui.Color(0xFFCCCCCC),
-  });
-
-  /// The tile size for secondary sections, derived so their total width
-  /// matches the main section width exactly.
-  double get secondaryTileSize =>
-      (mainColumns * baseTileSize) / secondaryCount;
-
-  double get canvasWidth => (mainColumns * baseTileSize).toDouble();
+  @override
+  Widget build(BuildContext context) {
+    return Image.network(
+      url,
+      loadingBuilder: (_, child, progress) {
+        if (progress == null) return child;
+        return CircularProgressIndicator(
+          value: progress.expectedTotalBytes != null
+              ? progress.cumulativeBytesLoaded /
+              progress.expectedTotalBytes!
+              : null,
+        );
+      },
+      errorBuilder: (_, __, ___) => Icon(
+        Icons.error,
+        color: theme.error,
+        size: 18,
+      ),
+    );
+  }
 }

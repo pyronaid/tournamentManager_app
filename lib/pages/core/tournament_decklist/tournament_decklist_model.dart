@@ -130,15 +130,15 @@ class TournamentDecklistModel extends ChangeNotifier {
       File file = File(path);
       final String content = await file.readAsString();
       final DecklistAndImage list = await parseYdkFile(content, baseTileSize);
-      tournamentModel.updateDecklist(pb, enrollmentId: enrollmentCheckResult.enrollments.first.uid, list: list);
-      flag = true;
+      flag = await tournamentModel.updateDecklist(pb, enrollmentId: enrollmentCheckResult.enrollments.first.uid, list: list);
     } catch(e, _) {
       debugPrint("Errore da debuggare");
     } finally{
-      loaderService.hideLoader(id: executionId);
       // Refresh enrollment data (e.g. newly uploaded decklist) before
       // notifying so the widget picks up the new future in the same frame.
       enrollCheckFuture = _fetchEnrollmentCheck();
+      await enrollCheckFuture;
+      loaderService.hideLoader(id: executionId);
       notifyListeners();
     }
     return flag;

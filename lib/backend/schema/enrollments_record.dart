@@ -639,18 +639,27 @@ Future<DecklistAndImage> parseYdkFile(String ydkContent, int baseTileSize) async
 
 Future<Map<int, ui.Image>> _loadAll(
     List<CardRef> cards,
-    int baseTileSize,
-    ) async {
-  final entries = await Future.wait(
-    cards.map((card) async {
-      final image = card.imgUrl != null
-          ? await _loadImage(card.imgUrl!, baseTileSize)
-          : await _placeholder(baseTileSize);
-      return MapEntry(card.id, image);
-    }),
-  );
+    int baseTileSize, {
+    int batchSize = 30,
+    }) async {
+  final Map<int, ui.Image> result = {};
 
-  return Map.fromEntries(entries);
+  for (int i = 0; i < cards.length; i += batchSize) {
+    final int end = i + batchSize < cards.length ? i + batchSize : cards.length;
+    final List<CardRef> batch = cards.sublist(i, end);
+
+    final entries = await Future.wait(
+      batch.map((card) async {
+        final image = card.imgUrl != null
+            ? await _loadImage(card.imgUrl!, baseTileSize)
+            : await _placeholder(baseTileSize);
+        return MapEntry(card.id, image);
+      }),
+    );
+    result.addEntries(entries);
+  }
+
+  return result;
 }
 
 Future<ui.Image> _loadImage(Uri uri, int baseTileSize) async {
