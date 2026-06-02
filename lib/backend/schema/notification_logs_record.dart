@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:tournamentmanager/app_flow/logger.dart';
 
 import 'package:collection/collection.dart';
 import 'package:http/http.dart';
@@ -161,7 +162,7 @@ class NotificationLogsRecord extends PocketstoreRecord {
               (s) => s.items.map(
                   (record) => NotificationLogsRecord.fromSnapshot(record)).toList()
       ).catchError(
-              (e) => print(e)
+              (e) => logDebug(e)
       );
   static Future<void> deleteNotificationLog(pb, String idNL) async {
     pb.collection(collectionName).delete(idNL);
@@ -182,7 +183,7 @@ class NotificationLogsRecord extends PocketstoreRecord {
         files: files ?? [],
       );
     } catch (e) {
-      print("Failed to update field: $e");
+      logDebug("Failed to update field: $e");
     }
   }
   static Future<void> updateFields(PocketBase pb, String id, Map<String, dynamic> dataToUpdate, {List<MultipartFile>? files}) async {
@@ -193,7 +194,7 @@ class NotificationLogsRecord extends PocketstoreRecord {
         files: files ?? [],
       );
     } catch (e) {
-      print("Failed to update fields: $e");
+      logDebug("Failed to update fields: $e");
       rethrow;
     }
   }

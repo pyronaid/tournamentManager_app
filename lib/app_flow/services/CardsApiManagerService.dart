@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:tournamentmanager/app_flow/logger.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -25,7 +26,7 @@ class CardsApiManagerService {
         throw Exception('Failed to load card info');
       }
     } catch(e){
-      print(e);
+      logDebug(e);
       throw Exception('Failed to load card info');
     }
     return cardInfo;

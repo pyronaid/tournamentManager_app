@@ -1,10 +1,12 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:tournamentmanager/app_flow/app_config.dart';
+import 'package:tournamentmanager/app_flow/logger.dart';
 
 class PocketbaseApiManagerService {
 
-  static const String baseUrl = "http://195.201.90.14:8080";
+  static const String baseUrl = AppConfig.pocketBaseBaseUrl;
   static const String registerTournamentEnrollmentAPI  = "/api/tournamentManager/enroll";
   static const String deleteTournamentEnrollmentAPI  = "/api/tournamentManager/delete";
   static const String gatherUserInfoForTournamentEnrollmentAPI  = "/api/tournamentManager/getUserInfo";
@@ -30,7 +32,7 @@ class PocketbaseApiManagerService {
 
   PocketbaseApiManagerService(){
     _client = http.Client();
-    print("[SERVICE CONSTRUCTOR] PocketbaseApiManagerService");
+    logDebug("[SERVICE CONSTRUCTOR] PocketbaseApiManagerService");
   }
 
 
@@ -43,7 +45,7 @@ class PocketbaseApiManagerService {
       final uri = _buildUri(endpoint, queryParameters);
       final requestHeaders = {..._defaultHeaders, ...?headers};
 
-      print('GET Request: $uri');
+      logDebug('GET Request: $uri');
 
       final response = await _client
           .get(uri, headers: requestHeaders)
@@ -68,8 +70,8 @@ class PocketbaseApiManagerService {
       final requestHeaders = {..._defaultHeaders, ...?headers};
       final encodedBody = body != null ? jsonEncode(body) : null;
 
-      print('POST Request: $uri');
-      print('Body: $encodedBody');
+      logDebug('POST Request: $uri');
+      logDebug('Body: $encodedBody');
 
       final response = await _client
           .post(uri, headers: requestHeaders, body: encodedBody)
@@ -92,7 +94,7 @@ class PocketbaseApiManagerService {
       final requestHeaders = {..._defaultHeaders, ...?headers};
       final encodedBody = body != null ? jsonEncode(body) : null;
 
-      print('PUT Request: $uri');
+      logDebug('PUT Request: $uri');
 
       final response = await _client
           .put(uri, headers: requestHeaders, body: encodedBody)
@@ -114,7 +116,7 @@ class PocketbaseApiManagerService {
       final uri = _buildUri(endpoint, queryParameters);
       final requestHeaders = {..._defaultHeaders, ...?headers};
 
-      print('DELETE Request: $uri');
+      logDebug('DELETE Request: $uri');
 
       final response = await _client
           .delete(uri, headers: requestHeaders)
@@ -139,8 +141,8 @@ class PocketbaseApiManagerService {
   }
 
   Map<String, dynamic> _handleResponse(http.Response response) {
-    print('Response Status: ${response.statusCode}');
-    print('Response Body: ${response.body}');
+    logDebug('Response Status: ${response.statusCode}');
+    logDebug('Response Body: ${response.body}');
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) {

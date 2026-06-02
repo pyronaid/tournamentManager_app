@@ -1,10 +1,11 @@
 import 'dart:io';
+import 'package:tournamentmanager/app_flow/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ExternalAppManagerService {
 
   ExternalAppManagerService(){
-    print("[SERVICE CONSTRUCTOR] ExternalAppManagerService");
+    logDebug("[SERVICE CONSTRUCTOR] ExternalAppManagerService");
   }
 
   //////////////////////////GETTER
@@ -32,7 +33,7 @@ class ExternalAppManagerService {
         throw 'Could not launch $url';
       }
     } catch (error) {
-      print("App for map not available");
+      logDebug("App for map not available");
     }
   }
 

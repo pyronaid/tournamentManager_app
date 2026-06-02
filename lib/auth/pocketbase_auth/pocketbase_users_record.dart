@@ -1,5 +1,6 @@
 
 import 'package:collection/collection.dart';
+import 'package:tournamentmanager/app_flow/logger.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:tournamentmanager/auth/base_auth_user_provider.dart';
 import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_auth_util.dart';
@@ -140,7 +141,7 @@ class PocketbaseUser extends BaseAuthUser {
     try {
       await pb.collection(collectionName).update(id, body: dataToUpdate);
     } catch (e) {
-      print("Failed to update fields: $e");
+      logDebug("Failed to update fields: $e");
     }
   }
 

@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:tournamentmanager/app_flow/logger.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pocketbase/pocketbase.dart';
@@ -39,7 +39,7 @@ class PocketbaseAuthManager {
       await _deviceTokenService.saveDeviceToken();
       return const Tuple2(true,null);
     } on ClientException catch (errorRef, e) {
-      debugPrint('[signInWithEmail] Login error: $e');
+      logDebug('[signInWithEmail] Login error: $e');
       var convertedMessage = "";
       if(errorRef.response.isNotEmpty && errorRef.response["message"] != null){
         switch(errorRef.response["message"]){
@@ -70,14 +70,14 @@ class PocketbaseAuthManager {
         _pb.authStore.save(authData.token, authData.record);
         return true;
       } catch (e){
-        print('Token validation failed: $e');
+        logDebug('Token validation failed: $e');
         await _secureStorage.delete(key: _tokenKey);
         await _deviceTokenService.removeDeviceToken();
         _pb.authStore.clear();
         return false;
       }
     } catch (e){
-      print('Error initializing auth: $e');
+      logDebug('Error initializing auth: $e');
       return false;
     }
   }
@@ -93,7 +93,7 @@ class PocketbaseAuthManager {
       await _pb.collection(userColl).requestOTP(email);
       return true;
     } catch (e) {
-      print('OTP request error: $e');
+      logDebug('OTP request error: $e');
       return false;
     }
   }
@@ -105,7 +105,7 @@ class PocketbaseAuthManager {
       await _deviceTokenService.saveDeviceToken();
       return true;
     } catch (e) {
-      print('OTP verification error: $e');
+      logDebug('OTP verification error: $e');
       return false;
     }
   }
@@ -120,7 +120,7 @@ class PocketbaseAuthManager {
       await _pb.collection(userColl).requestPasswordReset(email);
       return true;
     } catch (e) {
-      print('Password reset request error: $e');
+      logDebug('Password reset request error: $e');
       return false;
     }
   }
@@ -129,7 +129,7 @@ class PocketbaseAuthManager {
       await _pb.collection(userColl).confirmPasswordReset(token, password, passwordConfirm);
       return true;
     } catch (e) {
-      print('Password reset confirmation error: $e');
+      logDebug('Password reset confirmation error: $e');
       return false;
     }
   }
@@ -143,7 +143,7 @@ class PocketbaseAuthManager {
       await _pb.collection(userColl).requestEmailChange(newEmail);
       return true;
     } catch (e) {
-      print('Email update error: $e');
+      logDebug('Email update error: $e');
       return false;
     }
   }
@@ -152,7 +152,7 @@ class PocketbaseAuthManager {
       await _pb.collection(userColl).confirmEmailChange(token, password);
       return true;
     } catch (e) {
-      print('Password reset confirmation error: $e');
+      logDebug('Password reset confirmation error: $e');
       return false;
     }
   }
@@ -194,7 +194,7 @@ class PocketbaseAuthManager {
           title: 'Errore di registrazione utente',
           style: SnackbarStyle.error
       );
-      print('Account creation error: $e');
+      logDebug('Account creation error: $e');
       return const Tuple3(false, '', '');
     }
   }
@@ -203,7 +203,7 @@ class PocketbaseAuthManager {
       await _pb.collection(userColl).requestVerification(email);
       return true;
     } catch (e) {
-      print('Email verification request error: $e');
+      logDebug('Email verification request error: $e');
       return false;
     }
   }
@@ -212,7 +212,7 @@ class PocketbaseAuthManager {
       await _pb.collection(userColl).confirmVerification(token);
       return true;
     } catch (e) {
-      print('Email verification request error: $e');
+      logDebug('Email verification request error: $e');
       return false;
     }
   }
@@ -239,7 +239,7 @@ class PocketbaseAuthManager {
 
       return true;
     } catch (e) {
-      print('User deletion error: $e');
+      logDebug('User deletion error: $e');
       return false;
     }
   }
@@ -263,7 +263,7 @@ class PocketbaseAuthManager {
 
       return true;
     } catch (e) {
-      print('User refresh error: $e');
+      logDebug('User refresh error: $e');
       await signOut();
       return false;
     }
@@ -272,7 +272,7 @@ class PocketbaseAuthManager {
     try {
       return _pb.authStore.isValid;
     } catch (e) {
-      print('User validation check error: $e');
+      logDebug('User validation check error: $e');
       return false;
     }
   }

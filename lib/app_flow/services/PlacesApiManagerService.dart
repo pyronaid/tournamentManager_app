@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:tournamentmanager/app_flow/logger.dart';
 import 'dart:io';
 
 import 'package:cloud_functions/cloud_functions.dart';
@@ -47,7 +48,7 @@ class PlacesApiManagerService {
         throw Exception('Failed to load predictions');
       }
     } catch(e){
-      print(e);
+      logDebug(e);
     }
     return placeList;
   }
@@ -64,7 +65,7 @@ class PlacesApiManagerService {
         throw Exception('Failed to load predictions');
       }
     } catch(e){
-      print(e);
+      logDebug(e);
     }
     return formattedAddress;
   }
@@ -92,7 +93,7 @@ class PlacesApiManagerService {
         throw 'Could not launch $url';
       }
     } catch (error) {
-      print("App for map not available");
+      logDebug("App for map not available");
     }
   }
 

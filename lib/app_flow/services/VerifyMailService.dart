@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:tournamentmanager/app_flow/logger.dart';
 import '../../auth/pocketbase_auth/pocketbase_auth_util.dart';
 
 
@@ -7,7 +8,7 @@ class VerifyMailService {
   StreamController<bool>? _verificationController;
 
   VerifyMailService() {
-    print("[SERVICE CONSTRUCTOR] VerifyMailService");
+    logDebug("[SERVICE CONSTRUCTOR] VerifyMailService");
   }
 
   Future<bool> sendEmailVerification(String? email) async {
@@ -19,7 +20,7 @@ class VerifyMailService {
       await pocketAuthManager.sendEmailVerification(email);
       return true;
     } catch (e) {
-      print("[VerifyMailService] Failed to send verification email: $e");
+      logDebug("[VerifyMailService] Failed to send verification email: $e");
       rethrow; // Let caller handle the error
     }
   }

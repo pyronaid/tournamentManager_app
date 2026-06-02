@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'package:tournamentmanager/app_flow/logger.dart';
 
 import 'package:collection/collection.dart';
 import 'package:http/http.dart';
@@ -316,7 +317,7 @@ class TournamentsRecord extends PocketstoreRecord {
         files: files,
       );
     } catch (e) {
-      print("Failed to update field: $e");
+      logDebug("Failed to update field: $e");
     }
   }
   static Future<void> updateField(PocketBase pb, String id, String fieldName, dynamic newValue, {List<MultipartFile>? files}) async {
@@ -328,7 +329,7 @@ class TournamentsRecord extends PocketstoreRecord {
         files: files ?? [],
       );
     } catch (e) {
-      print("Failed to update field: $e");
+      logDebug("Failed to update field: $e");
     }
   }
   static Future<void> updateFields(PocketBase pb, String id, Map<String, dynamic> dataToUpdate, {List<MultipartFile>? files}) async {
@@ -338,7 +339,7 @@ class TournamentsRecord extends PocketstoreRecord {
         files: files ?? [],
       );
     } catch (e) {
-      print("Failed to update fields: $e");
+      logDebug("Failed to update fields: $e");
     }
   }
 

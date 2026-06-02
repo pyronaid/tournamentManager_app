@@ -1,10 +1,11 @@
 import 'package:image_cropper/image_cropper.dart';
+import 'package:tournamentmanager/app_flow/logger.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ImagePickerService{
 
   ImagePickerService(){
-    print("[SERVICE CONSTRUCTOR] ImagePickerService");
+    logDebug("[SERVICE CONSTRUCTOR] ImagePickerService");
   }
 
   Future<XFile?> pickCropImage({

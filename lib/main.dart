@@ -57,14 +57,27 @@ class _MyAppState extends State<MyApp> {
 
     _appStateNotifier = AppStateNotifier.instance;
     _router = RouteConfig.createRouter(_appStateNotifier);
-    pocketAuthManager.signInWithToken().then((success){
-      userStream = pocketbaseUserProvider.pocketbaseUserStream()..listen(
-         (user) => _appStateNotifier.update(user)
-      );
-    });
-    Future.delayed(
-      const Duration(milliseconds: 4000), () => _appStateNotifier.stopShowingSplashImage(),
-    );
+
+    _bootstrapAuth();
+  }
+
+  /// Restores a persisted session, then starts reacting to auth changes.
+  /// The splash is dismissed as soon as this resolves instead of after a
+  /// fixed delay, with an 8s safety timeout so a hung network call can't
+  /// trap the user on the splash screen.
+  Future<void> _bootstrapAuth() async {
+    try {
+      await pocketAuthManager.signInWithToken().timeout(
+            const Duration(seconds: 8),
+            onTimeout: () => false,
+          );
+    } finally {
+      if (mounted) {
+        userStream = pocketbaseUserProvider.pocketbaseUserStream()
+          ..listen((user) => _appStateNotifier.update(user));
+        _appStateNotifier.stopShowingSplashImage();
+      }
+    }
   }
 
   @override

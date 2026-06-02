@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:tournamentmanager/app_flow/logger.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tournamentmanager/auth/pocketbase_auth/pocketbase_auth_manager.dart';
@@ -25,7 +26,7 @@ class PocketbaseUserProvider{
         final pbUser = _pb.authStore.record;
         currentUser = PocketbaseUser.getDocumentFromData(pbUser != null ? pbUser.toJson() : {}, pbUser);
       } catch (e) {
-        print('Error emitting current user: $e');
+        logDebug('Error emitting current user: $e');
         // Ensure we emit something even on error
         currentUser = PocketbaseUser.getDocumentFromData({}, null);
       }
@@ -39,7 +40,7 @@ class PocketbaseUserProvider{
           userSubscription = _pb.collection(PocketbaseAuthManager.userColl)
               .subscribe(currentUser!.uid.toString(), (e) {
             if (e.action == 'update') {
-              print("########### An update in authStore is detected ");
+              logDebug("########### An update in authStore is detected ");
               // Check if verification status has changed (optional)
               final newUserData = e.record!.toJson();
               // Update current user with new data
@@ -55,19 +56,19 @@ class PocketbaseUserProvider{
               if (oldVerified != newVerified && newVerified) {
                 // User just got verified, refresh auth
                 _pb.collection(PocketbaseAuthManager.userColl).authRefresh()
-                    .catchError((err) => print('Error refreshing auth: $err'));
+                    .catchError((err) => logDebug('Error refreshing auth: $err'));
               }*/
             }
           }) as StreamSubscription;
         } catch (e) {
-          print('Error setting up user subscription: $e');
+          logDebug('Error setting up user subscription: $e');
         }
       }
     }
 
 
     final authSubscription = _pb.authStore.onChange.listen((AuthStoreEvent event) {
-      print("########### A change in authStore is detected ");
+      logDebug("########### A change in authStore is detected ");
       emitCurrentUser();
       setupUserSubscription();
     });

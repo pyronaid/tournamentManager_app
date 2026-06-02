@@ -1,11 +1,12 @@
 import 'package:tournamentmanager/app_flow/services/supportClass/loader_classes.dart';
+import 'package:tournamentmanager/app_flow/logger.dart';
 
 class LoaderService {
   late Function(LoaderRequest) _showLoaderListener;
   late Function(LoaderRequest) _hideLoaderListener;
 
   LoaderService(){
-    print("[SERVICE CONSTRUCTOR] LoaderService");
+    logDebug("[SERVICE CONSTRUCTOR] LoaderService");
   }
 
   /// Registers a callback function. Typically to show the dialog

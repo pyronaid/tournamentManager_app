@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:tournamentmanager/app_flow/logger.dart';
 
 import 'package:collection/collection.dart';
 import 'package:http/http.dart';
@@ -247,7 +248,7 @@ class PairingsRecord extends PocketstoreRecord {
               (s) => s.items.map(
                   (record) => PairingsRecord.fromSnapshot(record)).toList()
       ).catchError(
-              (e) => print(e)
+              (e) => logDebug(e)
       );
   static Future<void> deletePairing(pb, String idP) async {
     pb.collection(collectionName).delete(idP);
@@ -268,7 +269,7 @@ class PairingsRecord extends PocketstoreRecord {
         files: files ?? [],
       );
     } catch (e) {
-      print("Failed to update field: $e");
+      logDebug("Failed to update field: $e");
     }
   }
   static Future<void> updateFields(PocketBase pb, String id, Map<String, dynamic> dataToUpdate, {List<MultipartFile>? files}) async {
@@ -279,7 +280,7 @@ class PairingsRecord extends PocketstoreRecord {
         files: files ?? [],
       );
     } catch (e) {
-      print("Failed to update fields: $e");
+      logDebug("Failed to update fields: $e");
       rethrow;
     }
   }

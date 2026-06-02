@@ -1,10 +1,12 @@
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart';
 import 'package:timezone/standalone.dart';
+import 'package:tournamentmanager/app_flow/app_config.dart';
+import 'package:tournamentmanager/app_flow/logger.dart';
 
 import 'firebase_options.dart';
 
@@ -16,10 +18,19 @@ Future initFirebase() async {
 
   // Activate app check after initialization, but before
   // usage of any Firebase services.
+  //
+  // Debug providers (which give no real attestation) are used ONLY in
+  // debug/profile builds. Release builds use Play Integrity (Android) and
+  // App Attest with Device Check fallback (Apple). The reCAPTCHA v3 web key
+  // is injected at build time via --dart-define (see AppConfig).
   await FirebaseAppCheck.instance.activate(
-    providerAndroid: const AndroidDebugProvider(),
-    providerApple: const AppleDebugProvider(),
-    providerWeb: ReCaptchaV3Provider("kWebRecaptchaSiteKey"),
+    providerAndroid: kReleaseMode
+        ? const AndroidPlayIntegrityProvider()
+        : const AndroidDebugProvider(),
+    providerApple: kReleaseMode
+        ? const AppleAppAttestWithDeviceCheckFallbackProvider()
+        : const AppleDebugProvider(),
+    providerWeb: ReCaptchaV3Provider(AppConfig.recaptchaV3SiteKey),
   );
 
   final firebaseMessaging = FirebaseMessaging.instance;
@@ -30,7 +41,7 @@ Future initFirebase() async {
     provisional: false,
   );
   final fcmToken =  await firebaseMessaging.getToken();
-  debugPrint(" TOKEN: ${fcmToken ?? 'Token not available'}");
+  logDebug(" FCM token acquired: ${fcmToken != null}");
 
 
   final FlutterLocalNotificationsPlugin notificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -55,8 +66,8 @@ Future initFirebase() async {
       if (response.payload != null) {
         // ===== HANDLE FOREGROUND TAP =====
         // When user taps notification while app is in active
-        debugPrint("Notification tapped with app in foreground - navigating...");
-        debugPrint("Payload: ${response.data}");
+        logDebug("Notification tapped with app in foreground - navigating...");
+        logDebug("Payload: ${response.data}");
         //what happen when user tap on notification while app is in foreground
       }
     }, settings: initializationSettings,
@@ -84,8 +95,8 @@ Future initFirebase() async {
   // ===== HANDLE BACKGROUND TAP =====
   // When user taps notification while app is in background (not terminated)
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage mess){
-    debugPrint("Notification tapped with app in background - navigating...");
-    debugPrint("Payload: ${mess.data}");
+    logDebug("Notification tapped with app in background - navigating...");
+    logDebug("Payload: ${mess.data}");
     //what happen when user tap on notification while app is in background
   });
 
@@ -95,8 +106,8 @@ Future initFirebase() async {
   if (initialMessage != null) {
     // Small delay to ensure navigation is ready
     Future.delayed(const Duration(milliseconds: 300), () {
-      debugPrint("Notification tapped with app closed - navigating...");
-      debugPrint("Payload: ${initialMessage.data}");
+      logDebug("Notification tapped with app closed - navigating...");
+      logDebug("Payload: ${initialMessage.data}");
     });
   }
 
@@ -106,18 +117,18 @@ Future initFirebase() async {
 Future<void> handlerBackgroundMessage(RemoteMessage message) async {
   //await Firebase.initializeApp();
   if(message.notification != null) {
-    debugPrint(" handlerBackgroundMessage title: ${message.notification!.title}");
-    debugPrint(" handlerBackgroundMessage body: ${message.notification!.body}");
-    debugPrint(" handlerBackgroundMessage payload: ${message.data}");
+    logDebug(" handlerBackgroundMessage title: ${message.notification!.title}");
+    logDebug(" handlerBackgroundMessage body: ${message.notification!.body}");
+    logDebug(" handlerBackgroundMessage payload: ${message.data}");
   }
 }
 
 @pragma('vm:entry-point')
 Future<void> handlerForegroundMessage(RemoteMessage message, FlutterLocalNotificationsPlugin plugin) async {
   if(message.notification != null) {
-    debugPrint(" handlerForegroundMessage title: ${message.notification!.title}");
-    debugPrint(" handlerForegroundMessage body: ${message.notification!.body}");
-    debugPrint(" handlerForegroundMessage payload: ${message.data}");
+    logDebug(" handlerForegroundMessage title: ${message.notification!.title}");
+    logDebug(" handlerForegroundMessage body: ${message.notification!.body}");
+    logDebug(" handlerForegroundMessage payload: ${message.data}");
 
     await plugin.show(
       id: message.hashCode,
