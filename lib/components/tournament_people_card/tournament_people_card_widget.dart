@@ -12,6 +12,7 @@ class TournamentPeopleCardWidget extends StatelessWidget {
     required this.listType,
     required this.tournamentId,
     required this.editable,
+    required this.inpectable,
     required this.promote,
     required this.onDelete,   // ← callbacks bubble intent up
     required this.onPromote,
@@ -22,9 +23,14 @@ class TournamentPeopleCardWidget extends StatelessWidget {
   final ListType listType;
   final String tournamentId;
   final bool editable;
+  final bool inpectable;
   final bool promote;
   final VoidCallback onDelete;
   final VoidCallback onPromote;
+  
+  void _goToDecklist() {
+   /*ROUTING TO DECKLIST PAGE OF SPECIFIC USER*/
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,15 +68,50 @@ class TournamentPeopleCardWidget extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsetsDirectional.all(15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(enrollment.username,
-                    style: CustomFlowTheme.of(context).titleLarge),
-                Text('${enrollment.name} ${enrollment.surname}',
-                    style: CustomFlowTheme.of(context).titleMedium),
-                Text(enrollment.userId,
-                    style: CustomFlowTheme.of(context).bodySmall),
+                Flexible(
+                  flex: 8,
+                  fit: FlexFit.loose,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(enrollment.username,
+                          style: CustomFlowTheme.of(context).titleLarge),
+                      Text('${enrollment.name} ${enrollment.surname}',
+                          style: CustomFlowTheme.of(context).titleMedium),
+                      Text(enrollment.userId,
+                          style: CustomFlowTheme.of(context).bodySmall),
+                    ],
+                  ),
+                ),
+                if (inpectable) ...[
+                  Flexible(
+                    flex: 2,
+                    fit: FlexFit.tight,
+                    child: enrollment.decklist != null ?
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: Icon(
+                          Icons.open_in_new,
+                          color: theme.primaryText,
+                          size: 18.0,
+                          onPressed: _goToDecklist,
+                        )
+                      ): IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: Icon(
+                          Icons.x,
+                          color: theme.error,
+                          size: 18.0,
+                        ),
+                      ),
+                  ),
+                ],
               ],
             ),
           ),
