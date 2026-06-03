@@ -33,7 +33,7 @@ class TournamentRegisteredPeopleWidget extends StatelessWidget {
               }());
               return isLoading
                   ? const PeopleLoadingBody()
-                  : const PeopleBody<TournamentRegisteredPeopleModel>(config: _config,);
+                  : PeopleBody<TournamentRegisteredPeopleModel>(config: _config,);
             },
           ),
         ),
