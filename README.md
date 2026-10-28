@@ -127,44 +127,33 @@ refresh their paged lists when the matching timestamp changes.
 
 ## Getting started
 
-### Prerequisites
+👉 **Full step-by-step guide: [`docs/LOCAL_SETUP.md`](docs/LOCAL_SETUP.md)**: backend,
+admin user, test accounts, emulator networking, Firebase notes and troubleshooting.
 
-- Flutter SDK compatible with Dart `>=3.9.0`
-- A Firebase project (`flutterfire configure`) for App Check, FCM and the Places-key function
-- Go 1.24+ (or Docker) for the backend
-
-### 1. Run the backend
+Quick version (Android emulator):
 
 ```bash
+# 1. Backend: imports pb_schema.json on first start
 cd __pocketbase
-docker compose up -d --build        # PocketBase on :8080, schema imported on first boot
-# or
-go build -o extended-pocketbase . && ./extended-pocketbase serve --http=0.0.0.0:8080
-```
+go run . serve --http=0.0.0.0:8090
+go run . superuser upsert admin@example.com 'Admin12345!'   # in a second terminal
+#    → dashboard at http://localhost:8090/_/
 
-Create a superuser from the PocketBase admin UI (`/_/`). For production put it
-behind TLS — `Caddyfile` is a template, replace `your-domain.com`.
+# 2. Temporary edit (do not commit): point the SDK client to your machine
+#    lib/auth/pocketbase_auth/pocketbase_auth_util.dart
+#    final PocketBase pb = PocketBase('http://10.0.2.2:8090');
 
-### 2. Run the app
-
-```bash
+# 3. App
 flutter pub get
-flutter run \
-  --dart-define=POCKETBASE_BASE_URL=https://api.your-domain.com \
-  --dart-define=RECAPTCHA_V3_SITE_KEY=<web-only>
+flutter run --dart-define=POCKETBASE_BASE_URL=http://10.0.2.2:8090
 ```
 
-> ⚠️ At the moment the PocketBase SDK client in
-> `lib/auth/pocketbase_auth/pocketbase_auth_util.dart` is created with a
-> **hard-coded** URL, so `POCKETBASE_BASE_URL` only affects the custom-API client.
-> See `docs/CODE_REVIEW.md` (C-6).
+4. Sign up in the app, then in the dashboard tick **verified** (no SMTP locally) and
+   **organizer** (to create and manage tournaments) on that user.
 
-### 3. Firebase
-
-- `firebase deploy --only functions:getApiKeyFromSecret` with the secret `SECRET_PAK`
-  (Google Places key).
-- Release builds use Play Integrity / App Attest for App Check; register the
-  release signing certificates in the Firebase console.
+For production: put the backend behind TLS (`__pocketbase/Caddyfile` is a template),
+deploy `getApiKeyFromSecret` with the `SECRET_PAK` secret, and register the release
+signing certificates for App Check in the Firebase console.
 
 ---
 

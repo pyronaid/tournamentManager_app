@@ -154,6 +154,11 @@ transaction, or add a unique index on `rounds(id_tournament, roundIndex)`.
 `rounds`, `pairings` and `rankings` have no "created" migration. Pick one (preferably
 migrations, versioned with the code).
 
+A fresh install also **failed**: the import stopped with
+`no such table: main.tournament_with_stats`, because `enrollments_extended` was listed
+before the view it selects from. ✅ Fixed by moving `tournament_with_stats` before
+`enrollments_extended` in `pb_schema.json`, so a new database now imports cleanly.
+
 ### ⚪ B-13 Backend hygiene
 - Large blocks of copy-pasted code: the three identical hook triples in `hooks.go`; the repeated `ErrorResponse{...}` and log lines. Each function logs `START`/`END`/`ERROR` with the same message, so errors carry no cause.
 - Misleading comments, for example "take the last player in ranking" next to a query sorted by `-points` (that returns the first), and "Fisher-Yates with crypto/rand for reproducibility".
